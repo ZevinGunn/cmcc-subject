@@ -52,22 +52,13 @@
     <section v-if="showLoginPage" class="login-screen">
       <button v-if="activeUser" class="login-back" @click="showLogin = false">返回</button>
       <div class="login-brand">
-        <svg class="login-logo" viewBox="0 0 120 120" aria-hidden="true">
-          <path d="M23 58 58 23c12-12 31-12 43 0l7 7-9 9-7-7c-7-7-18-7-25 0L32 67 23 58Z" fill="#0986d3" />
-          <path d="M17 75 52 40c15-15 39-15 54 0l6 6-8 8-6-6c-11-11-28-11-39 0L25 83l-8-8Z" fill="#2aa0df" />
-          <path d="M18 43 53 78c12 12 31 12 43 0l7-7 9 9-7 7c-17 17-44 17-61 0L9 52l9-9Z" fill="#1f8ad5" />
-          <path d="M31 73 56 48c5-5 14-5 19 0l12 12 13-13 9 9-22 22-21-21c-1-1-2-1-3 0L40 81l-9-8Z" fill="#91c819" />
-          <path d="M17 27 52 62c16 16 42 16 58 0l1-1 8 8-1 1c-21 21-55 21-75 0L8 36l9-9Z" fill="#0c78c6" opacity=".92" />
-        </svg>
+        <img class="login-logo" :src="loginLogo" alt="" />
         <h1>欢迎登录 权益超市</h1>
       </div>
 
       <div class="login-form">
-        <label class="login-field">
-          <svg viewBox="0 0 36 36" aria-hidden="true">
-            <path d="M11 2h14a3 3 0 0 1 3 3v26a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm1 5v20h12V7H12Zm6 25a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" fill="currentColor" />
-            <path d="M15 22V15M19 22V10M23 22V13" stroke="#fff" stroke-width="2.3" stroke-linecap="round" />
-          </svg>
+        <label class="login-field login-phone-field">
+          <img class="login-field-icon" :src="loginPhoneIcon" alt="" />
           <input
             v-model="phone"
             type="tel"
@@ -78,11 +69,8 @@
             placeholder="请输入手机号"
           />
         </label>
-        <label class="login-field">
-          <svg viewBox="0 0 36 36" aria-hidden="true">
-            <path d="M10 16V11a8 8 0 0 1 16 0v5h-5v-5a3 3 0 0 0-6 0v5h-5Z" fill="currentColor" />
-            <path d="M7 15h22a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V18a3 3 0 0 1 3-3Zm11 9a3 3 0 0 0-1 5.83V32h2v-2.17A3 3 0 0 0 18 24Z" fill="currentColor" />
-          </svg>
+        <label class="login-field login-code-field">
+          <img class="login-field-icon" :src="loginLockIcon" alt="" />
           <input
             v-model="code"
             id="login_code"
@@ -166,35 +154,33 @@
       <section class="subscription-hero">
         <div class="subscription-hero-actions">
           <button @click="showLogin = true">切换账号</button>
-          <button @click="clearSubscriptionStorage">清缓存</button>
         </div>
         <div class="subscription-hero-main">
           <h1>已订业务</h1>
           <strong>{{ activeUser.user?.desensitizedPhoneNumber || activeUser.label }}</strong>
-          <span>{{ memberInfo?.lvName || memberInfo?.belongCity || "北京移动" }}</span>
+          <span>{{ memberInfo?.belongCity || memberInfo?.belongProvince || "北京移动" }}</span>
         </div>
-        <button class="subscription-search-button" @click="show('已展示登录返回的订购业务')">
-          <span aria-hidden="true"></span>
-          查询
-        </button>
+        <div class="subscription-hero-meta">
+          <article v-for="item in subscriptionMemberFacts" :key="item.label">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </article>
+        </div>
       </section>
 
       <section class="subscription-sheet">
         <div class="subscription-summary">
           <strong>业务列表</strong>
-          <span>{{ subscriptionProducts.length }} 项 · 点击 ? 查看全部字段</span>
+          <span>{{ subscriptionProducts.length }} 项</span>
         </div>
         <div class="subscription-list">
           <article v-for="item in subscriptionProducts" :key="item._key" class="subscription-row">
-            <div class="subscription-row-main">
-              <div class="subscription-title-line">
-                <h3>{{ productName(item) }}</h3>
-                <button class="question-button" title="查看详情" aria-label="查看业务详情" @click="openSubscriptionDetail(item)">?</button>
-              </div>
-              <p>订购时间：{{ formatCmccTime(item.CREATE_TIME || item.openTime) }}</p>
-              <p>有效期限：{{ formatCmccTime(item.EFF_TIME || item.effectBeginTime) }} 至 {{ formatCmccTime(item.EXP_TIME || item.effectEndTime) }}</p>
+            <div class="subscription-row-head">
+              <h3>{{ productName(item) }}</h3>
+              <button class="question-button" title="查看详情" aria-label="查看业务详情" @click="openSubscriptionDetail(item)">?</button>
             </div>
-            <button class="subscription-cancel-button" disabled>退订</button>
+            <p>订购时间：{{ formatCmccDateTime(item.CREATE_TIME || item.openTime) }}</p>
+            <p>有效期限：{{ subscriptionValidityText(item) }}</p>
           </article>
           <div v-if="!subscriptionProducts.length" class="empty">登录返回中暂无业务订购明细</div>
         </div>
@@ -755,18 +741,23 @@
       </section>
     </div>
 
-    <div v-if="subscriptionDialog" class="modal-mask subscription-mask" @click.self="subscriptionDialog = null">
+    <div v-if="subscriptionDialog" class="modal-mask subscription-mask" @click.self="closeSubscriptionDetail">
       <section class="subscription-detail-panel">
         <div class="subscription-detail-head">
           <h2>{{ productName(subscriptionDialog) }}</h2>
-          <button class="ghost" @click="subscriptionDialog = null">关闭</button>
+          <button class="subscription-close-button" @click="closeSubscriptionDetail" aria-label="关闭">×</button>
+        </div>
+        <div class="subscription-detail-tag">
+          <strong>业务详情</strong>
+          <span>产品策划 ID：{{ subscriptionDialog.OFFER_ID || subscriptionDialog.offerId || "-" }}</span>
         </div>
         <div class="subscription-detail-list">
-          <article v-for="entry in detailEntries(subscriptionDialog)" :key="entry.key">
-            <span>{{ entry.key }}</span>
-            <strong>{{ entry.value }}</strong>
+          <article v-for="field in subscriptionFieldRows(subscriptionDialog)" :key="field.label">
+            <span>{{ field.label }}</span>
+            <strong>{{ field.value }}</strong>
           </article>
         </div>
+        <button class="subscription-done-button" @click="closeSubscriptionDetail">我知道了</button>
       </section>
     </div>
 
@@ -783,6 +774,9 @@
 import JSZip from "jszip";
 import QRCode from "qrcode";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import loginLogo from "./assets/cmcc-login-logo.png";
+import loginLockIcon from "./assets/login-lock.png";
+import loginPhoneIcon from "./assets/login-phone.png";
 import {
   endpoints,
   getAccounts,
@@ -1067,7 +1061,26 @@ const plus99ExclusiveRights = computed(() => plus99Summary.value?.exclusive?.lis
 const memberInfo = computed(() => activeUser.value?.user?.memberInfo || null);
 const subscriptionProducts = computed(() => {
   const rows = Array.isArray(memberInfo.value?.userProductDetailList) ? memberInfo.value.userProductDetailList : [];
-  return rows.map((item, index) => ({ ...item, _key: `${item.OFFER_ID || item.offerId || "offer"}-${index}` }));
+  const groupedRows = subscriptionLevelRows(memberInfo.value);
+  const groupedMap = new Map(groupedRows.map((item) => [subscriptionIdentity(item), item]));
+  const mergedRows = rows.map((item) => ({ ...groupedMap.get(subscriptionIdentity(item)), ...item }));
+  const seen = new Set(mergedRows.map(subscriptionIdentity));
+  groupedRows.forEach((item) => {
+    const identity = subscriptionIdentity(item);
+    if (!seen.has(identity)) {
+      seen.add(identity);
+      mergedRows.push(item);
+    }
+  });
+  return mergedRows.map((item, index) => ({ ...item, _key: `${subscriptionIdentity(item)}-${index}` }));
+});
+const subscriptionMemberFacts = computed(() => {
+  const info = memberInfo.value || {};
+  return [
+    { label: "会员", value: info.lvName || "-" },
+    { label: "等级", value: [info.lvCode, info.cardStars ? `${info.cardStars}星` : ""].filter(Boolean).join(" / ") || "-" },
+    { label: "会员ID", value: info.memberId || "-" }
+  ];
 });
 
 const vLazy = {
@@ -1321,6 +1334,62 @@ function productName(item) {
   return item?.OFFER_NAME || item?.busiName || item?.offerName || item?.businessName || "未命名业务";
 }
 
+function subscriptionLevelRows(info) {
+  if (!Array.isArray(info?.memberLevelInfoVOList)) return [];
+  return info.memberLevelInfoVOList.flatMap((level) => {
+    const rows = Array.isArray(level?.userProductDetailList) ? level.userProductDetailList : [];
+    return rows.map((item) => ({
+      ...item,
+      _levelName: level.offerName || "",
+      _levelCode: level.levelCode ?? "",
+      _levelValue: level.levelValue ?? "",
+      _isGlobalLocalPlus: level.isGlobalLocalPlus ?? ""
+    }));
+  });
+}
+
+function subscriptionIdentity(item) {
+  return [
+    item?.OFFER_ID || item?.offerId || "",
+    item?.OFFER_NAME || item?.offerName || "",
+    item?.CREATE_TIME || item?.openTime || "",
+    item?.EFF_TIME || item?.effectBeginTime || "",
+    item?.EXP_TIME || item?.effectEndTime || ""
+  ].join("|");
+}
+
+function subscriptionFieldRows(item) {
+  const levelParts = [item?._levelCode, item?._levelValue].filter((value) => value != null && value !== "");
+  const rows = [
+    ["Offer ID", item?.OFFER_ID || item?.offerId],
+    ["类型", offerTypeText(item)],
+    ["状态", `${stateText(item?.STATE || item?.busiState)}（${item?.STATE || item?.busiState || "-"}）`],
+    ["订购时间", formatCmccTime(item?.CREATE_TIME || item?.openTime)],
+    ["生效时间", formatCmccTime(item?.EFF_TIME || item?.effectBeginTime)],
+    ["到期时间", formatCmccTime(item?.EXP_TIME || item?.effectEndTime)]
+  ];
+  if (item?._levelName) rows.push(["归属会员", item._levelName]);
+  if (levelParts.length) rows.push(["会员等级", levelParts.join(" / ")]);
+  return rows.map(([label, value]) => ({ label, value: value == null || value === "" ? "-" : String(value) }));
+}
+
+function openSubscriptionDetail(item) {
+  subscriptionDialog.value = item;
+}
+
+function closeSubscriptionDetail() {
+  subscriptionDialog.value = null;
+}
+
+function subscriptionValidityText(item) {
+  const begin = formatCmccDateTime(item?.EFF_TIME || item?.effectBeginTime);
+  const end = formatCmccDateTime(item?.EXP_TIME || item?.effectEndTime);
+  if (begin === "-" && end === "-") return "-";
+  if (end === "-") return `${begin} 起 生效`;
+  if (begin === "-") return end;
+  return `${begin} 至 ${end}`;
+}
+
 function formatCmccTime(value) {
   const text = String(value || "").trim();
   if (!text || text === "-") return "-";
@@ -1335,6 +1404,20 @@ function formatCmccTime(value) {
       return `${year}年${month}月${day}日 ${hour}:${minute}`;
     }
     return `${year}年${month}月${day}日`;
+  }
+  return text;
+}
+
+function formatCmccDateTime(value) {
+  const text = String(value || "").trim();
+  if (!text || text === "-") return "-";
+  const digits = text.replace(/\D/g, "");
+  if (digits.length >= 8) {
+    const date = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+    if (digits.length >= 14) {
+      return `${date} ${digits.slice(8, 10)}:${digits.slice(10, 12)}:${digits.slice(12, 14)}`;
+    }
+    return date;
   }
   return text;
 }
@@ -1354,70 +1437,6 @@ function stateText(state) {
 
 function offerTypeText(item) {
   return item?.OFFER_TYPE || item?.category || item?.busiType || "业务";
-}
-
-function openSubscriptionDetail(item) {
-  subscriptionDialog.value = item;
-}
-
-function clearSubscriptionStorage() {
-  sessionStorage.removeItem(rightsCacheKey());
-  show("缓存已清理");
-}
-
-function detailEntries(item) {
-  if (!item || typeof item !== "object") return [];
-  const hidden = new Set(["_key"]);
-  const preferred = [
-    "OFFER_NAME",
-    "OFFER_ID",
-    "OFFER_TYPE",
-    "STATE",
-    "CREATE_TIME",
-    "EFF_TIME",
-    "EXP_TIME",
-    "busiName",
-    "busiState",
-    "openTime",
-    "effectBeginTime",
-    "effectEndTime"
-  ];
-  const keys = [
-    ...preferred.filter((key) => Object.prototype.hasOwnProperty.call(item, key)),
-    ...Object.keys(item).filter((key) => !preferred.includes(key) && !hidden.has(key))
-  ];
-  return keys
-    .filter((key) => !hidden.has(key))
-    .map((key) => ({
-      key: detailLabel(key),
-      value: formatDetailValue(key, item[key])
-    }));
-}
-
-function detailLabel(key) {
-  const labels = {
-    OFFER_NAME: "业务名称",
-    OFFER_ID: "offerId",
-    OFFER_TYPE: "分类",
-    STATE: "状态",
-    CREATE_TIME: "订购时间",
-    EFF_TIME: "生效时间",
-    EXP_TIME: "到期时间",
-    busiName: "busiName",
-    busiState: "busiState",
-    openTime: "openTime",
-    effectBeginTime: "effectBeginTime",
-    effectEndTime: "effectEndTime"
-  };
-  return labels[key] || key;
-}
-
-function formatDetailValue(key, value) {
-  if (value == null || value === "") return "-";
-  if (/TIME$|Time$/.test(key)) return formatCmccTime(value);
-  if (key === "STATE" || key === "busiState") return `${stateText(value)}（${value}）`;
-  if (typeof value === "object") return JSON.stringify(value, null, 2);
-  return String(value);
 }
 
 function goMainPage() {
