@@ -48,7 +48,18 @@
 
       <BusinessTabs v-model="activeTab" />
 
-      <section v-if="loading && !items.length" class="empty">正在查询业务...</section>
+      <section v-if="loading" class="skeleton-list" aria-label="正在加载业务列表">
+        <article v-for="item in 3" :key="item" class="skeleton-card">
+          <span class="sk-line sk-title"></span>
+          <span class="sk-line sk-mid"></span>
+          <span class="sk-line sk-long"></span>
+          <span class="sk-line sk-mid"></span>
+          <div class="sk-actions">
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+      </section>
       <section v-else-if="!items.length" class="empty">当前分类暂无业务</section>
       <section v-else class="business-list">
         <BusinessItem
@@ -79,7 +90,7 @@
           <strong>{{ formatAccountPhone(account) }}</strong>
           <span>{{ account.userInfo?.brand || '账号缓存' }}</span>
         </button>
-        <button class="account-new" type="button" @click="$emit('logout')">登录新账号</button>
+        <button class="account-new" type="button" @click="$emit('login-new')">登录新账号</button>
       </div>
     </section>
 
@@ -123,7 +134,7 @@ import {
   switchAccount,
 } from '../stores/session'
 
-const emit = defineEmits(['logout'])
+const emit = defineEmits(['logout', 'login-new'])
 
 const activeTab = ref(sessionState.activeTab || 'valueAdded')
 const categories = ref(sessionState.businessCache?.categories || { base: [], package: [], valueAdded: [] })
@@ -267,7 +278,7 @@ async function confirmUnsubscribe(manualCode = '') {
     const result = data.result || {}
     const success = Boolean(result.success)
     const text = result.message || (success ? '退订成功' : '退订失败')
-    persistCache(result)
+    persistCache()
     pendingBusiness.value = null
     showMessage(text, success ? 'success' : 'error', success ? '退订成功' : '退订失败')
     await loadBusiness()
@@ -282,13 +293,6 @@ watch(activeTab, () => persistCache())
 watch(selectedMonth, () => persistCache())
 
 onMounted(() => {
-  if (sessionState.lastResult?.message) {
-    showMessage(
-      sessionState.lastResult.message,
-      sessionState.lastResult.success ? 'success' : 'error',
-      sessionState.lastResult.success ? '退订成功' : '退订失败',
-    )
-  }
   loadBusiness()
 })
 </script>

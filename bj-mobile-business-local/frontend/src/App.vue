@@ -1,6 +1,6 @@
 <template>
-  <LoginPage v-if="view === 'login'" @logged-in="onLoggedIn" />
-  <BusinessPage v-else @logout="onLogout" />
+  <LoginPage v-if="view === 'login'" :can-return="Boolean(sessionState.sessionId)" @back="onLoginBack" @logged-in="onLoggedIn" />
+  <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" />
 </template>
 
 <script setup>
@@ -26,6 +26,14 @@ function onLoggedIn(payload) {
 function onLogout() {
   clearSession()
   screen.value = 'login'
+}
+
+function onLoginNew() {
+  screen.value = 'login'
+}
+
+function onLoginBack() {
+  if (sessionState.sessionId) screen.value = 'business'
 }
 
 onMounted(async () => {
