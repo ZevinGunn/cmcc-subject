@@ -4,7 +4,8 @@
     :class="{
       'plus99-shell': isPlus99Page,
       'offer-order-shell': isOfferOrderPage,
-      'subscription-shell': isSubscriptionPage
+      'subscription-shell': isSubscriptionPage,
+      'login-shell': showLoginPage
     }"
   >
     <header class="topbar">
@@ -36,7 +37,7 @@
       <p>当前访问地址无效。如需使用，请联系管理员。</p>
     </section>
 
-    <section v-if="isPlus99Page" class="panel plus99-access-panel">
+    <section v-if="isPlus99Page && !showLoginPage" class="panel plus99-access-panel">
       <div class="panel-title">
         <h2>页面访问权限</h2>
         <span>{{ plus99AccessCode ? "已填写访问码" : "未设置访问码时可留空" }}</span>
@@ -48,17 +49,25 @@
       </div>
     </section>
 
-    <section v-if="isKnownPage && (!activeUser || showLogin)" class="panel login-card">
-      <div class="panel-title">
-        <h2>{{ activeUser ? "登录新手机号" : "登录" }}</h2>
-        <button v-if="activeUser" class="ghost" @click="showLogin = false">收起</button>
+    <section v-if="showLoginPage" class="login-screen">
+      <button v-if="activeUser" class="login-back" @click="showLogin = false">返回</button>
+      <div class="login-brand">
+        <svg class="login-logo" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M23 58 58 23c12-12 31-12 43 0l7 7-9 9-7-7c-7-7-18-7-25 0L32 67 23 58Z" fill="#0986d3" />
+          <path d="M17 75 52 40c15-15 39-15 54 0l6 6-8 8-6-6c-11-11-28-11-39 0L25 83l-8-8Z" fill="#2aa0df" />
+          <path d="M18 43 53 78c12 12 31 12 43 0l7-7 9 9-7 7c-17 17-44 17-61 0L9 52l9-9Z" fill="#1f8ad5" />
+          <path d="M31 73 56 48c5-5 14-5 19 0l12 12 13-13 9 9-22 22-21-21c-1-1-2-1-3 0L40 81l-9-8Z" fill="#91c819" />
+          <path d="M17 27 52 62c16 16 42 16 58 0l1-1 8 8-1 1c-21 21-55 21-75 0L8 36l9-9Z" fill="#0c78c6" opacity=".92" />
+        </svg>
+        <h1>欢迎登录 权益超市</h1>
       </div>
-      <div v-if="activeUser" class="relogin-tip">
-        当前账号失效或需要重新登录时，直接输入该手机号重新获取验证码登录即可，旧账号信息不会和其他账号串联。
-      </div>
-      <div class="login-grid">
-        <label>
-          <span>手机号</span>
+
+      <div class="login-form">
+        <label class="login-field">
+          <svg viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M11 2h14a3 3 0 0 1 3 3v26a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm1 5v20h12V7H12Zm6 25a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" fill="currentColor" />
+            <path d="M15 22V15M19 22V10M23 22V13" stroke="#fff" stroke-width="2.3" stroke-linecap="round" />
+          </svg>
           <input
             v-model="phone"
             type="tel"
@@ -66,11 +75,14 @@
             autocomplete="tel"
             pattern="[0-9]*"
             maxlength="11"
-            placeholder="北京移动手机号"
+            placeholder="请输入手机号"
           />
         </label>
-        <label>
-          <span>验证码</span>
+        <label class="login-field">
+          <svg viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M10 16V11a8 8 0 0 1 16 0v5h-5v-5a3 3 0 0 0-6 0v5h-5Z" fill="currentColor" />
+            <path d="M7 15h22a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V18a3 3 0 0 1 3-3Zm11 9a3 3 0 0 0-1 5.83V32h2v-2.17A3 3 0 0 0 18 24Z" fill="currentColor" />
+          </svg>
           <input
             v-model="code"
             id="login_code"
@@ -83,13 +95,13 @@
             required
             aria-label="短信验证码"
             maxlength="6"
-            placeholder="短信验证码"
+            placeholder="请输入验证码"
           />
+          <button class="login-code-button" type="button" @click="sendSms" :disabled="busy || smsCountdown > 0 || !canRequestSms">
+            {{ smsCountdown > 0 ? `${smsCountdown}s` : "获取验证码" }}
+          </button>
         </label>
-        <button @click="sendSms" :disabled="busy || smsCountdown > 0 || !canRequestSms">
-          {{ smsCountdown > 0 ? `${smsCountdown}s后重试` : "获取验证码" }}
-        </button>
-        <button class="primary" @click="login" :disabled="busy || !canLoginWithSms">登录</button>
+        <button class="login-submit" @click="login" :disabled="busy || !canLoginWithSms">登录</button>
       </div>
     </section>
 
@@ -151,35 +163,26 @@
     </section>
 
     <section v-if="activeUser && isSubscriptionPage" class="subscription-page">
-      <section class="panel subscription-user-card">
-        <div class="panel-title">
-          <h2>用户信息</h2>
-          <span>{{ subscriptionProducts.length }} 个订购业务</span>
+      <section class="subscription-hero">
+        <div class="subscription-hero-actions">
+          <button @click="showLogin = true">切换账号</button>
+          <button @click="clearSubscriptionStorage">清缓存</button>
         </div>
-        <div class="subscription-user-grid">
-          <article>
-            <span>手机号</span>
-            <strong>{{ activeUser.user?.desensitizedPhoneNumber || activeUser.label }}</strong>
-          </article>
-          <article>
-            <span>归属地</span>
-            <strong>{{ memberInfo?.belongProvince || "-" }} {{ memberInfo?.belongCity || "" }}</strong>
-          </article>
-          <article>
-            <span>会员等级</span>
-            <strong>{{ memberInfo?.lvName || "-" }}</strong>
-          </article>
-          <article>
-            <span>memberId</span>
-            <strong>{{ memberInfo?.memberId || "-" }}</strong>
-          </article>
+        <div class="subscription-hero-main">
+          <h1>已订业务</h1>
+          <strong>{{ activeUser.user?.desensitizedPhoneNumber || activeUser.label }}</strong>
+          <span>{{ memberInfo?.lvName || memberInfo?.belongCity || "北京移动" }}</span>
         </div>
+        <button class="subscription-search-button" @click="show('已展示登录返回的订购业务')">
+          <span aria-hidden="true"></span>
+          查询
+        </button>
       </section>
 
-      <section class="panel">
-        <div class="panel-title">
-          <h2>业务订购详情</h2>
-          <span>点击问号查看全部字段</span>
+      <section class="subscription-sheet">
+        <div class="subscription-summary">
+          <strong>业务列表</strong>
+          <span>{{ subscriptionProducts.length }} 项 · 点击 ? 查看全部字段</span>
         </div>
         <div class="subscription-list">
           <article v-for="item in subscriptionProducts" :key="item._key" class="subscription-row">
@@ -190,11 +193,8 @@
               </div>
               <p>订购时间：{{ formatCmccTime(item.CREATE_TIME || item.openTime) }}</p>
               <p>有效期限：{{ formatCmccTime(item.EFF_TIME || item.effectBeginTime) }} 至 {{ formatCmccTime(item.EXP_TIME || item.effectEndTime) }}</p>
-              <p class="subscription-meta">
-                <span>{{ offerTypeText(item) }}</span>
-                <span>{{ stateText(item.STATE || item.busiState) }}</span>
-              </p>
             </div>
+            <button class="subscription-cancel-button" disabled>退订</button>
           </article>
           <div v-if="!subscriptionProducts.length" class="empty">登录返回中暂无业务订购明细</div>
         </div>
@@ -1039,6 +1039,7 @@ const isPlus99Page = computed(() => pageMode.value === "plus99-new");
 const isOfferOrderPage = computed(() => pageMode.value === "offer-order");
 const isSubscriptionPage = computed(() => pageMode.value === "subscription-details");
 const isKnownPage = computed(() => isRightsPage.value || isPlus99Page.value || isOfferOrderPage.value || isSubscriptionPage.value);
+const showLoginPage = computed(() => isKnownPage.value && (!activeUser.value || showLogin.value));
 const pageTitle = computed(() => {
   if (isPlus99Page.value) return "99plus（新）权益领取";
   if (isOfferOrderPage.value) return "权益业务领取";
@@ -1359,6 +1360,11 @@ function openSubscriptionDetail(item) {
   subscriptionDialog.value = item;
 }
 
+function clearSubscriptionStorage() {
+  sessionStorage.removeItem(rightsCacheKey());
+  show("缓存已清理");
+}
+
 function detailEntries(item) {
   if (!item || typeof item !== "object") return [];
   const hidden = new Set(["_key"]);
@@ -1383,9 +1389,27 @@ function detailEntries(item) {
   return keys
     .filter((key) => !hidden.has(key))
     .map((key) => ({
-      key,
+      key: detailLabel(key),
       value: formatDetailValue(key, item[key])
     }));
+}
+
+function detailLabel(key) {
+  const labels = {
+    OFFER_NAME: "业务名称",
+    OFFER_ID: "offerId",
+    OFFER_TYPE: "分类",
+    STATE: "状态",
+    CREATE_TIME: "订购时间",
+    EFF_TIME: "生效时间",
+    EXP_TIME: "到期时间",
+    busiName: "busiName",
+    busiState: "busiState",
+    openTime: "openTime",
+    effectBeginTime: "effectBeginTime",
+    effectEndTime: "effectEndTime"
+  };
+  return labels[key] || key;
 }
 
 function formatDetailValue(key, value) {
