@@ -1,4 +1,202 @@
 {
-  "savedAt": 1782289200961,
-  "sessions": []
+  "savedAt": 1782530647448,
+  "sessions": [
+    {
+      "id": "139e1dce-eb4c-4d03-bafe-f7672157a387",
+      "jar": {
+        "version": "tough-cookie@5.1.2",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "CaptchaCode",
+            "value": "UEiYMu",
+            "domain": "10086.cn",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:05:37.161Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "sendflag",
+            "value": "20260627110627439872",
+            "domain": "10086.cn",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:01.216Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "cmccssotoken",
+            "value": "orGaZg2BOrAQ4VQDu62AvujgYK5fZy8NIl01Gd0XEAggaDhZRT3KIwmMfcehh+JH@.10086.cn",
+            "domain": "10086.cn",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.160Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "is_login",
+            "value": "true",
+            "domain": "10086.cn",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.161Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "defaultloginuser_p",
+            "value": "izr73fwOUuimT7R+YElqbvQdIEKrmWCpu49KY4pe7cglQnOlbxDN0nqcpR0yt5widFM35Cm3y3C+ek+3KUzXWSMTsRVyT13VInOal6sQlEY+dvBVErR/ksPv5W6XILGzNIChi3gihwmhVzzoGOae/dyOtTZovqXr7+ZAaPXBfEGNwSyqpJkEqg/LuT1QHsyO",
+            "expires": "2026-08-26T03:06:19.000Z",
+            "domain": "10086.cn",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.161Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "c",
+            "value": "orGaZg2BOrAQ4VQDu62AvujgYK5fZy8NIl01Gd0XEAggaDhZRT3KIwmMfcehh+JH",
+            "domain": "10086.cn",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.161Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "verifyCode",
+            "value": "b68d2dccf67be29c2221f38851d8358478d7f3c0",
+            "expires": "2026-07-27T03:06:19.000Z",
+            "domain": "10086.cn",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.161Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "BIGipServerg-nwt",
+            "value": "!JvE51z7vs1Z5oC29mhQDNdyVSPEHtD+tVHB9Mwothy70SamZPQlz37M/Oe9kQjwp2P4/GWZgDO4/q20=",
+            "domain": "service.bj.10086.cn",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.229Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "none"
+          },
+          {
+            "key": "2IdXRrI0ykRzO",
+            "value": "qatrB6EtjmdwGygVmvTp-hT0aRX2rxVSiqSt7RYuNAp7LlXbwHI23OqEtWntCX3ToYBTGsWbylDbzLE8ZXysdM5qFVoz4F2WJ9EO2L7I0tqI0",
+            "expires": "2027-08-01T03:06:24.000Z",
+            "domain": "service.bj.10086.cn",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.229Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "SESSION",
+            "value": "Mzk3MGNhZTAtODczOS00ZWUzLWI1YzQtZmRhYzU1YmZiNmI0",
+            "domain": "service.bj.10086.cn",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:19.559Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "2IdXRrI0ykRzP",
+            "value": "a2QDNUx1esrHvywnz8_zLOXYxLluS4ocn4pxqmO6KX9K0QQm-AtpmXw2vRwK9e6Q7tmn6oK8btIOEs9jKHdHfGmCtUX3Wye0vXgDZJ0pg4wXZ8L-fPyc7H7bHcvYRkgeS5bbG20RIMh3jOE4NqyiP3-cmdn0nM6KbKxRpcapTaig0zfTvWotVVacVP3y2QgzCXZmfsyOgMczvyYXw4Q0lyzE9UmvHmSBAz99FJ2-_zrgyumo18XFcmYfImq0jy7269vISlqEdAg-1Eoz1RoS2o20xRv856cqv-ixmxLhxK4nlewhMb5yJU9Gu8QlCy59Lt1BbXsarecIusqShrGL0CqVeMGaoxRxk-w3Y7RnCUf9Ikh4eqyAYsE8kJDlzLMcphLLHvXQbcI-Q0XqKOJSAIC36POJcuL5mA3zMxonTI2zaUeWhDxImQ-JbwgzyHSXNWLpfVc6AGpWgCGjyUL6TxG",
+            "expires": "2026-07-04T03:06:27.000Z",
+            "domain": "service.bj.10086.cn",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:28.259Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "WT_FPC",
+            "value": "id=27efba2dcc8fdf7420a1782529587671:lv=1782529587671:ss=1782529587671",
+            "expires": "2027-08-01T03:06:27.000Z",
+            "domain": "10086.cn",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-06-27T03:06:28.259Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z",
+            "sameSite": "lax"
+          },
+          {
+            "key": "artifact",
+            "value": "15210334812APP1782529589913",
+            "expires": "2026-06-27T03:36:29.000Z",
+            "maxAge": 1800,
+            "domain": "service.bj.10086.cn",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2026-06-27T03:06:29.682Z",
+            "lastAccessed": "2026-06-27T03:23:59.348Z"
+          }
+        ]
+      },
+      "smsToken": "74684816052936807693904426006506",
+      "artifact": "b06df91d8490433e967aef156265f205",
+      "assertAcceptURL": "https://service.bj.10086.cn/nwt/portal/checkLogin",
+      "accessToken": "eyJraWQiOiJ2eTdsaGY2aG5wMiIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJ0b3VjaFBob25lXzE1MjEwMzM0ODEyIiwiYXVkIjoiYXBwU3J2IiwibmJmIjoxNzgyNTI5NTc5LCJ1c2VyX2lkIjoidG91Y2hQaG9uZV8xNTIxMDMzNDgxMiIsInNjb3BlIjpbIm9wZW5pZCJdLCJpc3MiOiJodHRwczovL3NlcnZpY2UuYmouMTAwODYuY24vbnd0L254eS9zc28iLCJleHAiOjE3ODI1MzY3NzksImlhdCI6MTc4MjUyOTU3OX0.GnJ7wJBfe2Dw4DqbOaSGayBAHFpk0RnBEXEqeHri99SZWkO-r_olOYEXss1hjDbkPYGGXJmq8N8faF7q70g1_CIMchA9y66fo-ANRMFq0Dvo6Av9zNUfgIzoIKtOu-MpCdL9firPy4gQ6PNtUcoGXkCJjKGJU2CmSbzoEYuca-HLHFQLU1C5dzh-5yQEHpPfsBU_osew98cLU3W_sV8myPlurAVcczDFata9WvC_EFV9A87laP7p-p-s-TktrCAfAjKsYdoVhDrdLf65VAy3ym_sXTUaRgybdE6lTOIAtvvXt05AWZcodzolMg3rpB2c-_6X8dxh-66WXFrfQhpfFg",
+      "refreshToken": "I92Im6g3XSAo_UNiURwSSruOGBNP48rMe2_5Odv2du8J32iLwaO1mNEoFV7SgzCD29xdYVsJ2zDXw6-6V_3PckQIGsEGkkuT4CO-KGEPFgjbXv6QCBF-zt5XxQhZCegn",
+      "accessTokenExpireAt": 1782536778561,
+      "userInfo": {
+        "mobile": "15210334812",
+        "brand": "动感地带",
+        "raw": {
+          "mobile": "15210334812",
+          "name": "耿泽文",
+          "brand": "动感地带",
+          "password": null,
+          "user": null,
+          "hasVerified": false,
+          "balance": null,
+          "pointBalance": null,
+          "sessionId": null,
+          "uid": null,
+          "artifact": null,
+          "loginTime": null,
+          "hasRealName": null,
+          "userId": null,
+          "tokenMA10086": null,
+          "credentialNumber": null,
+          "credentialType": null
+        }
+      },
+      "portalKey": "bycIDLUSs1AUr1Si",
+      "dataToken": "Wr4wMLwNH2hgBEAGWZkqB/o221lXFy07n6IjsVRCM9j0eBfyozLK0HqBWROAwdQzcRI3x8e/TLIf6ievx/6+Sg==",
+      "replayVersion": 9,
+      "wafToken": "ap2fvJGAqWlVhK9L5BfUbSBbTVLWu2G4WD16lI41ZJ3qMwV6M5j255apNfSyk-YlLGnN9WdKhqgcAFMGe74zVwRjDsmMv2YyeqrS61XaNn6RwBD-B38wnOqeVbiSGjRyP2oSGfFPNbo2y855OVidluoQyacUGmGz_paC55WSF7_mqra7PJ8uF5xl_-6xfBZn-IUEkrE9VWBZPrrkgcFeHzM3oJVmnAkie8ISXGbmr5qxGRigzMgmx5GWLzcjdUimw3bq6eW1nvwo0",
+      "portalBusinessPageWarmed": true,
+      "portalBusinessPageStatus": 200,
+      "createdAt": 1782529536852,
+      "updatedAt": 1782530639345
+    }
+  ]
 }
