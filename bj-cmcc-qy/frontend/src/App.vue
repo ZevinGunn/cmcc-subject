@@ -151,35 +151,26 @@
     </section>
 
     <section v-if="activeUser && isSubscriptionPage" class="subscription-page">
-      <section class="panel subscription-user-card">
-        <div class="panel-title">
-          <h2>用户信息</h2>
-          <span>{{ subscriptionProducts.length }} 个订购业务</span>
+      <section class="subscription-hero">
+        <div class="subscription-hero-actions">
+          <button @click="showLogin = true">切换账号</button>
+          <button @click="clearSubscriptionStorage">清缓存</button>
         </div>
-        <div class="subscription-user-grid">
-          <article>
-            <span>手机号</span>
-            <strong>{{ activeUser.user?.desensitizedPhoneNumber || activeUser.label }}</strong>
-          </article>
-          <article>
-            <span>归属地</span>
-            <strong>{{ memberInfo?.belongProvince || "-" }} {{ memberInfo?.belongCity || "" }}</strong>
-          </article>
-          <article>
-            <span>会员等级</span>
-            <strong>{{ memberInfo?.lvName || "-" }}</strong>
-          </article>
-          <article>
-            <span>memberId</span>
-            <strong>{{ memberInfo?.memberId || "-" }}</strong>
-          </article>
+        <div class="subscription-hero-main">
+          <h1>已订业务</h1>
+          <strong>{{ activeUser.user?.desensitizedPhoneNumber || activeUser.label }}</strong>
+          <span>{{ memberInfo?.lvName || memberInfo?.belongCity || "北京移动" }}</span>
         </div>
+        <button class="subscription-search-button" @click="show('已展示登录返回的订购业务')">
+          <span aria-hidden="true"></span>
+          查询
+        </button>
       </section>
 
-      <section class="panel">
-        <div class="panel-title">
-          <h2>业务订购详情</h2>
-          <span>点击问号查看全部字段</span>
+      <section class="subscription-sheet">
+        <div class="subscription-summary">
+          <strong>业务列表</strong>
+          <span>{{ subscriptionProducts.length }} 项 · 点击 ? 查看全部字段</span>
         </div>
         <div class="subscription-list">
           <article v-for="item in subscriptionProducts" :key="item._key" class="subscription-row">
@@ -190,11 +181,8 @@
               </div>
               <p>订购时间：{{ formatCmccTime(item.CREATE_TIME || item.openTime) }}</p>
               <p>有效期限：{{ formatCmccTime(item.EFF_TIME || item.effectBeginTime) }} 至 {{ formatCmccTime(item.EXP_TIME || item.effectEndTime) }}</p>
-              <p class="subscription-meta">
-                <span>{{ offerTypeText(item) }}</span>
-                <span>{{ stateText(item.STATE || item.busiState) }}</span>
-              </p>
             </div>
+            <button class="subscription-cancel-button" disabled>退订</button>
           </article>
           <div v-if="!subscriptionProducts.length" class="empty">登录返回中暂无业务订购明细</div>
         </div>
@@ -1359,6 +1347,11 @@ function openSubscriptionDetail(item) {
   subscriptionDialog.value = item;
 }
 
+function clearSubscriptionStorage() {
+  sessionStorage.removeItem(rightsCacheKey());
+  show("缓存已清理");
+}
+
 function detailEntries(item) {
   if (!item || typeof item !== "object") return [];
   const hidden = new Set(["_key"]);
@@ -1383,9 +1376,27 @@ function detailEntries(item) {
   return keys
     .filter((key) => !hidden.has(key))
     .map((key) => ({
-      key,
+      key: detailLabel(key),
       value: formatDetailValue(key, item[key])
     }));
+}
+
+function detailLabel(key) {
+  const labels = {
+    OFFER_NAME: "业务名称",
+    OFFER_ID: "offerId",
+    OFFER_TYPE: "分类",
+    STATE: "状态",
+    CREATE_TIME: "订购时间",
+    EFF_TIME: "生效时间",
+    EXP_TIME: "到期时间",
+    busiName: "busiName",
+    busiState: "busiState",
+    openTime: "openTime",
+    effectBeginTime: "effectBeginTime",
+    effectEndTime: "effectEndTime"
+  };
+  return labels[key] || key;
 }
 
 function formatDetailValue(key, value) {
