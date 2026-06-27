@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 重新构建并重启某个项目
 # 用法：bash rebuild.sh <项目名>
-#   home / rights / arpu / qqtlocal / notice / qqt
+#   home / rights / arpu / qqtlocal / notice / qqt / bmcc
 #   或 all 全部重构
 set +e
 sep() { printf "\n\033[1;36m===== %s =====\033[0m\n" "$*"; }
@@ -20,6 +20,7 @@ if [ -z "$TARGET" ]; then
   home       - 重构 cookie-app（vite build + pm2 restart）
   rights     - 重构 bj-cmcc-qy（vite build + pm2 restart）
   qqt        - 重构 qqt（vite build + pm2 restart）
+  bmcc       - 重构北京移动业务查询退订（vite build + pm2 restart）
   arpu       - 只重启 arpu-proxy（无构建步骤）
   qqtlocal   - 只重启 qqtlocal（无构建步骤）
   notice     - 只重启 cmcc-notice（无构建步骤）
@@ -52,6 +53,14 @@ rebuild_qqt() {
   ok "qqt-backend 已重启"
 }
 
+rebuild_bmcc() {
+  sep "重构北京移动业务查询退订 (bmcc)"
+  cd "$HOME/CMCC-PROJECT/bj-mobile-business-local" || return 1
+  npm run build && ok "前端已构建"
+  "$PM2" restart bmcc-backend --update-env
+  ok "bmcc-backend 已重启"
+}
+
 restart_arpu() {
   sep "重启 arpu-proxy"
   "$PM2" restart arpu-proxy --update-env
@@ -69,6 +78,7 @@ case "$TARGET" in
   home) rebuild_home ;;
   rights) rebuild_rights ;;
   qqt) rebuild_qqt ;;
+  bmcc) rebuild_bmcc ;;
   arpu) restart_arpu ;;
   qqtlocal) restart_qqtlocal ;;
   notice) restart_notice ;;
@@ -76,6 +86,7 @@ case "$TARGET" in
     rebuild_home
     rebuild_rights
     rebuild_qqt
+    rebuild_bmcc
     restart_arpu
     restart_qqtlocal
     restart_notice

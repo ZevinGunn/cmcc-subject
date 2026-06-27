@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 启动 6 个业务后端，保留 project-manager 本身不重启
+# 启动业务后端，保留 project-manager 本身不重启
 set +e
 sep() { printf "\n\033[1;36m===== %s =====\033[0m\n" "$*"; }
 ok()  { printf "  \033[1;32m✓\033[0m %s\n" "$*"; }
@@ -17,16 +17,16 @@ for i in $(seq 1 10); do
   sleep 1
 done
 
-sep "2. 启动 6 个业务后端（PM2）"
+sep "2. 启动业务后端（PM2）"
 "$PM2" startOrRestart "$HOME/CMCC-PROJECT/_部署方案/ecosystem.config.cjs" \
-  --only rights-backend,arpu-proxy,cmcc-notice,qqt-backend,qqtlocal,cookie-app \
+  --only rights-backend,arpu-proxy,cmcc-notice,qqt-backend,qqtlocal,cookie-app,bmcc-backend,bmcc-tunnel \
   --update-env
 "$PM2" save
 
 sleep 3
 
 sep "3. 自检端口"
-for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notice 7607:qqt; do
+for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notice 7607:qqt 8788:bmcc; do
   port=${p%%:*}; name=${p##*:}
   if lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then ok "$name :$port"
   else bad "$name :$port 未起"; fi

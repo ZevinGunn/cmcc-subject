@@ -1007,6 +1007,15 @@ button:disabled {
   font-weight: 800;
 }
 
+.login-page .primary-btn.ready {
+  background: linear-gradient(90deg, #129df2, #1677ff);
+  box-shadow: 0 10px 22px rgba(22, 119, 255, 0.2);
+}
+
+.login-page .primary-btn:disabled {
+  opacity: 1;
+}
+
 .voice-link {
   margin: 16px 0 0;
   text-align: center;

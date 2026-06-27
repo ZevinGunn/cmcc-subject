@@ -1,11 +1,17 @@
 import express from 'express'
 import cors from 'cors'
 import { readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { config } from './config.js'
 import authRouter from './routes/auth.js'
 import businessRouter from './routes/business.js'
 import { createRequestId, logEvent, logFile } from './utils/logger.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const frontendDist = path.resolve(__dirname, '../../frontend/dist')
+const frontendIndex = path.join(frontendDist, 'index.html')
 const app = express()
 
 app.use(cors({ origin: true, credentials: true }))
@@ -57,6 +63,14 @@ app.get('/api/logs/recent', async (req, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/business', businessRouter)
+
+if (existsSync(frontendIndex)) {
+  app.use(express.static(frontendDist, { index: false }))
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next()
+    res.sendFile(frontendIndex)
+  })
+}
 
 app.use((err, _req, res, _next) => {
   console.error(err)

@@ -1,4 +1,6 @@
 import { config } from '../config.js'
+import dns from 'node:dns/promises'
+import net from 'node:net'
 import { encodeForm, normalizeBase64Maybe, parseJsonMaybeBase64, requestWithJar } from '../utils/http.js'
 import { logEvent } from '../utils/logger.js'
 import { rsaEncryptLogin } from './cryptoService.js'
@@ -85,6 +87,113 @@ function summarizePortalTouchLogin(raw) {
   }
   const text = String(raw || '')
   return text.length > 500 ? `${text.slice(0, 500)}...[TRUNCATED len=${text.length}]` : text
+}
+
+function portalHost() {
+  return new URL(config.portalOrigin).hostname
+}
+
+function isReservedAddress(address = '') {
+  if (net.isIP(address) !== 4) return false
+  const parts = address.split('.').map(Number)
+  const [a, b] = parts
+  return (
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 198 && (b === 18 || b === 19))
+  )
+}
+
+async function resolvePortalHost() {
+  const host = portalHost()
+  const system = await dns.lookup(host, { all: true, family: 4 }).catch((error) => ({
+    error: error instanceof Error ? error.message : String(error),
+  }))
+  const resolver = new dns.Resolver()
+  resolver.setServers(['223.5.5.5', '114.114.114.114'])
+  const publicDns = await resolver.resolve4(host).catch((error) => ({
+    error: error instanceof Error ? error.message : String(error),
+  }))
+  return {
+    host,
+    system: Array.isArray(system) ? system.map((item) => item.address) : [],
+    systemError: Array.isArray(system) ? '' : system.error,
+    publicDns: Array.isArray(publicDns) ? publicDns : [],
+    publicDnsError: Array.isArray(publicDns) ? '' : publicDns.error,
+  }
+}
+
+function portalNetworkMessage(diagnostics, errorMessage) {
+  const reserved = diagnostics.system.filter(isReservedAddress)
+  const dnsHint = reserved.length
+    ? `当前 DNS 将 ${diagnostics.host} 解析到保留地址 ${reserved.join(', ')}，常见于代理/VPN 接管。`
+    : ''
+  const publicHint =
+    diagnostics.publicDns.length && diagnostics.publicDns.some((address) => !diagnostics.system.includes(address))
+      ? `公共 DNS 解析为 ${diagnostics.publicDns.join(', ')}。`
+      : ''
+  const actionHint =
+    dnsHint || publicHint
+      ? '请关闭或调整代理/VPN、切换网络后重试。'
+      : 'DNS 已解析到公网地址，但门户连接超时；请确认系统代理/TUN 虚拟网卡已退出，或切换网络后重试。'
+  return [
+    `北京移动门户当前网络不可达：${errorMessage || 'TLS 握手失败'}`,
+    dnsHint,
+    publicHint,
+    actionHint,
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+function isTlsHandshakeDisconnect(error) {
+  const message = error instanceof Error ? error.message : String(error || '')
+  return message.includes('Client network socket disconnected before secure TLS connection was established')
+}
+
+function isPortalNetworkAttempt(attempt) {
+  const text = JSON.stringify(attempt?.raw || {})
+  return attempt?.status === 0 && (text.includes('ECONNRESET') || text.includes('TLS') || text.includes('network socket'))
+}
+
+export async function checkPortalReachability() {
+  const diagnostics = await resolvePortalHost()
+  await logEvent('login:portalReachability:start', diagnostics)
+  try {
+    const res = await requestWithJar({
+      url: `${config.portalOrigin}/nwt/portal/checkLogin`,
+      method: 'GET',
+      headers: portalPageHeaders({
+        Referer: loginReferer(),
+      }),
+      includeCookies: false,
+      timeout: 6000,
+      maxAttempts: 1,
+    })
+    const ok = res.status >= 200 && res.status < 500
+    const raw = { ...diagnostics, status: res.status, location: res.headers?.location || '' }
+    await logEvent('login:portalReachability:done', raw)
+    return {
+      ok,
+      raw,
+      message: ok ? '' : `北京移动门户连通性检查失败 HTTP ${res.status}`,
+      errorCode: ok ? '' : 'PORTAL_UNREACHABLE',
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const raw = { ...diagnostics, status: 0, error: message, code: error?.code || '' }
+    await logEvent('login:portalReachability:error', raw)
+    return {
+      ok: false,
+      raw,
+      message: portalNetworkMessage(diagnostics, message),
+      errorCode: isTlsHandshakeDisconnect(error) ? 'PORTAL_TLS_UNREACHABLE' : 'PORTAL_UNREACHABLE',
+    }
+  }
 }
 
 async function tryPortalTouchLogin(session, { includeCookies, strategy }) {
@@ -492,6 +601,10 @@ export async function exchangePortalToken(session) {
     session.accessTokenExpireAt = Date.now() + Number(raw.expires_in || 0) * 1000
     await warmPortalBusinessPage(session)
   }
+  const networkAttempts = attempts.length > 0 && attempts.every(isPortalNetworkAttempt)
+  const message = networkAttempts
+    ? portalNetworkMessage(await resolvePortalHost(), attempts.at(-1)?.raw?.error || '')
+    : '门户 token 换取失败：touchLogin 未返回 access_token'
   return {
     ok,
     data: { hasToken: ok, name: raw?.name || '' },
@@ -502,6 +615,7 @@ export async function exchangePortalToken(session) {
       businessPage: session.portalBusinessPageStatus,
       status: res?.status || 0,
     },
-    message: ok ? '' : '门户 token 换取失败：touchLogin 未返回 access_token',
+    message: ok ? '' : message,
+    errorCode: ok ? '' : networkAttempts ? 'PORTAL_TLS_UNREACHABLE' : 'PORTAL_TOKEN_FAILED',
   }
 }
