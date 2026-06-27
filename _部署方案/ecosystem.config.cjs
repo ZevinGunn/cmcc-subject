@@ -45,6 +45,19 @@ module.exports = {
       env: { NODE_ENV: "production", PORT: "8899" },
     },
     {
+      name: "bmcc-backend",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/bj-mobile-business-local/backend",
+      script: "src/server.js",
+      env: { NODE_ENV: "production", PORT: "8788" },
+    },
+    {
+      name: "bmcc-tunnel",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT",
+      script: "/opt/homebrew/bin/cloudflared",
+      args: "tunnel --config /Users/ZevinGunn/.cloudflared/cmcc-bmcc.yml run 22aeed61-cece-43a0-b810-7080da91cfb7",
+      env: { NODE_ENV: "production" },
+    },
+    {
       name: "project-manager",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/project-manager",
       script: "server.js",

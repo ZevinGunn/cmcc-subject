@@ -42,7 +42,7 @@
         查看并同意 <a>《服务协议》</a>、<a>《隐私政策》</a>
       </p>
 
-      <button class="primary-btn" type="button" :disabled="loading" @click="login">
+      <button class="primary-btn" type="button" :class="{ ready: canLogin }" :disabled="!canLogin" @click="login">
         {{ loading ? '登录中' : '登录' }}
       </button>
 
@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ChevronLeft, ImageIcon, LockKeyhole, Smartphone } from 'lucide-vue-next'
 import MessageDialog from '../components/MessageDialog.vue'
 import { api } from '../api/client'
@@ -91,6 +91,7 @@ const loading = ref(false)
 const sending = ref(false)
 const countdown = ref(0)
 const messageDialog = ref(null)
+const canLogin = computed(() => /^1\d{10}$/.test(phone.value) && /^\d{6}$/.test(code.value) && !loading.value)
 let timer = null
 let captchaTimer = null
 const captchaPhone = ref('')
@@ -164,8 +165,7 @@ async function login() {
       userInfo: data.userInfo,
     })
   } catch (e) {
-    const hint = e.payload?.errorCode === 'PORTAL_TOKEN_FAILED' ? '登录成功但门户会话换取失败，可能需要浏览器防护 token。' : e.message
-    show(hint, true)
+    show(e.message || '登录失败，请稍后重试', true)
   } finally {
     loading.value = false
   }

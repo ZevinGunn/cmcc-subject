@@ -8,8 +8,8 @@ ok()  { printf "  \033[1;32m✓\033[0m %s\n" "$*"; }
 PM2="$HOME/.nvm/versions/node/v18.20.8/bin/pm2"
 [ ! -x "$PM2" ] && PM2=$(npm config get prefix 2>/dev/null)/bin/pm2
 
-sep "1. 停止 6 个 PM2 后端（保留 project-manager）"
-"$PM2" stop cookie-app rights-backend arpu-proxy qqtlocal cmcc-notice qqt-backend 2>&1 | tail -10
+sep "1. 停止 PM2 业务后端（保留 project-manager）"
+"$PM2" stop cookie-app rights-backend arpu-proxy qqtlocal cmcc-notice qqt-backend bmcc-backend bmcc-tunnel 2>&1 | tail -10
 "$PM2" status
 
 sep "2. 停止 nginx"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 一键启动：所有依赖 + 6 个后端 + 管理后台 + nginx
+# 一键启动：所有依赖 + 业务后端 + 管理后台 + nginx
 # 用法：bash ~/CMCC-PROJECT/_部署方案/start-all.sh
 set +e
 sep() { printf "\n\033[1;36m===== %s =====\033[0m\n" "$*"; }
@@ -41,21 +41,21 @@ else
   sudo brew services start nginx 2>&1 | tail -3
 fi
 
-sep "5. 拉起 6 个后端 + 管理后台（PM2）"
+sep "5. 拉起业务后端 + 管理后台（PM2）"
 "$PM2" startOrRestart "$HOME/CMCC-PROJECT/_部署方案/ecosystem.config.cjs" --update-env
 "$PM2" save
 
 sleep 5
 
-sep "6. 自检：6 个后端端口 + 管理后台"
-for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notic 7607:qqt 7800:project; do
+sep "6. 自检：业务后端端口 + 管理后台"
+for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notic 7607:qqt 8788:bmcc 7800:project; do
   port=${p%%:*}; name=${p##*:}
   if lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then ok "$name :$port"
   else bad "$name :$port 未起"; fi
 done
 
-sep "7. 自检：7 个域名本机直连"
-for d in home rights arpu qqtlocal notice qqt project; do
+sep "7. 自检：域名本机直连"
+for d in home rights arpu qqtlocal notice qqt bmcc project; do
   code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 -H "Host: $d.1008086.xyz" http://127.0.0.1/)
   printf "  %-25s -> %s\n" "$d.1008086.xyz" "$code"
 done
