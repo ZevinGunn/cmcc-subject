@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import MessageDialog from '../components/MessageDialog.vue'
 import TopBar from '../components/TopBar.vue'
 import { api } from '../api/client'
@@ -59,6 +59,8 @@ const sending = ref(false)
 const countdown = ref(0)
 const messageDialog = ref(null)
 let timer = null
+let captchaTimer = null
+const captchaPhone = ref('')
 
 function noop() {}
 
@@ -79,12 +81,13 @@ async function ensureSession() {
   return sessionId.value
 }
 
-async function loadCaptcha() {
+async function loadCaptcha(notify = true) {
   try {
     const id = await ensureSession()
     const data = await api.getCaptcha(id)
     captchaImage.value = data.image
-    show('验证码已刷新')
+    captchaPhone.value = phone.value
+    if (notify) show('验证码已刷新')
   } catch (e) {
     show(e.message, true)
   }
@@ -139,5 +142,13 @@ async function login() {
 
 onBeforeUnmount(() => {
   clearInterval(timer)
+  clearTimeout(captchaTimer)
+})
+
+watch(phone, (value) => {
+  clearTimeout(captchaTimer)
+  if (!/^1\d{10}$/.test(value) || captchaPhone.value === value) return
+  captchaImage.value = ''
+  captchaTimer = setTimeout(() => loadCaptcha(false), 350)
 })
 </script>

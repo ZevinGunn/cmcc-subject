@@ -6,13 +6,9 @@
         <button class="detail-btn" type="button" aria-label="查看业务详情" @click="$emit('detail', item)">?</button>
       </div>
       <div class="item-meta">
-        <span>订购时间： {{ item.effectiveDate || '--' }}</span>
+        <span>订购时间： {{ orderTime }}</span>
         <span>有效期限： {{ dateRange }}</span>
-      </div>
-      <div class="item-extra">
-        <span v-if="item.feeText">资费：{{ item.feeText }}</span>
-        <span v-if="item.statusText">{{ item.statusText }}</span>
-        <span v-if="item.provider">{{ item.provider }}</span>
+        <span v-if="unsubscribeTime">退订时间： {{ unsubscribeTime }}</span>
       </div>
     </div>
     <button class="unsubscribe-btn" type="button" @click="$emit('unsubscribe', item)">
@@ -42,4 +38,7 @@ const dateRange = computed(() => {
   if (props.item.effectiveDate) return `${props.item.effectiveDate} 起 生效`
   return '--'
 })
+
+const orderTime = computed(() => props.item.raw?.openTime || props.item.effectiveDate || '--')
+const unsubscribeTime = computed(() => props.item.raw?.unsubscribeTime || props.item.unsubscribeTime || '')
 </script>

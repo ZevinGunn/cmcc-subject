@@ -1,43 +1,86 @@
 <template>
   <main class="business-page">
-    <TopBar title="业务查询" @back="loadBusiness" @home="$emit('logout')" />
-    <BusinessTabs v-model="activeTab" />
-
-    <section class="month-filter">
-      <label>
-        <span>查询月份</span>
-        <input v-model="selectedMonth" type="month" @change="loadBusiness" />
-      </label>
-      <button type="button" :disabled="loading" @click="resetMonth">本月</button>
-    </section>
-
-    <section class="status-line">
-      <span>{{ userLabel }}</span>
-      <div class="status-actions">
-        <button type="button" :disabled="loading" @click="loadBusiness">
-          {{ loading ? '刷新中' : '刷新' }}
-        </button>
+    <section class="business-hero">
+      <div class="hero-actions">
+        <button type="button" @click="showAccountPanel = true">切换账号</button>
+        <button type="button" @click="clearCache">清缓存</button>
       </div>
-    </section>
-
-    <section class="waf-token-line">
-      <input v-model.trim="wafToken" placeholder="XEbtxIBt 防护 token" />
-      <button type="button" :disabled="savingWaf || !wafToken" @click="saveWafToken">
-        {{ savingWaf ? '保存中' : '保存' }}
+      <h1>已订业务</h1>
+      <strong>{{ maskedMobile }}</strong>
+      <span class="brand-pill">{{ brandLabel }}</span>
+      <button class="query-btn" type="button" :disabled="loading" @click="loadBusiness">
+        <Search :size="22" stroke-width="2.6" />
+        {{ loading ? '查询中' : '查询' }}
       </button>
     </section>
 
-    <section v-if="loading && !items.length" class="empty">正在查询业务...</section>
-    <section v-else-if="!items.length" class="empty">当前分类暂无业务</section>
-    <section v-else class="business-list">
-      <BusinessItem
-        v-for="(item, index) in items"
-        :key="item.id"
-        :item="item"
-        :index="index"
-        @unsubscribe="openConfirm"
-        @detail="openDetail"
-      />
+    <section class="business-shell">
+      <nav class="month-strip" aria-label="查询月份">
+        <button
+          v-for="item in recentMonths"
+          :key="item.value"
+          class="month-chip"
+          :class="{ active: selectedMonth === item.value }"
+          type="button"
+          @click="selectMonth(item.value)"
+        >
+          <strong>{{ item.month }}月</strong>
+          <span>{{ item.year }}</span>
+        </button>
+        <button class="month-calendar" type="button" aria-label="展开月份筛选" @click="monthPanelOpen = !monthPanelOpen">
+          <CalendarDays :size="28" stroke-width="2.2" />
+        </button>
+      </nav>
+
+      <section v-if="monthPanelOpen" class="month-panel">
+        <button
+          v-for="item in pickerMonths"
+          :key="item.value"
+          class="month-option"
+          :class="{ active: selectedMonth === item.value }"
+          type="button"
+          @click="selectMonth(item.value)"
+        >
+          <strong>{{ item.month }}月</strong>
+          <span>{{ item.year }}年</span>
+        </button>
+      </section>
+
+      <BusinessTabs v-model="activeTab" />
+
+      <section v-if="loading && !items.length" class="empty">正在查询业务...</section>
+      <section v-else-if="!items.length" class="empty">当前分类暂无业务</section>
+      <section v-else class="business-list">
+        <BusinessItem
+          v-for="(item, index) in items"
+          :key="item.id"
+          :item="item"
+          :index="index"
+          @unsubscribe="openConfirm"
+          @detail="openDetail"
+        />
+      </section>
+    </section>
+
+    <section v-if="showAccountPanel" class="account-mask" @click.self="showAccountPanel = false">
+      <div class="account-panel">
+        <header>
+          <h2>切换账号</h2>
+          <button type="button" @click="showAccountPanel = false">关闭</button>
+        </header>
+        <button
+          v-for="account in sessionState.accounts"
+          :key="account.id"
+          class="account-row"
+          :class="{ active: account.id === activeAccountId }"
+          type="button"
+          @click="chooseAccount(account.id)"
+        >
+          <strong>{{ formatAccountPhone(account) }}</strong>
+          <span>{{ account.userInfo?.brand || '账号缓存' }}</span>
+        </button>
+        <button class="account-new" type="button" @click="$emit('logout')">登录新账号</button>
+      </div>
     </section>
 
     <ConfirmDialog
@@ -63,15 +106,22 @@
 </template>
 
 <script setup>
+import { CalendarDays, Search } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import BusinessDetailDrawer from '../components/BusinessDetailDrawer.vue'
 import BusinessItem from '../components/BusinessItem.vue'
 import BusinessTabs from '../components/BusinessTabs.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import MessageDialog from '../components/MessageDialog.vue'
-import TopBar from '../components/TopBar.vue'
 import { api } from '../api/client'
-import { clearSession, sessionState, setBusinessCache, setSession } from '../stores/session'
+import {
+  clearCurrentBusinessCache,
+  clearSession,
+  sessionState,
+  setBusinessCache,
+  setSession,
+  switchAccount,
+} from '../stores/session'
 
 const emit = defineEmits(['logout'])
 
@@ -80,18 +130,18 @@ const categories = ref(sessionState.businessCache?.categories || { base: [], pac
 const selectedMonth = ref(sessionState.selectedMonth || currentMonth())
 const loading = ref(false)
 const unsubscribing = ref(false)
-const savingWaf = ref(false)
 const pendingBusiness = ref(null)
 const detailItem = ref(null)
-const wafToken = ref('')
 const messageDialog = ref(null)
+const monthPanelOpen = ref(false)
+const showAccountPanel = ref(false)
 
 const items = computed(() => categories.value[activeTab.value] || [])
-const userLabel = computed(() => {
-  const mobile = sessionState.userInfo?.mobile || sessionState.phone || '未识别手机号'
-  const brand = sessionState.userInfo?.brand ? ` · ${sessionState.userInfo.brand}` : ''
-  return `${mobile}${brand}`
-})
+const activeAccountId = computed(() => sessionState.userInfo?.mobile || sessionState.phone || sessionState.sessionId || '')
+const maskedMobile = computed(() => maskMobile(sessionState.userInfo?.mobile || sessionState.phone || '未识别手机号'))
+const brandLabel = computed(() => sessionState.userInfo?.brand || '北京移动')
+const recentMonths = computed(() => buildMonths(5))
+const pickerMonths = computed(() => buildMonths(13))
 const pendingInitialCode = computed(() => businessCode(pendingBusiness.value))
 const pendingNeedsCode = computed(() => Boolean(pendingBusiness.value && !pendingInitialCode.value))
 const confirmMessage = computed(() => {
@@ -104,6 +154,28 @@ const confirmMessage = computed(() => {
 function currentMonth() {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+function buildMonths(count) {
+  const [year, month] = currentMonth().split('-').map(Number)
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(year, month - 1 - index, 1)
+    const itemYear = date.getFullYear()
+    const itemMonth = date.getMonth() + 1
+    return {
+      year: itemYear,
+      month: itemMonth,
+      value: `${itemYear}-${String(itemMonth).padStart(2, '0')}`,
+    }
+  })
+}
+
+function maskMobile(value) {
+  return String(value || '').replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2')
+}
+
+function formatAccountPhone(account) {
+  return maskMobile(account.userInfo?.mobile || account.phone || account.sessionId)
 }
 
 function businessCode(item) {
@@ -147,8 +219,24 @@ async function loadBusiness() {
   }
 }
 
-function resetMonth() {
-  selectedMonth.value = currentMonth()
+function selectMonth(month) {
+  selectedMonth.value = month
+  monthPanelOpen.value = false
+  loadBusiness()
+}
+
+function clearCache() {
+  categories.value = { base: [], package: [], valueAdded: [] }
+  clearCurrentBusinessCache()
+  showMessage('当前账号本地缓存已清除。', 'success', '已清缓存')
+}
+
+function chooseAccount(accountId) {
+  if (!switchAccount(accountId)) return
+  activeTab.value = sessionState.activeTab || 'valueAdded'
+  selectedMonth.value = sessionState.selectedMonth || currentMonth()
+  categories.value = sessionState.businessCache?.categories || { base: [], package: [], valueAdded: [] }
+  showAccountPanel.value = false
   loadBusiness()
 }
 
@@ -158,20 +246,6 @@ function openConfirm(item) {
 
 function openDetail(item) {
   detailItem.value = item
-}
-
-async function saveWafToken() {
-  if (!sessionState.sessionId || !wafToken.value) return
-  savingWaf.value = true
-  try {
-    await api.setWafToken({ sessionId: sessionState.sessionId, wafToken: wafToken.value })
-    showMessage('防护 token 已保存，将重新查询业务。', 'success', '保存成功')
-    await loadBusiness()
-  } catch (e) {
-    showMessage(e.message, 'error', '保存失败')
-  } finally {
-    savingWaf.value = false
-  }
 }
 
 async function confirmUnsubscribe(manualCode = '') {

@@ -1,15 +1,16 @@
 <template>
-  <div class="dialog-mask message-mask" @click.self="$emit('close')">
-    <section class="dialog message-dialog" :class="{ error: type === 'error', success: type === 'success' }">
+  <div class="message-toast-wrap">
+    <section class="message-toast" :class="{ error: type === 'error', success: type === 'success' }">
       <h3>{{ title }}</h3>
       <p>{{ message }}</p>
-      <button type="button" @click="$emit('close')">知道了</button>
     </section>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { onBeforeUnmount, onMounted } from 'vue'
+
+const props = defineProps({
   title: {
     type: String,
     default: '提示',
@@ -22,7 +23,20 @@ defineProps({
     type: String,
     default: 'info',
   },
+  duration: {
+    type: Number,
+    default: 2200,
+  },
 })
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
+let timer = null
+
+onMounted(() => {
+  timer = setTimeout(() => emit('close'), props.duration)
+})
+
+onBeforeUnmount(() => {
+  clearTimeout(timer)
+})
 </script>
