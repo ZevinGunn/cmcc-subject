@@ -1,18 +1,51 @@
 <template>
-  <LoginPage v-if="view === 'login'" :can-return="Boolean(sessionState.sessionId)" @back="onLoginBack" @logged-in="onLoggedIn" />
+  <LoginPage v-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" />
   <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" />
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import LoginPage from './pages/LoginPage.vue'
 import BusinessPage from './pages/BusinessPage.vue'
 import { api } from './api/client'
 import { clearSession, sessionState, setSession } from './stores/session'
 
 const booting = ref(Boolean(sessionState.sessionId))
-const screen = ref('login')
-const view = computed(() => (!booting.value && sessionState.sessionId && screen.value === 'business' ? 'business' : 'login'))
+const route = ref(readRoute())
+const view = computed(() => (!booting.value && sessionState.sessionId && route.value.name === 'business' ? 'business' : 'login'))
+const canReturnToBusiness = computed(() => Boolean(sessionState.sessionId && route.value.name === 'login' && route.value.params.from === 'business'))
+
+function readRoute() {
+  const raw = window.location.hash.replace(/^#/, '') || ''
+  const [path = '', query = ''] = raw.split('?')
+  const params = Object.fromEntries(new URLSearchParams(query))
+  const name = path.replace(/^\//, '') || ''
+  return {
+    name: name === 'business' ? 'business' : 'login',
+    params,
+  }
+}
+
+function replaceRoute(path) {
+  if (window.location.hash === `#${path}`) {
+    route.value = readRoute()
+    return
+  }
+  window.location.replace(`#${path}`)
+}
+
+function pushRoute(path) {
+  if (window.location.hash === `#${path}`) {
+    route.value = readRoute()
+    return
+  }
+  window.location.hash = path
+}
+
+function syncRoute() {
+  route.value = readRoute()
+  if (route.value.name === 'business' && !sessionState.sessionId) replaceRoute('/login')
+}
 
 function onLoggedIn(payload) {
   setSession({
@@ -20,23 +53,25 @@ function onLoggedIn(payload) {
     phone: payload.phone,
     userInfo: payload.userInfo,
   })
-  screen.value = 'business'
+  replaceRoute('/business')
 }
 
 function onLogout() {
   clearSession()
-  screen.value = 'login'
+  replaceRoute('/login')
 }
 
 function onLoginNew() {
-  screen.value = 'login'
+  pushRoute('/login?from=business')
 }
 
 function onLoginBack() {
-  if (sessionState.sessionId) screen.value = 'business'
+  if (sessionState.sessionId) replaceRoute('/business')
 }
 
 onMounted(async () => {
+  window.addEventListener('hashchange', syncRoute)
+  if (!window.location.hash) replaceRoute(sessionState.sessionId ? '/business' : '/login')
   if (!sessionState.sessionId) {
     booting.value = false
     return
@@ -45,16 +80,20 @@ onMounted(async () => {
     const data = await api.getSession(sessionState.sessionId)
     if (!data.session?.hasPortalToken) {
       clearSession()
-      screen.value = 'login'
+      replaceRoute('/login')
       return
     }
     setSession({ userInfo: data.session.userInfo })
-    screen.value = 'business'
+    if (route.value.name !== 'login') replaceRoute('/business')
   } catch {
     clearSession()
-    screen.value = 'login'
+    replaceRoute('/login')
   } finally {
     booting.value = false
   }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('hashchange', syncRoute)
 })
 </script>
