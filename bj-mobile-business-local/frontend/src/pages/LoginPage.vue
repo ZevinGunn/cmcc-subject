@@ -29,13 +29,20 @@
       <button class="primary-btn" type="button" :disabled="loading" @click="login">
         {{ loading ? '登录中' : '登录并查询' }}
       </button>
-      <p v-if="message" class="message" :class="{ error: hasError }">{{ message }}</p>
     </section>
+    <MessageDialog
+      v-if="messageDialog"
+      :title="messageDialog.title"
+      :message="messageDialog.message"
+      :type="messageDialog.type"
+      @close="messageDialog = null"
+    />
   </main>
 </template>
 
 <script setup>
 import { onBeforeUnmount, ref } from 'vue'
+import MessageDialog from '../components/MessageDialog.vue'
 import TopBar from '../components/TopBar.vue'
 import { api } from '../api/client'
 import { setSession } from '../stores/session'
@@ -50,15 +57,17 @@ const captchaImage = ref('')
 const loading = ref(false)
 const sending = ref(false)
 const countdown = ref(0)
-const message = ref('')
-const hasError = ref(false)
+const messageDialog = ref(null)
 let timer = null
 
 function noop() {}
 
 function show(text, error = false) {
-  message.value = text
-  hasError.value = error
+  messageDialog.value = {
+    title: error ? '操作失败' : '操作成功',
+    message: text,
+    type: error ? 'error' : 'success',
+  }
 }
 
 async function ensureSession() {

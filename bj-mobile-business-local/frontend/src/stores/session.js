@@ -10,6 +10,7 @@ export const sessionState = reactive({
   businessCache: savedBusiness.businessCache || null,
   activeTab: savedBusiness.activeTab || 'valueAdded',
   lastResult: savedBusiness.lastResult || null,
+  selectedMonth: savedBusiness.selectedMonth || '',
 })
 
 export function setSession({ sessionId, phone, userInfo }) {
@@ -33,20 +34,23 @@ export function clearSession() {
   sessionState.businessCache = null
   sessionState.activeTab = 'valueAdded'
   sessionState.lastResult = null
+  sessionState.selectedMonth = ''
   localStorage.removeItem('bmcc-business-session')
   localStorage.removeItem('bmcc-business-cache')
 }
 
-export function setBusinessCache({ businessCache, activeTab, lastResult }) {
+export function setBusinessCache({ businessCache, activeTab, lastResult, selectedMonth }) {
   if (businessCache !== undefined) sessionState.businessCache = businessCache
   if (activeTab !== undefined) sessionState.activeTab = activeTab
   if (lastResult !== undefined) sessionState.lastResult = lastResult
+  if (selectedMonth !== undefined) sessionState.selectedMonth = selectedMonth
   localStorage.setItem(
     'bmcc-business-cache',
     JSON.stringify({
       businessCache: sessionState.businessCache,
       activeTab: sessionState.activeTab,
       lastResult: sessionState.lastResult,
+      selectedMonth: sessionState.selectedMonth,
     }),
   )
 }
