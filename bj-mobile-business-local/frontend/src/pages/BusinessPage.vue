@@ -15,38 +15,40 @@
     </section>
 
     <section class="business-shell">
-      <nav class="month-strip" aria-label="查询月份">
-        <button
-          v-for="item in recentMonths"
-          :key="item.value"
-          class="month-chip"
-          :class="{ active: selectedMonth === item.value }"
-          type="button"
-          @click="selectMonth(item.value)"
-        >
-          <strong>{{ item.month }}月</strong>
-          <span>{{ item.year }}</span>
-        </button>
-        <button class="month-calendar" type="button" aria-label="展开月份筛选" @click="monthPanelOpen = !monthPanelOpen">
-          <CalendarDays :size="28" stroke-width="2.2" />
-        </button>
-      </nav>
+      <div class="business-sticky-controls">
+        <nav class="month-strip" aria-label="查询月份">
+          <button
+            v-for="item in recentMonths"
+            :key="item.value"
+            class="month-chip"
+            :class="{ active: selectedMonth === item.value }"
+            type="button"
+            @click="selectMonth(item.value)"
+          >
+            <strong>{{ item.month }}月</strong>
+            <span>{{ item.year }}</span>
+          </button>
+          <button class="month-calendar" type="button" aria-label="展开月份筛选" @click="monthPanelOpen = !monthPanelOpen">
+            <CalendarDays :size="28" stroke-width="2.2" />
+          </button>
+        </nav>
 
-      <section v-if="monthPanelOpen" class="month-panel">
-        <button
-          v-for="item in pickerMonths"
-          :key="item.value"
-          class="month-option"
-          :class="{ active: selectedMonth === item.value }"
-          type="button"
-          @click="selectMonth(item.value)"
-        >
-          <strong>{{ item.month }}月</strong>
-          <span>{{ item.year }}年</span>
-        </button>
-      </section>
+        <section v-if="monthPanelOpen" class="month-panel">
+          <button
+            v-for="item in pickerMonths"
+            :key="item.value"
+            class="month-option"
+            :class="{ active: selectedMonth === item.value }"
+            type="button"
+            @click="selectMonth(item.value)"
+          >
+            <strong>{{ item.month }}月</strong>
+            <span>{{ item.year }}年</span>
+          </button>
+        </section>
 
-      <BusinessTabs v-model="activeTab" />
+        <BusinessTabs v-model="activeTab" />
+      </div>
 
       <section v-if="loading" class="skeleton-list" aria-label="正在加载业务列表">
         <article v-for="item in 3" :key="item" class="skeleton-card">
