@@ -1,0 +1,37 @@
+# 依赖
+node_modules/
+.pnp
+.pnp.js
+
+# 构建
+# dist/
+build/
+output/
+coverage/
+
+# 系统
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# 编辑器
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# 环境
+.env
+.env.local
+.env.development
+.env.production
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+backend/data/offer-order-logs*.jsonl
+backend/data/sessions.json
