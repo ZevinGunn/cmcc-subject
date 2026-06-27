@@ -1,0 +1,200 @@
+#app,
+body,
+html {
+  color: #333;
+  font-family: Arial, Helvetica, STHeiti STXihei, Microsoft YaHei, Tohoma,
+    sans-serif;
+  background-color: #fff;
+  height: 100%;
+}
+.tap-highlight.active {
+  opacity: 0.6;
+}
+.center {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+}
+.fw-bd {
+  font-weight: 700;
+}
+.ud {
+  text-decoration: underline;
+}
+.red {
+  color: red;
+}
+#detailTxt {
+  text-decoration: underline;
+  color: #00f;
+}
+p {
+  margin: 0;
+}
+.video-player .video-js .vjs-big-play-button {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 1.33333rem;
+}
+.confirmOrder .cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+.confirmOrder .confirmbg {
+  width: 86%;
+  position: fixed;
+  top: 2.4rem;
+  left: 50%;
+  margin-left: -43%;
+  z-index: 3;
+}
+.confirmOrder .confirmContent {
+  width: 70%;
+  position: fixed;
+  z-index: 3;
+  top: 4rem;
+  left: 50%;
+  margin-left: -35%;
+}
+.confirmOrder .confirmContent .confirmTxt {
+  font-size: 0.4rem;
+  height: 5.33333rem;
+  overflow: scroll;
+  white-space: pre-wrap;
+}
+.confirmOrder .confirmContent .btnGroup {
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: 0.53333rem;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+.confirmOrder .confirmContent .btnGroup .btn {
+  width: 2.66667rem;
+  height: 100%;
+}
+.confirmOrder .yzmBox {
+  margin: 0.26667rem auto;
+}
+.confirmOrder .yzmBox .phone {
+  color: #333;
+  font-weight: 700;
+  font-size: 0.42667rem;
+  text-align: center;
+}
+.confirmOrder .yzmBox .yzm {
+  margin: 0.26667rem auto;
+  border: 0.02667rem solid #999;
+  border-radius: 0.13333rem;
+  position: relative;
+  height: 0.93333rem;
+  overflow: hidden;
+  background-color: #fad4fd;
+}
+.confirmOrder .yzmBox .yzm .inp {
+  height: 0.93333rem;
+  line-height: 0.93333rem;
+  width: 60%;
+  border: none;
+  font-size: 0.37333rem;
+  padding-left: 0.26667rem;
+}
+.confirmOrder .yzmBox .yzm .txt {
+  position: absolute;
+  top: 0.21333rem;
+  right: 0.13333rem;
+  color: #000;
+  font-weight: 700;
+}
+.resultConfirm .cover {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9;
+}
+.resultConfirm .confirmBox {
+  width: 80%;
+  background: #fff;
+  position: fixed;
+  top: 5.33333rem;
+  left: 50%;
+  margin-left: -40%;
+  border-radius: 0.34667rem;
+  z-index: 99;
+}
+.resultConfirm .confirmBox .title {
+  font-size: 0.48rem;
+  text-align: center;
+  padding: 0.26667rem 0 0.53333rem;
+  font-weight: 700;
+}
+.resultConfirm .confirmBox .tips {
+  font-size: 0.42667rem;
+  width: 90%;
+  margin: 0 auto;
+  text-align: center;
+}
+.resultConfirm .confirmBox .btn {
+  width: 2.66667rem;
+  color: #fff;
+  font-size: 0.37333rem;
+  margin: 0.53333rem auto 0.26667rem;
+  line-height: 0.8rem;
+  text-align: center;
+  border-radius: 0.26667rem;
+}
+.invalidBox .cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+.invalidBox .txt {
+  width: 80%;
+  background: #fff;
+  position: fixed;
+  top: 5.33333rem;
+  left: 50%;
+  margin-left: -40%;
+  text-align: center;
+  height: 5.33333rem;
+  padding-top: 2.13333rem;
+  box-sizing: border-box;
+  border-radius: 0.26667rem;
+  z-index: 5;
+  font-size: 0.42667rem;
+}
+.btn-scale {
+  animation: btnScale 1.5s linear infinite;
+}
+@keyframes btnScale {
+  0% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.9);
+  }
+}
+.filter-gray {
+  filter: grayscale(100%);
+}

@@ -1,0 +1,57 @@
+.box_bt[data-v-c67f8012] {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  font-size: 18px;
+  color: #fff;
+  text-align: center;
+  background-color: #00a3ff;
+  position: relative;
+  font-family: 微软雅黑;
+}
+.box_bt .pre img[data-v-c67f8012] {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.box_bt .home img[data-v-c67f8012] {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.box_bottom[data-v-c67f8012] {
+  height: 84px;
+  width: 100%;
+  background: none repeat scroll 0% 0% #f6f6f6;
+  padding-top: 26px;
+  text-align: center;
+  border-top: 1px solid #ccc;
+}
+.box_bottom a[data-v-c67f8012] {
+  color: #595959;
+}
+.box_bottom ul[data-v-c67f8012] {
+  width: 81%;
+  height: 29px;
+  margin-left: 9%;
+}
+.box_bottom ul li[data-v-c67f8012] {
+  display: block;
+  float: left;
+  width: 24%;
+  height: 16px;
+  line-height: 16px;
+  border-right: 1px solid #595959;
+  text-align: center;
+  color: #595959;
+  font-size: 12px;
+}
+ss .box_bottom p[data-v-c67f8012] {
+  margin-top: 10px;
+  color: #a8a8a8;
+  font-size: 12px;
+}

@@ -1,0 +1,128 @@
+# === 全局 proxy buffer 调优（修复 502 / proxy_temp 权限问题）===
+proxy_buffering off;
+proxy_request_buffering off;
+proxy_busy_buffers_size 64k;
+proxy_buffers 8 64k;
+proxy_buffer_size 64k;
+proxy_temp_file_write_size 64k;
+proxy_max_temp_file_size 0;
+# 上游接口可能慢（10086 验证码、二维码登录）
+proxy_connect_timeout 30s;
+proxy_read_timeout 180s;
+proxy_send_timeout 180s;
+
+# /opt/homebrew/etc/nginx/servers/cmcc.conf   (Apple Silicon)
+# 或 /usr/local/etc/nginx/servers/cmcc.conf   (Intel)
+# nginx.conf 的 http {} 里需要 include servers/*.conf;
+#
+# !!! 把下面 5 处 /Users/ZevinGunn 改成你的家目录 !!!
+
+# ============== 1. home.1008086.xyz （cookie-app） ==============
+server {
+    listen 80;
+    server_name home.1008086.xyz;
+
+    root /Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app/dist;
+    index index.html;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    client_max_body_size 25m;
+
+    location / { try_files $uri $uri/ /index.html; }
+    location /api/   { proxy_pass http://127.0.0.1:3101; }
+    location /debug/ { proxy_pass http://127.0.0.1:3101; }
+
+    location ~* \.(?:js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico)$ {
+        expires 30d;
+        access_log off;
+    }
+}
+
+# ============== 2. rights.1008086.xyz （bj-cmcc-qy） ==============
+server {
+    listen 80;
+    server_name rights.1008086.xyz;
+
+    root /Users/ZevinGunn/CMCC-PROJECT/bj-cmcc-qy/frontend/dist;
+    index index.html;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    client_max_body_size 5m;
+
+    location / { try_files $uri $uri/ /index.html; }
+    location /api/ { proxy_pass http://127.0.0.1:3010; }
+}
+
+# ============== 3. arpu.1008086.xyz （好礼多多本地版查询） ==============
+server {
+    listen 80;
+    server_name arpu.1008086.xyz;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+
+    location / { proxy_pass http://127.0.0.1:3000; }
+}
+
+# ============== 4. qqtlocal.1008086.xyz （qqtlocal-rights，FastAPI） ==============
+server {
+    listen 80;
+    server_name qqtlocal.1008086.xyz;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    client_max_body_size 10m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8899;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+# ============== 5. notic.1008086.xyz （cmcc-notice） ==============
+server {
+    listen 80;
+    server_name notic.1008086.xyz notice.1008086.xyz;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+
+    location / { proxy_pass http://127.0.0.1:3111; }
+}
+
+# ============== 6. qqt.1008086.xyz （qqt 权益抢购公共版） ==============
+server {
+    listen 80;
+    server_name qqt.1008086.xyz;
+
+    root /Users/ZevinGunn/CMCC-PROJECT/qqt/frontend/dist;
+    index index.html;
+
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    client_max_body_size 10m;
+
+    location / { try_files $uri $uri/ /index.html; }
+    location /api/ { proxy_pass http://127.0.0.1:7607; }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no, email=no" />
+    <title>登录</title>
+    <link rel="stylesheet" href="/bj/touchbj/css/login.css" />
+    <script type="text/javascript" src="/platform/js/jquery.min.js"></script>
+    <script
+      type="text/javascript"
+      src="/platform/js/jquery-migrate.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/bj/touchbj/js/jquery.timers-1.1.2.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/bj/touchbj/js/jquery.cookie.js"
+    ></script>
+    <script type="text/javascript" src="/bj/touchbj/js/message.js"></script>
+    <script type="text/javascript" src="/bj/touchbj/js/sdc_new.js"></script>
+    <script type="text/javascript" src="/bj/touchbj/js/popup_layer.js"></script>
+    <script
+      type="text/javascript"
+      src="/bj/touchbj/js/login.js?resVer=20191129"
+    ></script>
+    <!-- add by wangp at 2018-01-23 密码加密方法 start -->
+    <script src="/platform/js/jsencrypt.min.js?resVer=20141124"></script>
+    <!-- add by wangp at 2018-01-23 密码加密方法 end -->
+    <style type="text/css">
+      .window {
+        width: 250px;
+        background-color: #d0def0;
+        position: absolute;
+        padding: 2px;
+        margin: 5px;
+        display: none;
+      }
+      .content {
+        height: 150px;
+        background-color: #fff;
+        font-size: 14px;
+        overflow: auto;
+        padding: 10%;
+      }
+      .title img {
+        float: right;
+      }
+    </style>
+  </head>
+  <body id="mtbody">
+    <header>
+      <a href="javascript:history.go(-1)" class="left"
+        ><img src="/bj/touchbj/images/logo.jpg" alt=""
+      /></a>
+      <a href="http://www.bj.10086.cn/m/" class="right"
+        ><img src="/bj/touchbj/images/menu.jpg" alt=""
+      /></a>
+    </header>
+
+    <img id="sendImg" style="display:none;" src ="/loadSendflag.htm?timestamp="
+    + new Date().getTime()">
+    <input type="hidden" id="smsflagCode" value="" />
+    <section>
+      <div class="title" id="blklocation">请选择登录方式</div>
+
+      <div class="login-select">
+        <div class="random-pass" id="viewSMSLogin">随机密码登录</div>
+        <div class="web-pass hide" id="viewWebLogin">网站密码登录</div>
+      </div>
+      <form name="frmLogin" id="frmLogin" method="post">
+        <input type="hidden" name="channelID" id="channelID" value="" />
+        <input type="hidden" name="account" id="account" value="" />
+        <input type="hidden" name="password" id="password" value="" />
+        <input type="hidden" name="pwdType" id="pwdType" value="" />
+        <input type="hidden" name="accountType" id="accountType" value="01" />
+        <input type="hidden" name="inputCode" id="inputCode" value="" />
+        <input type="hidden" name="smsPwd" id="smsPwd" value="" />
+        <input type="hidden" name="backUrl" id="backUrl" value="" />
+        <input type="hidden" name="isNew" id="isNew" value="" />
+        <input id="needVerifyCodeFlag" type="hidden" value="0" />
+        <input type="hidden" name="rememberMe" id="rememberMe" value="0" />
+        <input type="hidden" name="protocol" id="protocol" value="" />
+        <input id="captchaValidity" type="hidden" value="1" />
+      </form>
+      <!-- 随机码登录 -->
+      <form class="random-pass-login" style="display: none">
+        <div class="phone">
+          <input
+            type="tel"
+            name="mloginName"
+            id="mloginName"
+            placeholder="请输入手机号码"
+            maxlength="11"
+            autocomplete="off"
+          />
+        </div>
+        <div
+          class="password"
+          style="position: relative; display: flex"
+          id="captcha2"
+        >
+          <input
+            class="code_input"
+            type="text"
+            id="inputCode2"
+            style="width: 60%"
+            placeholder="验证码"
+            maxlength="6"
+          />
+          <!-- modify type=10 是显示4位的验证码   yangyc 2015-12-24 start -->
+          <img id="captchaImg2" style="width: 100px; height: 33px" />
+          <!-- modify type=10 是显示4位的验证码   yangyc 2015-12-24 end -->
+        </div>
+        <div class="password">
+          <input
+            type="tel"
+            maxlength="6"
+            name="smsNum"
+            id="smsNum"
+            placeholder="请输入随机密码"
+            autocomplete="off"
+          />
+          <div class="gain-father">
+            <div class="gain" id="getSMSPwd" onclick="sendSmsPwd()">
+              获取随机密码
+            </div>
+          </div>
+        </div>
+        <div class="tip" id="TipSMS"></div>
+        <div class="remenber-phone">
+          <input
+            type="text"
+            id="loginCheckBox2"
+            value="0"
+            class="select left"
+            readonly="readonly"
+          />
+          <label for="loginCheckBox2" class="left select-1">记住手机号码</label>
+          <a
+            href="https://www.bj.10086.cn/ss-inner/sso/jspnew/register_touch.html"
+            class="right hide"
+            >免费注册</a
+          >
+        </div>
+        <input type="button" id="smsSubmit" value="登录" />
+      </form>
+      <!-- 网站密码登录 -->
+      <form class="web-pass-login" style="display: none">
+        <div class="phone">
+          <input
+            type="tel"
+            id="loginName"
+            autocomplete="off"
+            name="loginName"
+            placeholder="请输入手机号码"
+            maxlength="11"
+            autocomplete="off"
+          />
+        </div>
+        <div class="password" style="margin-bottom: 0.2rem">
+          <input
+            type="password"
+            id="web_password"
+            autocomplete="off"
+            type="password"
+            placeholder="请输入登录密码"
+          />
+        </div>
+        <div
+          class="password passpen"
+          id="yzm"
+          style="display: none; margin-bottom: 0.2rem"
+        >
+          <input name="rnum" type="text" id="rnum" placeholder="请输入附加码" />
+          <div style="background: none; margin-top: -1px">
+            <img id="NumImage" height="100%" alt="点击更换附加码" />
+          </div>
+        </div>
+        <div class="tip" id="TipWeb"></div>
+        <div class="remenber-phone">
+          <input
+            type="text"
+            id="loginCheckBox1"
+            value="0"
+            class="select left"
+            readonly="readonly"
+          />
+          <label for="loginCheckBox1" class="left select-1">记住手机号码</label>
+        </div>
+        <input type="button" id="webSubmit" value="登录" />
+        <div class="href">
+          <a
+            href="https://www.bj.10086.cn/ss-inner/sso/jspnew/register_touch.html"
+            class="left"
+            >免费注册</a
+          >
+          <a
+            href="https://www.bj.10086.cn/ss-inner/sso/jspnew/resetpwd_touch.html"
+            class="right"
+            >忘记密码</a
+          >
+        </div>
+      </form>
+      <div class="window" id="center">
+        <div
+          id="title"
+          style="padding: 2px; color: #0cf; font-size: 12px"
+          class="title"
+        >
+          已有账号登录，是否使用新的用户登录！
+        </div>
+        <div class="content">
+          <input
+            style="width: 45%"
+            type="button"
+            value="是"
+            onclick="login('Y')"
+          />
+          <input
+            style="width: 45%"
+            type="button"
+            value="否"
+            onclick="login('N')"
+          />
+        </div>
+      </div>
+      <div class="qrcode">
+        <img src="/bj/touchbj/images/qrcode.png?resVer=20180416" />
+      </div>
+    </section>
+  </body>
+</html>

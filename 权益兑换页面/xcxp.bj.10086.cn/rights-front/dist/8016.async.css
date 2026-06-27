@@ -1,0 +1,54 @@
+.SceneBanner___rsBYN {
+  height: 1.94rem;
+  margin: 0 auto 0.3rem;
+  position: relative;
+  width: 7.02rem;
+}
+.SwiperViewport___srFJn {
+  border-radius: 0.2rem;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+.SwiperContainer___vnOE5 {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+}
+.SwiperSlide___Z6BFK {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+.BannerImage___D1nsA {
+  display: block;
+  height: 1.94rem;
+  width: 7.02rem;
+}
+.SwiperIndicator___K2dLS {
+  bottom: 0.08rem;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+.IndicatorItem___X3cmE {
+  background: hsla(0, 0%, 100%, 0.5);
+  border-radius: 50%;
+  height: 0.12rem;
+  margin: 0 0.04rem;
+  width: 0.12rem;
+}
+.IndicatorItem___X3cmE.active___gqub8 {
+  background: #fff;
+}
+.SceneBannerSkeleton___qZZCG {
+  height: 1.94rem;
+  margin: 0 auto 0.3rem;
+  width: 7.02rem;
+}
+.SceneBannerSkeleton___qZZCG .SceneBannerSkeletonNode___oXI8x {
+  background-color: #fff;
+  border-radius: 0.2rem;
+  height: 100%;
+  width: 100%;
+}

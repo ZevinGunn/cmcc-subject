@@ -1,0 +1,7 @@
+const o = (_0x1c9b65, _0x57c4ea) => {
+  const _0x30a4aa = _0x1c9b65["__vccOpts"] || _0x1c9b65;
+  for (const [_0x20085c, _0x3db989] of _0x57c4ea)
+    _0x30a4aa[_0x20085c] = _0x3db989;
+  return _0x30a4aa;
+};
+export { o as _ };

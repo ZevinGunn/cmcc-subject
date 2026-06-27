@@ -1,0 +1,59 @@
+// PM2 进程清单
+// 使用：cd ~/CMCC-PROJECT && pm2 start ecosystem.config.cjs && pm2 save
+// 把 /Users/ZevinGunn 改成真实家目录
+
+module.exports = {
+  apps: [
+    {
+      name: "cookie-app",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app",
+      script: "npx",
+      args: "tsx api/server.ts",
+      env: { NODE_ENV: "production", PORT: "3101" },
+      max_memory_restart: "1G",
+    },
+    {
+      name: "rights-backend",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/bj-cmcc-qy/backend",
+      script: "src/server.js",
+      env: { NODE_ENV: "production", PORT: "3010" },
+    },
+    {
+      name: "arpu-proxy",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/好礼多多本地版查询",
+      script: "proxy-server.js",
+      env: { NODE_ENV: "production", PORT: "3000" },
+    },
+    {
+      name: "cmcc-notice",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/cmcc-notice",
+      script: "server.js",
+      env: { NODE_ENV: "production", PORT: "3111" },
+    },
+    {
+      name: "qqt-backend",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/qqt/backend",
+      script: "src/index.js",
+      env: { NODE_ENV: "production", PORT: "7607" },
+    },
+    {
+      name: "qqtlocal",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/qqtlocal-rights",
+      script: "venv/bin/python",
+      args: "-m uvicorn backend.app:app --host 127.0.0.1 --port 8899",
+      interpreter: "none",
+      env: { NODE_ENV: "production", PORT: "8899" },
+    },
+    {
+      name: "project-manager",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/project-manager",
+      script: "server.js",
+      env: {
+        NODE_ENV: "production",
+        HOST: "127.0.0.1",
+        PORT: "7800",
+        PATH: "/Users/ZevinGunn/.nvm/versions/node/v18.20.8/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      },
+    },
+  ],
+};

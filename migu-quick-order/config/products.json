@@ -1,0 +1,38 @@
+[
+  {
+    "id": "migu-video-year",
+    "name": "咪咕视频会员年包合约",
+    "host": "https://xyw.bj.10086.cn",
+    "proxy": "",
+    "resolveIp": "",
+    "baseApi": "/mkt_web",
+    "route": "/miguVideoYear",
+    "mktId": 171,
+    "channelCode": "173",
+    "pageCode": "40037504236102b839b417e30cd9891e",
+    "mktCode": "17a230e954bd28443c5dcdbaacaa8158",
+    "productCode": "f98e0730ee990b2b32553e8c571286f9",
+    "offerId": "111603010506",
+    "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxAGiZYJFbbV6fTpYWe/F3dZIRik7UJUAfhWESuKSsM/88yE7MiKxJRRWN6ndkTEiO45KbeyJv6NBUx1W8DEP4nm+TsfeMp+EhQKVpsD3qL2q7iBlNtfSUFd2C8isOXawfuYSRrw0WBRcaMxGdSr53fUPBXX4X/crt4UnntePOSu0A2iLgkqWTBQkZMn/BugUsFu9E6JjzX7su2VBnJ1wQ8fpgSTHIV2Klq2x5/z8CnN1MP6OFRr7yF1HJHu9o2jOxf4OZzasMdKJy10rm0dWn5WXtQ9nnGpJslpTnpSD2nkf8SLCy/KRChNGLRMoZ5/B4rPN0nc9k3mv6PrXF9urbwIDAQAB",
+    "summary": "0元/年，立即生效，有效期12个月。仅限北京移动用户，12个月内只能订购一次。",
+    "enabled": true
+  },
+  {
+    "id": "new-product-1781933398343",
+    "name": "承诺低消资源回馈版238元以上档",
+    "host": "https://xyw.bj.10086.cn",
+    "proxy": "",
+    "resolveIp": "",
+    "baseApi": "/mkt_web",
+    "route": "/miguVideoYear",
+    "mktId": 171,
+    "channelCode": "173",
+    "pageCode": "40037504236102b839b417e30cd9891e",
+    "mktCode": "17a230e954bd28443c5dcdbaacaa8158",
+    "productCode": "f98e0730ee990b2b32553e8c571286f9",
+    "offerId": "111603018800",
+    "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxAGiZYJFbbV6fTpYWe/F3dZIRik7UJUAfhWESuKSsM/88yE7MiKxJRRWN6ndkTEiO45KbeyJv6NBUx1W8DEP4nm+TsfeMp+EhQKVpsD3qL2q7iBlNtfSUFd2C8isOXawfuYSRrw0WBRcaMxGdSr53fUPBXX4X/crt4UnntePOSu0A2iLgkqWTBQkZMn/BugUsFu9E6JjzX7su2VBnJ1wQ8fpgSTHIV2Klq2x5/z8CnN1MP6OFRr7yF1HJHu9o2jOxf4OZzasMdKJy10rm0dWn5WXtQ9nnGpJslpTnpSD2nkf8SLCy/KRChNGLRMoZ5/B4rPN0nc9k3mv6PrXF9urbwIDAQAB",
+    "summary": "",
+    "enabled": true
+  }
+]

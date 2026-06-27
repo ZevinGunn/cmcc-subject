@@ -1,0 +1,202 @@
+.arco-checkbox,
+.arco-checkbox .checkbox-icon {
+  align-items: center;
+  display: inline-flex;
+}
+.arco-checkbox .checkbox-icon {
+  color: #e5e6eb;
+  font-size: 20px;
+}
+.arco-checkbox .checkbox-icon.checked {
+  color: #165dff;
+}
+.arco-checkbox .checkbox-icon.disabled {
+  color: #f7f8fa;
+}
+.arco-checkbox .checkbox-icon.checked.disabled {
+  color: #e8f3ff;
+}
+.arco-checkbox .checkbox-icon .arco-icon-circle-disabled path {
+  stroke: #e5e6eb;
+}
+.arco-checkbox .checkbox-text {
+  color: #1d2129;
+  font-size: 0.32rem;
+}
+.arco-checkbox .checkbox-icon + .checkbox-text {
+  margin-left: 0.16rem;
+}
+[dir="rtl"] .arco-checkbox .checkbox-icon + .checkbox-text {
+  margin-left: 0;
+  margin-right: 0.16rem;
+}
+.arco-checkbox.disabled .checkbox-text {
+  opacity: 0.5;
+}
+.arco-checkbox.block {
+  width: 100%;
+}
+.arco-checkbox.justify {
+  justify-content: space-between;
+  width: 100%;
+}
+.arco-checkbox-group .arco-checkbox:not(:last-child) {
+  margin-right: 0.48rem;
+}
+[dir="rtl"] .arco-checkbox-group .arco-checkbox:not(:last-child) {
+  margin-left: 0.48rem;
+  margin-right: 0;
+}
+.arco-checkbox-group .arco-checkbox:not(:last-child).block,
+.arco-checkbox-group .arco-checkbox:not(:last-child).justify {
+  margin-right: 0;
+}
+[dir="rtl"] .arco-checkbox-group .arco-checkbox:not(:last-child).block,
+[dir="rtl"] .arco-checkbox-group .arco-checkbox:not(:last-child).justify {
+  margin-left: 0;
+  margin-right: 0;
+}
+.arco-input-container {
+  color: #1d2129;
+  position: relative;
+  width: 100%;
+}
+.arco-input-container .arco-input-label {
+  min-width: 1.28rem;
+}
+.arco-input-label {
+  padding-top: 1px;
+}
+.arco-input-label.required:before {
+  color: #f53f3f;
+  content: "* ";
+}
+.disabled .arco-input-label {
+  color: #c9cdd4;
+}
+.arco-input-wrap {
+  align-items: center;
+  display: flex;
+  height: 1.08rem;
+  padding: 0 0.32rem;
+  position: relative;
+}
+.arco-input-wrap input,
+.arco-input-wrap textarea {
+  background: transparent;
+  flex: 1 1;
+}
+.arco-input-wrap input:disabled,
+.arco-input-wrap textarea:disabled {
+  -webkit-text-fill-color: #c9cdd4;
+  color: #c9cdd4;
+  opacity: 1;
+}
+.arco-input-wrap.textarea {
+  align-items: flex-start;
+  height: auto;
+  padding: 0.32rem;
+}
+.arco-input-wrap.textarea.has-stat {
+  padding: 0.32rem 0.32rem 0.88rem;
+}
+.arco-input-wrap.border-all {
+  box-shadow: inset 0 0 0 1px #e5e6eb;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .arco-input-wrap.border-all {
+    box-shadow: inset 0 0 0 0.5px #e5e6eb;
+  }
+}
+.arco-input-wrap.border-all.ios,
+.ios .arco-input-wrap.border-all {
+  border: 0.5px solid #e5e6eb;
+  box-shadow: none;
+}
+.arco-input-wrap.border-half {
+  box-shadow: inset 0 1px 0 0 #e5e6eb;
+  box-shadow: inset 0 -1px 0 0 #e5e6eb;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .arco-input-wrap.border-half {
+    box-shadow: inset 0 0.5px 0 0 #e5e6eb;
+  }
+}
+.arco-input-wrap.border-half.ios,
+.ios .arco-input-wrap.border-half {
+  border-top: 0.5px solid #e5e6eb;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .arco-input-wrap.border-half {
+    box-shadow: inset 0 -0.5px 0 0 #e5e6eb;
+  }
+}
+.arco-input-wrap.border-half.ios,
+.ios .arco-input-wrap.border-half {
+  border-bottom: 0.5px solid #e5e6eb;
+  box-shadow: none;
+}
+.arco-input-wrap.border-bottom {
+  box-shadow: inset 0 -1px 0 0 #e5e6eb;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .arco-input-wrap.border-bottom {
+    box-shadow: inset 0 -0.5px 0 0 #e5e6eb;
+  }
+}
+.arco-input-wrap.border-bottom.ios,
+.ios .arco-input-wrap.border-bottom {
+  border-bottom: 0.5px solid #e5e6eb;
+  box-shadow: none;
+}
+.arco-input-clear,
+.arco-input-prefix,
+.arco-input-suffix {
+  align-items: center;
+  display: flex;
+  font-size: 0.32rem;
+  justify-content: center;
+  line-height: 0.44rem;
+}
+.arco-input-prefix {
+  padding-right: 0.48rem;
+}
+[dir="rtl"] .arco-input-prefix {
+  padding-left: 0.48rem;
+  padding-right: 0;
+}
+.arco-input-clear,
+.arco-input-suffix {
+  padding-left: 0.32rem;
+}
+[dir="rtl"] .arco-input-clear,
+[dir="rtl"] .arco-input-suffix {
+  padding-left: 0;
+  padding-right: 0.32rem;
+}
+.arco-input-clear {
+  color: #c9cdd4;
+  font-size: 16px;
+}
+.arco-input {
+  caret-color: #165dff;
+  color: #1d2129;
+  display: inline-block;
+  font-size: 0.32rem;
+  height: 100%;
+  line-height: 0.44rem;
+  padding: 0.24rem 0;
+  width: 100%;
+}
+.arco-input::-webkit-input-placeholder {
+  color: #c9cdd4;
+}
+.arco-input::-ms-input-placeholder {
+  color: #c9cdd4;
+}
+.arco-input::placeholder {
+  color: #c9cdd4;
+}
+.arco-input::-webkit-search-cancel-button {
+  display: none;
+}
