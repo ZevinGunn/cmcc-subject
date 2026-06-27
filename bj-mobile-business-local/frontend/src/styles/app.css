@@ -853,3 +853,401 @@ button:disabled {
     padding: 20px 18px;
   }
 }
+
+/* Compact v2 */
+.login-page {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+  padding: 76px 22px 28px;
+  background: #f3f8fc;
+}
+
+.login-back {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px;
+  color: #1789e8;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid #d9e8f5;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-panel {
+  align-self: start;
+  width: min(410px, 100%);
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.cmcc-logo {
+  display: grid;
+  justify-items: center;
+  margin: 0 0 72px;
+  color: #168ce6;
+}
+
+.logo-mark {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 10px;
+  border: 7px solid #1698e7;
+  border-left-color: #73c92f;
+  border-radius: 50%;
+  transform: rotate(-35deg);
+}
+
+.cmcc-logo strong {
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.cmcc-logo em {
+  font-size: 19px;
+  font-style: normal;
+}
+
+.login-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 56px;
+  margin: 0;
+  color: #079df5;
+  border-bottom: 1px solid #cfd5db;
+}
+
+.login-row input {
+  min-width: 0;
+  width: 100%;
+  height: 40px;
+  padding: 0;
+  color: #2b2f36;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.login-row input::placeholder {
+  color: #9b9fa6;
+}
+
+.row-action {
+  height: 34px;
+  padding: 0 15px;
+  color: #8e939b;
+  background: transparent;
+  border: 1px solid #bfc5cc;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.captcha-login-row .captcha-img {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 32px;
+  color: #1789e8;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid #d0d8e0;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.captcha-login-row .captcha-img img {
+  max-width: 84px;
+  height: 28px;
+}
+
+.agreement {
+  margin: 14px 0 58px;
+  text-align: center;
+  color: #8b8f96;
+  font-size: 13px;
+}
+
+.agreement input,
+.login-footer input {
+  width: 14px;
+  height: 14px;
+  margin: 0 4px 0 0;
+  vertical-align: -2px;
+}
+
+.agreement a,
+.voice-link a {
+  color: #079df5;
+  text-decoration: none;
+}
+
+.login-page .primary-btn {
+  height: 54px;
+  margin-top: 0;
+  background: linear-gradient(90deg, #b7e5ff, #b8d9ff);
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.voice-link {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #8b8f96;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-footer {
+  align-self: end;
+  margin: 34px auto 0;
+  text-align: center;
+  color: #9a9da4;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.login-footer p {
+  margin: 8px 0;
+}
+
+.business-page {
+  background: linear-gradient(#ddf2ff 0, #ddf2ff 138px, #f6f7f9 138px, #f6f7f9 100%);
+}
+
+.business-hero {
+  min-height: 138px;
+  padding: 18px 18px 14px;
+}
+
+.business-hero h1 {
+  margin-bottom: 14px;
+  font-size: 17px;
+}
+
+.business-hero strong {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.brand-pill {
+  min-height: 26px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.hero-actions {
+  top: 14px;
+  right: 16px;
+  gap: 8px;
+}
+
+.hero-actions button {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.query-btn {
+  right: 16px;
+  bottom: 16px;
+  height: 46px;
+  min-width: 100px;
+  font-size: 15px;
+}
+
+.business-shell {
+  min-height: calc(100vh - 138px);
+}
+
+.month-strip {
+  grid-template-columns: repeat(5, 1fr) 52px;
+  gap: 6px;
+  padding: 18px 12px 12px;
+}
+
+.month-chip,
+.month-calendar {
+  height: 60px;
+}
+
+.month-chip strong,
+.month-option strong {
+  font-size: 20px;
+}
+
+.month-chip span,
+.month-option span {
+  font-size: 14px;
+}
+
+.month-panel {
+  top: 82px;
+  gap: 12px 14px;
+  padding: 18px;
+}
+
+.month-option {
+  height: 70px;
+}
+
+.business-shell .tabs {
+  height: 58px;
+}
+
+.business-shell .tab {
+  font-size: 15px;
+}
+
+.business-shell .tab.active::after {
+  bottom: 7px;
+  width: 46px;
+  height: 4px;
+}
+
+.business-list,
+.skeleton-list {
+  display: grid;
+  gap: 10px;
+  padding: 0 12px 22px;
+}
+
+.business-item {
+  gap: 10px;
+  min-height: 108px;
+  padding: 17px 20px;
+}
+
+.item-title-row {
+  margin-bottom: 12px;
+}
+
+.business-item h2 {
+  font-size: 17px;
+}
+
+.detail-btn {
+  width: 21px;
+  height: 21px;
+  font-size: 14px;
+}
+
+.item-meta {
+  gap: 6px;
+  font-size: 14px;
+}
+
+.unsubscribe-btn {
+  width: 88px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.skeleton-card {
+  min-height: 160px;
+  padding: 22px 20px;
+  background: #fff;
+  border-radius: 18px;
+}
+
+.sk-line,
+.sk-actions span {
+  display: block;
+  height: 18px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #ececec 0%, #f7f7f7 42%, #ececec 84%);
+  background-size: 220% 100%;
+  border-radius: 999px;
+  animation: skeleton-shimmer 1.25s ease-in-out infinite;
+}
+
+.sk-title {
+  width: 68%;
+  height: 24px;
+  margin: 0 0 22px;
+}
+
+.sk-mid {
+  width: 52%;
+  margin: 0 0 14px;
+}
+
+.sk-long {
+  width: 94%;
+  margin: 0 0 14px;
+}
+
+.sk-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.sk-actions span {
+  width: 88px;
+  height: 36px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.message-toast-wrap {
+  top: 18px;
+}
+
+.message-toast {
+  width: auto;
+  max-width: min(420px, 100%);
+  padding: 10px 16px;
+  color: #606266;
+  background: #edf2fc;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.message-toast.success {
+  color: #67c23a;
+  background: #f0f9eb;
+  border-color: #e1f3d8;
+}
+
+.message-toast.error {
+  color: #f56c6c;
+  background: #fef0f0;
+  border-color: #fde2e2;
+}
+
+.message-toast h3 {
+  display: none;
+}
+
+.message-toast p {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.35;
+}
