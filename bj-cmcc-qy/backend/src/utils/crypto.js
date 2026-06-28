@@ -53,3 +53,13 @@ export function tryJson(value) {
   }
 }
 
+export function tryBase64Json(value) {
+  if (typeof value !== "string") return value;
+  const text = value.trim();
+  if (!text || text.startsWith("{") || text.startsWith("[")) return value;
+  try {
+    return JSON.parse(Buffer.from(text, "base64").toString("utf8"));
+  } catch {
+    return value;
+  }
+}

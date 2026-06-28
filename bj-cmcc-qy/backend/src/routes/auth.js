@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { fail, ok, requireSession } from "../utils/http.js";
-import { loginWithSms, logout, refreshUser, sendLoginSms } from "../services/authService.js";
+import { loginWithGroupToken, loginWithSms, logout, refreshUser, sendLoginSms } from "../services/authService.js";
 import { createQrLoginFlow, getQrLoginCookie, pollQrLoginFlow } from "../services/cmccQrLoginService.js";
 import { publicUser } from "../sessionStore.js";
 
@@ -23,6 +23,25 @@ authRouter.post("/sms/login", async (req, res) => {
     if (!/^\d{11}$/.test(String(phone || ""))) return fail(res, "请输入 11 位手机号");
     if (!/^\d{6}$/.test(String(code || ""))) return fail(res, "请输入 6 位验证码");
     const data = await loginWithSms(phone, code, { retailerCode, sonRetailerCode });
+    ok(res, data);
+  } catch (error) {
+    fail(res, error.message, 500);
+  }
+});
+
+authRouter.post("/group-token/login", async (req, res) => {
+  try {
+    const { token, phone, retailerCode, sonRetailerCode, phoneNetCheckMethod } = req.body || {};
+    const cleanToken = String(token || "").trim();
+    const cleanPhone = String(phone || "").trim();
+    if (!cleanToken) return fail(res, "请输入集团 token");
+    if (cleanPhone && !/^\d{11}$/.test(cleanPhone)) return fail(res, "手机号需为 11 位数字");
+    const data = await loginWithGroupToken(cleanToken, {
+      phone: cleanPhone,
+      retailerCode,
+      sonRetailerCode,
+      phoneNetCheckMethod
+    });
     ok(res, data);
   } catch (error) {
     fail(res, error.message, 500);

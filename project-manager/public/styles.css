@@ -285,6 +285,106 @@ button.ghost {
   background: var(--panel);
 }
 
+.storage-panel {
+  margin-top: 16px;
+}
+
+.storage-title {
+  align-items: flex-start;
+}
+
+.storage-title > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.storage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.storage-table {
+  display: grid;
+  gap: 8px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.storage-row {
+  display: grid;
+  grid-template-columns: 24px 58px minmax(0, 1fr) 132px 78px;
+  align-items: center;
+  gap: 10px;
+  min-height: 72px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.storage-row.recommended {
+  border-left: 4px solid var(--accent);
+}
+
+.storage-row.locked {
+  background: var(--panel-soft);
+}
+
+.storage-row input {
+  width: 16px;
+  height: 16px;
+}
+
+.storage-kind,
+.storage-badge {
+  display: inline-grid;
+  place-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  background: #edf1f3;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.storage-row.recommended .storage-badge {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.storage-info {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.storage-info strong {
+  font-size: 14px;
+}
+
+.storage-info small,
+.storage-info em,
+.storage-meta small {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.storage-meta {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+}
+
+.storage-meta b {
+  font-size: 14px;
+}
+
 .section-title {
   display: flex;
   align-items: center;
@@ -372,6 +472,24 @@ pre {
   .facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .storage-title {
+    display: grid;
+  }
+
+  .storage-actions {
+    justify-content: flex-start;
+  }
+
+  .storage-row {
+    grid-template-columns: 24px 52px minmax(0, 1fr);
+  }
+
+  .storage-meta,
+  .storage-badge {
+    grid-column: 3;
+    justify-self: start;
+  }
 }
 
 @media (max-width: 760px) {
@@ -387,5 +505,9 @@ pre {
 
   .summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .storage-actions button {
+    width: 100%;
   }
 }

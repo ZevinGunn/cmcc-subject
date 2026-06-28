@@ -172,6 +172,7 @@ function isBusinessSessionExpired(data) {
 export const endpoints = {
   sendLoginSms: (phone) => api("/api/auth/sms/send", { method: "POST", body: { phone } }),
   login: (phone, code) => api("/api/auth/sms/login", { method: "POST", body: { phone, code, retailerCode: 'BJYDJTAPP001', sonRetailerCode: 'A004' } }),
+  loginWithGroupToken: (body) => api("/api/auth/group-token/login", { method: "POST", body }),
   startAppQrLogin: (body = {}) => api("/api/auth/app-qr/start", { method: "POST", body }),
   pollAppQrLogin: (flowId) => api("/api/auth/app-qr/poll", { method: "POST", body: { flowId } }),
   getAppQrCookie: (flowId) => api("/api/auth/app-qr/cookie", { method: "POST", body: { flowId } }),

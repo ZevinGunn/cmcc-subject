@@ -13,13 +13,13 @@
         <p>{{ pageTitle }}</p>
       </div>
       <div v-if="activeUser" class="account-bar">
-        <select v-model="selectedToken" @change="switchAccount">
-          <option v-for="account in accounts" :key="account.localToken" :value="account.localToken">
-            {{ account.label }}
-          </option>
-        </select>
-        <button class="ghost" @click="showLogin = true">切换手机号</button>
-        <button class="ghost icon-button" title="删除账号" @click="removeCurrentAccount" aria-label="删除账号">
+        <button class="account-switcher" @click="openAccountSheet" aria-label="切换账号">
+          <span>{{ activeUser.label }}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 7h9.2l-2.6-2.6L15 3l5 5-5 5-1.4-1.4L16.2 9H7V7Zm10 10H7.8l2.6 2.6L9 21l-5-5 5-5 1.4 1.4L7.8 15H17v2Z" fill="currentColor" />
+          </svg>
+        </button>
+        <button class="account-delete-button" title="删除当前账号" @click="removeCurrentAccount" aria-label="删除当前账号">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
               d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 6h2v8h-2V9Zm4 0h2v8h-2V9ZM7 9h2v8H7V9Zm-1 11h12l1-13H5l1 13Z"
@@ -29,6 +29,51 @@
         </button>
       </div>
     </header>
+
+    <section v-if="isTokenTestPage" class="token-test-page">
+      <section class="panel token-test-card">
+        <div class="panel-title">
+          <h2>集团 token 登录测试</h2>
+          <span>GROUP_TOKEN_VALIDATE</span>
+        </div>
+        <div class="token-test-grid">
+          <label class="token-test-token">
+            <span>集团 token</span>
+            <textarea v-model="groupTokenForm.token" placeholder="粘贴 App 侧 token"></textarea>
+          </label>
+          <label>
+            <span>手机号（可选）</span>
+            <input v-model="groupTokenForm.phone" inputmode="numeric" maxlength="11" placeholder="用于 traceMemberPhone" />
+          </label>
+          <label>
+            <span>retailerCode</span>
+            <input v-model="groupTokenForm.retailerCode" />
+          </label>
+          <label>
+            <span>sonRetailerCode</span>
+            <input v-model="groupTokenForm.sonRetailerCode" />
+          </label>
+          <label>
+            <span>phoneNetCheckMethod</span>
+            <input v-model="groupTokenForm.phoneNetCheckMethod" />
+          </label>
+        </div>
+        <div class="row-actions token-test-actions">
+          <button class="primary" @click="loginByGroupToken" :disabled="busy || !canLoginWithGroupToken">
+            置换并登录
+          </button>
+          <button class="ghost" @click="goMainPage" :disabled="!activeUser">进入权益页</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <h2>测试结果</h2>
+          <span>{{ activeUser ? activeUser.label : "未登录" }}</span>
+        </div>
+        <pre class="token-test-result">{{ groupTokenResultText }}</pre>
+      </section>
+    </section>
 
     <section v-if="!isKnownPage" class="panel invalid-page-panel">
       <div class="panel-title">
@@ -312,10 +357,6 @@
 
     <template v-if="activeUser && isRightsPage">
     <section v-if="activeUser" class="dashboard">
-      <div class="metric">
-        <span>当前账号</span>
-        <strong>{{ activeUser.label }}</strong>
-      </div>
       <div class="metric">
         <span>可用 Plus 券</span>
         <strong>{{ availableCoupons }}</strong>
@@ -722,6 +763,33 @@
     </div>
     </template>
 
+    <div v-if="accountSheetOpen" class="modal-mask account-sheet-mask" @click.self="closeAccountSheet">
+      <section class="account-sheet-panel">
+        <div class="account-sheet-head">
+          <h2>当前登录号码：<strong>{{ activeUser?.label || "-" }}</strong></h2>
+          <button class="account-sheet-close" @click="closeAccountSheet" aria-label="关闭">×</button>
+        </div>
+        <div class="account-sheet-list">
+          <button v-if="activeUser" class="account-sheet-item active current">
+            <span>{{ activeUser.label }}</span>
+            <strong>当前</strong>
+          </button>
+          <button
+            v-for="account in accounts"
+            :key="account.localToken"
+            class="account-sheet-item"
+            @click="chooseAccount(account.localToken)"
+            v-show="account.localToken !== selectedToken"
+          >
+            <span>{{ account.label }}</span>
+            <strong>切换</strong>
+          </button>
+          <p v-if="!accounts.length">暂无历史登录号码</p>
+        </div>
+        <button class="account-login-other" @click="loginOtherAccount">其他号码登录</button>
+      </section>
+    </div>
+
     <div v-if="plus99ClaimDialog" class="modal-mask" @click.self="closePlus99Claim">
       <section class="modal-panel confirm-panel">
         <h2>{{ plus99ClaimDialog.exclusive ? "确认领取专属权益" : "确认订购 99plus 权益" }}</h2>
@@ -898,6 +966,14 @@ const phone = ref("");
 const code = ref("");
 const smsCountdown = ref(0);
 const smsSentPhone = ref("");
+const groupTokenForm = ref({
+  token: "",
+  phone: "",
+  retailerCode: "BJYDJTAPP001",
+  sonRetailerCode: "P20251005001",
+  phoneNetCheckMethod: "1"
+});
+const groupTokenLastResult = ref(null);
 const qrBusy = ref(false);
 const qrFlow = ref({
   flowId: "",
@@ -914,6 +990,8 @@ const qrCookie = ref({
 });
 const accounts = ref(getAccounts());
 const selectedToken = ref(getToken());
+const accountSheetOpen = ref(false);
+const ordersInitialLoaded = ref(false);
 const activeTab = ref("rights");
 const pageMode = ref(currentPageMode());
 const activeUser = ref(null);
@@ -1008,6 +1086,11 @@ const canRequestSms = computed(() => /^\d{11}$/.test(String(phone.value || "")))
 const canLoginWithSms = computed(
   () => /^\d{11}$/.test(String(phone.value || "")) && /^\d{6}$/.test(String(code.value || ""))
 );
+const canLoginWithGroupToken = computed(() => {
+  const token = String(groupTokenForm.value.token || "").trim();
+  const phone = String(groupTokenForm.value.phone || "").trim();
+  return Boolean(token) && (!phone || /^\d{11}$/.test(phone));
+});
 const qrStatusText = computed(() => {
   if (qrCookie.value.cookie) return "已获取 Cookie";
   if (qrFlow.value.status === "success") return "扫码成功";
@@ -1032,9 +1115,11 @@ const isRightsPage = computed(() => pageMode.value === "rights");
 const isPlus99Page = computed(() => pageMode.value === "plus99-new");
 const isOfferOrderPage = computed(() => pageMode.value === "offer-order");
 const isSubscriptionPage = computed(() => pageMode.value === "subscription-details");
-const isKnownPage = computed(() => isRightsPage.value || isPlus99Page.value || isOfferOrderPage.value || isSubscriptionPage.value);
-const showLoginPage = computed(() => isKnownPage.value && (!activeUser.value || showLogin.value));
+const isTokenTestPage = computed(() => pageMode.value === "token-test");
+const isKnownPage = computed(() => isRightsPage.value || isPlus99Page.value || isOfferOrderPage.value || isSubscriptionPage.value || isTokenTestPage.value);
+const showLoginPage = computed(() => !isTokenTestPage.value && isKnownPage.value && (!activeUser.value || showLogin.value));
 const pageTitle = computed(() => {
+  if (isTokenTestPage.value) return "集团 token 登录测试";
   if (isPlus99Page.value) return "99plus（新）权益领取";
   if (isOfferOrderPage.value) return "权益业务领取";
   if (isSubscriptionPage.value) return "业务订购详情";
@@ -1081,6 +1166,10 @@ const subscriptionMemberFacts = computed(() => {
     { label: "等级", value: [info.lvCode, info.cardStars ? `${info.cardStars}星` : ""].filter(Boolean).join(" / ") || "-" },
     { label: "会员ID", value: info.memberId || "-" }
   ];
+});
+const groupTokenResultText = computed(() => {
+  if (!groupTokenLastResult.value) return "等待提交 token";
+  return JSON.stringify(groupTokenLastResult.value, null, 2);
 });
 
 const vLazy = {
@@ -1189,6 +1278,29 @@ async function login() {
   await bootAccount();
 }
 
+async function loginByGroupToken() {
+  const form = groupTokenForm.value;
+  const data = await wrap(
+    () =>
+      endpoints.loginWithGroupToken({
+        token: String(form.token || "").trim(),
+        phone: String(form.phone || "").trim(),
+        retailerCode: String(form.retailerCode || "").trim(),
+        sonRetailerCode: String(form.sonRetailerCode || "").trim(),
+        phoneNetCheckMethod: String(form.phoneNetCheckMethod || "").trim()
+      }),
+    "集团 token 登录完成"
+  );
+  groupTokenLastResult.value = data;
+  if (!data.localToken) return show(data.result?.resultMsg || "token 登录失败");
+  const label = data.user?.desensitizedPhoneNumber || form.phone || "集团 token 账号";
+  saveAccount({ localToken: data.localToken, label, user: data.user });
+  accounts.value = getAccounts();
+  selectedToken.value = data.localToken;
+  setToken(data.localToken);
+  activeUser.value = accounts.value.find((item) => item.localToken === data.localToken) || null;
+}
+
 async function startQrLogin() {
   stopQrPolling();
   qrBusy.value = true;
@@ -1287,7 +1399,7 @@ async function bootAccount() {
   }
   restoreCachedRights();
   await Promise.allSettled([loadCoupons(), ensureRightsLoaded()]);
-  if (activeTab.value === "orders") await loadRecentMonths();
+  if (activeTab.value === "orders") await ensureInitialOrdersLoaded();
 }
 
 async function syncActiveUserFromSession() {
@@ -1309,6 +1421,29 @@ async function switchAccount() {
   await bootAccount();
 }
 
+function openAccountSheet() {
+  accountSheetOpen.value = true;
+}
+
+function closeAccountSheet() {
+  accountSheetOpen.value = false;
+}
+
+async function chooseAccount(localToken) {
+  if (!localToken || localToken === selectedToken.value) {
+    closeAccountSheet();
+    return;
+  }
+  selectedToken.value = localToken;
+  await switchAccount();
+  closeAccountSheet();
+}
+
+function loginOtherAccount() {
+  closeAccountSheet();
+  showLogin.value = true;
+}
+
 function removeCurrentAccount() {
   const token = getToken();
   if (!token) return;
@@ -1317,7 +1452,18 @@ function removeCurrentAccount() {
 
 async function switchTab(tab) {
   activeTab.value = tab;
-  if (tab === "orders") await loadRecentMonths();
+  if (tab === "orders") await ensureInitialOrdersLoaded();
+}
+
+async function ensureInitialOrdersLoaded() {
+  if (ordersInitialLoaded.value) return;
+  ordersInitialLoaded.value = true;
+  try {
+    await loadRecentMonths();
+  } catch (error) {
+    ordersInitialLoaded.value = false;
+    throw error;
+  }
 }
 
 function currentPageMode() {
@@ -1327,6 +1473,7 @@ function currentPageMode() {
   if (page === "plus99-new") return "plus99-new";
   if (page === "offer-order") return "offer-order";
   if (page === "subscription-details") return "subscription-details";
+  if (page === "token-test") return "token-test";
   return "invalid";
 }
 
@@ -2039,12 +2186,8 @@ async function loadOrders(options = {}) {
   }
   const monthList = months || [monthKeyFromDate(orderCursor.value)];
   const rows = await wrap(async () => {
-    const merged = [];
-    for (const month of monthList) {
-      const data = await endpoints.fortuneOrders({ queryMonth: month });
-      if (Array.isArray(data.data)) merged.push(...data.data);
-    }
-    return merged;
+    const responses = await Promise.all(monthList.map((month) => endpoints.fortuneOrders({ queryMonth: month })));
+    return responses.flatMap((data) => (Array.isArray(data.data) ? data.data : []));
   }, reset ? "订单已刷新" : "已加载更早月份订单");
   orders.value = reset ? mergeOrders([], rows) : mergeOrders(orders.value, rows);
   selectedOrderIds.value = selectedOrderIds.value.filter((id) => orders.value.some((order) => order.custOrderId === id));
@@ -2538,6 +2681,7 @@ function resetAccountState() {
   keyword.value = "";
   exchangeNumFilter.value = "";
   orders.value = [];
+  ordersInitialLoaded.value = false;
   codeCards.value = [];
   batchCards.value = [];
   batchSummary.value = "";

@@ -17,7 +17,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -48,7 +49,8 @@ button:disabled {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 40px;
   border: 1px solid #d8e0ee;
@@ -60,9 +62,16 @@ select {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: #1976f3;
   box-shadow: 0 0 0 3px rgba(25, 118, 243, 0.12);
+}
+
+textarea {
+  min-height: 116px;
+  padding: 10px;
+  resize: vertical;
 }
 
 h1,
@@ -112,12 +121,59 @@ small {
 
 .account-bar {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   align-items: center;
 }
 
-.account-bar select {
-  width: 178px;
+.account-switcher {
+  min-width: 0;
+  min-height: 34px;
+  display: inline-grid;
+  grid-template-columns: minmax(0, auto) 30px;
+  gap: 6px;
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #c15f53;
+  padding: 0;
+  box-shadow: none;
+}
+
+.account-switcher span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-switcher svg {
+  width: 30px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(151, 119, 85, 0.28);
+  color: #fff;
+  padding: 4px 6px;
+}
+
+.account-delete-button {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #172236;
+}
+
+.account-delete-button svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+  margin: 0 auto;
 }
 
 .icon-button {
@@ -168,7 +224,7 @@ small {
   align-content: start;
   justify-items: center;
   background: #fff;
-  padding: clamp(108px, 18dvh, 210px) clamp(28px, 8vw, 106px) 40px;
+  padding: clamp(92px, 16dvh, 188px) clamp(24px, 8vw, 96px) 40px;
 }
 
 .login-back {
@@ -185,60 +241,60 @@ small {
 .login-brand {
   display: grid;
   justify-items: center;
-  gap: 16px;
-  margin-bottom: clamp(92px, 14dvh, 150px);
+  gap: clamp(10px, 1.8vw, 14px);
+  margin-bottom: clamp(74px, 11dvh, 128px);
 }
 
 .login-logo {
-  width: 96px;
-  height: 96px;
+  width: clamp(66px, 9vw, 86px);
+  height: clamp(66px, 9vw, 86px);
   display: block;
   object-fit: contain;
 }
 
 .login-brand h1 {
   color: #2d2d2d;
-  font-size: 31px;
+  font-size: clamp(23px, 3.1vw, 28px);
   font-weight: 900;
   line-height: 1.2;
   letter-spacing: 0;
 }
 
 .login-form {
-  width: min(520px, 100%);
+  width: min(500px, 100%);
   display: grid;
   gap: 0;
 }
 
 .login-field {
   width: 100%;
-  min-height: 74px;
+  min-height: clamp(62px, 7.2vw, 70px);
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
-  gap: 18px;
+  grid-template-columns: clamp(42px, 6vw, 50px) minmax(0, 1fr) auto;
+  gap: clamp(10px, 2vw, 16px);
   align-items: center;
   border-bottom: 2px solid #d6a189;
 }
 
 .login-field:first-child {
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: clamp(42px, 6vw, 50px) minmax(0, 1fr);
 }
 
 .login-field-icon {
-  width: 34px;
-  height: 34px;
+  width: clamp(28px, 4.2vw, 32px);
+  height: clamp(28px, 4.2vw, 32px);
   justify-self: center;
   object-fit: contain;
 }
 
 .login-field input {
-  min-height: 54px;
+  min-height: clamp(46px, 6vw, 52px);
   border: 0;
   border-radius: 0;
   background: transparent;
   color: #333;
   padding: 0;
-  font-size: 24px;
+  font-size: clamp(20px, 3.2vw, 23px);
   font-weight: 400;
 }
 
@@ -253,12 +309,12 @@ small {
 }
 
 .login-code-button {
-  min-height: 54px;
+  min-height: clamp(46px, 6vw, 52px);
   border: 0;
   background: transparent;
   color: #c97b63;
   padding: 0 8px 0 18px;
-  font-size: 22px;
+  font-size: clamp(18px, 3vw, 21px);
   font-weight: 600;
 }
 
@@ -268,13 +324,13 @@ small {
 
 .login-submit {
   width: 100%;
-  min-height: 70px;
-  margin-top: 46px;
+  min-height: clamp(58px, 7vw, 66px);
+  margin-top: clamp(34px, 5vw, 44px);
   border: 0;
   border-radius: 11px;
   background: #efc19d;
   color: #000;
-  font-size: 29px;
+  font-size: clamp(25px, 3.5vw, 28px);
   font-weight: 900;
   letter-spacing: 0;
 }
@@ -296,6 +352,61 @@ small {
 .invalid-page-panel p {
   color: #65748b;
   line-height: 1.7;
+}
+
+.token-test-page {
+  display: grid;
+  gap: 10px;
+}
+
+.token-test-card {
+  display: grid;
+  gap: 12px;
+}
+
+.token-test-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.token-test-grid label {
+  display: grid;
+  gap: 6px;
+  color: #65748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.token-test-grid input,
+.token-test-grid textarea {
+  color: #182236;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.token-test-token {
+  grid-column: 1 / -1;
+}
+
+.token-test-actions {
+  justify-content: flex-start;
+}
+
+.token-test-result {
+  min-height: 220px;
+  max-height: 520px;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid #e1e7f2;
+  border-radius: 8px;
+  background: #f7f9fd;
+  padding: 12px;
+  color: #26354d;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .panel-title {
@@ -454,7 +565,7 @@ label span {
 
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 12px;
 }
@@ -816,6 +927,130 @@ label span {
 
 .confirm-panel {
   width: min(420px, calc(100vw - 24px));
+}
+
+.account-sheet-mask {
+  display: block;
+  padding: 0;
+  background: rgba(14, 24, 40, 0.52);
+}
+
+.account-sheet-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(900px, 100vw);
+  border-radius: 28px 28px 0 0;
+  background: #fff;
+  padding: 26px 28px 28px;
+  box-shadow: 0 -18px 56px rgba(14, 24, 40, 0.22);
+  animation: account-sheet-up 0.18s ease-out;
+}
+
+@keyframes account-sheet-up {
+  from {
+    transform: translate(-50%, 100%);
+  }
+  to {
+    transform: translate(-50%, 0);
+  }
+}
+
+.account-sheet-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.account-sheet-head h2 {
+  color: #707887;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.account-sheet-head strong {
+  color: #202633;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.account-sheet-close {
+  width: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f4f7;
+  color: #a4a9b2;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.account-sheet-list {
+  display: grid;
+  gap: 10px;
+  padding: 22px 0;
+}
+
+.account-sheet-list p {
+  color: #444b58;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.account-sheet-item {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e2e8f2;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 0 16px;
+}
+
+.account-sheet-item span {
+  min-width: 0;
+  color: #202633;
+  font-size: 18px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-sheet-item strong {
+  color: #7a8494;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.account-sheet-item.active {
+  border-color: #b9d1ff;
+  background: #eef5ff;
+}
+
+.account-sheet-item.active strong {
+  color: #1976f3;
+}
+
+.account-login-other {
+  width: 100%;
+  min-height: 62px;
+  border: 0;
+  border-radius: 999px;
+  background: #1976f3;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
 }
 
 .confirm-text {
@@ -1685,25 +1920,29 @@ label span {
   }
 
   .login-screen {
-    padding: clamp(100px, 17dvh, 170px) 54px 36px;
+    padding: clamp(86px, 15dvh, 150px) clamp(30px, 7vw, 54px) 36px;
   }
 
   .login-brand {
-    gap: 14px;
-    margin-bottom: clamp(78px, 12dvh, 118px);
+    gap: clamp(10px, 1.8vw, 13px);
+    margin-bottom: clamp(64px, 10dvh, 106px);
   }
 
   .login-logo {
-    width: 86px;
-    height: 86px;
+    width: clamp(62px, 13vw, 78px);
+    height: clamp(62px, 13vw, 78px);
   }
 
   .login-brand h1 {
-    font-size: 28px;
+    font-size: clamp(22px, 5vw, 26px);
   }
 
   .login-form {
     width: min(100%, 520px);
+  }
+
+  .token-test-grid {
+    grid-template-columns: 1fr;
   }
 
   .login-field {
@@ -1734,9 +1973,9 @@ label span {
   }
 
   .login-submit {
-    min-height: 66px;
-    margin-top: 42px;
-    font-size: 28px;
+    min-height: clamp(56px, 12vw, 64px);
+    margin-top: clamp(32px, 7vw, 40px);
+    font-size: clamp(24px, 5.6vw, 27px);
   }
 
   .topbar {
@@ -1745,13 +1984,13 @@ label span {
   }
 
   .account-bar {
-    display: grid;
-    grid-template-columns: 1fr 92px 68px;
+    display: flex;
     gap: 7px;
+    min-width: 0;
   }
 
-  .account-bar select {
-    width: 100%;
+  .account-switcher {
+    max-width: min(230px, calc(100vw - 116px));
   }
 
   .login-grid,
@@ -2054,21 +2293,21 @@ label span {
   }
 
   .login-screen {
-    padding: 110px 28px 32px;
+    padding: clamp(82px, 14dvh, 112px) 26px 32px;
   }
 
   .login-brand {
-    gap: 12px;
-    margin-bottom: 72px;
+    gap: 10px;
+    margin-bottom: clamp(54px, 9dvh, 72px);
   }
 
   .login-logo {
-    width: 78px;
-    height: 78px;
+    width: clamp(58px, 18vw, 70px);
+    height: clamp(58px, 18vw, 70px);
   }
 
   .login-brand h1 {
-    font-size: 24px;
+    font-size: clamp(21px, 6vw, 24px);
   }
 
   .login-field {
@@ -2112,6 +2351,33 @@ label span {
   }
 
   .account-bar {
-    grid-template-columns: 1fr 84px 62px;
+    display: flex;
+  }
+
+  .account-switcher {
+    max-width: min(210px, calc(100vw - 104px));
+    padding-left: 10px;
+  }
+
+  .account-switcher span {
+    font-size: 13px;
+  }
+
+  .account-sheet-panel {
+    border-radius: 24px 24px 0 0;
+    padding: 22px 20px 24px;
+  }
+
+  .account-sheet-head h2 {
+    font-size: 19px;
+  }
+
+  .account-sheet-head strong {
+    font-size: 21px;
+  }
+
+  .account-login-other {
+    min-height: 56px;
+    font-size: 20px;
   }
 }

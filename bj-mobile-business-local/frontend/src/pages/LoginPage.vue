@@ -7,7 +7,7 @@
 
     <section class="login-panel">
       <div class="cmcc-logo">
-        <span class="logo-mark"></span>
+        <img class="logo-mark" src="../assets/cmcc-logo.png" alt="中国移动" />
         <strong>中国移动</strong>
         <em>China Mobile</em>
       </div>

@@ -1,5 +1,5 @@
 const app = document.querySelector("#app");
-let state = { busy: false, data: null, selectedLog: null };
+let state = { busy: false, data: null, storage: null, selectedLog: null, selectedStorage: new Set() };
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -22,8 +22,11 @@ function route(path) {
 }
 
 function formatBytes(value) {
-  if (!value) return "0 MB";
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  if (!value) return "0 B";
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  return `${(value / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
 function formatUptime(value) {
@@ -41,6 +44,21 @@ function escapeHtml(value = "") {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+  return new Date(value).toLocaleString();
+}
+
+function storageTypeLabel(type) {
+  return {
+    backup: "备份",
+    log: "日志",
+    cache: "缓存",
+    artifact: "产物",
+    dependency: "依赖",
+  }[type] || type;
 }
 
 function loginView() {
@@ -81,8 +99,9 @@ function shellView() {
         </div>
         <div class="top-actions">
           <button class="secondary" data-action="refresh">刷新</button>
-          <button class="secondary" data-action="start-all">全部启动</button>
-          <button class="danger" data-action="stop-all">全部停止业务</button>
+          <button class="secondary" data-action="start-all">一键启动服务</button>
+          <button class="secondary" data-action="restart-all">一键重启服务</button>
+          <button class="danger" data-action="stop-all">一键停止服务</button>
           <button class="ghost" data-action="logout">退出</button>
         </div>
       </header>
@@ -97,6 +116,8 @@ function shellView() {
       <section class="project-list">
         ${data.projects.map(projectCard).join("")}
       </section>
+
+      ${storagePanel()}
 
       <section class="log-layout">
         <article class="panel">
@@ -117,6 +138,66 @@ function shellView() {
         </article>
       </section>
     </section>
+  `;
+}
+
+function storagePanel() {
+  const storage = state.storage;
+  if (!storage) {
+    return `
+      <section class="panel storage-panel">
+        <div class="section-title">
+          <h2>存储清理</h2>
+          <span>正在扫描...</span>
+        </div>
+      </section>
+    `;
+  }
+  const selectedSize = storage.items
+    .filter((item) => state.selectedStorage.has(item.id))
+    .reduce((sum, item) => sum + item.size, 0);
+  const selectedCount = state.selectedStorage.size;
+  const rows = storage.items.length
+    ? storage.items.map(storageRow).join("")
+    : '<p class="empty">暂无可展示的备份、日志或缓存记录</p>';
+  return `
+    <section class="panel storage-panel">
+      <div class="section-title storage-title">
+        <div>
+          <h2>存储清理</h2>
+          <span>共 ${storage.summary.count} 项 · ${formatBytes(storage.summary.totalSize)}，推荐清理 ${storage.summary.recommended.count} 项 · ${formatBytes(storage.summary.recommended.size)}</span>
+        </div>
+        <div class="storage-actions">
+          <button class="secondary" data-action="clear-cache">一键清缓存</button>
+          <button class="secondary" data-action="cleanup-expired">清理过期备份和日志</button>
+          <button class="danger" data-action="storage-delete" ${selectedCount ? "" : "disabled"}>删除已选 ${selectedCount ? `(${formatBytes(selectedSize)})` : ""}</button>
+        </div>
+      </div>
+      <div class="storage-table">
+        ${rows}
+      </div>
+    </section>
+  `;
+}
+
+function storageRow(item) {
+  const checked = state.selectedStorage.has(item.id) ? "checked" : "";
+  const disabled = item.removable ? "" : "disabled";
+  return `
+    <label class="storage-row ${item.recommended ? "recommended" : ""} ${item.removable ? "" : "locked"}">
+      <input type="checkbox" data-storage="${item.id}" ${checked} ${disabled}>
+      <span class="storage-kind">${storageTypeLabel(item.type)}</span>
+      <span class="storage-info">
+        <strong>${escapeHtml(item.label)}</strong>
+        <small title="${escapeHtml(item.path)}">${escapeHtml(item.path)}</small>
+        <em>${escapeHtml(item.reason || "")}</em>
+      </span>
+      <span class="storage-meta">
+        <b>${formatBytes(item.size)}</b>
+        <small>${formatDate(item.modifiedAt)}</small>
+      </span>
+      <span class="storage-badge">${item.recommended ? "建议清理" : item.removable ? "手动确认" : "保留"}</span>
+    </label>
   `;
 }
 
@@ -171,21 +252,29 @@ function jobItem(job) {
 }
 
 async function refresh() {
-  state.data = await api("/api/status");
+  const [data, storage] = await Promise.all([api("/api/status"), api("/api/storage")]);
+  state.data = data;
+  state.storage = storage;
+  const validStorageIds = new Set(storage.items.map((item) => item.id));
+  state.selectedStorage = new Set([...state.selectedStorage].filter((id) => validStorageIds.has(id)));
   if (location.pathname !== "/home") history.replaceState({}, "", "/home");
   shellView();
 }
 
-async function runAction(path, title) {
+async function runAction(path, title, body = null) {
   if (state.busy) return;
   state.busy = true;
   document.querySelectorAll("button").forEach((button) => { button.disabled = true; });
   try {
-    const result = await api(path, { method: "POST" });
+    const result = await api(path, {
+      method: "POST",
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
     state.selectedLog = {
       title,
       output: `${result.ok ? "OK" : "FAILED"}\n${result.command ? `${result.command}\n` : ""}\n${result.stdout || ""}${result.stderr ? `\n${result.stderr}` : ""}`,
     };
+    state.selectedStorage.clear();
     await refresh();
   } catch (error) {
     if (error.message !== "unauthorized") state.selectedLog = { title: "错误", output: error.message };
@@ -228,6 +317,14 @@ document.addEventListener("submit", async (event) => {
   }
 });
 
+document.addEventListener("change", (event) => {
+  const input = event.target.closest("input[data-storage]");
+  if (!input) return;
+  if (input.checked) state.selectedStorage.add(input.dataset.storage);
+  else state.selectedStorage.delete(input.dataset.storage);
+  shellView();
+});
+
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button || state.busy) return;
@@ -241,9 +338,25 @@ document.addEventListener("click", async (event) => {
   if (project && action === "logs") return showProjectLogs(project);
   if (project) return runAction(`/api/projects/${project}/${action}`, `${project} ${action}`);
   if (action === "refresh") return refresh();
-  if (action === "start-all") return runAction("/api/actions/start-all", "全部启动");
-  if (action === "stop-all" && confirm("确认停止全部业务项目？管理页面会继续运行。")) {
-    return runAction("/api/actions/stop-all", "全部停止业务");
+  if (action === "start-all") return runAction("/api/actions/start-all", "一键启动服务");
+  if (action === "restart-all" && confirm("确认一键重启服务？将先停止业务服务，再重新打包前端并启动。")) {
+    return runAction("/api/actions/restart-all", "一键重启服务");
+  }
+  if (action === "stop-all" && confirm("确认一键停止服务？管理页面会继续运行。")) {
+    return runAction("/api/actions/stop-all", "一键停止服务");
+  }
+  if (action === "clear-cache" && confirm("确认清理推荐的系统和开发缓存？")) {
+    return runAction("/api/storage/clear-cache", "一键清缓存");
+  }
+  if (action === "cleanup-expired" && confirm("确认清理超过保留期的备份和日志？")) {
+    return runAction("/api/storage/cleanup-expired", "清理过期备份和日志");
+  }
+  if (action === "storage-delete") {
+    const ids = [...state.selectedStorage];
+    if (!ids.length) return null;
+    if (confirm(`确认删除已选 ${ids.length} 项？此操作不可恢复。`)) {
+      return runAction("/api/storage/delete", "删除已选存储项", { ids });
+    }
   }
   if (action === "logout") {
     await api("/api/logout", { method: "POST" });

@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { aesCbcEncryptJson, sortedTruthyPayload, timestamp14, randomString, tryJson } from "./utils/crypto.js";
+import { aesCbcEncryptJson, sortedTruthyPayload, timestamp14, randomString, tryBase64Json, tryJson } from "./utils/crypto.js";
 
 export class BmccClient {
   constructor(session = null) {
@@ -7,7 +7,7 @@ export class BmccClient {
   }
 
   async invoke(abilityCode, body = {}, options = {}) {
-    const rowPayload = this.buildRowPayload(abilityCode, body);
+    const rowPayload = this.buildRowPayload(abilityCode, body, options);
     const signed = sortedTruthyPayload(rowPayload);
     const encrypted = aesCbcEncryptJson(signed, config.aesKey, config.aesIv);
     const payload = this.buildTransportPayload(encrypted);
@@ -49,7 +49,7 @@ export class BmccClient {
     return this.normalizeResponse(tryJson(await response.text()), response.status);
   }
 
-  buildRowPayload(abilityCode, body) {
+  buildRowPayload(abilityCode, body, options = {}) {
     const payload = {
       sessKey: this.session?.sessKey || null,
       sessType: this.session?.sessType || null,
@@ -59,7 +59,7 @@ export class BmccClient {
       transactionId: `1${timestamp14()}${randomString(8)}`
     };
 
-    const phoneNo = this.session?.userInfo?.phoneNo || body?.receviNo || body?.phoneNo;
+    const phoneNo = options.traceMemberPhone || this.session?.userInfo?.phoneNo || body?.receviNo || body?.phoneNo;
     if (phoneNo) payload.traceMemberPhone = phoneNo;
     return payload;
   }
@@ -71,6 +71,7 @@ export class BmccClient {
   }
 
   normalizeResponse(raw, status) {
+    raw = tryBase64Json(raw);
     const fallback = {
       resultCode: status >= 200 && status < 300 ? "-1" : String(status),
       resultMsg: "",
