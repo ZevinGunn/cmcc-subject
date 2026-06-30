@@ -42,7 +42,7 @@
         查看并同意 <a>《服务协议》</a>、<a>《隐私政策》</a>
       </p>
 
-      <button class="primary-btn" type="button" :class="{ ready: canLogin }" :disabled="!canLogin" @click="login">
+      <button class="primary-btn" type="button" :class="{ ready: hasLoginInput }" :disabled="!canLogin" @click="login">
         {{ loading ? '登录中' : '登录' }}
       </button>
 
@@ -91,7 +91,8 @@ const loading = ref(false)
 const sending = ref(false)
 const countdown = ref(0)
 const messageDialog = ref(null)
-const canLogin = computed(() => /^1\d{10}$/.test(phone.value) && /^\d{6}$/.test(code.value) && !loading.value)
+const hasLoginInput = computed(() => /^1\d{10}$/.test(phone.value) && /^\d{6}$/.test(code.value))
+const canLogin = computed(() => hasLoginInput.value && !loading.value)
 let timer = null
 let captchaTimer = null
 const captchaPhone = ref('')

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      var _udata = window._udata || [];
+      var _udataobject = _udata;
+      let href = window.location.href;
+      let page =
+        window.location.pathname.split("/")[
+          window.location.pathname.split("/").length - 1
+        ];
+      let baseURL = "";
+      const nowLocationUrl = location.href;
+      if (nowLocationUrl.indexOf("sandbox") > -1) {
+        baseURL = "sandbox";
+      } else if (nowLocationUrl.indexOf("staging") > -1) {
+        baseURL = "staging";
+      } else if (
+        nowLocationUrl.indexOf("coc") > -1 &&
+        nowLocationUrl.indexOf("staging") === -1
+      ) {
+        baseURL = "production";
+      } else if (nowLocationUrl.indexOf("localhost") > -1) {
+        baseURL = "development";
+      }
+      window.timePoint = {
+        value: [],
+        mode: 0,
+        needRefreshType: null,
+        set: function (str, myts) {
+          let len = this.value.length;
+          let ts = myts ? myts : new Date().getTime();
+          if (
+            len == 0 ||
+            (this.value[len - 1] && this.value[len - 1].split("-")[0] != str)
+          ) {
+            this.value.push(str + "-" + ts);
+          } else {
+            this.value[len - 1] = str + "-" + ts;
+          }
+        },
+        init: function () {
+          (this.value = []), (this.mode = 0), (this.needRefreshType = null);
+        },
+      };
+      window.timePoint.set("fetchstart", window.performance.timing.fetchStart);
+      window.timePoint.set("enterhtml");
+    </script>
+    <meta charset="utf-8" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"
+      name="viewport"
+    />
+    <meta name="WT.mc_ev" content="210315_QYCS" />
+    <meta content="always" name="referrer" />
+    <link
+      rel="icon"
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/favicon.ico"
+    />
+    <title>中国移动</title>
+    <script>
+      //   埋点类js引入
+      //-- 风控js引入 -
+      /*!
+       * Powered by uglifiyJS v2.6.1, Build by http://tool.uis.cc/jsmin/
+       * build time: Thu Oct 27 2022 14:19:53 GMT+0800 (中国标准时间)
+       */
+      // 微信和微信小程序环境下引入微信SDK，异步引入
+      if (
+        navigator.userAgent.match(/MicroMessenger/gi) ||
+        navigator.userAgent.indexOf("miniProgram") > -1
+      ) {
+        var jweixin = document.createElement("script");
+        (jweixin.id = Math.random()),
+          (jweixin.type = "text/javascript"),
+          (jweixin.src = "https://res.wx.qq.com/open/js/jweixin-1.6.0.js"),
+          document.getElementsByTagName("head")[0].appendChild(jweixin);
+      }
+
+      let user_info = "";
+      user_info = JSON.parse(localStorage.getItem("canvasworkbenchweb_auth"));
+      if (
+        window.location.href.indexOf("online/home") === -1 ||
+        (user_info && user_info.user_info != null)
+      ) {
+        // IT风控系统，获取risk-device-token，异步引入
+        var private = document.createElement("script");
+        (private.id = Math.random()),
+          (private.type = "text/javascript"),
+          (private.src =
+            "https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/js/index-private-web.js"),
+          document.getElementsByTagName("head")[0].appendChild(private);
+        // 在线风控系统设备指纹SDK，获取实时js，用于获取BSFIT_DEVICEID
+        const gLocation = window.location.href;
+        var riskUrl;
+        if (gLocation.indexOf("dev.coc.10086.cn") !== -1) {
+          riskUrl =
+            "https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/risk/getDfpJs.js?version=1782377638655";
+        } else {
+          riskUrl =
+            "https://sandbox.open.10086.cn/38857911/static/category/cdn-files/cdn-online/fixedPath/risk/fzftest.js?version=1782377638655";
+        }
+        var dfpRisk = document.createElement("script");
+        (dfpRisk.id = Math.random()),
+          (dfpRisk.type = "text/javascript"),
+          (dfpRisk.src = riskUrl),
+          document.getElementsByTagName("head")[0].appendChild(dfpRisk);
+      }
+
+      if (/imgotv/i.test(window.navigator.userAgent)) {
+        document.writeln(
+          `<script src="https://app.mgtv.com/js/mgtv-js-sdk-2021.js"><\/script>`
+        );
+      }
+      if (navigator.userAgent.match(/leadeon/gi)) {
+        document.writeln(
+          `<script src="https://res.app.coc.10086.cn/appother/js/public/cmcc.js?version=1782377638655"><\/script>`
+        );
+      }
+
+      // 高德SDK引入
+      // function _0x1dd4(){var _0x1b11e8=['\x74\x79\x70\x65\x3d\x22\x74\x65\x78\x74','\x2f\x77\x65\x62\x61\x70\x69\x2e\x61\x6d','\x31\x37\x34\x62\x22\x20\x61\x73\x79\x6e','\x63\x3d\x22\x68\x74\x74\x70\x73\x3a\x2f','\x31\x32\x74\x59\x77\x48\x46\x53','\x38\x37\x35\x74\x78\x52\x69\x57\x44','\x32\x39\x34\x34\x38\x36\x53\x71\x65\x72\x5a\x72','\x35\x32\x62\x37\x37\x32\x32\x63\x37\x61','\x3c\x73\x63\x72\x69\x70\x74\x20\x73\x72','\x37\x39\x34\x39\x39\x34\x34\x42\x46\x42\x65\x69\x68','\x73\x63\x72\x69\x70\x74\x3e','\x2f\x6a\x61\x76\x61\x73\x63\x72\x69\x70','\x37\x34\x37\x61\x6b\x53\x45\x61\x67','\x34\x32\x37\x34\x34\x31\x35\x77\x62\x50\x70\x62\x57','\x31\x38\x31\x31\x39\x30\x58\x48\x75\x64\x76\x72','\x36\x64\x65\x31\x36\x63\x63\x33\x63\x34','\x5f\x41\x4d\x61\x70\x53\x65\x63\x75\x72','\x73\x3f\x76\x3d\x32\x2e\x30\x26\x6b\x65','\x43\x6f\x64\x65','\x73\x65\x63\x75\x72\x69\x74\x79\x4a\x73','\x36\x35\x37\x64\x63\x31\x62\x64\x66\x61','\x61\x70\x2e\x63\x6f\x6d\x2f\x6d\x61\x70','\x77\x72\x69\x74\x65\x6c\x6e','\x32\x33\x30\x33\x33\x38\x57\x7a\x66\x78\x50\x67','\x69\x74\x79\x43\x6f\x6e\x66\x69\x67','\x63\x3d\x22\x61\x73\x79\x6e\x63\x22\x20','\x37\x35\x32\x32\x38\x30\x50\x4a\x71\x51\x70\x65','\x35\x30\x35\x37\x34\x41\x70\x79\x52\x46\x76'];_0x1dd4=function(){return _0x1b11e8;};return _0x1dd4();}var _0x1731fa=_0x564f;(function(_0xa024af,_0x1efa46){var _0x672a5d={_0x4b393e:0xd5,_0x3d7326:0xd3,_0x38fc5a:0xe9,_0x37d0a0:0xea},_0x1a83ed=_0x564f,_0x3ddf53=_0xa024af();while(!![]){try{var _0x86e49c=parseInt(_0x1a83ed(_0x672a5d._0x4b393e))/0x1+parseInt(_0x1a83ed(0xe6))/0x2+-parseInt(_0x1a83ed(_0x672a5d._0x3d7326))/0x3*(-parseInt(_0x1a83ed(_0x672a5d._0x38fc5a))/0x4)+parseInt(_0x1a83ed(0xdc))/0x5+-parseInt(_0x1a83ed(_0x672a5d._0x37d0a0))/0x6*(-parseInt(_0x1a83ed(0xd4))/0x7)+-parseInt(_0x1a83ed(0xd8))/0x8+-parseInt(_0x1a83ed(0xdb))/0x9*(parseInt(_0x1a83ed(0xdd))/0xa);if(_0x86e49c===_0x1efa46)break;else _0x3ddf53['push'](_0x3ddf53['shift']());}catch(_0x27c361){_0x3ddf53['push'](_0x3ddf53['shift']());}}}(_0x1dd4,0x8bd97));var _0x27498c={};function _0x564f(_0x3f78bc,_0x48625e){var _0x1dd4c8=_0x1dd4();return _0x564f=function(_0x564fcf,_0x49fd0c){_0x564fcf=_0x564fcf-0xd0;var _0x5f5d20=_0x1dd4c8[_0x564fcf];return _0x5f5d20;},_0x564f(_0x3f78bc,_0x48625e);}_0x27498c[_0x1731fa(0xe2)+_0x1731fa(0xe1)]='\x66\x66\x39\x65\x38\x63\x33\x64\x66\x31'+_0x1731fa(0xd6)+_0x1731fa(0xde)+'\x66\x36',window[_0x1731fa(0xdf)+_0x1731fa(0xe7)]=_0x27498c,document[_0x1731fa(0xe5)](_0x1731fa(0xd7)+_0x1731fa(0xd2)+_0x1731fa(0xd0)+_0x1731fa(0xe4)+_0x1731fa(0xe0)+'\x79\x3d\x65\x34\x31\x63\x63\x37\x36\x30'+_0x1731fa(0xe3)+'\x65\x61\x65\x33\x30\x63\x31\x35\x65\x37'+_0x1731fa(0xd1)+_0x1731fa(0xe8)+_0x1731fa(0xeb)+_0x1731fa(0xda)+'\x74\x22'+'\x3e'+'\x3c'+'\x2f'+_0x1731fa(0xd9));
+
+      if (
+        navigator.userAgent.indexOf("AliApp") > -1 &&
+        navigator.userAgent.indexOf("AlipayClient") > -1
+      ) {
+        document.writeln(
+          `<script src="https://appx/web-view.min.js?version=1782377638655"><\/script>`
+        );
+      }
+      if (window.location.href.indexOf("debug") !== -1) {
+        document.writeln(
+          '<script src="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/vconsole.min.js"><\/script>'
+        );
+        document.writeln("<script> var vConsole = new VConsole();<\/script>");
+      }
+      // 易数 插码引入
+      !(function (e, n, t, c, i) {
+        (e[i] =
+          e[i] ||
+          function () {
+            (e[i].q = e[i].q || []).push(arguments);
+          }),
+          (t = n.createElement("script"));
+        s = n.getElementsByTagName("script")[0];
+        (t.async = 1), (t.src = c), s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsget/static/js/cmos-full-H5-5.1.1.js", //js文件路径
+        "gdp"
+      );
+      // SDK 不支持在本地协议中集成，若需要在127.0.0.1、localhost环境下调试使用 SDK，发布请注释
+      if (window.location.href.indexOf("localhost") !== -1) {
+        window._gr_ignore_local_rule = true;
+      }
+      let datasourceid =
+        baseURL == "production" ? "aba9de4ce446b2d2" : "x9nzkqwdpm680ta3";
+      gdp("init", "9e4e5fa7244c6b6e", datasourceid, {
+        host: "jiguang.coc.10086.cn", // 数据发送地址。
+        autotrack: false, // 关闭无埋点事件发送，生产环境设置为关闭。
+        compress: false, // 开启数据压缩模式，整体报文加密，生产环境设置为开启。
+        hashtag: true, // 开启页面URL混淆采集，生产环境设置为开启。
+        scheme: "https", // 指定请求协议，生产环境填https
+        // debug: true,// 开启测试模式，控制台可看到数据，生产环境请勿添加此参数。
+        requestTimeout: 2000, //设置请求的超时时间为2000ms
+        // sendType: 'xhr'
+        performance: {
+          monitor: true, // 刷新或者切换页面tab触发停留时长采集
+          exception: false, // 未登录不发送停留时长采集插码
+        },
+      });
+    </script>
+    <script type="module">
+      import init, {
+        Wheel,
+      } from "https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/WASM/wheel-0.0.8.js";
+      const WASM_URL =
+        "https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/WASM/wheel_bg-0.0.8.wasm";
+
+      function fetchWasmByXHR(url) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("GET", url, true);
+          xhr.responseType = "arraybuffer";
+
+          xhr.onload = () => {
+            if (xhr.status === 200) resolve(xhr.response);
+            else reject(new Error("XHR failed"));
+          };
+
+          xhr.onerror = reject;
+          xhr.send();
+        });
+      }
+
+      // 缓存错误信息到本地的函数
+      function cacheWasmError(error, errorType) {
+        try {
+          const errorInfo = {
+            message: error.message,
+            stack: error.stack,
+            timestamp: Date.now(),
+            errorType: errorType,
+          };
+          // 先获取现有的错误信息
+          let existingErrors = [];
+          try {
+            const storedErrors = localStorage.getItem("wasmInitErrors");
+            if (storedErrors) {
+              existingErrors = JSON.parse(storedErrors);
+            }
+          } catch (e) {
+            console.warn("[wasm] failed to parse existing errors", e);
+          }
+          // 添加新的错误信息
+          existingErrors.push(errorInfo);
+          // 只保留最近的5个错误
+          if (existingErrors.length > 5) {
+            existingErrors = existingErrors.slice(-5);
+          }
+          // 保存到本地存储
+          localStorage.setItem(
+            "wasmInitErrors",
+            JSON.stringify(existingErrors)
+          );
+        } catch (storageError) {
+          console.warn("[wasm] failed to cache error info", storageError);
+        }
+      }
+
+      async function initWasmCompat() {
+        try {
+          await init({ module_or_path: WASM_URL });
+          return;
+        } catch (e1) {
+          console.warn("[wasm] init with object failed", e1);
+          cacheWasmError(e1, "init_with_object");
+        }
+
+        try {
+          await init(WASM_URL);
+          return;
+        } catch (e2) {
+          console.warn("[wasm] direct init failed", e2);
+          cacheWasmError(e2, "direct_init");
+        }
+
+        try {
+          const res = await fetch(WASM_URL);
+          if (!res || !res.ok) {
+            throw new Error(
+              "Fetch failed: " + (res ? "status " + res.status : "no response")
+            );
+          }
+          const bytes = await res.arrayBuffer();
+          await init(bytes);
+          return;
+        } catch (e3) {
+          console.warn("[wasm] clean fetch failed", e3);
+          cacheWasmError(e3, "clean_fetch");
+        }
+
+        try {
+          const bytes = await fetchWasmByXHR(WASM_URL);
+          await init(bytes);
+          return;
+        } catch (e4) {
+          console.error("[wasm] all init methods failed", e4);
+          window.initWasmFailed = true;
+          cacheWasmError(e4, "all_methods_failed");
+          throw e4;
+        }
+      }
+
+      async function main() {
+        console.log("[wasm] init start");
+
+        if (!("WebAssembly" in window)) {
+          console.error("[wasm] WebAssembly not supported");
+          return;
+        }
+        await initWasmCompat();
+        window.Wheel = Wheel;
+        console.log("[wasm] init success");
+      }
+
+      main();
+    </script>
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1/2021/09/08/1435562444621484032/networkError.png"
+      rel="prefetch"
+      as="image"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/css/app~d0ae3f07.c682d531.css"
+      rel="preload"
+      as="style"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/css/vendors~app~ec8c427e.6493a68d.css"
+      rel="preload"
+      as="style"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/app~d0ae3f07.a1394038.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/chunk-obfus~da3b0ffa.141fc65a.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/vendors~app~253ae210.4adc34d6.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/vendors~app~ec8c427e.a42d961b.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/css/vendors~app~ec8c427e.6493a68d.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/css/app~d0ae3f07.c682d531.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <noscript
+      ><strong
+        >We're sorry but vue doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong
+      ></noscript
+    >
+    <div id="app"></div>
+    <script>
+      window.rightsMarket = {};
+    </script>
+    <script src="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/chunk-obfus~da3b0ffa.141fc65a.js"></script>
+    <script src="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/vendors~app~253ae210.4adc34d6.js"></script>
+    <script src="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/vendors~app~ec8c427e.a42d961b.js"></script>
+    <script src="https://res.coc.10086.cn/res/cdn/coc1-online/fixedPath/coc3/rightsmarket-h5-canvas/build_production/js/app~d0ae3f07.a1394038.js"></script>
+  </body>
+</html>

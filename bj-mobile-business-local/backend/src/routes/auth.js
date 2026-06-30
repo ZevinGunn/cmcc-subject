@@ -2,7 +2,6 @@ import { Router } from 'express'
 import { createSession, deleteSession, getSession, publicSession, saveSessions } from '../services/sessionStore.js'
 import {
   checkBjNumber,
-  checkPortalReachability,
   exchangePortalToken,
   getCaptcha,
   loadSmsToken,
@@ -143,13 +142,6 @@ router.post('/login', async (req, res, next) => {
     const session = resolveSession(req, res)
     if (!session) return
 
-    const portalReachability = await checkPortalReachability()
-    if (!portalReachability.ok) {
-      return fail(res, 200, portalReachability.message, portalReachability.errorCode || 'PORTAL_UNREACHABLE', {
-        raw: portalReachability.raw,
-        session: publicSession(session),
-      })
-    }
     const login = await touchLogin(session, { phone, code })
     if (!login.ok) return fail(res, 200, login.message, 'LOGIN_FAILED', { raw: login.raw })
     const token = await exchangePortalToken(session)

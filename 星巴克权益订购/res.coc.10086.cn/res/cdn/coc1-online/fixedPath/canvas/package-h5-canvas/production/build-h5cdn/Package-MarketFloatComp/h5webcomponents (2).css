@@ -1,0 +1,64 @@
+.page-content * {
+  margin: 0;
+  padding: 0;
+}
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.page-add-panel .page-view-wrapper .page-content {
+  position: relative;
+}
+.add-float[data-v-0419690f] {
+  position: fixed;
+  z-index: 2;
+  right: 0;
+  top: 28%;
+  width: 72px;
+  height: 72px;
+}
+.add-float img[data-v-0419690f] {
+  width: 72px;
+  height: auto;
+}
+.add-float .add-img[data-v-0419690f],
+.add-float .add-img img[data-v-0419690f] {
+  width: 72px;
+  height: 72px;
+}
+.add-float .add-close[data-v-0419690f] {
+  margin: 3.5px auto 0;
+  width: 18px;
+  height: 18px;
+  background: url(static/img/close_btn.c2108946.png) no-repeat 50%/100% 100%;
+}
+.myDialog2[data-v-0419690f] {
+  padding: 0.2rem;
+  background: transparent;
+  overflow-y: auto;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: calc(100vh - 80px);
+  width: 100%;
+  text-align: center;
+  line-height: calc(100vh - 0.4rem - 80px);
+}
+.myDialog2 .showImg[data-v-0419690f] {
+  max-width: calc(100% - 0.4rem);
+  max-height: calc(100% - 0.4rem - 25px);
+  vertical-align: middle;
+}
+.myDialog2 .close[data-v-0419690f] {
+  position: absolute;
+  top: 95%;
+  width: 25px;
+  height: 25px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}

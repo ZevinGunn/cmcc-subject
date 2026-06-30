@@ -74,6 +74,7 @@ touchBjLogin.action
 ## 注意事项
 
 - 本项目不复用 `免登录进入全球通/cookie-app`。
+- 如果登录时报 `PORTAL_UNREACHABLE`，表示本机后端已经能解析 `service.bj.10086.cn`，但当前出口网络连接北京移动门户超时。可先切换网络/关闭 VPN 或 TUN 后重试；网络较慢时可启动前设置 `BMCC_PORTAL_REACHABILITY_TIMEOUT_MS=30000 BMCC_PORTAL_REACHABILITY_ATTEMPTS=3`。
 - 登录 RSA 与门户 AES 逻辑来自 `北京移动登录/` 和 `北移业务查询与退订/` 源码。
 - 门户接口存在 `XEbtxIBt` 防护参数，直接 HTTP 调用可能被网关拦截。当前项目已预留 `/api/auth/waf-token`，后续可接入 Playwright 预热获取动态 token；如果移动侧强制校验该字段，查询/退订会在门户 BFF 阶段失败。
 - 当前会话存储在后端内存中，重启即清空。

@@ -1,0 +1,75 @@
+.grayAll {
+  -moz-filter: grayscale(1);
+  -ms-filter: grayscale(1);
+  -o-filter: grayscale(1);
+  filter: grayscale(1);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale = 1);
+}
+blockquote,
+body,
+code,
+dd,
+div,
+dl,
+dt,
+fieldset,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+input,
+legend,
+li,
+ol,
+p,
+pre,
+td,
+textarea,
+th,
+ul {
+  margin: 0;
+  padding: 0;
+}
+.ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+ol,
+ul {
+  list-style: none;
+}
+fieldset,
+img {
+  border: 0;
+}
+body {
+  font-size: 0.14rem;
+}
+em {
+  font-style: normal;
+}
+.comp-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+.comp-wrapper .comp-skeleton {
+  height: 0.16rem;
+  background-color: #edf0f1;
+}
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  width: 100vw;
+  min-height: 100vh;
+}

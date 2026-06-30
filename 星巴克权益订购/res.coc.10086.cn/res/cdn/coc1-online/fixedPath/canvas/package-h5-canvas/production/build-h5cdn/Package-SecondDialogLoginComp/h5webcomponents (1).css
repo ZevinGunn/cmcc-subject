@@ -1,0 +1,296 @@
+.page-content * {
+  margin: 0;
+  padding: 0;
+}
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.protocol_title {
+  margin: 20px 0;
+  width: 100%;
+  height: 25px;
+  line-height: 25px;
+  font-size: 18px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+.protocol_text {
+  overflow-y: scroll;
+  max-height: 400px;
+  padding: 13px 13px 0 13px !important;
+  padding: 0 13px;
+  line-height: 24.5px;
+  font-size: 14px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #333;
+}
+.protocol_btn {
+  width: 349px;
+  height: 52.5px;
+  line-height: 52.5px;
+  margin: 0.3rem auto;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(#56c5ff),
+    to(#4593ff)
+  );
+  background: linear-gradient(180deg, #56c5ff, #4593ff);
+  border-radius: 26.5px;
+  font-size: 18px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+}
+.text2[data-v-06a422cc] {
+  position: absolute;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #000;
+  border-radius: 6px;
+  min-width: 80px;
+  min-height: 30px;
+  z-index: 9999;
+}
+.pageBox[data-v-06a422cc] {
+  position: relative;
+}
+.pageBox .pageBoxImg[data-v-06a422cc] {
+  width: 100%;
+  display: block;
+}
+.pageBox .pageBoxInput[data-v-06a422cc] {
+  position: absolute;
+  width: 310px;
+  height: 100px;
+  left: 37.5px;
+}
+.pageBox .pageBoxInput .yzm[data-v-06a422cc] {
+  width: 100px;
+  height: 42px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  border-radius: 20px;
+}
+.pageBox .pageBoxInput .bgc[data-v-06a422cc] {
+  width: 100%;
+  height: 100%;
+}
+.pageBox .pageBoxInput .separation[data-v-06a422cc] {
+  width: 310px;
+  height: 100px;
+}
+.pageBox .pageBoxInput .separation .user[data-v-06a422cc] {
+  width: 310px;
+  height: 45px;
+  margin-bottom: 5px;
+}
+.pageBox .pageBoxInput .separation .password[data-v-06a422cc] {
+  width: 181px;
+  height: 45px;
+}
+.pageBox .agreement[data-v-06a422cc] {
+  position: absolute;
+  left: 12.5px;
+  width: 350px;
+  height: 20px;
+}
+.pageBox .agreement img[data-v-06a422cc] {
+  width: 100%;
+  height: 100%;
+}
+.pageBox .confirmBtn[data-v-06a422cc] {
+  position: absolute;
+  left: 12.5px;
+  width: 350px;
+  height: 50px;
+}
+.pageBox .confirmBtn img[data-v-06a422cc] {
+  width: 100%;
+  height: 100%;
+}
+.bg[data-v-06a422cc] {
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  position: relative;
+}
+.bg img[data-v-06a422cc] {
+  width: 100%;
+  display: block;
+}
+.bg .loginBox[data-v-06a422cc] {
+  position: absolute;
+  left: 0.325rem;
+  width: 3.1rem;
+  height: 1.04rem;
+}
+.bg .loginBox img[data-v-06a422cc] {
+  width: 100%;
+  display: block;
+}
+.number-input[data-v-06a422cc] {
+  placeholdercolor: #d7d7d7;
+}
+.Verification[data-v-06a422cc] {
+  color: #d7d7d7;
+  position: absolute;
+  top: 0.85rem;
+  left: 2.7rem;
+  width: 0.9rem;
+  height: 0.15rem;
+}
+.Verification img[data-v-06a422cc] {
+  width: 0.45rem !important;
+  height: 100%;
+  margin-left: 0.2rem;
+}
+input[data-v-06a422cc] {
+  border: none;
+}
+.agreement[data-v-06a422cc] {
+  position: absolute;
+  margin-left: 0.2rem;
+}
+.btn[data-v-06a422cc] {
+  position: absolute;
+  width: calc(100% - 0.25rem);
+  height: 0.5rem;
+  margin-left: 0.125rem;
+}
+.btn img[data-v-06a422cc] {
+  width: 100%;
+  height: 100%;
+}
+[data-v-06a422cc] .van-dialog__content {
+  height: 2rem !important;
+  overflow-y: auto !important;
+  padding: 0.1rem;
+}
+.inputarea[data-v-06a422cc] {
+  margin: 0 auto;
+  margin-bottom: 0.2rem;
+  border-radius: 0.1rem;
+}
+.inputarea input[data-v-06a422cc]::-webkit-input-placeholder {
+  color: var(--placeholderColor);
+}
+.inputarea .verificationPre[data-v-06a422cc] {
+  position: relative;
+  width: 1rem;
+  height: 0.42rem;
+  float: left;
+  margin: 0;
+  cursor: pointer;
+}
+.verification-picture[data-v-06a422cc] {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  width: 1rem;
+}
+.inputarea input[data-v-06a422cc] {
+  border: 0;
+  font-size: 0.14rem;
+  color: #454545;
+  width: 2.75rem;
+  height: 0.42rem;
+  line-height: 0.42rem;
+  margin-left: 0.2rem;
+}
+.inputarea2[data-v-06a422cc] {
+  height: 0.42rem;
+  line-height: 0.42rem;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.inputarea2 input[data-v-06a422cc] {
+  margin-left: 0.2rem;
+  display: block;
+  width: 1.75rem;
+}
+.captchaText[data-v-06a422cc] {
+  height: 100%;
+  float: left;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 1.81rem;
+}
+.captchapicture[data-v-06a422cc] {
+  height: 100%;
+  float: right;
+}
+.protocol_tip[data-v-06a422cc] {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 0.2rem;
+  line-height: 0.16rem;
+  font-size: 0.14rem;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: #999;
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  width: 100%;
+}
+.protocol_tip img[data-v-06a422cc] {
+  width: 0.16rem;
+  height: 0.16rem;
+  background: transparent;
+}
+.protocol_tip .protocol_look[data-v-06a422cc] {
+  color: #fb5c1c;
+}
+[data-v-06a422cc] .van-popup__close-icon--top-right {
+  top: 0.07rem;
+  right: 0.07rem;
+  color: #000;
+}
+.phoneNumInput[data-v-06a422cc]::-webkit-input-placeholder {
+  color: var(--color) !important;
+}
+.phoneNumInput[data-v-06a422cc]::-moz-placeholder {
+  color: var(--color) !important;
+}
+.phoneNumInput[data-v-06a422cc]:-ms-input-placeholder {
+  color: var(--color) !important;
+}
+.phoneNumInput[data-v-06a422cc]::-ms-input-placeholder {
+  color: var(--color) !important;
+}
+.phoneNumInput[data-v-06a422cc]::placeholder {
+  color: var(--color) !important;
+}
+[data-v-06a422cc] .van-popover__arrow {
+  display: none !important;
+}

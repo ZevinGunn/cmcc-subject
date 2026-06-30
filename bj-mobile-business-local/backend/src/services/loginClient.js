@@ -139,7 +139,7 @@ function portalNetworkMessage(diagnostics, errorMessage) {
   const actionHint =
     dnsHint || publicHint
       ? '请关闭或调整代理/VPN、切换网络后重试。'
-      : 'DNS 已解析到公网地址，但门户连接超时；请确认系统代理/TUN 虚拟网卡已退出，或切换网络后重试。'
+      : 'DNS 已解析到公网地址，但门户连接超时；可能是当前出口网络到北京移动门户不稳定或被运营商侧限流，请稍后重试、切换网络，或提高 BMCC_PORTAL_REACHABILITY_TIMEOUT_MS。'
   return [
     `北京移动门户当前网络不可达：${errorMessage || 'TLS 握手失败'}`,
     dnsHint,
@@ -162,7 +162,9 @@ function isPortalNetworkAttempt(attempt) {
 
 export async function checkPortalReachability() {
   const diagnostics = await resolvePortalHost()
-  await logEvent('login:portalReachability:start', diagnostics)
+  const timeout = config.portalReachabilityTimeoutMs
+  const maxAttempts = config.portalReachabilityAttempts
+  await logEvent('login:portalReachability:start', { ...diagnostics, timeout, maxAttempts })
   try {
     const res = await requestWithJar({
       url: `${config.portalOrigin}/nwt/portal/checkLogin`,
@@ -171,8 +173,8 @@ export async function checkPortalReachability() {
         Referer: loginReferer(),
       }),
       includeCookies: false,
-      timeout: 6000,
-      maxAttempts: 1,
+      timeout,
+      maxAttempts,
     })
     const ok = res.status >= 200 && res.status < 500
     const raw = { ...diagnostics, status: res.status, location: res.headers?.location || '' }
@@ -212,8 +214,8 @@ async function tryPortalTouchLogin(session, { includeCookies, strategy }) {
       headers: portalTouchLoginHeaders(session),
       data: '',
       includeCookies,
-      timeout: includeCookies ? 8000 : 10000,
-      maxAttempts: 1,
+      timeout: config.portalTouchLoginTimeoutMs,
+      maxAttempts: 2,
     })
     const raw = parsePortalTouchLoginBody(res.data)
     await logEvent('login:portalTouchLogin:done', {
@@ -468,8 +470,8 @@ export async function visitPortalCheckLogin(session) {
         Referer: loginReferer(),
       }),
       includeCookies: false,
-      timeout: 5000,
-      maxAttempts: 1,
+      timeout: config.portalWarmTimeoutMs,
+      maxAttempts: 2,
     })
   } catch (error) {
     await logEvent('login:portalCheckLogin:error', {
@@ -516,8 +518,8 @@ export async function warmPortalBusinessPage(session) {
       headers: portalPageHeaders({
         Referer: portalCheckLoginUrl(session),
       }),
-      timeout: 5000,
-      maxAttempts: 1,
+      timeout: config.portalWarmTimeoutMs,
+      maxAttempts: 2,
     })
   } catch (error) {
     await logEvent('login:businessPageWarm:error', {

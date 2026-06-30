@@ -1,0 +1,447 @@
+{
+    "accessType": "DEFAULT",
+    "activityHotTips": 0,
+    "applicationId": 13,
+    "autoAuthCode": 0,
+    "backgroundColor": "#69DAFF",
+    "beginTime": "2023-04-19 09:05:42",
+    "callback": 0,
+    "cancelGsm": 0,
+    "cancelRepeatMyVip": 0,
+    "createTime": "2024-11-15 09:54:05",
+    "description": "聚合入口",
+    "endTime": "2025-11-12 10:08:55",
+    "forcedPullEnd": "",
+    "id": 11473,
+    "instanceList": [
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 17:15:47",
+                    "id": 101723,
+                    "label": 0,
+                    "moduleId": "Rights-FloatingPicComp",
+                    "name": "Rights-FloatingPicComp_dm7Mz",
+                    "specify": "{\"name\":\"Rights-FloatingPicComp\",\"title\":\"悬浮图片\",\"version\":\"1.0.0\",\"multiplex\":0,\"floatType\":2,\"verticalDir\":1,\"verticalTopHig\":80,\"verticalBtmHig\":60,\"horizontalDir\":1,\"horizontalRghGap\":0,\"horizontalLeftGap\":0,\"img\":\"\",\"titleInfo\":\"活动规则\",\"descInfo\":\"\",\"jumpMethod\":2,\"goodsList\":[{\"showType\":0,\"relativeActivitiesAlias\":\"\",\"activitiesAlias\":\"\",\"relativeActivities\":\"\",\"activities\":\"\",\"lotteryImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/12/1811673269904936960/1720771531701_772007.png.webp \",\"staticLayer\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/17/1813495828282019840/1721206065653_323696.jpg\",\"dynamicLayer\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/08/28/1828604424799850496/1724808236844_704056.gif\",\"newNowAwardBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2023/03/14/1635486148117401600/1678765250335_635849.png\",\"newNoAwardBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2023/03/14/1635486148336832512/1678765250336_384559.png\",\"clickLotteryBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/15/1812689297548054528/1721013772257_303910.png.webp\",\"checkBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/15/1812689298171301888/1721013772256_911442.png\",\"onceAgainBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/15/1812689297919643648/1721013772254_521183.png\",\"joinOtherBgImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/07/15/1812689298013622272/1721013772256_527382.png\",\"awardJumpLink\":\"\",\"jumpOtherLink\":\"\",\"desc\":\"\",\"desc2\":\"\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/02/28/1895373153564094464/1740727148544_188517.png\",\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/02/28/1895373153423855616/1740727148544_188517.png.webp\",\"activeImg\":\"\",\"cornerIcon\":\"\",\"linkUrl\":\"https://dev.coc.10086.cn/coc3/gr/static-2c/rightsget/#/rightsbaw?channelId=P00000014249\",\"linkParams\":{},\"startTime\":\"\",\"endTime\":\"\",\"userType\":[],\"province\":\"\",\"sort\":1,\"descInfo\":\"\",\"memberSkuid\":\"\",\"memberBuyType\":0,\"memberLink\":\"\",\"admark\":0,\"tagNewStar\":\"0\",\"isFilterBlacklist\":\"0\",\"ruleList\":[],\"scrollNavIconImg\":\"\",\"pyRule\":\"\",\"score\":0,\"updateTime\":\"2025-02-28 15:26:16\",\"btnText\":\"\",\"iconImg\":\"\",\"contentImg\":\"\",\"activeBg\":\"\",\"notActiveBg\":\"\",\"img1\":\"\",\"img2\":\"\",\"desc2Color\":\"\",\"buttonText\":\"\",\"btnColor\":\"\",\"fsDescText\":\"\",\"fsBtnText\":\"\",\"fsJumpLink\":\"\",\"skuID\":\"\",\"medalName\":\"\",\"haveOpenIcon\":\"\",\"noOpenIcon\":\"\",\"skuidJumpLink\":\"\",\"limitSet\":false,\"hourLimit\":\"\",\"dayLimit\":\"\",\"weekLimit\":\"\",\"monthLimit\":\"\",\"floatImgShow\":\"1\",\"floatImg\":\"\",\"floatImgUrl\":\"\",\"floatImgBottom\":\"60\",\"order\":1,\"fixed\":false}],\"isClose\":0,\"closeReShow\":1,\"previewEff\":true,\"exampleName\":\"Rights-FloatingPicComp_dm7Mz\",\"exampleId\":101723}",
+                    "updateTime": "2025-03-20 17:15:57"
+                },
+                "instanceId": 101723,
+                "moduleId": "Rights-FloatingPicComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 16:42:24",
+                    "id": 101716,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_U3xtq",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":101716,\"exampleName\":\"Rights-PicComp_U3xtq\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/10/24/1981653453782257664/1761297975110_927728.png\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"\",\"linkUrl2\":\"\",\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/10/24/1981653453471879168/1761297975110_927728.png.webp\",\"count\":\"\",\"isNeedMemberId\":0,\"exampleLabel\":1}",
+                    "updateTime": "2025-10-24 17:27:01"
+                },
+                "instanceId": 101716,
+                "moduleId": "Rights-PicComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 16:42:29",
+                    "id": 101718,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_21Hsn",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":101718,\"exampleName\":\"Rights-PicComp_21Hsn\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/10/24/1981653453894963200/1761297975111_961746.png\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"\",\"linkUrl2\":\"\",\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/10/24/1981653453622333440/1761297975111_961746.png.webp\",\"count\":\"\",\"isNeedMemberId\":0,\"exampleLabel\":1}",
+                    "updateTime": "2025-10-24 17:27:10"
+                },
+                "instanceId": 101718,
+                "moduleId": "Rights-PicComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 16:42:50",
+                    "id": 101719,
+                    "label": 1,
+                    "moduleId": "Rights-PictureGoodsOrderComp",
+                    "name": "Rights-PictureGoodsOrderComp_4nWWQ",
+                    "specify": "{\"name\":\"Rights-PictureGoodsOrderComp\",\"title\":\"图片商品订购\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":101719,\"exampleName\":\"Rights-PictureGoodsOrderComp_4nWWQ\",\"marginTop\":0,\"marginBottom\":0,\"showType\":1,\"skuid\":\"34622\",\"activities\":[],\"activityList\":[],\"selectSkuList\":\"\",\"img0\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902645416628064256/1742460990006_505255.gif\",\"img1\":\"\",\"img2\":\"\",\"img3\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902645591284903936/1742461019557_74508.png\",\"img4\":\"\",\"img5\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902645591284903936/1742461019557_74508.png\",\"img6\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902645591284903936/1742461019557_74508.png\",\"img7\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902645591284903936/1742461019557_74508.png\",\"loginType\":1,\"loginUrl\":\"\",\"status\":0,\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"linkUrl7\":\"\",\"bottomImgList\":[{\"img\":\"\",\"label\":\"可订商品图\",\"status\":0},{\"img\":\"\",\"label\":\"有资格未领取\",\"status\":1},{\"img\":\"\",\"label\":\"有资格部分领取\",\"status\":2},{\"img\":\"\",\"label\":\"无资格图\",\"status\":3},{\"img\":\"\",\"label\":\"已领完图\",\"status\":4},{\"img\":\"\",\"label\":\"屏蔽异常图\",\"status\":5},{\"img\":\"\",\"label\":\"无库存图\",\"status\":6},{\"img\":\"\",\"label\":\"sku下线图\",\"status\":7}],\"img101\":\"\",\"img201\":\"\",\"payConfirmType\":1}",
+                    "updateTime": "2025-04-09 14:55:51"
+                },
+                "instanceId": 101719,
+                "moduleId": "Rights-PictureGoodsOrderComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 16:45:11",
+                    "id": 101720,
+                    "label": 1,
+                    "moduleId": "Rights-RichTextComp",
+                    "name": "Rights-RichTextComp_MzJZ5",
+                    "specify": "{\"name\":\"Rights-RichTextComp\",\"title\":\"富文本\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":101720,\"exampleName\":\"Rights-RichTextComp_MzJZ5\",\"descInfo\":\"<p style=\\\"text-align: center;\\\">&nbsp;</p>\\n<p style=\\\"text-align: center;\\\">&nbsp;</p>\\n<p style=\\\"text-align: center;\\\"><span style=\\\"font-size: 14px;\\\"><strong>订购说明</strong></span></p>\",\"marginTop\":0,\"marginBottom\":20,\"richType\":\"common\",\"closeType\":\"1\",\"isFold\":0}",
+                    "updateTime": "2025-04-09 14:50:08"
+                },
+                "instanceId": 101720,
+                "moduleId": "Rights-RichTextComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2025-03-20 17:12:07",
+                    "id": 101722,
+                    "label": 1,
+                    "moduleId": "Rights-RichTextComp",
+                    "name": "Rights-RichTextComp_3u7ub",
+                    "specify": "{\"name\":\"Rights-RichTextComp\",\"title\":\"富文本\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":101722,\"exampleName\":\"Rights-RichTextComp_3u7ub\",\"descInfo\":\"<p><span style=\\\"font-size: 12px; color: #ffffff;\\\"><span style=\\\"color: #333300;\\\">1.产品资费：</span><span style=\\\"color: #ff0000;\\\"><strong>前3个月12.9元/月，第4个月起恢复15元/月，</strong><span style=\\\"color: #000000;\\\">订购立即生效，退订次月失效（<span style=\\\"color: #ff0000;\\\"><strong>订购当日一次性扣除，次月起，每月初进行扣费</strong></span>）。<span data-font-family=\\\"宋体-简\\\">产品有效期自生效期起三年</span>，如双方在有效期届满前无异议，有效期自动续展，每次续展3年。</span></span></span></p>\\n<p><span style=\\\"font-size: 12px; color: #ff0000;\\\" data-font-family=\\\"宋体\\\"><strong>注：江苏号码订购成功后，活动期3个月内暂不支持退订，如确有退订需求，可联系当地10086。</strong></span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\"><span style=\\\"color: #333300;\\\">2.产品内容：每月可在</span><span style=\\\"color: #ff0000;\\\"><strong>权益池内领取任一款权益</strong></span><span style=\\\"color: #333300;\\\">。</span></span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">3.权益领取说明</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">（1）本产品生效期间，每自然月1日起至自然月月底，用户可领取当期权益，未领取则次月不能补领。权益使用规则及有效期等详细内容参见领取页面展示的权益使用说明。权益领取后一般48小时到账，具体以短信通知为主。请保持手机号码状态正常（避免欠费、停机等），避免权益领取失败；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\">（2）<span style=\\\"color: #ff0000;\\\"><span style=\\\"color: #333333;\\\">权益领取范围：<strong>美团外卖20元通用红包组合、和包出行15元体验会员权益、饿了么20元超级吃货卡、美团神会员省钱包60元、集利平台满15.01减15元满减券、滴滴出行快车10元满减券</strong>。</span><strong>以上权益每月可领取1次，每次N选1</strong></span>，具体以权益领取页面展示为准；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">（3）权益领取入口</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\">*<span style=\\\"color: #000000;\\\"><strong>登录&ldquo;中国移动APP&mdash;我的&mdash;我的权益&mdash;产品权益&mdash;全网随心系</strong>&rdquo;（<strong><a href=\\\"https://dev.coc.10086.cn/coc3/gr/static-2c/rightsget/#/rightsbaw?channelId=P00000014249\\\" target=\\\"_blank\\\" rel=\\\"noopener\\\"><span style=\\\"color: #ff0000;\\\">点击直达</span></a></strong>）进行权益领取</span></span><span style=\\\"color: #333300; font-size: 12px;\\\">。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">4.办理限制</span></p>\\n<p><strong><span style=\\\"color: #ff0000;\\\"><span style=\\\"font-size: 12px;\\\">（1）内蒙古、吉林、青海移动用</span><span style=\\\"font-size: 12px;\\\">户暂不支持订购</span><span style=\\\"font-size: 12px;\\\">本产品；</span></span></strong></p>\\n<p><strong><span style=\\\"color: #ff0000;\\\"><span style=\\\"font-size: 12px;\\\">（2）每位用户仅限参与本活动一次，不可重复参加；</span></span></strong></p>\\n<p><strong><span style=\\\"color: #ff0000;\\\"><span style=\\\"font-size: 12px;\\\">（3）随心选生活包与随心选生活折扣包互斥，同一时间只能订购一款；</span></span></strong></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">（4）本产品为中国移动用户专享（不含中国港澳台地区），其中非个人客户（行业卡、物联网卡等）、欠费客户、余额不足的预付费客户、信用额度不足的后付费客户不能订购；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">（5）部分套餐（如WAP不限量套餐等）无法办理，广东省客户如为2/3G不限量套餐、4G随心王客户等不可办理，<strong><span style=\\\"color: #ff0000;\\\">如需办理，需先主动取消以上套餐生效后方可办理。</span></strong></span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">5.退订路径：如需退订可通过&ldquo;中国移动APP-我的-已订业务&rdquo;或拨打10086退订。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">6.<span style=\\\"font-size: 12px;\\\" data-font-family=\\\"宋体\\\"><span style=\\\"color: #ff0000;\\\"><strong>因权益方内部调整，我们可能会变更、终止与权益方的合作，您可能无法继续通过中国移动接受该权益方提供产品，您可选择产品内其它权益，如无其它可选权益或无符合您需求的权益，届时您已订购的产品可通过后台帮您进行退订或退费，同时公司将会及时公告或告知，给您带来的不便，敬请谅解</strong></span></span>。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">7.中国移动可能会根据本服务的整体规划，对本服务相关权益细则、收费标准、权益发放方式等进行修改和变更，前述修改、变更的内容，中国移动将在相应服务页面公示或以其他合理方式进行告知，并在告知后生效。当您采用接受服务的形式（包括但不限于支付行为、未退订继续使用本服务等），即表明您已经接受本服务的全部修改，以及上述服务细则的修改和变更。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">8.您确认订购本产品即视为授权中国移动通过短信、APP站内消息、公众号提醒等方式，向您发送与产品权益相关的提醒（包括但不限于权益到账通知、使用有效期提醒、续约提示等）。上述提醒服务旨在保障您的权益完整兑现，不收取额外费用。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">9.产品是否限制本金购买、是否纳入保底消费、消费抵扣等以账单显示为准。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">10.本活动与苹果公司（Apple Inc.）无关。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #333300;\\\" data-font-family=\\\"宋体\\\">11.其他未尽事宜，详询10086。</span></p>\",\"marginTop\":0,\"marginBottom\":20,\"richType\":\"common\",\"closeType\":\"1\",\"isFold\":0,\"exampleLabel\":1,\"mainList\":[{\"value\":\"\",\"secondaryList\":[{\"value\":\"\",\"thirdContent\":\"\"}]}]}",
+                    "updateTime": "2025-10-24 17:29:15"
+                },
+                "instanceId": 101722,
+                "moduleId": "Rights-RichTextComp",
+                "ruleIds": ""
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-10-31 14:19:31",
+                    "id": 86439,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_0QuIA",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86439,\"exampleName\":\"Rights-PicComp_0QuIA\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902604273798352896/1742451181071_811649.png\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"\",\"linkUrl2\":\"\",\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902604273412476928/1742451181071_811649.png.webp\",\"count\":\"\",\"isNeedMemberId\":0}",
+                    "updateTime": "2025-04-09 14:50:51"
+                },
+                "instanceId": 86439,
+                "moduleId": "Rights-PicComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-12-25 15:08:22",
+                    "id": 86446,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_1krmo",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86446,\"exampleName\":\"Rights-PicComp_1krmo\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902604274181861376/1742451181071_69367.png\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"\",\"linkUrl2\":\"\",\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2025/03/20/1902604273565298688/1742451181071_69367.png.webp\",\"count\":\"\",\"isNeedMemberId\":0}",
+                    "updateTime": "2025-04-09 14:50:51"
+                },
+                "instanceId": 86446,
+                "moduleId": "Rights-PicComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-10-31 14:45:40",
+                    "id": 86440,
+                    "label": 1,
+                    "moduleId": "Rights-PictureGoodsOrderComp",
+                    "name": "Rights-PictureGoodsOrderComp_RbIvw",
+                    "specify": "{\"name\":\"Rights-PictureGoodsOrderComp\",\"title\":\"图片商品订购\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86440,\"exampleName\":\"Rights-PictureGoodsOrderComp_RbIvw\",\"marginTop\":0,\"marginBottom\":0,\"showType\":1,\"skuid\":\"34622\",\"activities\":[],\"activityList\":[],\"selectSkuList\":\"\",\"img0\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241046666665984/1731635742820_350083.jpg\",\"img1\":\"\",\"img2\":\"\",\"img3\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241094004105216/1731635754580_808296.jpg\",\"img4\":\"\",\"img5\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241094004105216/1731635754580_808296.jpg\",\"img6\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241094004105216/1731635754580_808296.jpg\",\"img7\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241094004105216/1731635754580_808296.jpg\",\"loginType\":1,\"loginUrl\":\"\",\"status\":0,\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"linkUrl7\":\"\",\"bottomImgList\":[{\"img\":\"\",\"label\":\"可订商品图\",\"status\":0},{\"img\":\"\",\"label\":\"有资格未领取\",\"status\":1},{\"img\":\"\",\"label\":\"有资格部分领取\",\"status\":2},{\"img\":\"\",\"label\":\"无资格图\",\"status\":3},{\"img\":\"\",\"label\":\"已领完图\",\"status\":4},{\"img\":\"\",\"label\":\"屏蔽异常图\",\"status\":5},{\"img\":\"\",\"label\":\"无库存图\",\"status\":6},{\"img\":\"\",\"label\":\"sku下线图\",\"status\":7}],\"img101\":\"\",\"img201\":\"\",\"payConfirmType\":1}",
+                    "updateTime": "2025-04-09 14:55:50"
+                },
+                "instanceId": 86440,
+                "moduleId": "Rights-PictureGoodsOrderComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-12-12 16:23:48",
+                    "id": 86442,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_F8YhR",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86442,\"exampleName\":\"Rights-PicComp_F8YhR\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241249268326400/1731635791549_99553.jpg\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"https://dx.10086.cn/M7esCw\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241249059135488/1731635791549_99553.jpg.webp\",\"count\":\"1\"}",
+                    "updateTime": "2025-04-09 14:50:51"
+                },
+                "instanceId": 86442,
+                "moduleId": "Rights-PicComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-12-12 16:24:02",
+                    "id": 86444,
+                    "label": 1,
+                    "moduleId": "Rights-PicComp",
+                    "name": "Rights-PicComp_vHHWD",
+                    "specify": "{\"name\":\"Rights-PicComp\",\"title\":\"图片跳转\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86444,\"exampleName\":\"Rights-PicComp_vHHWD\",\"showType\":\"0\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241947406032896/1731635958486_160321.png\",\"imgUrl\":\"\",\"bottomImg\":\"\",\"picIsLogin\":0,\"linkUrl1\":\"\",\"linkUrl2\":\"\",\"linkUrl3\":\"\",\"linkUrl4\":\"\",\"linkUrl5\":\"\",\"linkUrl6\":\"\",\"wakeupAppToUrl\":\"0\",\"marginTop\":0,\"marginBottom\":0,\"webpImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/11/15/1857241947192647680/1731635958486_160321.png.webp\",\"count\":\"\"}",
+                    "updateTime": "2025-04-09 14:50:51"
+                },
+                "instanceId": 86444,
+                "moduleId": "Rights-PicComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2024-09-25 11:37:00",
+                    "id": 86447,
+                    "label": 1,
+                    "moduleId": "Rights-RichTextComp",
+                    "name": "Rights-RichTextComp_rNito",
+                    "specify": "{\"name\":\"Rights-RichTextComp\",\"title\":\"富文本\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86447,\"exampleName\":\"Rights-RichTextComp_rNito\",\"descInfo\":\"<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">1.产品资费：<span style=\\\"color: #ffcc00;\\\"><strong>前3个月12.9元/月，第4个月起恢复15元/月，本产品为连续包月产品，订购立即生效，退订次月失效（订购当日一次性扣除，续订月按自然月份，在每月初进行扣费）</strong></span>。本产品资费有效期12个月，自订购生效当月开始计算，到期无异议将自动顺延12个月，以此类推。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\"><span style=\\\"color: #ffcc00;\\\">注：江苏号码订购成功后，活动期3个月内暂不支持退订，如确有退订需求，可联系当地10086</span>。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">2.产品内容：每月可在<span style=\\\"color: #ffcc00;\\\"><strong>权益池内领取任一款权益</strong></span>。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">3.权益领取说明</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">（1）本产品生效期间，每自然月1日起至自然月月底，用户可领取当期权益，未领取则次月不能补领。权益使用规则及有效期等详细内容参见领取页面展示的权益使用说明。请保持手机号码状态正常（避免欠费、停机等），避免权益领取失败；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">（2）<strong>权益领取范围：美团外卖20元通用红包组合、车主秘书-22元车服代金券、龙腾出行睿享卡、云闪付15元生活缴费权益包（电+水）、和包出行15元体验会员权益、饿了么20元超级吃货卡</strong>。<strong>以上权益每月可领取1次，每次N选1</strong>，具体以权益领取页面展示为准；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffcc00;\\\">注：因云闪付权益仅开放部分地区使用，重庆、西藏、四川、河北用户无法领取云闪付15元生活缴费权益包（电+水）。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">（3）权益领取入口</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">*登录&ldquo;<strong>中国移动APP&mdash;我的&mdash;我的权益&mdash;产品权益&mdash;全网随心系</strong>&rdquo;进行权益领取；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">*<strong>关注&ldquo;中国移动权益超市&rdquo;微信公众号，点击&ldquo;我的权益&mdash;权益领取中心&mdash;产品权益&mdash;全网随心系&rdquo;</strong>进行权益领取。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">4.办理限制</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">（1）<span style=\\\"color: #ffcc00;\\\"><strong>内蒙古、吉林、青海移动用户暂不支持订购本产品</strong></span>；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">（2）<strong><span style=\\\"color: #ffcc00;\\\">每位用户仅限参与本活动一次，不可重复参加</span></strong>；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\">（3）<span style=\\\"color: #ffcc00;\\\"><strong>随心选生活包与随心选生活折扣包互斥，同一时间只能订购一款</strong></span>；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">（4）本产品为中国移动用户专享（不含中国港澳台地区），其中非个人客户（行业卡、物联网卡等）、欠费客户、余额不足的预付费客户、信用额度不足的后付费客户不能订购；</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">（5）部分套餐（如WAP不限量套餐等）无法办理，广东省客户如为2/3G不限量套餐、4G随心王客户等不可办理，如需办理，需先主动取消以上套餐生效后方可办理。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">5.退订路径：如需退订可通过&ldquo;中国移动APP-我的-已订业务&rdquo;或拨打10086退订。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">6.因权益方内部调整，我们可能会变更、终止与权益方的合作，您可能无法继续通过中国移动接受该权益方提供产品。届时您已订购的连续包月产品可通过后台帮您进行退订或退费，同时公司将会及时公告或告知，给您带来的不便，敬请谅解。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">7.中国移动可能会根据本服务的整体规划，对本服务相关权益细则、收费标准、权益发放方式等进行修改和变更，前述修改、变更的内容，中国移动将在相应服务页面公示或以其他合理方式进行告知，并在告知后生效。当您采用接受服务的形式（包括但不限于支付行为、未退订继续使用本服务等），即表明您已经接受本服务的全部修改，以及上述服务细则的修改和变更。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">8.产品是否限制本金购买、是否纳入保底消费、消费抵扣等以账单显示为准。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">9.本活动与苹果公司（Apple Inc.）无关。</span></p>\\n<p><span style=\\\"font-size: 12px; color: #ffffff;\\\" data-font-family=\\\"宋体\\\">10.其他未尽事宜，详询10086。</span></p>\",\"marginTop\":0,\"marginBottom\":20,\"richType\":\"common\",\"closeType\":\"1\",\"isFold\":0}",
+                    "updateTime": "2025-04-09 14:50:08"
+                },
+                "instanceId": 86447,
+                "moduleId": "Rights-RichTextComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ],
+        [
+            {
+                "goodsListRule": "",
+                "instance": {
+                    "accessType": "DEFAULT",
+                    "createTime": "2023-10-31 19:21:36",
+                    "id": 86441,
+                    "label": 1,
+                    "moduleId": "Rights-FloatComp",
+                    "name": "Rights-FloatComp_LEM4D",
+                    "specify": "{\"name\":\"Rights-FloatComp\",\"title\":\"浮窗\",\"version\":\"1.0.0\",\"multiplex\":0,\"exampleId\":86441,\"exampleName\":\"Rights-FloatComp_LEM4D\",\"goodsList\":[{\"desc\":\"权益领取\",\"desc2\":\"\",\"img\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/09/25/1838824408499032064/1692589025749_95377.gif\",\"webpImg\":\"\",\"activeImg\":\"\",\"cornerIcon\":\"\",\"linkUrl\":\"https://dev.coc.10086.cn/coc3/gr/static-2c/rightsget/#/rightsbaw?from=P00000014249\",\"linkParams\":{},\"startTime\":\"\",\"endTime\":\"\",\"userType\":[],\"province\":\"\",\"sort\":1,\"descInfo\":\"\",\"memberSkuid\":\"\",\"memberBuyType\":0,\"memberLink\":\"\",\"admark\":0,\"tagNewStar\":\"0\",\"isFilterBlacklist\":\"0\",\"ruleList\":[],\"scrollNavIconImg\":\"\",\"pyRule\":\"\",\"score\":0,\"updateTime\":\"2024-11-15 10:47:03\",\"btnText\":\"\",\"iconImg\":\"\",\"contentImg\":\"\",\"activeBg\":\"\",\"notActiveBg\":\"\",\"img1\":\"\",\"img2\":\"\",\"desc2Color\":\"\",\"buttonText\":\"\",\"btnColor\":\"\",\"order\":1,\"floatImg\":\"\",\"floatImgShow\":\"1\",\"fixed\":false}],\"bottom\":500,\"showType\":0,\"isClose\":0,\"shouqiImg\":\"\",\"arrowImg\":\"https://res.coc.10086.cn/res/cdn/coc1/2024/02/29/1763016228465197056/1709170797859_651075.png\"}",
+                    "updateTime": "2025-04-09 14:54:49"
+                },
+                "instanceId": 86441,
+                "moduleId": "Rights-FloatComp",
+                "ruleCases": [
+                    {
+                        "auditData": "{\"applicationId\":13,\"auditStage\":\"ONE_STAGE_AUDIT\",\"categoryId\":127148,\"id\":6866,\"name\":\"所有用户暂不可见\",\"params\":\"[{\\\"isContain\\\":1,\\\"dimensionId\\\":2,\\\"params\\\":{\\\"timestamp1\\\":[1732982400000,1733068800000],\\\"dateType\\\":1,\\\"dateArr\\\":[],\\\"dayArr\\\":[],\\\"timestamp2\\\":[\\\"00:00:00\\\",\\\"23:59:59\\\"],\\\"timeMode\\\":1,\\\"dayArrTime\\\":[[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"],[\\\"00:00:00\\\",\\\"23:59:59\\\"]]},\\\"detailField\\\":\\\"startTime,endTime\\\",\\\"id\\\":25546}]\"}",
+                        "auditStage": "ONE_STAGE_AUDIT",
+                        "auditStatus": "DRAFT",
+                        "createTime": "2024-12-17 08:42:47",
+                        "id": 6866,
+                        "name": "所有用户暂不可见",
+                        "ruleDetails": [
+                            {
+                                "createTime": "2024-12-17 08:42:47",
+                                "detailField": "startTime,endTime",
+                                "dimensionId": "2",
+                                "dimensionParam": "startTime,endTime",
+                                "dimensionType": 2,
+                                "isContain": 1,
+                                "params": "{\"timestamp1\":[1732982400000,1733068800000],\"dateType\":1,\"dateArr\":[],\"dayArr\":[],\"timestamp2\":[\"00:00:00\",\"23:59:59\"],\"timeMode\":1,\"dayArrTime\":[[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"],[\"00:00:00\",\"23:59:59\"]]}",
+                                "ruleId": 6866
+                            }
+                        ],
+                        "updateTime": "2025-10-10 17:43:30"
+                    }
+                ],
+                "ruleIds": "6866"
+            }
+        ]
+    ],
+    "isAbtest": 0,
+    "isCm": 0,
+    "isForcedPull": 0,
+    "isGrey": 0,
+    "isHallShare": 1,
+    "isInstallApp": 0,
+    "isLogin": 0,
+    "isMembership": 0,
+    "isRefresh": 0,
+    "isRegister": 0,
+    "isTouchCode": 0,
+    "isUa": 0,
+    "language": 1,
+    "largeType": 0,
+    "limitMemberLevel": "",
+    "loginOption": 0,
+    "loginStyle": "[]",
+    "loginUrl": "",
+    "myVipErrorMessage": 0,
+    "name": "随心选生活折扣包",
+    "onlyHallOpen": 0,
+    "pageType": "ARBITRARILY_SYSTEM",
+    "path": "sxxshzgb",
+    "remark": "",
+    "ruleCases": [],
+    "shareDescription": "你想要的各种会员权益，都在这里，速点！",
+    "sharePictureUrl": "https://dev.coc.10086.cn/coc/static/common/public/2020/11/20/1329625633822609408/share1.png",
+    "shareRedirectUrl": "https://dev.coc.10086.cn/coc3/canvas/rightsmarket-h5-canvas/online/home",
+    "shareTitle": "随心选生活折扣包来啦！",
+    "title": "随心选生活折扣包",
+    "touchCode": "",
+    "type": 0,
+    "updateTime": "2025-11-12 16:35:07",
+    "version": ""
+}

@@ -1,0 +1,65 @@
+body {
+  background: #fff;
+}
+.padding10 {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+}
+#page-content[data-v-3bd8109e] {
+  width: 100vw;
+  overflow: hidden;
+}
+body[data-v-3bd8109e] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+.wrapper1[data-v-3bd8109e] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.van-overlay[data-v-3bd8109e] {
+  background: none;
+}
+.orientation[data-v-3bd8109e] {
+  position: relative;
+}
+.timeEndClass[data-v-3bd8109e] {
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  position: relative;
+}
+.timeEndClass img[data-v-3bd8109e] {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.isOnlyAPPClass[data-v-3bd8109e] {
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  position: relative;
+}
+.isOnlyAPPClass img[data-v-3bd8109e] {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 0;
+}
+.lcpLoadbox[data-v-3bd8109e] {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f4fe;
+}
+.lcpLoadbox img[data-v-3bd8109e] {
+  max-width: 100vw;
+  max-height: 100vh;
+}

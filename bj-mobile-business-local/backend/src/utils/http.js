@@ -61,6 +61,7 @@ export async function requestWithJar({
       timeout,
       httpAgent,
       httpsAgent,
+      proxy: false,
       maxRedirects: 0,
       validateStatus: () => true,
       transformResponse: [(value) => value],

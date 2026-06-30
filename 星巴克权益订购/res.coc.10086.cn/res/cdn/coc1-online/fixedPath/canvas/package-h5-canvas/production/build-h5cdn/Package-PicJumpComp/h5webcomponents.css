@@ -1,0 +1,51 @@
+.page-content * {
+  margin: 0;
+  padding: 0;
+}
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.pic-comp-wrapper2[data-v-e2e576da] {
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+.pic-comp-wrapper2 .previewimg[data-v-e2e576da] {
+  max-width: 100%;
+  height: auto;
+  margin: auto;
+}
+.pic-comp-wrapper2 .pic-comp-pic-skeleton[data-v-e2e576da] {
+  min-height: 30px;
+  height: auto;
+  width: 100%;
+}
+.pic-comp-wrapper2 ul[data-v-e2e576da] {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  list-style: none;
+}
+.pic-comp-wrapper2 ul li[data-v-e2e576da] {
+  height: 100%;
+}
+.pic-comp-wrapper2 .ul1 li[data-v-e2e576da] {
+  width: 100%;
+}
+.pic-comp-wrapper2 .ul2 li[data-v-e2e576da] {
+  width: 50%;
+}
+.pic-comp-wrapper2 .ul3 li[data-v-e2e576da] {
+  width: 33.3%;
+}

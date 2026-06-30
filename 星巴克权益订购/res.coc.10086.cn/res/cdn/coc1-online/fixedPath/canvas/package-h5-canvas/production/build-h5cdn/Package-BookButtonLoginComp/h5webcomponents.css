@@ -1,0 +1,37 @@
+.page-content * {
+  margin: 0;
+  padding: 0;
+}
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.default-img[data-v-ca07b998] {
+  text-align: center;
+}
+.sumbit-comp[data-v-ca07b998] {
+  margin-top: 10px;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.sumbit-comp img[data-v-ca07b998] {
+  max-width: 100%;
+}
+.IsShowShoppingcart[data-v-ca07b998] {
+  width: 3.25rem;
+  height: 0.55rem;
+  margin-left: 0.275rem;
+}

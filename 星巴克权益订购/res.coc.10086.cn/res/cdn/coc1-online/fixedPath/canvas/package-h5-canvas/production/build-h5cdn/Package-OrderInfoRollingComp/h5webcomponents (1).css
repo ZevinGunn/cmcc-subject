@@ -1,0 +1,29 @@
+.page-content * {
+  margin: 0;
+  padding: 0;
+}
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6 {
+  font-size: 16px;
+  font-weight: 400;
+}
+.member-opening-comp-wrapper .link_bg[data-v-249c5666] {
+  width: 100%;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+.member-opening-comp-wrapper .link_bg[data-v-249c5666]::-webkit-scrollbar {
+  width: 3px;
+}
+.member-opening-comp-wrapper
+  .link_bg[data-v-249c5666]::-webkit-scrollbar-thumb {
+  background: var(--scrollColor);
+}
+.member-opening-comp-wrapper .info-img[data-v-249c5666] {
+  display: block;
+  margin: 0 auto;
+}

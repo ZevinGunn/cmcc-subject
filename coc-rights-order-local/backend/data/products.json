@@ -1,0 +1,42 @@
+[
+  {
+    "code": "bojinyear",
+    "name": "铂金会员年包",
+    "skuId": "77626",
+    "channelCode": "P00000139704",
+    "selfChannelCode": "P00000139704",
+    "referer": "bojinyear",
+    "orderMode": "rights",
+    "receipt": true,
+    "receiptModule": true
+  },
+  {
+    "code": "sxxshzgb",
+    "name": "随心选生活折扣包",
+    "skuId": "34622",
+    "channelCode": "P00000139704",
+    "selfChannelCode": "P00000139704",
+    "referer": "sxxshzgb",
+    "layoutFamily": "rightsmarket-h5-canvas",
+    "orderMode": "rights",
+    "receipt": true,
+    "receiptModule": true
+  },
+  {
+    "code": "xbklhhy",
+    "name": "星巴克联合会员",
+    "skuId": "100000098326",
+    "productCode": "100000098326",
+    "pageId": "1878635095121567744",
+    "protocolSequenceId": "2071296758389432320",
+    "channelCode": "P00000132000",
+    "selfChannelCode": "P00000132000",
+    "touchCode": "P00000132000",
+    "referer": "xbklhhy",
+    "layoutFamily": "package-h5-canvas",
+    "orderMode": "package",
+    "smsCodeTypeEnum": "505",
+    "receipt": true,
+    "receiptModule": true
+  }
+]
