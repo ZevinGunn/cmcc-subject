@@ -1,5 +1,6 @@
 <template>
-  <LoginPage v-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" />
+  <CryptoDebugPage v-if="view === 'debug'" @back="onDebugBack" />
+  <LoginPage v-else-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" />
   <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" />
 </template>
 
@@ -7,12 +8,16 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import LoginPage from './pages/LoginPage.vue'
 import BusinessPage from './pages/BusinessPage.vue'
+import CryptoDebugPage from './pages/CryptoDebugPage.vue'
 import { api } from './api/client'
 import { clearSession, sessionState, setSession } from './stores/session'
 
 const booting = ref(Boolean(sessionState.sessionId))
 const route = ref(readRoute())
-const view = computed(() => (!booting.value && sessionState.sessionId && route.value.name === 'business' ? 'business' : 'login'))
+const view = computed(() => {
+  if (route.value.name === 'debug') return 'debug'
+  return !booting.value && sessionState.sessionId && route.value.name === 'business' ? 'business' : 'login'
+})
 const canReturnToBusiness = computed(() => Boolean(sessionState.sessionId && route.value.name === 'login' && route.value.params.from === 'business'))
 
 function readRoute() {
@@ -21,7 +26,7 @@ function readRoute() {
   const params = Object.fromEntries(new URLSearchParams(query))
   const name = path.replace(/^\//, '') || ''
   return {
-    name: name === 'business' ? 'business' : 'login',
+    name: name === 'business' ? 'business' : name.startsWith('debug') ? 'debug' : 'login',
     params,
   }
 }
@@ -44,6 +49,7 @@ function pushRoute(path) {
 
 function syncRoute() {
   route.value = readRoute()
+  if (route.value.name === 'debug') return
   if (route.value.name === 'business' && !sessionState.sessionId) replaceRoute('/login')
 }
 
@@ -69,6 +75,10 @@ function onLoginBack() {
   if (sessionState.sessionId) replaceRoute('/business')
 }
 
+function onDebugBack() {
+  replaceRoute(sessionState.sessionId ? '/business' : '/login')
+}
+
 onMounted(async () => {
   window.addEventListener('hashchange', syncRoute)
   if (!window.location.hash) replaceRoute(sessionState.sessionId ? '/business' : '/login')
@@ -84,7 +94,7 @@ onMounted(async () => {
       return
     }
     setSession({ userInfo: data.session.userInfo })
-    if (route.value.name !== 'login') replaceRoute('/business')
+    if (!['login', 'debug'].includes(route.value.name)) replaceRoute('/business')
   } catch {
     clearSession()
     replaceRoute('/login')

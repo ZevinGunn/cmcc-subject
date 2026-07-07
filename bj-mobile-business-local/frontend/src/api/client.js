@@ -99,4 +99,10 @@ export const api = {
   logout(sessionId) {
     return fetch(`/api/auth/session/${encodeURIComponent(sessionId)}`, { method: 'DELETE' })
   },
+  cryptoDebug(body) {
+    return request('/debug/crypto', { method: 'POST', body })
+  },
+  getCryptoDebugSession(sessionId) {
+    return request(`/debug/crypto/session/${encodeURIComponent(sessionId)}`)
+  },
 }

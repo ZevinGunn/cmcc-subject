@@ -39,12 +39,14 @@ export async function previewExchange(session, payload) {
 }
 
 export async function submitExchange(session, payload) {
+  const couponResult = await queryCouponSummary(session);
+  const certificate = resolveCertificate(payload, summarizeCoupon(couponResult.data || {}));
   const requestBody = {
     offerId: payload.offerId,
     rightCode: payload.rightCode,
     rightId: payload.rightId,
-    certificateId: payload.certificateId,
-    certificateNum: payload.certificateNum,
+    certificateId: certificate.certificateId,
+    certificateNum: certificate.certificateNum,
     checkSwitch: false
   };
   if (payload.verifyCode) requestBody.verifyCode = payload.verifyCode;
@@ -52,6 +54,21 @@ export async function submitExchange(session, payload) {
   if (payload.wtAcId) requestBody.wtAcId = payload.wtAcId;
 
   return clientFor(session).invoke("COUPON_OPEN_TEL_FEE_AUTH", requestBody, { showToast: true });
+}
+
+function resolveCertificate(payload = {}, coupon = {}) {
+  if (payload.certificateKind === "exclusive") {
+    const certificate = (coupon.exclusiveCouponList || []).find((row) => row.certificateId === payload.certificateId) || {};
+    if (!(payload.certificateId || certificate.certificateId)) throw new Error("未找到可用的专属兑换券");
+    return {
+      certificateId: payload.certificateId || certificate.certificateId,
+      certificateNum: Number(payload.certificateNum || certificate.exchangeNum || payload.exchangeNum || 1)
+    };
+  }
+  return {
+    certificateId: payload.certificateId || UNIVERSAL_CERTIFICATE_ID,
+    certificateNum: Number(payload.certificateNum || payload.exchangeNum || 1)
+  };
 }
 
 export async function quickRightExchange(session, payload = {}) {

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云盘登录工作台</title>
+    <script>
+      window.AliyunCaptchaConfig = {
+        region: "cn",
+        prefix: "7elm7k"
+      };
+    </script>
+    <script src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <aside class="panel account-panel">
+          <div class="panel-title">
+            <span>账户</span>
+            <button id="refreshSessionBtn" class="icon-button" title="刷新会话">R</button>
+          </div>
+
+          <label class="field">
+            <span>手机号</span>
+            <input id="phoneInput" autocomplete="tel" inputmode="tel" placeholder="请输入完整手机号" />
+          </label>
+
+          <label class="field compact">
+            <span>国家码</span>
+            <select id="nationSelect">
+              <option value="+86">+86</option>
+              <option value="+852">+852</option>
+              <option value="92">92</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>滑块结果</span>
+            <input id="puzzleInput" placeholder="触发风控后填写" />
+          </label>
+
+          <div class="captcha-box">
+            <div id="captcha-element"></div>
+            <button id="captchaTriggerBtn" class="quiet-button" type="button">打开官方滑块验证</button>
+            <p id="captchaStatus" class="helper-text">如短信接口提示风控，请先完成滑块再重发短信。</p>
+          </div>
+
+          <div class="button-row">
+            <button id="publicKeyBtn" class="action-button secondary">
+              <span class="button-icon">K</span>
+              公钥
+            </button>
+            <button id="smsBtn" class="action-button primary">
+              <span class="button-icon">S</span>
+              发送验证码
+            </button>
+          </div>
+
+          <label class="field">
+            <span>短信验证码</span>
+            <input id="smsCodeInput" autocomplete="one-time-code" inputmode="numeric" maxlength="8" placeholder="6 位验证码" />
+          </label>
+
+          <button id="loginBtn" class="action-button full">
+            <span class="button-icon">L</span>
+            登录并保存 Token
+          </button>
+
+          <div class="divider"></div>
+
+          <label class="field compact">
+            <span>toSourceId</span>
+            <input id="sourceIdInput" value="017018" />
+          </label>
+
+          <div class="segmented" role="group" aria-label="sso token mode">
+            <button class="segment active" data-mode="v1">querySpecToken</button>
+            <button class="segment" data-mode="v2">querySpecTokenV2</button>
+          </div>
+
+          <button id="ssoBtn" class="action-button full accent">
+            <span class="button-icon">T</span>
+            获取 ssoToken
+          </button>
+
+          <label class="field">
+            <span>跳转链接</span>
+            <textarea id="urlInput" rows="4">https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=017018</textarea>
+          </label>
+
+          <button id="defaultJumpBtn" class="action-button full accent">
+            <span class="button-icon">J</span>
+            生成 10086 跳转
+          </button>
+
+          <button id="buildUrlBtn" class="action-button full secondary">
+            <span class="button-icon">U</span>
+            生成认证链接
+          </button>
+
+          <button id="clearBtn" class="quiet-button">清空本地会话</button>
+        </aside>
+
+        <section class="main-panel">
+          <header class="topbar">
+            <div>
+              <h1>云盘登录工作台</h1>
+              <p id="statusText">等待操作</p>
+            </div>
+            <div class="status-pill" id="loginPill">未登录</div>
+          </header>
+
+          <section class="steps" id="steps">
+            <button class="step" data-step="key">
+              <span class="step-index">1</span>
+              <span>公钥</span>
+            </button>
+            <button class="step" data-step="sms">
+              <span class="step-index">2</span>
+              <span>短信</span>
+            </button>
+            <button class="step" data-step="login">
+              <span class="step-index">3</span>
+              <span>Token</span>
+            </button>
+            <button class="step" data-step="sso">
+              <span class="step-index">4</span>
+              <span>ssoToken</span>
+            </button>
+          </section>
+
+          <section class="output-grid">
+            <article class="panel result-panel">
+              <div class="panel-title">
+                <span>执行结果</span>
+                <button id="copyResultBtn" class="icon-button" title="复制结果">C</button>
+              </div>
+              <pre id="resultOutput">{}</pre>
+            </article>
+
+            <article class="panel session-panel">
+              <div class="panel-title">
+                <span>会话</span>
+                <span id="sessionTime" class="muted">-</span>
+              </div>
+              <dl class="session-list" id="sessionList"></dl>
+            </article>
+          </section>
+
+          <section class="panel url-panel">
+            <div class="panel-title">
+              <span>认证链接</span>
+              <button id="copyUrlBtn" class="icon-button" title="复制链接">C</button>
+            </div>
+            <input id="builtUrlOutput" readonly placeholder="生成后显示" />
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

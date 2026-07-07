@@ -147,6 +147,186 @@ button:disabled {
   font-size: 17px;
 }
 
+.debug-page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  color: #1f2530;
+}
+
+.debug-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 96px 1fr 48px;
+  align-items: center;
+  height: 54px;
+  padding: 0 14px;
+  background: #fff;
+  border-bottom: 1px solid #dce3ec;
+}
+
+.debug-header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.debug-back,
+.debug-icon-btn,
+.debug-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 10px;
+  color: #2563eb;
+  background: transparent;
+  border: 0;
+}
+
+.debug-icon-btn {
+  width: 38px;
+  padding: 0;
+}
+
+.debug-icon-btn.bordered,
+.debug-secondary {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.debug-shell {
+  width: min(1120px, calc(100vw - 28px));
+  margin: 18px auto;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+}
+
+.debug-toolbar,
+.debug-fields,
+.debug-columns {
+  display: grid;
+  gap: 14px;
+}
+
+.debug-toolbar {
+  grid-template-columns: minmax(220px, 320px) 1fr;
+}
+
+.debug-fields {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 14px;
+}
+
+.debug-columns {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 14px;
+}
+
+.debug-page label span,
+.debug-textarea span {
+  display: block;
+  margin-bottom: 7px;
+  color: #526071;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.debug-page input,
+.debug-page select,
+.debug-page textarea {
+  width: 100%;
+  min-width: 0;
+  color: #1f2530;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+}
+
+.debug-page input,
+.debug-page select {
+  height: 40px;
+  padding: 0 11px;
+}
+
+.debug-page textarea {
+  min-height: 260px;
+  padding: 11px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.debug-page input:focus,
+.debug-page select:focus,
+.debug-page textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.debug-inline {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 8px;
+}
+
+.debug-textarea {
+  display: block;
+  margin-top: 14px;
+}
+
+.debug-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.debug-run {
+  width: auto;
+  min-width: 132px;
+  height: 42px;
+  margin-top: 0;
+  padding: 0 18px;
+  border-radius: 6px;
+}
+
+.debug-message {
+  margin: 14px 0 0;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.debug-message.error {
+  color: #dc2626;
+}
+
+.debug-note {
+  margin: 10px 0 0;
+  color: #697586;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.spinning {
+  animation: debug-spin 0.9s linear infinite;
+}
+
+@keyframes debug-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .business-shell .tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

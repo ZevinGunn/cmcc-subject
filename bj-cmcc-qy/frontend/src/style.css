@@ -713,6 +713,24 @@ label span {
   padding: 0 12px;
 }
 
+.inline-select {
+  min-width: 128px;
+  display: grid;
+  gap: 4px;
+}
+
+.inline-select span {
+  margin: 0;
+  font-size: 11px;
+}
+
+.inline-select select {
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
 .cart-row,
 .order-row {
   display: grid;

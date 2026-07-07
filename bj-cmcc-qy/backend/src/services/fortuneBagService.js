@@ -62,14 +62,7 @@ export async function batchExchange(session, items = []) {
 
   const data = [];
   for (const item of expanded) {
-    const body = {
-      offerId: item.offerId,
-      rightCode: item.rightCode || item.legalRightsNbr,
-      rightId: item.rightId || item.legalRightsId,
-      certificateId: item.certificateId || UNIVERSAL_CERTIFICATE_ID,
-      certificateNum: item.certificateNum || item.exchangeNum || 1,
-      checkSwitch: false
-    };
+    const body = buildExchangeBody(item, coupon);
     data.push({
       item: body,
       response: await clientFor(session).invoke("COUPON_OPEN_TEL_FEE_AUTH", body, { showToast: true })
@@ -79,7 +72,8 @@ export async function batchExchange(session, items = []) {
 }
 
 export async function syncExchangeOne(session, item = {}, options = {}) {
-  const requestBody = buildExchangeBody(item);
+  const couponResult = await queryCouponSummary(session);
+  const requestBody = buildExchangeBody(item, summarizeCoupon(couponResult.data || {}));
   if (!requestBody.offerId || !requestBody.rightCode || !requestBody.rightId) {
     return {
       resultCode: "-1",
@@ -264,15 +258,45 @@ function isSuccessResult(result = {}) {
   return code === "0" || code === "000000";
 }
 
-function buildExchangeBody(item = {}) {
+function buildExchangeBody(item = {}, coupon = {}) {
+  const certificate = resolveCertificate(item, coupon);
   return {
     offerId: item.offerId,
     rightCode: item.rightCode || item.legalRightsNbr,
     rightId: item.rightId || item.legalRightsId,
-    certificateId: item.certificateId || UNIVERSAL_CERTIFICATE_ID,
-    certificateNum: item.certificateNum || item.exchangeNum || 1,
+    certificateId: certificate.certificateId,
+    certificateNum: certificate.certificateNum,
     checkSwitch: false
   };
+}
+
+function resolveCertificate(item = {}, coupon = {}) {
+  const kind = item.certificateKind === "exclusive" ? "exclusive" : "universal";
+  if (kind === "exclusive") {
+    const certificate =
+      certificateList(item).find((row) => row.certificateType === "1002" && row.certificateId === item.certificateId) ||
+      certificateList(item).find((row) => row.certificateType === "1002" && row.certificateId) ||
+      (coupon.exclusiveCouponList || []).find((row) => row.certificateId === item.certificateId) ||
+      (coupon.exclusiveCouponList || []).find((row) => row.certificateId);
+    if (certificate?.certificateId) {
+      return {
+        certificateId: certificate.certificateId,
+        certificateNum: Number(item.certificateNum || certificate.exchangeNum || item.exchangeNum || 1)
+      };
+    }
+    throw new Error("未找到可用的专属兑换券");
+  }
+
+  const universalCertificate =
+    certificateList(item).find((row) => row.certificateType === "1001" || row.certificateId === UNIVERSAL_CERTIFICATE_ID) || {};
+  return {
+    certificateId: UNIVERSAL_CERTIFICATE_ID,
+    certificateNum: Number(item.certificateNum || universalCertificate.exchangeNum || item.exchangeNum || 1)
+  };
+}
+
+function certificateList(item = {}) {
+  return item.certificateList || item.raw?.certificateList || [];
 }
 
 async function waitForOrder(session, item, startedAt, options = {}) {

@@ -408,6 +408,19 @@
           <div class="right-actions">
             <button class="ghost" @click="openRightDetail(item)">详情</button>
             <span v-if="isSyncExchangeItem(item)" class="exchange-mode-badge">逐个兑换</span>
+            <label class="inline-select">
+              <span>兑换券</span>
+              <select v-model="item.certificateKind">
+                <option
+                  v-for="option in certificateKindOptions(item)"
+                  :key="option.value"
+                  :value="option.value"
+                  :disabled="option.disabled"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
             <button @click="addToCart(item)">加入购物车</button>
           </div>
         </article>
@@ -423,10 +436,23 @@
         </div>
       </div>
       <div v-if="cart.length" class="cart-list">
-        <article v-for="item in cart" :key="item.legalRightsNbr" class="cart-row">
+        <article v-for="item in cart" :key="cartItemKey(item)" class="cart-row">
           <div>
             <h3>{{ item.legalRightsName }}</h3>
             <p>{{ costOf(item) }} 张券/份 · {{ isSyncExchangeItem(item) ? "逐个兑换" : "批量兑换" }}</p>
+            <label class="inline-select">
+              <span>兑换券</span>
+              <select v-model="item.certificateKind" @change="updateCartCertificate(item)">
+                <option
+                  v-for="option in certificateKindOptions(item)"
+                  :key="option.value"
+                  :value="option.value"
+                  :disabled="option.disabled"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
           </div>
           <div class="qty">
             <button @click="changeQty(item, -1)">-</button>
@@ -629,6 +655,19 @@
               <button @click="changeDialogQty(1)">+</button>
             </div>
           </div>
+          <label class="inline-select">
+            <span>兑换券</span>
+            <select v-model="dialogCertificateKind">
+              <option
+                v-for="option in certificateKindOptions(rightDialog)"
+                :key="option.value"
+                :value="option.value"
+                :disabled="option.disabled"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
           <div class="dialog-buttons">
             <button class="ghost" @click="addDialogToCart">加入购物车</button>
             <button class="primary" @click="exchangeFromDialog">立即兑换</button>
@@ -862,6 +901,7 @@ const ORDER_CODE_CACHE_KEY = "bmcc_order_code_cache_v1";
 const ORDER_CODE_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 const RIGHTS_CACHE_KEY = "bmcc_rights_cache_v1";
 const PAGE_STATE_KEY = "bmcc_page_state_v1";
+const UNIVERSAL_CERTIFICATE_ID = "1387830401690525697";
 const ZERO_COST_RIGHTS_ALLOWED_PHONES = new Set(["15210334812"]);
 const KNOWN_OFFER_ORDERS = [
   { offerId: "111602016645", name: "黄金会员5元档（北京）" },
@@ -1013,6 +1053,7 @@ const selectedOrderIds = ref([]);
 const rightDialog = ref(null);
 const usageExpanded = ref(false);
 const dialogQuantity = ref(1);
+const dialogCertificateKind = ref("universal");
 const orderDialog = ref(null);
 const orderDialogIndex = ref(-1);
 const orderDialogCards = ref({});
@@ -1868,12 +1909,19 @@ function applyRightsFilters() {
 
 function filterRightsForCurrentUser(items = []) {
   const targetCost = canViewZeroCostRights.value && exchangeNumFilter.value !== "" ? Number(exchangeNumFilter.value) : null;
-  return (Array.isArray(items) ? items : []).filter((item) => {
-    const cost = rightExchangeCost(item);
-    if (!canViewZeroCostRights.value && cost === 0) return false;
-    if (targetCost != null && cost !== targetCost) return false;
-    return true;
-  });
+  return (Array.isArray(items) ? items : [])
+    .filter((item) => {
+      const cost = rightExchangeCost(item);
+      if (!canViewZeroCostRights.value && cost === 0) return false;
+      if (targetCost != null && cost !== targetCost) return false;
+      return true;
+    })
+    .map(withDefaultCertificateKind);
+}
+
+function withDefaultCertificateKind(item) {
+  if (!item || item.certificateKind) return item;
+  return { ...item, certificateKind: defaultCertificateKind(item) };
 }
 
 function rightExchangeCost(item = {}) {
@@ -1919,15 +1967,17 @@ function openRightDetail(item) {
   rightDialog.value = item;
   usageExpanded.value = false;
   dialogQuantity.value = 1;
+  dialogCertificateKind.value = defaultCertificateKind(item);
 }
 
 function addToCart(item) {
   if (!canSetQuantity(item, getCartQuantity(item) + 1)) {
     return show("超过当前可用兑换券数量，无法加入购物车");
   }
-  const hit = cart.value.find((row) => row.legalRightsNbr === item.legalRightsNbr);
+  const cartItem = buildCartItem(item, 1, item.certificateKind);
+  const hit = cart.value.find((row) => cartItemKey(row) === cartItemKey(cartItem));
   if (hit) hit.quantity += 1;
-  else cart.value.push({ ...item, quantity: 1, certificateId: "1387830401690525697" });
+  else cart.value.push(cartItem);
   persistCart();
   show("已加入购物车");
 }
@@ -1939,12 +1989,26 @@ function addToCartWithQuantity(item, quantity) {
       persistCart();
       return show("超过当前可用兑换券数量，已按可用数量加入购物车");
     }
-    const hit = cart.value.find((row) => row.legalRightsNbr === item.legalRightsNbr);
+    const cartItem = buildCartItem(item, 1, dialogCertificateKind.value);
+    const hit = cart.value.find((row) => cartItemKey(row) === cartItemKey(cartItem));
     if (hit) hit.quantity += 1;
-    else cart.value.push({ ...item, quantity: 1, certificateId: "1387830401690525697" });
+    else cart.value.push(cartItem);
   }
   persistCart();
   show(`已加入购物车 ${amount} 份`);
+}
+
+function buildCartItem(item, quantity = 1, certificateKind = defaultCertificateKind(item)) {
+  return {
+    ...item,
+    ...certificateSelection(item, certificateKind),
+    quantity
+  };
+}
+
+function updateCartCertificate(item) {
+  Object.assign(item, certificateSelection(item, item.certificateKind));
+  persistCart();
 }
 
 function changeQty(item, delta) {
@@ -1971,7 +2035,8 @@ function sanitizeQty(item) {
 }
 
 function removeCart(item) {
-  cart.value = cart.value.filter((row) => row.legalRightsNbr !== item.legalRightsNbr);
+  const key = cartItemKey(item);
+  cart.value = cart.value.filter((row) => cartItemKey(row) !== key);
   persistCart();
 }
 
@@ -1988,7 +2053,9 @@ function loadCart() {
   try {
     const key = `bmcc_cart_${getToken() || "guest"}`;
     const rows = JSON.parse(localStorage.getItem(key) || "[]");
-    cart.value = Array.isArray(rows) ? rows : [];
+    cart.value = Array.isArray(rows)
+      ? rows.map((row) => ({ ...row, ...certificateSelection(row, row.certificateKind) }))
+      : [];
     return cart.value;
   } catch {
     cart.value = [];
@@ -2029,7 +2096,7 @@ async function submitCartWithProgress(batchItems, syncItems) {
     for (const [index, item] of syncItems.entries()) {
       updateSyncProgress(index, { status: "running", label: "兑换中", message: "正在提交兑换请求" });
       try {
-        const data = await endpoints.syncExchange({ ...item, quantity: 1, certificateId: item.certificateId || "1387830401690525697" });
+        const data = await endpoints.syncExchange({ ...item, quantity: 1, ...certificateSelection(item, item.certificateKind) });
         result.sync.push(data);
         applySyncExchangeResult(index, data);
       } catch (error) {
@@ -2164,8 +2231,8 @@ async function exchangeFromDialog() {
     action: async () => {
       const item = {
         ...rightDialog.value,
-        quantity: amount,
-        certificateId: "1387830401690525697"
+        ...certificateSelection(rightDialog.value, dialogCertificateKind.value),
+        quantity: amount
       };
       exchangeResult.value = isSyncExchangeItem(item)
         ? await wrap(() => submitCartWithProgress([], expandCartItems([item])))
@@ -2370,6 +2437,63 @@ function costOf(item) {
   return Number(value ?? 1);
 }
 
+function certificateKindOptions(item) {
+  const hasExclusive = Boolean(exclusiveCertificateFor(item));
+  return [
+    { value: "universal", label: "通用兑换券" },
+    { value: "exclusive", label: hasExclusive ? "专属兑换券" : "专属兑换券（暂无可用）", disabled: !hasExclusive }
+  ];
+}
+
+function defaultCertificateKind(item) {
+  if (!supportsUniversalCertificate(item) && exclusiveCertificateFor(item)) return "exclusive";
+  return "universal";
+}
+
+function certificateSelection(item, requestedKind = "universal") {
+  const kind = requestedKind === "exclusive" && exclusiveCertificateFor(item) ? "exclusive" : "universal";
+  if (kind === "exclusive") {
+    const certificate = exclusiveCertificateFor(item);
+    return {
+      certificateKind: "exclusive",
+      certificateId: certificate.certificateId,
+      certificateNum: selectedCertificateNum(item, certificate)
+    };
+  }
+  return {
+    certificateKind: "universal",
+    certificateId: UNIVERSAL_CERTIFICATE_ID,
+    certificateNum: selectedCertificateNum(item, universalCertificateFor(item))
+  };
+}
+
+function rightCertificateList(item = {}) {
+  return item?.certificateList || item?.raw?.certificateList || [];
+}
+
+function supportsUniversalCertificate(item) {
+  const list = rightCertificateList(item);
+  if (!list.length) return true;
+  return list.some((certificate) => certificate.certificateType === "1001" || certificate.certificateId === UNIVERSAL_CERTIFICATE_ID);
+}
+
+function universalCertificateFor(item) {
+  return rightCertificateList(item).find(
+    (certificate) => certificate.certificateType === "1001" || certificate.certificateId === UNIVERSAL_CERTIFICATE_ID
+  );
+}
+
+function exclusiveCertificateFor(item) {
+  const list = rightCertificateList(item);
+  const rightCertificate = list.find((certificate) => certificate.certificateType === "1002" && certificate.certificateId);
+  if (rightCertificate) return rightCertificate;
+  return (coupon.value?.exclusiveCouponList || []).find((certificate) => certificate.certificateId);
+}
+
+function selectedCertificateNum(item, certificate) {
+  return Number(certificate?.exchangeNum ?? item?.certificateNum ?? item?.exchangeNum ?? item?.raw?.certificateNum ?? item?.raw?.exchangeNum ?? 1);
+}
+
 function imageUrl(value) {
   if (!value) return "";
   if (String(value).startsWith("http")) return value;
@@ -2503,26 +2627,31 @@ function writeOrderCodeCacheStore(store) {
 }
 
 function getCartQuantity(item) {
-  const hit = cart.value.find((row) => row.legalRightsNbr === item.legalRightsNbr);
+  const key = cartItemKey(item);
+  const hit = cart.value.find((row) => cartItemKey(row) === key);
   return Number(hit?.quantity || 0);
 }
 
+function cartItemKey(item) {
+  return `${item?.legalRightsNbr || item?.rightCode || item?.offerId || "right"}-${item?.certificateKind || defaultCertificateKind(item)}`;
+}
+
 function canSetQuantity(item, nextQuantity) {
-  const code = item.legalRightsNbr;
+  const key = cartItemKey(item);
   const nextCost = cart.value.reduce((sum, row) => {
-    const quantity = row.legalRightsNbr === code ? nextQuantity : Number(row.quantity || 1);
+    const quantity = cartItemKey(row) === key ? nextQuantity : Number(row.quantity || 1);
     return sum + costOf(row) * quantity;
   }, 0);
-  if (!cart.value.some((row) => row.legalRightsNbr === code)) {
+  if (!cart.value.some((row) => cartItemKey(row) === key)) {
     return cartCost.value + costOf(item) <= availableCoupons.value;
   }
   return nextCost <= availableCoupons.value;
 }
 
 function maxQuantityFor(item) {
-  const code = item.legalRightsNbr;
+  const key = cartItemKey(item);
   const otherCost = cart.value.reduce((sum, row) => {
-    if (row.legalRightsNbr === code) return sum;
+    if (cartItemKey(row) === key) return sum;
     return sum + costOf(row) * Number(row.quantity || 1);
   }, 0);
   return Math.max(0, Math.floor((availableCoupons.value - otherCost) / costOf(item)));

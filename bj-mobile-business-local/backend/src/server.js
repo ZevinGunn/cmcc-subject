@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { config } from './config.js'
 import authRouter from './routes/auth.js'
 import businessRouter from './routes/business.js'
+import debugRouter from './routes/debug.js'
 import { createRequestId, logEvent, logFile } from './utils/logger.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -63,6 +64,7 @@ app.get('/api/logs/recent', async (req, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/business', businessRouter)
+app.use('/api/debug', debugRouter)
 
 if (existsSync(frontendIndex)) {
   app.use(express.static(frontendDist, { index: false }))

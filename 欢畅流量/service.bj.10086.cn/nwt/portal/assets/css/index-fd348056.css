@@ -1,0 +1,346 @@
+body[data-v-04197653] {
+  font-family: arial, helvetica, sans-serif;
+  font-size: 13px;
+  font-size-adjust: none;
+  font-stretch: normal;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+body[data-v-04197653],
+ul[data-v-04197653],
+ol[data-v-04197653],
+dl[data-v-04197653],
+dd[data-v-04197653],
+h1[data-v-04197653],
+h2[data-v-04197653],
+h3[data-v-04197653],
+h4[data-v-04197653],
+h5[data-v-04197653],
+h6[data-v-04197653],
+p[data-v-04197653],
+form[data-v-04197653],
+fieldset[data-v-04197653],
+legend[data-v-04197653],
+input[data-v-04197653],
+textarea[data-v-04197653],
+select[data-v-04197653],
+button[data-v-04197653],
+th[data-v-04197653],
+td[data-v-04197653],
+em[data-v-04197653] {
+  margin: 0;
+  padding: 0;
+}
+h1[data-v-04197653],
+h2[data-v-04197653],
+h3[data-v-04197653],
+h4[data-v-04197653],
+h5[data-v-04197653],
+h6[data-v-04197653] {
+  font-size: 100%;
+  font-weight: 400;
+}
+table[data-v-04197653] {
+  font-size: inherit;
+}
+input[data-v-04197653],
+select[data-v-04197653] {
+  font-family: arial, helvetica, clean, sans-serif;
+  font-size: 100%;
+  font-size-adjust: none;
+  font-stretch: normal;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+button[data-v-04197653] {
+  overflow: visible;
+}
+th[data-v-04197653],
+em[data-v-04197653],
+strong[data-v-04197653],
+b[data-v-04197653],
+address[data-v-04197653],
+cite[data-v-04197653] {
+  font-style: normal;
+  font-weight: 400;
+}
+li[data-v-04197653],
+dl[data-v-04197653],
+dd[data-v-04197653] {
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+}
+img[data-v-04197653],
+fieldset[data-v-04197653] {
+  border: 0 none;
+}
+.ins[data-v-04197653] {
+  text-decoration: none;
+}
+input[data-v-04197653]:focus {
+  outline: none;
+}
+a[data-v-04197653] {
+  -webkit-tap-highlight-color: rgba(255, 0, 0, 0);
+  text-decoration: none;
+}
+[data-v-04197653] {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.clearfix[data-v-04197653]:after {
+  content: "";
+  height: 0;
+  display: block;
+  clear: both;
+}
+.ellipsis[data-v-04197653] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.displayFlex[data-v-04197653] {
+  display: box;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  -ms-flex-direction: row;
+  -o-flex-direction: row;
+  flex-direction: row;
+}
+.flex[data-v-04197653] {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  width: 0%;
+}
+.fixed[data-v-04197653] {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+html[data-v-04197653] {
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+body[data-v-04197653] {
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+  font-size: 16px;
+}
+@font-face {
+  font-family: AlimamaFangYuanTiVF;
+  src: url(/nwt/portal/assets/AlimamaFangYuanTiVF-4debe61e.woff) format("woff"),
+    url(/nwt/portal/assets/fonts/AlimamaFangYuanTiVF-649f0707.ttf)
+      format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+body[data-v-04197653] {
+  background: #fff5e4;
+}
+.container[data-v-04197653] {
+  width: 7.5rem;
+  height: auto;
+  margin: 0 auto;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-bottom: 0.5rem;
+  background: #fff5e4;
+}
+.banner[data-v-04197653] {
+  margin-bottom: 0.2rem;
+}
+.banner > img[data-v-04197653] {
+  width: 100%;
+  height: 5.05rem;
+}
+.commitment[data-v-04197653] {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+}
+.commitment .txt[data-v-04197653] {
+  font-size: 0.34rem;
+  color: #000;
+  position: relative;
+  z-index: 2;
+  font-family: AlimamaFangYuanTiVF;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.02rem;
+  text-shadow: 0 0 0.01rem #fffcc9, 0 0 0.02rem #fffcc9, 0 0 0.03rem #fffcc9,
+    0 0 0.04rem #fffcc9, 0 0 0.05rem #fffcc9, 0 0 0.06rem #fffcc9,
+    0 0 0.07rem #fffcc9, 0 0 0.08rem #fffcc9, 0 0 0.09rem #fffcc9,
+    0 0 0.1rem #fffcc9, 0.01rem 0.01rem 0 #fffcc9, 0.02rem 0.01rem 0 #fffcc9,
+    0.01rem 0.02rem 0 #fffcc9, 0.02rem 0.02rem 0 #fffcc9,
+    0.01rem -0.01rem 0 #fffcc9, 0.02rem -0.01rem 0 #fffcc9,
+    -0.01rem 0.01rem 0 #fffcc9, -0.02rem 0.01rem 0 #fffcc9,
+    -0.01rem 0.02rem 0 #fffcc9, -0.02rem 0.02rem 0 #fffcc9,
+    -0.01rem -0.01rem 0 #fffcc9, -0.02rem -0.01rem 0 #fffcc9,
+    0.01rem -0.02rem 0 #fffcc9, 0.02rem -0.02rem 0 #fffcc9,
+    -0.01rem -0.02rem 0 #fffcc9, -0.02rem -0.02rem 0 #fffcc9;
+}
+.commitment .txt > em[data-v-04197653] {
+  color: #fd3900;
+  font-style: italic;
+  font-weight: 700;
+}
+.commitment .decs[data-v-04197653] {
+  position: absolute;
+  z-index: 1;
+  right: -0.08rem;
+  bottom: -0.04rem;
+  width: 1.53rem;
+  height: 0.23rem;
+}
+.card[data-v-04197653] {
+  margin: 0.4rem auto 0;
+  width: 7.1rem;
+  height: 4.08rem;
+  background: url(/nwt/portal/assets/images/bg-a5f373b5.png) no-repeat;
+  background-size: 100% 100%;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-top: 1.25rem;
+  position: relative;
+}
+.card .tips[data-v-04197653] {
+  font-size: 0.24rem;
+  color: #b66c3e;
+  position: absolute;
+  top: 0.22rem;
+  right: 0.35rem;
+  font-family: AlimamaFangYuanTiVF;
+  font-style: italic;
+  letter-spacing: 0rem;
+}
+.card .item[data-v-04197653] {
+  width: 5.92rem;
+  height: 1.87rem;
+  background: url(/nwt/portal/assets/images/hb-8fa4a29f.png) no-repeat;
+  background-size: 100% 100%;
+  margin: 0 auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0.1rem;
+}
+.card .item .left[data-v-04197653] {
+  width: 3.66rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.card .item .left .voice[data-v-04197653] {
+  font-size: 0.55rem;
+  line-height: 0.56rem;
+  font-weight: bolder;
+  margin-bottom: 0.06rem;
+  background: linear-gradient(45deg, #fe640c, #f93101);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card .item .left .tip[data-v-04197653] {
+  padding: 0 0.14rem;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 0.42rem;
+  line-height: 0.42rem;
+  background: #faecd7;
+  border-radius: 0.22rem;
+  font-size: 0.22rem;
+  color: #b66c3e;
+  display: inline-block;
+}
+.card .item .left .tip > b[data-v-04197653] {
+  font-weight: 700;
+}
+.card .item .right[data-v-04197653] {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding-left: 0.6rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  text-align: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.card .item .right .txt[data-v-04197653] {
+  font-size: 0.38rem;
+  color: #fff;
+  font-weight: 700;
+  -webkit-writing-mode: vertical-lr;
+  -ms-writing-mode: tb-lr;
+  writing-mode: vertical-lr;
+  letter-spacing: 0.1rem;
+}
+.title[data-v-04197653] {
+  width: 1.78rem;
+  height: 0.46rem;
+  background: url(/nwt/portal/assets/images/title_01-bf743c6e.png) no-repeat;
+  background-size: 100% 100%;
+  margin: 0 auto 0.24rem;
+}
+.btn-handle[data-v-04197653] {
+  width: 5.63rem;
+  height: 1.81rem;
+  background: url(/nwt/portal/assets/images/btn-f99a6f74.png) no-repeat;
+  background-size: 100% 100%;
+  margin: 0 auto;
+}
+.rule[data-v-04197653] {
+  width: 7.05rem;
+  border-radius: 0.3rem;
+  background: #faecd7;
+  margin: 0 auto;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0.27rem;
+}
+.rule .p1[data-v-04197653] {
+  text-align: justify;
+  font-size: 0.24rem;
+  line-height: 2;
+}
+.rule .p1 .fwb[data-v-04197653] {
+  font-weight: 700;
+  text-decoration: underline;
+}

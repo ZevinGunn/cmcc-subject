@@ -1,0 +1,657 @@
+{
+  "success": true,
+  "code": "0000",
+  "message": "请求成功",
+  "data": {
+    "items": [
+      {
+        "fileId": "/myfaverapp",
+        "parentFileId": "/",
+        "name": "我的应用收藏",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2024-05-03T11:17:56.003+08:00",
+        "updatedAt": "2026-04-28T15:16:51.793+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": true,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": null,
+        "contentAuditInfo": null,
+        "userTags": null,
+        "addressDetail": null
+      },
+      {
+        "fileId": "Fv9iOaTz0jP4X5nYjUxVORqxDNeHf9IB-",
+        "parentFileId": "/",
+        "name": "手机图片",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2024-05-03T11:17:56.204+08:00",
+        "updatedAt": "2026-07-06T22:55:31.383+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": false,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "Fl0xzye1DeO081jBfwv1EtoTXyEEOQ3Rt",
+        "parentFileId": "/",
+        "name": "手机视频",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2025-11-04T10:28:16.309+08:00",
+        "updatedAt": "2026-07-04T00:01:25.717+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": false,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": [
+          { "key": "device_id", "value": "90B89236DA3F6133149CEE479E83BB5E" },
+          { "key": "source_type", "value": "backup" },
+          { "key": "backup_source", "value": "album" }
+        ],
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FjdpfdM2P79AoMVhdZ0ZBI55B5Pwuj-NQ",
+        "parentFileId": "/",
+        "name": "AI空间",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2025-05-12T10:45:30.671+08:00",
+        "updatedAt": "2026-05-23T12:34:34.947+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": false,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FpzCmbvUEA5ps60dsG3hMW7SrHeYWBA8a",
+        "parentFileId": "/",
+        "name": "手机视频",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2025-11-04T10:28:15.957+08:00",
+        "updatedAt": "2026-02-07T18:21:09.891+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": false,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": [
+          { "key": "device_id", "value": "90B89236DA3F6133149CEE479E83BB5E" },
+          { "key": "source_type", "value": "backup" },
+          { "key": "backup_source", "value": "album" }
+        ],
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FvcbGh-6uDmIcDmZDAzVI265dfQ8NrgLi",
+        "parentFileId": "/",
+        "name": "139邮箱",
+        "description": null,
+        "type": "folder",
+        "fileExtension": "",
+        "category": "folder",
+        "createdAt": "2025-04-12T22:07:27.818+08:00",
+        "updatedAt": "2025-05-20T11:09:25.985+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": null,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": null,
+        "contentHashAlgorithm": null,
+        "systemDir": false,
+        "revisionId": null,
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": [{ "key": null, "value": null }],
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FkRX0eAsMRnqSEI2kS8tLMYKOT_DoDEr6",
+        "parentFileId": "/",
+        "name": "城市发展指数大屏.zip",
+        "description": null,
+        "type": "file",
+        "fileExtension": "zip",
+        "category": "zip",
+        "createdAt": "2026-02-06T23:37:31.802+08:00",
+        "updatedAt": "2026-02-06T23:38:17.868+08:00",
+        "trashedAt": null,
+        "localCreatedAt": "1984-01-24T16:00:00.000+08:00",
+        "localUpdatedAt": "2025-02-19T15:24:43.742+08:00",
+        "starredAt": null,
+        "starred": false,
+        "size": 290220041,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "95c7087f3953bdb2faf19a8ab4a51675e1c9baa302917512de127e62ba744529",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1880056937723258112.1880056937723258113",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FuhPm8QOenzdMZ800VbFNvKmIXXngnpO3",
+        "parentFileId": "/",
+        "name": "CK.txt",
+        "description": null,
+        "type": "file",
+        "fileExtension": "txt",
+        "category": "doc",
+        "createdAt": "2025-10-15T14:33:53.912+08:00",
+        "updatedAt": "2025-10-15T14:33:54.865+08:00",
+        "trashedAt": null,
+        "localCreatedAt": "2025-10-12T22:16:53.789+08:00",
+        "localUpdatedAt": "2025-10-13T14:41:29.957+08:00",
+        "starredAt": null,
+        "starred": false,
+        "size": 933,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "2efbc09bcb6db40df9d5af465e864b660cb48782b52c7a725732b9d99b07ab3d",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1797158885950281856.1797158885950281857",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FjerVuKXO-F_r5N7wpBJIzZ5xbjBGzvTf",
+        "parentFileId": "/",
+        "name": "API.txt",
+        "description": null,
+        "type": "file",
+        "fileExtension": "txt",
+        "category": "doc",
+        "createdAt": "2025-10-15T14:33:53.907+08:00",
+        "updatedAt": "2025-10-15T14:33:54.827+08:00",
+        "trashedAt": null,
+        "localCreatedAt": "2025-10-12T22:13:56.490+08:00",
+        "localUpdatedAt": "2025-10-12T22:16:36.744+08:00",
+        "starredAt": null,
+        "starred": false,
+        "size": 6196,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "389301692fd27576f2a0b8cdd80f295eddcd1a9b620b97208eb00ab1998d12ea",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1797158885908317696.1797158885908317697",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FpGkYhGi5oAueqyXLVDVI5rfyowyLuayL",
+        "parentFileId": "/",
+        "name": "京东助手.zip",
+        "description": null,
+        "type": "file",
+        "fileExtension": "zip",
+        "category": "zip",
+        "createdAt": "2025-10-12T22:11:22.555+08:00",
+        "updatedAt": "2025-10-12T22:11:24.855+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 29175459,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "0b4f4bfe1a242e89fc09f8154dca2253a401c626ab7c48d859c06bcf33d0632e",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1795214814386116480.1795214814386116481",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FiVv_JlyUlbQDSZzQeuFDZZrARK6_lJk0",
+        "parentFileId": "/",
+        "name": "FlClash-0.8.86-windows-amd64-setup.exe",
+        "description": null,
+        "type": "file",
+        "fileExtension": "exe",
+        "category": "app",
+        "createdAt": "2025-08-21T12:02:32.980+08:00",
+        "updatedAt": "2025-08-21T12:02:33.296+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 28445408,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "72b544b4d88f98aee3664bff24b65e69a3e7a5a2d7fb772836ea6c14976add09",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1757220044086999680.1757220044086999681",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FmDcX0LTuKsv-MYvQZG1Kc4usrFhX7iZL",
+        "parentFileId": "/",
+        "name": "intelligent-reporting.zip",
+        "description": null,
+        "type": "file",
+        "fileExtension": "zip",
+        "category": "zip",
+        "createdAt": "2025-08-21T11:52:05.738+08:00",
+        "updatedAt": "2025-08-21T11:52:10.085+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 10560604,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "5ffd084e617f866a0acb057c45aa9d014b26cbb26ca964e4b4cf47b23ce24fb8",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1757214782735282305.1757214782735282306",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "Fiaoez5ZldaGpBWeBnMJLP5oxpUd1ZXkh",
+        "parentFileId": "/",
+        "name": "cmccvpn.exe",
+        "description": null,
+        "type": "file",
+        "fileExtension": "exe",
+        "category": "app",
+        "createdAt": "2025-08-21T10:30:20.901+08:00",
+        "updatedAt": "2025-08-21T10:30:21.297+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 32550040,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "bc8c0ad10d8419b6ce7e53a5483bdba7838c9876e0de760dab1ec4e34b82ae72",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1757173637737122688.1757173637737122689",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 20,
+          "auditResult": 1
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FggayccKfZUcpGYEpahVEQZGdCfkhn2nH",
+        "parentFileId": "/",
+        "name": "nvm-setup.exe",
+        "description": null,
+        "type": "file",
+        "fileExtension": "exe",
+        "category": "app",
+        "createdAt": "2025-06-26T14:03:03.770+08:00",
+        "updatedAt": "2025-06-26T14:03:04.202+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 5612296,
+        "thumbnailUrls": null,
+        "punishMode": null,
+        "contentHash": "2d5ad523aa6182205da77c0eb8210638aaa8792f4e6a4bc12e1ac854c5455a68",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1716693259343930113.1716693259343930114",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 10,
+          "auditResult": 1
+        },
+        "contentAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "userTags": null,
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      },
+      {
+        "fileId": "FpOU97zAsP3Oxwin8HVVGmrd-hmfTLDPz",
+        "parentFileId": "/",
+        "name": "中国移动云盘产品手册.pdf",
+        "description": null,
+        "type": "file",
+        "fileExtension": "pdf",
+        "category": "doc",
+        "createdAt": "2024-05-03T11:17:56.818+08:00",
+        "updatedAt": "2024-05-03T11:17:56.764+08:00",
+        "trashedAt": null,
+        "localCreatedAt": null,
+        "localUpdatedAt": null,
+        "starredAt": null,
+        "starred": false,
+        "size": 32029905,
+        "thumbnailUrls": [
+          {
+            "style": "Large",
+            "url": "https://b22-obs-ykj-01.obs.dualstack.cidc-rp-2006.joint.cmecloud.cn/04c749500ee1400080fe7f8392a06f11086?response-content-disposition=attachment%3B%20filename%2A%3DUTF-8%27%27f46a0858c9b1443798a8af4c1b349425.jpg&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260706T154808Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AH4RWOMWLEL7ROYSF2S5%2F20260706%2Fcidc-rp-2006%2Fs3%2Faws4_request&t=3&u=1146105546275875448&ot=personal&oi=1146105546275875448&f=FpOU97zAsP3Oxwin8HVVGmrd-hmfTLDPz&ext=eyJ1dCI6MX0%3D&X-Amz-Signature=13449930dea4989645949e7bc875f88922878260b977d504324b2458fa51999f"
+          },
+          {
+            "style": "Small",
+            "url": "https://b22-obs-ykj-01.obs.dualstack.cidc-rp-2006.joint.cmecloud.cn/5b79cddfadf94b86a3e1d77278feefb9086?response-content-disposition=attachment%3B%20filename%2A%3DUTF-8%27%27ef3775522d3044dcb77016c58cf087d8.jpg&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260706T154808Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=AH4RWOMWLEL7ROYSF2S5%2F20260706%2Fcidc-rp-2006%2Fs3%2Faws4_request&t=3&u=1146105546275875448&ot=personal&oi=1146105546275875448&f=FpOU97zAsP3Oxwin8HVVGmrd-hmfTLDPz&ext=eyJ1dCI6MX0%3D&X-Amz-Signature=b9fe7bd822d4d73154ed4a7dc65240a2b8f09bc560a25d90baed8fe755e83cce"
+          }
+        ],
+        "punishMode": null,
+        "contentHash": "9a39edd1a29641909f95ad07e864c9e5ce77b0360164d1a03176b32651ec59b2",
+        "contentHashAlgorithm": "sha256",
+        "systemDir": false,
+        "revisionId": "1412929122073586176.1412929122073586177",
+        "mediaMetaInfo": null,
+        "metadataAuditInfo": {
+          "auditStatus": 0,
+          "auditLevel": null,
+          "auditResult": null
+        },
+        "contentAuditInfo": {
+          "auditStatus": 1,
+          "auditLevel": 30,
+          "auditResult": 1
+        },
+        "userTags": [{ "key": null, "value": null }],
+        "addressDetail": {
+          "addressline": null,
+          "country": null,
+          "province": null,
+          "city": null,
+          "district": null,
+          "township": null
+        }
+      }
+    ],
+    "nextPageCursor": null
+  }
+}
