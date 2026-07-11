@@ -93,7 +93,8 @@ button {
 .field input,
 .field select,
 .field textarea,
-.url-panel input {
+.url-panel input,
+.url-panel textarea {
   width: 100%;
   border: 1px solid var(--line);
   background: var(--panel-soft);
@@ -112,10 +113,17 @@ button {
 .field input:focus,
 .field select:focus,
 .field textarea:focus,
-.url-panel input:focus {
+.url-panel input:focus,
+.url-panel textarea:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px var(--blue-weak);
   background: #fff;
+}
+
+.url-panel textarea {
+  resize: vertical;
+  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .button-row {

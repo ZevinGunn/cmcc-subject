@@ -27,6 +27,10 @@ const defaultSession = {
   lastSsoSourceId: '',
   lastBuiltUrl: '',
   lastJumpTemplate: '',
+  lastWxCookie: '',
+  lastWxCookieUrl: '',
+  lastWxCookieAt: '',
+  lastWxAuthToken: '',
   updatedAt: ''
 };
 
@@ -79,6 +83,10 @@ export function sessionSummary(session) {
     hasLastSsoToken: Boolean(session.lastSsoToken),
     lastBuiltUrl: session.lastBuiltUrl,
     lastJumpTemplate: session.lastJumpTemplate,
+    hasLastWxCookie: Boolean(session.lastWxCookie),
+    lastWxCookieUrl: session.lastWxCookieUrl,
+    lastWxCookieAt: session.lastWxCookieAt,
+    hasLastWxAuthToken: Boolean(session.lastWxAuthToken),
     lastSmsRandom: session.lastSmsRandom ? '已生成' : '',
     updatedAt: session.updatedAt
   };

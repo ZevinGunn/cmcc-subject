@@ -1,0 +1,73 @@
+* {
+  margin: 0;
+  padding: 0;
+  outline: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+}
+#app {
+  font-family: -apple-system, BlinkMacSystemFont, PingFang SC, Roboto,
+    Helvetica Neue, STHeiti, Microsoft Yahei, Tahoma, Simsun, sans-serif, 宋体,
+    黑体;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html,
+body,
+#app {
+  -webkit-user-select: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  background: #fff;
+}
+ul,
+li {
+  list-style: none;
+}
+img {
+  content: none !important;
+}
+p {
+  margin: 0;
+}
+select,
+input {
+  outline: none;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.van-popup {
+  background-color: transparent !important;
+}
+.van-popup--center {
+  max-width: 100% !important;
+}
+.van-toast {
+  background: var(--van-toast-background) !important;
+}
+.van-tab {
+  font-size: 4.266666666667vw !important;
+  color: #333 !important;
+}
+.van-tab--grow {
+  padding-left: 0 !important;
+}
+.van-tabs__line {
+  width: 6.8vw;
+  height: 1.333333333333vw;
+  background-color: #fbc587 !important;
+  bottom: 5vw !important;
+}

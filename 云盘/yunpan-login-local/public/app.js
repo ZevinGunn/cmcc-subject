@@ -18,7 +18,8 @@ const els = {
   loginPill: $('loginPill'),
   sessionList: $('sessionList'),
   sessionTime: $('sessionTime'),
-  builtUrl: $('builtUrlOutput')
+  builtUrl: $('builtUrlOutput'),
+  wxCookie: $('wxCookieOutput')
 };
 
 const defaultJumpTemplate =
@@ -45,9 +46,11 @@ $('loginBtn').addEventListener('click', login);
 $('ssoBtn').addEventListener('click', getSsoToken);
 $('defaultJumpBtn').addEventListener('click', buildDefaultJump);
 $('buildUrlBtn').addEventListener('click', buildUrl);
+$('wxCookieBtn').addEventListener('click', getWxCookie);
 $('clearBtn').addEventListener('click', clearSession);
 $('copyResultBtn').addEventListener('click', () => copyText(JSON.stringify(state.lastResult || {}, null, 2)));
 $('copyUrlBtn').addEventListener('click', () => copyText(state.builtUrl || els.builtUrl.value));
+$('copyWxCookieBtn').addEventListener('click', () => copyText(els.wxCookie.value));
 
 refreshSession();
 initCaptcha();
@@ -167,6 +170,30 @@ async function buildDefaultJump() {
   }
 }
 
+async function getWxCookie() {
+  const url = (state.builtUrl || els.builtUrl.value || '').trim();
+  setBusy(true);
+  setStatus('获取 wx.10086 CK 中', 'warn');
+  try {
+    const result = await api('/api/tools/wx-cookie', { url });
+    els.wxCookie.value = result.cookie || '';
+    state.lastResult = {
+      ...result,
+      cookie: result.cookiePreview || result.cookie
+    };
+    renderResult(state.lastResult);
+    setStatus(result.success ? 'wx.10086 CK 已获取' : '未获取到 CK', result.success ? 'ok' : 'err');
+    await refreshSession(false);
+  } catch (error) {
+    const payload = { success: false, message: error.message };
+    state.lastResult = payload;
+    renderResult(payload);
+    setStatus('获取 wx.10086 CK 失败', 'err');
+  } finally {
+    setBusy(false);
+  }
+}
+
 async function clearSession() {
   const result = await api('/api/session/clear', {});
   state.lastResult = result;
@@ -248,6 +275,8 @@ function updateSession(session = {}, secrets = {}) {
     ['国家码', session.nationCode || '-'],
     ['上次 sourceId', session.lastSsoSourceId || '-'],
     ['上次跳转', session.lastBuiltUrl ? '已缓存' : '-'],
+    ['wx CK', secrets.wxCookie || (session.hasLastWxCookie ? '已保存' : '-')],
+    ['wx 认证', session.hasLastWxAuthToken ? '已完成' : '-'],
     ['短信随机串', session.lastSmsRandom || '-'],
     ['模块数', session.routerModules?.length || 0]
   ];
@@ -270,6 +299,11 @@ function updateSession(session = {}, secrets = {}) {
   if (session.lastBuiltUrl) {
     state.builtUrl = session.lastBuiltUrl;
     els.builtUrl.value = session.lastBuiltUrl;
+  }
+  if (secrets.wxCookieValue && !els.wxCookie.value.trim()) {
+    els.wxCookie.value = secrets.wxCookieValue;
+  } else if (secrets.wxCookie && !els.wxCookie.value.trim()) {
+    els.wxCookie.placeholder = `已缓存：${secrets.wxCookie}`;
   }
 }
 

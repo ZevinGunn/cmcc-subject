@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel="dns-prefetch" href="//activity.cmcc-cs.cn" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      rel="icon"
+      href="https://activity.cmcc-cs.cn/website/h5/static/public/favicon.ico"
+    />
+    <title>中国移动商城</title>
+    <style>
+      .grayThem {
+        -webkit-filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        filter: grayscale(100%);
+        filter: gray;
+        filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+      }
+    </style>
+    <script>
+      try {
+        var isIe = window.navigator.userAgent
+          .toLowerCase()
+          .match(/msie ([\d]+)/);
+        if (isIe && Number(isIe[1]) <= 10) {
+          alert(
+            "您的浏览器版本过低或不支持当前浏览器，建议使用edge、谷歌、360、IE11等浏览器"
+          );
+        }
+      } catch (error) {
+        console.error("判断IE环境出错");
+      }
+    </script>
+    <script>
+      let userAgent = navigator.userAgent;
+      var coverSupport =
+        "CSS" in window &&
+        typeof CSS.supports === "function" &&
+        (CSS.supports("top: env(a)") || CSS.supports("top: constant(a)"));
+      if (userAgent && userAgent.toLowerCase().indexOf("shydhn") > -1) {
+        coverSupport = true;
+      }
+      if (userAgent && userAgent.toLowerCase().indexOf("app/smart") > -1) {
+        var script = document.createElement("script");
+        script.async = true;
+        script.src =
+          "https://activity.cmcc-cs.cn/website/h5/static/public/js/dsbridge.js";
+        var scriptTitle = document.getElementsByTagName("script")[0];
+        scriptTitle.parentNode.insertBefore(script, scriptTitle);
+      }
+      document.write(
+        '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
+          (coverSupport ? ", viewport-fit=cover" : "") +
+          '" />'
+      );
+      if (
+        location.hostname.indexOf("10086.cn") > -1 ||
+        location.hostname === "wx.online-cmcc.cn"
+      ) {
+        try {
+          navigator.serviceWorker &&
+            navigator.serviceWorker
+              .getRegistrations()
+              .then(function (registrations) {
+                registrations.forEach(function (registration) {
+                  registration && registration.unregister();
+                });
+              });
+        } catch (error) {
+          console.log("卸载serviceWorker失败");
+        }
+        window.__SKYNET = {
+          appName: "XDS",
+          usePathKey: true,
+        };
+        if (userAgent && userAgent.toLowerCase().indexOf("leadeon") > -1) {
+          if (
+            location.pathname &&
+            [
+              "/website/businessPlatform/activity/packageIndex",
+              "/website/businessPlatform/home/broadbandPackage/appointment",
+              "//website/businessPlatform/home/broadbandPackage/appointment",
+              "/website/businessPlatform/shop",
+              "/website/businessPlatform/shopDetail",
+              "/website/businessPlatform/home/broadband/appointment",
+              "/website/businessPlatform/customShopDetail",
+            ].indexOf(location.pathname) > -1
+          ) {
+            window.__SKYNET = {
+              appName: "CMCCAPP",
+              usePathKey: true,
+              USERSENDPROFILE: true,
+            };
+          }
+        }
+      }
+      !(function (i, e) {
+        var t,
+          a = i.document,
+          r = a.documentElement,
+          n = a.querySelector('meta[name="viewport"]'),
+          o = a.querySelector('meta[name="flexible"]'),
+          l = 0,
+          m = 0,
+          s = e.flexible || (e.flexible = {});
+        if (n) {
+          console.warn("将根据已有的meta标签来设置缩放比例");
+          var d = n.getAttribute("content").match(/initial\-scale=([\d\.]+)/);
+          d && ((m = parseFloat(d[1])), (l = parseInt(1 / m)));
+        } else if (o) {
+          var p = o.getAttribute("content");
+          if (p) {
+            var c = p.match(/initial\-dpr=([\d\.]+)/),
+              u = p.match(/maximum\-dpr=([\d\.]+)/);
+            c && ((l = parseFloat(c[1])), (m = parseFloat((1 / l).toFixed(2)))),
+              u &&
+                ((l = parseFloat(u[1])), (m = parseFloat((1 / l).toFixed(2))));
+          }
+        }
+        if (!l && !m) {
+          i.navigator.appVersion.match(/android/gi);
+          var f = i.navigator.appVersion.match(/iphone/gi),
+            v = i.devicePixelRatio;
+          m =
+            1 /
+            (l = f
+              ? 3 <= v && (!l || 3 <= l)
+                ? 3
+                : 2 <= v && (!l || 2 <= l)
+                ? 2
+                : 1
+              : 1);
+        }
+        if ((r.setAttribute("data-dpr", l), !n))
+          if (
+            ((n = a.createElement("meta")).setAttribute("name", "viewport"),
+            n.setAttribute(
+              "content",
+              "initial-scale=" +
+                m +
+                ", maximum-scale=" +
+                m +
+                ", minimum-scale=" +
+                m +
+                ", user-scalable=no"
+            ),
+            r.firstElementChild)
+          )
+            r.firstElementChild.appendChild(n);
+          else {
+            var h = a.createElement("div");
+            h.appendChild(n), a.write(h.innerHTML);
+          }
+        function x() {
+          var e = r.getBoundingClientRect().width;
+          540 < e / l && (e = 540 * l);
+          var t = e / 10;
+          (r.style.fontSize = t + "px"), (s.rem = i.rem = t);
+        }
+        i.addEventListener(
+          "resize",
+          function () {
+            clearTimeout(t), (t = setTimeout(x, 300));
+          },
+          !1
+        ),
+          i.addEventListener(
+            "pageshow",
+            function (e) {
+              e.persisted && (clearTimeout(t), (t = setTimeout(x, 300)));
+            },
+            !1
+          ),
+          "complete" === a.readyState
+            ? (a.body.style.fontSize = 12 * l + "px")
+            : a.addEventListener(
+                "DOMContentLoaded",
+                function (e) {
+                  a.body.style.fontSize = 12 * l + "px";
+                },
+                !1
+              ),
+          x(),
+          (s.dpr = i.dpr = l),
+          (s.refreshRem = x),
+          (s.rem2px = function (e) {
+            var t = parseFloat(e) * this.rem;
+            return "string" == typeof e && e.match(/rem$/) && (t += "px"), t;
+          }),
+          (s.px2rem = function (e) {
+            var t = parseFloat(e) / this.rem;
+            return "string" == typeof e && e.match(/px$/) && (t += "rem"), t;
+          });
+      })(window, window.lib || (window.lib = {}));
+    </script>
+    <script src="https://activity.cmcc-cs.cn/website/businessPlatform/js/platform/skynet/skynet-1.5.6.js"></script>
+    <script src="https://res.app.coc.10086.cn/appother/js/public/cmcc.js"></script>
+    <script
+      charset="UTF-8"
+      src="https://app.online-cmcc.cn/cmcc-module/prod/js/CMCCService_module.1.1.2.js"
+    ></script>
+    <script>
+      var _udata = window._udata || [];
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://activity.cmcc-cs.cn/website/h5/static/index.9ffdaeb8.css"
+    />
+    <style>
+      body::after {
+        content: none;
+      }
+    </style>
+    <link
+      href="https://activity.cmcc-cs.cn/website/h5/static/js/chunk-vendors.e694123e.js"
+      rel="preload"
+      as="script"
+    />
+    <link
+      href="https://activity.cmcc-cs.cn/website/h5/static/js/index.907fbcf7.js"
+      rel="preload"
+      as="script"
+    />
+  </head>
+  <body>
+    <span class="china_mobile_app" id="china_mobile_app" style="display: none"
+      >china_mobile_app</span
+    ><noscript><strong>Please enable JavaScript to continue.</strong></noscript>
+    <div id="app"></div>
+    <div id="pre-load-view">
+      <style>
+        #pre-load-view {
+          position: fixed;
+          z-index: -999;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          overflow: hidden;
+        }
+        #pre-load-view .loadImage {
+          height: 500px;
+          width: 100%;
+          display: block;
+        }</style
+      ><img
+        class="loadImage"
+        src="https://activity.cmcc-cs.cn/chop/res/prd-ngmc1/product/product/0bca0032064f4d3b9a6944f5550030d6.png"
+      />
+      <img
+        class="loadImage"
+        src="https://activity.cmcc-cs.cn/chop/res/prd-ngmc1/product/product/0bca0032064f4d3b9a6944f5550030d6.png"
+      />
+      <img
+        class="loadImage"
+        src="https://activity.cmcc-cs.cn/chop/res/prd-ngmc1/product/product/0bca0032064f4d3b9a6944f5550030d6.png"
+      />
+      <img
+        class="loadImage"
+        src="https://activity.cmcc-cs.cn/chop/res/prd-ngmc1/product/product/0bca0032064f4d3b9a6944f5550030d6.png"
+      />
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    </div>
+    <script>
+      if (window.nativeBridge && window.nativeBridge.backToApp) {
+        document.body.style.background = "#000";
+      }
+    </script>
+    <script src="https://activity.cmcc-cs.cn/website/h5/static/js/chunk-vendors.e694123e.js"></script>
+    <script src="https://activity.cmcc-cs.cn/website/h5/static/js/index.907fbcf7.js"></script>
+  </body>
+</html>
