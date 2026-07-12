@@ -74,13 +74,21 @@ ingress:
     service: http://localhost:80
     originRequest:
       httpHostHeader: project.1008086.xyz
+  - hostname: wangka.1008086.xyz
+    service: http://localhost:80
+    originRequest:
+      httpHostHeader: wangka.1008086.xyz
+  - hostname: yunpan.1008086.xyz
+    service: http://localhost:80
+    originRequest:
+      httpHostHeader: yunpan.1008086.xyz
   - service: http_status:404
 YAML
 ok "config.yml 已写入"
 
 # 5. 路由 DNS（在 Cloudflare 加 CNAME）
 sep "5. 在 Cloudflare DNS 加 CNAME"
-for d in home rights arpu qqtlocal notice notic qqt project; do
+for d in home rights arpu qqtlocal notice notic qqt project wangka yunpan; do
   cloudflared tunnel route dns "$TUN_NAME" "$d.1008086.xyz" 2>&1 | tail -3
 done
 

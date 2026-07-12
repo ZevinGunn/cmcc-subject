@@ -45,6 +45,24 @@ module.exports = {
       env: { NODE_ENV: "production", PORT: "8899" },
     },
     {
+      name: "wangka-order",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/wangka-order-local",
+      script: "python3",
+      args: "server.py --port 8787",
+      interpreter: "none",
+      env: { NODE_ENV: "production", PORT: "8787" },
+    },
+    {
+      name: "yunpan-login",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/云盘/yunpan-login-local",
+      script: "src/server.js",
+      env: {
+        NODE_ENV: "production",
+        HOST: "127.0.0.1",
+        PORT: "7399",
+      },
+    },
+    {
       name: "project-manager",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/project-manager",
       script: "server.js",

@@ -96,6 +96,28 @@
             "build": ["npm", "run", "build"]
           },
           "rebuildTarget": "bmcc"
+        },
+        {
+          "id": "wangka",
+          "name": "王卡会员便捷订购",
+          "domain": "wangka.1008086.xyz",
+          "backend": {
+            "pm2Name": "wangka-order",
+            "port": 8787
+          },
+          "frontend": null,
+          "rebuildTarget": "wangka"
+        },
+        {
+          "id": "yunpan",
+          "name": "云盘登录工作台",
+          "domain": "yunpan.1008086.xyz",
+          "backend": {
+            "pm2Name": "yunpan-login",
+            "port": 7399
+          },
+          "frontend": null,
+          "rebuildTarget": "yunpan"
         }
       ]
     }

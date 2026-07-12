@@ -38,6 +38,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.serve_file("styles.css", "text/css;charset=UTF-8")
         if self.path == "/app.js":
             return self.serve_file("app.js", "application/javascript;charset=UTF-8")
+        if self.path == "/favicon.svg":
+            return self.serve_file("favicon.svg", "image/svg+xml;charset=UTF-8")
         if self.path == "/api/status":
             return self.write_json({"ok": True, "live": self.client.live, "mode": "live" if self.client.live else "mock"})
         self.send_error(404)
