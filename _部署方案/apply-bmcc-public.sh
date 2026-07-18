@@ -27,6 +27,12 @@ credentials-file: $HOME/.cloudflared/$TUNNEL_ID.json
 ingress:
   - hostname: bmcc.1008086.xyz
     service: http://127.0.0.1:8788
+  - hostname: wangka.1008086.xyz
+    service: http://127.0.0.1:8787
+  - hostname: yunpan.1008086.xyz
+    service: http://127.0.0.1:7399
+  - hostname: bjcmcc.1008086.xyz
+    service: http://127.0.0.1:8790
   - service: http_status:404
 YAML
 cloudflared tunnel --config "$TUNNEL_CONFIG" ingress validate

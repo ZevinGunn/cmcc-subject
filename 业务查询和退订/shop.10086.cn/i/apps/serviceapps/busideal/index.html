@@ -1,0 +1,642 @@
+<!--
+	作者：guoxx
+	时间：2016-02-04
+	描述：业务查询退订
+-->
+<div class="ued-panel pd-10 pdl-20 pdr-20">
+  <h3 class="ued-tit">业务查询退订</h3>
+  <div class="mgt-20 mgb-20">
+    <ul
+      class="ued-meal2 clearfix over-h"
+      id="switch-data"
+      style="display: -webkit-box; display: -webkit-flex; display: flex"
+    >
+      <li class="active" i="busi-01">
+        <a class="icon-meal1">我的套餐</a>
+      </li>
+      <li i="busi-02">
+        <a class="icon-meal2">增值业务</a>
+      </li>
+      <li i="busi-03">
+        <a class="icon-meal3">基础功能</a>
+      </li>
+      <li i="busi-07" id="enbusi" style="display: none">
+        <a class="icon-meal5">政企业务</a>
+      </li>
+      <li i="busi-05">
+        <span class="icon-meal6">代收费业务</span>
+      </li>
+      <li i="busi-06">
+        <span class="icon-meal7">已参加活动</span>
+      </li>
+      <li class="mgr-0" i="busi-04">
+        <a class="icon-meal4">其他</a>
+      </li>
+    </ul>
+  </div>
+  <table
+    width="100%"
+    cellspacing="0"
+    cellpadding="0"
+    border="0"
+    class="ued-table mgt-20"
+  >
+    <colgroup>
+      <col width="24%" />
+      <col width="29%" />
+      <col width="10%" />
+      <col width="10%" />
+      <col width="10%" />
+      <col width="10%" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>业务名称</th>
+        <th>资费标准</th>
+        <th>订购时间</th>
+        <th>生效时间</th>
+        <th>失效时间</th>
+        <th>退订时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="tmpl-data" class="err"></tbody>
+  </table>
+  <!--<div class="mgt-20 tr">
+                <p class="icon-hand">了解更多套餐信息，请点击<a class="color-2">这里</a></p>
+            </div>-->
+</div>
+<div
+  id="busi-block"
+  style="
+    background: #fff;
+    height: 38px;
+    line-height: 38px;
+    text-align: right;
+    padding-top: 20px;
+    padding-right: 14px;
+    display: none;
+  "
+>
+  查询时间：
+  <span id="busi-time"></span>
+  该查询结果仅供参考，实际请以出账账单为准。
+</div>
+
+<div
+  id="busi-tip"
+  style="
+    background: #fff;
+    height: 38px;
+    line-height: 38px;
+    text-align: right;
+    padding-right: 14px;
+    display: none;
+  "
+>
+  <span
+    >部分业务因业务规则限制，在移动商城无法退订，具体退订方式详询10086。</span
+  >
+  <a id="more-packapge" style="color: #0085d0" href="javascript:void(0)"
+    >更多套餐办理></a
+  >
+</div>
+<script type="text/javascript">
+  var util = require("stcutil");
+  var app = require("appmanage");
+  var smsfalg = false;
+  var btnflag = false;
+  var _refreshTime = function (count) {
+    var cc = count;
+    cc--;
+    if (cc > 0) {
+      $(sms_count).html(cc);
+      vecstatus = setTimeout(function () {
+        _refreshTime(cc);
+      }, 1000);
+    } else {
+      //	   	   own.sms_des.html("");
+      $(send_sms).show();
+      $(sms_count).parent().hide();
+      clearTimeout(vecstatus);
+    }
+  };
+  var checkVec = function (vec_text, prompt, _vecTxt) {
+    if (vec_text == null || vec_text == "") {
+      return prompt[0];
+    } else if (vec_text != null && vec_text != "" && vec_text.length < 6) {
+      return prompt[1];
+    } else if (vec_text.length == 6) {
+      if (_vecTxt) {
+        var interStat = $("#vec_imgcode").attr("interStat");
+        if (interStat == 1) {
+          return null;
+        } else {
+          return prompt[2];
+        }
+      }
+      return null;
+    }
+  };
+  var sendSms = function (reqs) {
+    require(["/i/service/model/fee_7871fe8.js", "pluspop"], function (
+      fee,
+      poptool
+    ) {
+      fee.commonSms(
+        reqs,
+        function (data) {
+          alert("短信发送成功！");
+        },
+        function (code, msg) {
+          //场景提示语优化
+          if (code == "555001") {
+            alert("尊敬的用户，单位时间内下发短信次数过多，请稍后再使用！");
+          } else if (code == "555002") {
+            alert("尊敬的用户，今天下发短信次数过多，请明天再使用！");
+          } else if (code == "550011") {
+            alert("请勿在一分钟内重复下发短信！");
+          }
+        },
+        function (code, msg) {
+          alert("短信发送失败！");
+        }
+      );
+    });
+  };
+  //是否可退订 01-可退订，02-不可退订
+  $(function () {
+    var loading = false;
+    var busi_type_config = [
+      { type: "01", text: "套餐类" },
+      { type: "02", text: "增值业务" },
+      { type: "03", text: "服务功能" },
+      { type: "04", text: "其它类" },
+      { type: "05", text: "代收费业务" },
+      { type: "06", text: "已参加活动" },
+    ];
+    var poptool = require("pluspop");
+    var util = require("stcutil");
+    var stcDic = require("stcDic");
+
+    //		add by fenghy@20161207---------start
+    //		解绑
+    $("#login-btn").unbind();
+    //		mini登录框登录成功刷新页面
+    window.closePop = function () {
+      $(".dialog-close").click();
+      window.location.href = stcDic.getWebAddress() + "?f=busiqrydeal";
+    };
+
+    //		-----------------------------end
+
+    var loadBusiData = function (cur_col, flag) {
+      //入参为当前被退订业务的选择项
+      require([
+        "/i/service/model/busi_318e33b.js",
+        "appmanage",
+        "/i/apps/serviceapps/busideal/busi_1a14169.js",
+        "btncommit",
+        "stcutil",
+      ], function (busiDeal, app, busi, btnCommit, stcutil) {
+        var req = {};
+        req.user = app.data[0].mobile;
+        btnCommit.afterCommit({ waitDom: $("#tmpl-data") });
+
+        // 增加政企业务类@2019/1/7--------------------------------start
+        //	    		busiDeal.eborderCheck(req,function(data){
+        //	    			if(data == 'true'){
+        //	    				$('#enbusi').show();
+        //	    			}
+        //	    		},function(code,msg){},function(code,msg){});
+        // 增加政企业务类@2019/1/7---------------------------------end
+
+        //				add by fenghy@20161206   未登录状态下页面显示------start
+        if (app.data[0].data.userType == 2) {
+          //0:手机号,1:互联网账号,2未登录
+          require([
+            "/i/apps/serviceapps/unlogincomm/unlogin_d6a88fd.js",
+            "/i/apps/serviceapps/unlogincomm/unlogin_1df257e.js",
+          ], function (unlogin, unloginjs) {
+            $("#tmpl-data").html(
+              unlogin({ leftText: "请", rightText: "后查看详情" })
+            );
+            $("#login-btn").on("click", function () {
+              unloginjs.openLoginPop();
+            });
+          });
+          //					-----------------------end
+        } else {
+          //表示已经登录
+          busiDeal.getBusiDeal(
+            req,
+            function (data, sOperTime) {
+              var callParam = {};
+              callParam.data = data;
+              if (flag) {
+                //避免重复绑定
+                $("#switch-data")
+                  .off("click")
+                  .on("click", "li", function () {
+                    var i = $(this).attr("i").substring(5);
+                    var j = $(this).attr("i").substring(6); //插码
+                    var event_name = "UCenter_UnProduct_";
+                    if (parseInt(j) == 7) {
+                      $(this)
+                        .addClass("active")
+                        .siblings()
+                        .removeClass("active");
+                      stcEcode.commTrack("UCenter_UnProduct_ZQYW", false);
+                      // 增加政企业务类@2019/1/7--------------------------------start
+                      var req2 = {};
+                      req2.user = app.data[0].mobile;
+                      btnCommit.afterCommit({ waitDom: $("#tmpl-data") });
+                      loading = true;
+                      busiDeal.getEnbusiInfo(
+                        req2,
+                        function (edata) {
+                          if ($.isEmptyObject(edata)) {
+                            $("#tmpl-data").html(busi({ empty: [] }));
+                          } else {
+                            $("#tmpl-data").html(
+                              busi({ edata: edata, util: stcutil })
+                            );
+                            $("#busi-block").css("display", "block");
+                          }
+                          loading = false;
+                          // 增加政企业务类@2019/1/7--------------------------------start
+                          $("#tmpl-data")
+                            .off("click")
+                            .on("click", ".cancel-ebusi", function () {
+                              stcEcode.commTrack(
+                                "UCenter_UnProduct_TDCZ",
+                                false
+                              );
+                              var info = JSON.parse($(this).attr("ebusiInfo"));
+                              console.log(info);
+                              poptool.confirm("您确认要退订该业务吗？", {
+                                fn: function () {
+                                  require(["stclog"], function (stclog) {
+                                    var item = {};
+                                    item.funcName = "busiunsub";
+                                    item.areaCode = "00"; //PC的渠道标识，表示是从url直接访问的打点
+                                    stclog.info(null, item);
+                                  });
+                                  require([
+                                    "/i/service/model/busi_318e33b.js",
+                                    "appmanage",
+                                  ], function (busiDeal, app) {
+                                    var req = {};
+                                    req.user = app.data[0].mobile;
+                                    req.bunessType = info.bunessType; // 编码类型
+                                    req.productId = info.productId; // 产品编码
+                                    req.spid = info.spid; // 企业代码
+                                    req.bizCode = info.bizCode; // 业务代码
+                                    req.oprCode = "02"; // 操作代码
+                                    req.unFlag = info.unFlag; // 退订退款标识
+                                    req.chanid = info.chanid; // 来源渠道
+                                    req.orderID = info.orderID;
+                                    if (btnflag) {
+                                      return;
+                                    }
+                                    btnflag = true;
+                                    busiDeal.cancelEnbusi(
+                                      req,
+                                      function (data) {
+                                        var req3 = {};
+                                        req3.user = app.data[0].mobile;
+                                        btnCommit.afterCommit({
+                                          waitDom: $("#tmpl-data"),
+                                        });
+                                        busiDeal.getEnbusiInfo(
+                                          req3,
+                                          function (edata) {
+                                            if ($.isEmptyObject(edata)) {
+                                              $("#tmpl-data").html(
+                                                busi({ empty: [] })
+                                              );
+                                            } else {
+                                              $("#tmpl-data").html(
+                                                busi({
+                                                  edata: edata,
+                                                  util: stcutil,
+                                                })
+                                              );
+                                              $("#busi-block").css(
+                                                "display",
+                                                "block"
+                                              );
+                                            }
+                                          },
+                                          function (code, msg) {
+                                            $("#tmpl-data").html(
+                                              busi({ err: msg })
+                                            );
+                                          },
+                                          function (code, msg) {
+                                            $("#tmpl-data").html(
+                                              busi({
+                                                err: "系统繁忙，请稍后再试~",
+                                              })
+                                            );
+                                          }
+                                        );
+                                        btnflag = false;
+                                        poptool.success(
+                                          "退订成功",
+                                          function () {
+                                            $(".ui-popup-backdrop").remove();
+                                            $(".ui-popup").remove();
+                                          }
+                                        );
+                                        stcEcode.commTrack(
+                                          "UCenter_UnProduct_TDCZSuccess",
+                                          false
+                                        );
+                                      },
+                                      function (code, msg) {
+                                        setTimeout(function () {
+                                          btnflag = false;
+                                        }, 1000);
+                                        poptool.error("退订失败", false);
+                                        stcEcode.commTrack(
+                                          "UCenter_UnProduct_TDCZFail",
+                                          false
+                                        );
+                                      },
+                                      function (code, msg) {
+                                        setTimeout(function () {
+                                          btnflag = false;
+                                        }, 1000);
+                                        poptool.error("退订失败", false);
+                                        stcEcode.commTrack(
+                                          "UCenter_UnProduct_TDCZFail",
+                                          false
+                                        );
+                                      }
+                                    );
+                                  });
+                                  //取消 to do
+                                },
+                              });
+                            });
+                          // 增加政企业务类@2019/1/7---------------------------------end
+                        },
+                        function (code, msg) {
+                          loading = false;
+                          $("#tmpl-data").html(busi({ err: msg }));
+                        },
+                        function (code, msg) {
+                          loading = false;
+                          $("#tmpl-data").html(
+                            busi({ err: "系统繁忙，请稍后再试~" })
+                          );
+                        }
+                      );
+                      // 增加政企业务类@2019/1/7---------------------------------end
+                    } else {
+                      if (loading) {
+                        return;
+                      }
+                      $(this)
+                        .addClass("active")
+                        .siblings()
+                        .removeClass("active");
+                      $("#more-packapge").hide();
+                      switch (parseInt(j)) {
+                        case 1:
+                          event_name += "TCL";
+                          $("#more-packapge").show();
+                          break;
+                        case 2:
+                          event_name += "ZZYW";
+                          break;
+                        case 3:
+                          event_name += "FWGN";
+                          break;
+                        case 4:
+                          event_name += "QTL";
+                          break;
+                        case 5:
+                          event_name += "DSF";
+                          break;
+                        case 6:
+                          event_name += "YCJHD";
+                          break;
+                      }
+                      stcEcode.commTrack(event_name, false);
+                      callParam.i = i;
+                      $("#tmpl-data").html(busi(callParam));
+                      $("#busi-block").css("display", "block");
+                      $("#busi-tip").show();
+                      $("#busi-time").html(util.formatStrDate(sOperTime));
+                      if (!$("#tmpl-data tr").eq(0).text()) {
+                        $("#tmpl-data").html(
+                          "<tr><td colspan='6' style='text-align:center;'><div style='display: inline-block;'><img style='float:left;cursor:default;' src='/i/nresource/image/detailqry.png' /><span style='height:70px;line-height:70px;display:block;float:left;margin-left:10px;font-size:12px;color:#dadada'>您还没有订购任何业务哦</span></div></td></tr>"
+                        );
+                      }
+                    }
+                  });
+                $("#tmpl-data")
+                  .off("click")
+                  .on("click", ".cancel-busi", function () {
+                    var reqs = {};
+                    var inner_i = $(this).attr("i").split(",");
+                    var indata = [
+                      {
+                        busiType: inner_i[0],
+                        bizCode: inner_i[1],
+                        busiCode: inner_i[2],
+                        spid: inner_i[3],
+                        oprCode: "01",
+                      },
+                    ];
+                    reqs.msgType = "02";
+                    reqs.busiCode = inner_i[2];
+                    reqs.busiName = inner_i[4];
+                    reqs.phoneNo = app.data[0].mobile;
+                    var cur_col = inner_i[4].substring(1);
+                    require([
+                      "/i/service/model/fee_7871fe8.js",
+                      "pluspop",
+                    ], function (fee, poptool) {
+                      stcEcode.commTrack("UCenter_billdetailqry_YZ", false); //插事件码-身份验证(弹框)
+                      poptool.remotehtml(
+                        "/i/apps/serviceapps/billdetail/showvecNEw.html",
+                        {},
+                        function () {
+                          $(".dialog-header-r")
+                            .parent()
+                            .parent()
+                            .parent()
+                            .attr("style", "padding:0px;");
+                          $("#phone").html(util.encryption(app.data[0].mobile));
+                          send_sms = $("#stc-send-sms");
+                          sms_count = $("#stc-jf-sms-count");
+                          var imgVecInput = $("#vec_imgcode"); //验证码输入框
+                          vec_text = null; //验证码输入框的值
+                          vec_pre = null; //上一次输入的验证码
+                          interStat = false; //验证是否通过,true-通过,false-不通过
+                          // $(imgVec).attr('src', config.authImg + '?t=' + Math.random());
+                          $(imgVecInput).attr("interStat", 0); //表示没有调过接口
+                          // $(imgVec).unbind();
+                          // $(imgVec).click(function () {
+                          // $(imgVec).attr('src', config.authImg + '?t=' + Math.random());
+                          // interStat = false; //验证是否通过,true-通过,false-不通过
+                          // });
+                          //验证码输入框事件
+                          $(imgVecInput).unbind();
+                          $(imgVecInput).focus(function () {
+                            verTipRemove();
+                          });
+                          $(imgVecInput).on("keyup", function () {
+                            vec_text = $(this).val();
+                            if (vec_text.length == 6) {
+                              $(this).trigger("blur");
+                            }
+                          });
+                          $(imgVecInput).blur(function () {
+                            checkImgVecInput(); //验证码预校验
+                          });
+                          //modify  by fenghy 20170216 end
+                          $(send_sms).on("click", function () {
+                            var count = 60;
+                            $(send_sms).hide();
+                            $(sms_count).html(count);
+                            $(sms_count).parent().show();
+                            vecstatus = setTimeout(function () {
+                              _refreshTime(count);
+                            }, 1000);
+                            smsfalg = true;
+                            sendSms(reqs);
+                          });
+                          $("#vecbtn").on("click", function () {
+                            var veccode = $("#vec_smspasswd").val();
+                            if (!smsfalg) {
+                              $("#detailerrmsg").html("请获取验证码");
+                              $("#failremind").show();
+                              return;
+                            }
+                            if ($("#vec_smspasswd").val() == "") {
+                              $("#detailerrmsg").html("请输入验证码");
+                              $("#failremind").show();
+                              return;
+                            }
+                            $("#failremind").hide();
+                            indata[0].smsCode = veccode;
+                            //						vecButns.disabled(true,"认证中...");
+                            cancelBusi(indata, cur_col); //确定
+                          });
+                          $("#vecClose").on("click", function () {
+                            stcEcode.commTrack(
+                              "UCenter_billdetailqry_YZClose",
+                              false
+                            );
+                          });
+                        }
+                      );
+                    });
+                  });
+
+                // 更多套餐办理按钮点击事件
+                $("#more-packapge")
+                  .off("click")
+                  .on("click", function () {
+                    stcEcode.commTrack("UCenter_UnProduct_More", false);
+                    var tempCm = $.cookie("CmLocation");
+                    var province_id = tempCm.split("|")[0],
+                      city_id = tempCm.split("|")[1];
+                    var url =
+                      stcDic.getShopLink() +
+                      "list/140_" +
+                      province_id +
+                      "_" +
+                      city_id +
+                      "_0_0_0_0.html";
+                    console.log(url);
+                    window.open(url); //util.dealOuterUrl:处理本url,判断是否用户登录
+                  });
+              }
+              $("#switch-data li")
+                .eq(cur_col - 1)
+                .click();
+            },
+            function (retCode, retMsg, sOperTime) {
+              retMsg = util.getErrMsg(retMsg);
+              $("#busi-block").css("display", "block");
+              $("#busi-tip").show();
+              $("#busi-time").html(util.formatStrDate(sOperTime));
+
+              //						/*if (retCode == "666666" && typeof retMsg != 'undefined' && $.trim(retMsg) != '' && retMsg != null) {
+              //							$("#tmpl-data").html("<tr><td colspan='6' style='text-align:center;'>"+retMsg+"</td></tr>");
+              //						} else {*/
+              $("#tmpl-data").html(
+                "<tr><td colspan='6' style='text-align:center;'>" +
+                  retMsg +
+                  "</td></tr>"
+              );
+              //}
+            },
+            function (retCode, retMsg, sOperTime) {
+              retMsg = util.getErrMsg(retMsg);
+              $("#busi-block").css("display", "block");
+              $("#busi-tip").show();
+              $("#busi-time").html(util.formatStrDate(sOperTime));
+              $("#tmpl-data").html(
+                "<tr><td colspan='6' style='text-align:center;'>" +
+                  retMsg +
+                  "</td></tr>"
+              );
+            }
+          );
+        }
+      });
+    };
+    var cancelBusi = function (indata, cur_col) {
+      require(["stclog"], function (stclog) {
+        var item = {};
+        item.funcName = "busiunsub";
+        item.areaCode = "00"; //PC的渠道标识，表示是从url直接访问的打点
+        stclog.info(null, item);
+      });
+      require(["/i/service/model/busi_318e33b.js", "appmanage"], function (
+        busiDeal,
+        app
+      ) {
+        var req = {};
+        req.user = app.data[0].mobile;
+        if (btnflag) {
+          return;
+        }
+        btnflag = true;
+        busiDeal.cancelBusi(
+          req,
+          indata,
+          function (data) {
+            btnflag = false;
+            loadBusiData(cur_col, true);
+            poptool.success("退订成功", function () {
+              $(".ui-popup-backdrop").remove();
+              $(".ui-popup").remove();
+            });
+          },
+          function (code, msg) {
+            setTimeout(function () {
+              btnflag = false;
+            }, 1000);
+            poptool.error("退订失败", false);
+          },
+          function (code, msg) {
+            setTimeout(function () {
+              btnflag = false;
+            }, 1000);
+            poptool.error("退订失败", false);
+          }
+        );
+      });
+    };
+
+    loadBusiData(1, true);
+  });
+  $("#switch-data li").siblings().children().css("font-size", "14px");
+</script>

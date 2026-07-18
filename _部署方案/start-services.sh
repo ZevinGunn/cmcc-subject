@@ -19,14 +19,14 @@ done
 
 sep "2. 启动业务后端（PM2）"
 "$PM2" startOrRestart "$HOME/CMCC-PROJECT/_部署方案/ecosystem.config.cjs" \
-  --only rights-backend,arpu-proxy,cmcc-notice,qqt-backend,qqtlocal,cookie-app,bmcc-backend,bmcc-tunnel \
+  --only rights-backend,arpu-proxy,cmcc-notice,qqt-backend,qqtlocal,cookie-app,bmcc-backend,bjcmcc-route-hub,bmcc-tunnel \
   --update-env
 "$PM2" save
 
 sleep 3
 
 sep "3. 自检端口"
-for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notice 7607:qqt 8788:bmcc; do
+for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notice 7607:qqt 8788:bmcc 8790:bjcmcc; do
   port=${p%%:*}; name=${p##*:}
   if lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then ok "$name :$port"
   else bad "$name :$port 未起"; fi

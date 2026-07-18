@@ -47,6 +47,17 @@
       </button>
 
       <p class="voice-link">收不到短信？点此试试 <a>语音验证码</a></p>
+
+      <div class="login-tool-entry">
+        <button type="button" @click="$emit('open-shop')">
+          <ClipboardList :size="18" />
+          商城 Cookie 查询
+        </button>
+        <button type="button" @click="$emit('open-debug')">
+          <KeyRound :size="18" />
+          加解密调试
+        </button>
+      </div>
     </section>
 
     <footer class="login-footer">
@@ -68,7 +79,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { ChevronLeft, ImageIcon, LockKeyhole, Smartphone } from 'lucide-vue-next'
+import { ChevronLeft, ClipboardList, ImageIcon, KeyRound, LockKeyhole, Smartphone } from 'lucide-vue-next'
 import MessageDialog from '../components/MessageDialog.vue'
 import { api } from '../api/client'
 import { setSession } from '../stores/session'
@@ -80,7 +91,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['back', 'logged-in'])
+const emit = defineEmits(['back', 'logged-in', 'open-shop', 'open-debug'])
 
 const phone = ref('')
 const captcha = ref('')

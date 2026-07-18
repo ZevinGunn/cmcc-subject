@@ -1,0 +1,62 @@
+<!-- 提示弹框 -->
+<div class="point-tit dialog-header-r" id="show_vec_firstdiv">
+  <a href="javascript:void(0)" class="fr js_x_close"></a
+  ><span class="cred-safe">身份验证</span>
+</div>
+<table
+  cellspacing="0"
+  cellpadding="0"
+  border="0"
+  class="ued-table ued-table-noborder mgt-20"
+>
+  <tbody>
+    <tr class="bg-none">
+      <td colspan="2" class="tc">
+        为确保您的账户信息安全，需要对登录号码进行身份验证
+      </td>
+    </tr>
+    <tr class="bg-none">
+      <td width="150" class="tr">手机号码：</td>
+      <td class="tl" id="phone"></td>
+    </tr>
+    <tr class="bg-none">
+      <td width="150" class="tr">随机密码：</td>
+      <td class="tl">
+        <input
+          type="text"
+          maxlength="6"
+          class="ued-input"
+          style="width: 110px"
+          id="vec_smspasswd"
+        />
+        <span class="color-2 mgl-10" id="stc-send-sms" style="cursor: pointer"
+          >获取短信验证</span
+        >
+        <span class="color-3" style="display: none"
+          ><span id="stc-jf-sms-count">59</span>秒后可重新发送</span
+        >
+      </td>
+    </tr>
+    <tr class="bg-none" id="failremind" style="display: none">
+      <td
+        class="tr"
+        width="150"
+        style="color: red; text-align: left !important"
+        colspan="2"
+      >
+        <div id="detailerrmsg" class="tip-comm-bg pdl-20 color-1 fs-12 mgl-160">
+          认证失败，请确认认证信息后再提交!
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="tc mgt-20 mgb-20">
+  <button class="ued-btn-small mgr-20 pdr-20 pdl-20" id="vecbtn">认证</button>
+  <button
+    class="ued-small-gey pdr-20 pdl-20 diacancle pio-close js_dialog_close"
+    id="vecClose"
+  >
+    取消
+  </button>
+</div>

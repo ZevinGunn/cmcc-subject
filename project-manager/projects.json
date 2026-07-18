@@ -98,6 +98,21 @@
           "rebuildTarget": "bmcc"
         },
         {
+          "id": "bjcmcc",
+          "name": "北京移动业务快捷入口",
+          "domain": "bjcmcc.1008086.xyz",
+          "backend": {
+            "pm2Name": "bjcmcc-route-hub",
+            "port": 8790
+          },
+          "frontend": {
+            "cwd": "bjcmcc-route-hub",
+            "dist": "bjcmcc-route-hub/frontend/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "bjcmcc"
+        },
+        {
           "id": "wangka",
           "name": "王卡会员便捷订购",
           "domain": "wangka.1008086.xyz",

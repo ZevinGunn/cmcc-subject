@@ -1,0 +1,1378 @@
+<!--ued-panel star-->
+<div class="ued-panel">
+  <div class="ued-grid mgb-10">
+    <div class="ued-g30 ued-gl" id="stc_home_banner">
+      <div class="ued-gbox bdr-1">
+        <div class="ued-top-wrap stc-one-line">
+          <div class="clearfix stc-one-line">
+            <div class="ued-user fl" id="image-alert">
+              <img
+                style="border-radius: 50%; cursor: pointer"
+                src="/i/nresource/image/icon-user.jpg"
+              />
+            </div>
+            <!--<div class="ued-user js_lhlog fl" id="image-alert"><img style="border-radius:50%;"/></div>-->
+          </div>
+          <div class="ued-info stc-one-line">
+            <!--ued-info-t star-->
+            <div class="ued-info-t mgt-10 clearfix" id="stc_user_info"></div>
+            <!--ued-info-b star-->
+            <div
+              class="ued-info-b"
+              id="stc_user_acc"
+              style="letter-spacing: 1px"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ued-g30 ued-gl" id="stc_myaccount"></div>
+    <div class="ued-g40 ued-gr" id="stc_chargecent">
+      <div class="ued-gbox pd-10">
+        <div class="rel ued-tab-title js_ued_tab">
+          <ul class="nav-tab">
+            <li class="curr w90"><a class="li-first fl fs-16">交话费</a></li>
+            <li class="w90"><a class="fl fs-16">充流量</a></li>
+          </ul>
+          <div class="tab-arrow w60"></div>
+        </div>
+        <!--modify by fenghongye@20170122    start -->
+        <ul class="tab-content">
+          <li class="tab-pane on">
+            <table
+              class="ued-table-noborder mgt-10"
+              cellspacing="0"
+              cellpadding="0"
+            >
+              <colgroup>
+                <col width="80" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td class="pdt-10 pdb-10 pdl-0 pdr-0" width="90px">
+                    交费号码：
+                  </td>
+                  <td
+                    class="pdt-10 pdb-10"
+                    width="340"
+                    style="padding-left: 0px; padding-right: 15px"
+                  >
+                    <div class="select-box" style="position: relative">
+                      <!--modify by zhangrui@20170719-->
+                      <input
+                        type="text"
+                        style="width: 140px; padding-top: 0; height: 100%"
+                        class="ipt-style tel"
+                        sign="charge"
+                        value=""
+                        maxlength="11"
+                        id="charge_tel"
+                        placeholder="请输入11位移动手机号码"
+                        disabled
+                      />
+                      <label class="cred-arrow-1" id="charge_tel_err"></label>
+                      <!-- <div class="phone abs" style="right:0;top:0"></div> -->
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="pdt-10 pdb-10 pdl-0 pdr-0"
+                    id="fare_amount"
+                    width="90px"
+                  >
+                    交费金额：
+                  </td>
+                  <td
+                    class="pdt-10 pdb-10 rechargecredit-level"
+                    width="340"
+                    style="width: 327px; padding-left: 0px; padding-right: 0px"
+                  >
+                    <p class="link-group fl" dif="1">
+                      <!--modify by fenghy@20170228  档位值通过变量传递-->
+                      <a
+                        href="javascript:void(0)"
+                        i="0"
+                        amount="50"
+                        style="line-height: 30px"
+                        >50元</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        class="active"
+                        i="1"
+                        amount="100"
+                        style="line-height: 30px"
+                        >100元</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        i="2"
+                        amount="300"
+                        style="line-height: 30px"
+                        >300元</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        i="3"
+                        amount="500"
+                        style="line-height: 30px"
+                        >500元</a
+                      >
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="color-1" id="min_discount"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="tc mgt-15">
+              <button class="ued-btn" id="fare_btn">立即交费</button>
+            </div>
+          </li>
+          <li class="tab-pane">
+            <table
+              class="ued-table-noborder mgt-10"
+              cellspacing="0"
+              cellpadding="0"
+            >
+              <colgroup>
+                <col width="80" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td class="pdt-10 pdb-10 pdl-0 pdr-0" width="90px">
+                    充值号码：
+                  </td>
+                  <td
+                    class="pdt-10 pdb-10"
+                    width="340"
+                    style="padding-left: 0px; padding-right: 15px"
+                  >
+                    <div class="select-box" style="position: relative">
+                      <!--modify by zhangrui@20170719-->
+                      <input
+                        type="text"
+                        style="width: 140px; padding-top: 0; height: 100%"
+                        class="ipt-style"
+                        sign="chargegprs"
+                        value=""
+                        maxlength="11"
+                        id="chargegprs_tel"
+                        placeholder="请输入11位移动手机号码"
+                      />
+                      <label
+                        class="cred-arrow-1"
+                        id="chargegprs_tel_err"
+                      ></label>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="pdt-10 pdb-10 pdl-0 pdr-0 pos-r" width="90px">
+                    <p class="pos-a" style="top: 14px">充值档位：</p>
+                  </td>
+                  <td
+                    class="pdt-10 pdb-10"
+                    width="340"
+                    style="width: 327px; padding-left: 0px; padding-right: 0px"
+                  >
+                    <p class="link-group fl rechargegprs-level">
+                      <!--modify by fenghy@20170228  档位通过变量传递-->
+                      <a
+                        href="javascript:void(0)"
+                        amount="300"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >300MB</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="1024"
+                        class="active mgb-10"
+                        style="line-height: 30px"
+                        >1G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="2048"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >2G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="3072"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >3G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="5120"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >5G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="10240"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >10G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="15360"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >15G</a
+                      >
+                      <a
+                        href="javascript:void(0)"
+                        amount="30720"
+                        class="mgb-10"
+                        style="line-height: 30px"
+                        >30G</a
+                      >
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="color-1" id=""></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="tc">
+              <button id="rechargegprs-btn" style="background-color: #0083d3">
+                立即充值
+              </button>
+            </div>
+          </li>
+        </ul>
+        <!--modify by fenghy@20170122         end-->
+      </div>
+    </div>
+  </div>
+</div>
+<!--ued-panel star-->
+<div class="ued-panel pd-10 pdl-20 pdr-20 mgt-10" id="stc_packramin"></div>
+<!--ued-panel star-->
+<div class="ued-panel pd-10 pdl-20 pdr-20 mgt-10" id="stc_expnese_area">
+  <h3 class="ued-tit">
+    近六个月消费趋势<span class="color-4 mgl-25 fs-14"
+      >上月消费：<span class="color-1 fs-18" id="stc_last_month"></span
+      ><span id="stc_last_month_unit">元</span></span
+    ><span class="color-4 mgl-15 fs-14"
+      >平均每月消费：<span class="color-1 fs-18" id="stc_ava_expense"></span
+      >元</span
+    >
+  </h3>
+
+  <div id="chartline" class="mgt-15" style="height: 190px"></div>
+</div>
+<!--ued-panel star-->
+<div
+  class="ued-panel pd-10 pdl-20 pdr-20 mgt-10 clearfix over-h"
+  id="stc_order_area"
+>
+  <div class="fr">
+    <button class="ued-btn2 mgr-25" id="pre-order">预购订单</button>
+    <button class="ued-btn2" id="recharge-order">充值订单</button>
+  </div>
+  <span id="stc_myorders_btn" class="fs-16 mgt-3 fl">商品订单</span>
+  <div class="point1 fl mgl-20 point-pp">
+    待付款 <span class="color-3" id="order-wait"></span>笔
+  </div>
+  <div class="point2 fl mgl-20 point-ss">
+    已完成 <span class="color-3" id="order-ss"></span>笔
+  </div>
+  <div class="point3 fl mgl-20 point-cl">
+    已取消 <span class="color-3" id="order-cal"></span>笔
+  </div>
+</div>
+<!--ued-panel star-->
+<div class="ued-panel pd-10 pdl-20 pdr-20 mgt-10">
+  <div class="ued-grid">
+    <div class="ued-g50 ued-gl" id="stc_myfav"></div>
+    <div class="ued-g50 ued-gr" id="stc_guesslove"></div>
+  </div>
+</div>
+<link
+  type="text/css"
+  rel="stylesheet"
+  href="/i/apps/serviceapps/home/css/home_7a48d81.css"
+/>
+<script type="text/javascript">
+  var _Constant = Namespace("all.constant");
+  var fastRecharge = function () {
+    require(["/i/apps/serviceapps/home/js/fast_recharge_623dfa1.js"], function (
+      fastRecharge
+    ) {
+      fastRecharge.getFastRecharge();
+    });
+  };
+  $(function () {
+    require(["/i/apps/pageapps/ptop/ptop_b2b20b8.js"], function (ptop) {
+      /* ptop.careLanguage();
+		ptop.loginUserInfo();
+		ptop.initEffect(); */
+      ptop.initpage();
+    });
+
+    require(["appmanage", "stcutil", "stcDic"], function (app, util, stcDic) {
+      if (
+        typeof app.data == "undefined" ||
+        typeof app.data[0] == "undefined" ||
+        typeof app.data[0].data == "undefined" ||
+        app.data[0].data.userType == 2
+      ) {
+        //modify by liyn@2017/5/4
+        //top.location.href = stcDic.getLoginaddr();
+        _Constant.FUNCODE = "";
+        app.initpage("stcMenu", {
+          mobile: stcDic.getDefaultUserInfo().loginValue,
+          data: stcDic.getDefaultUserInfo(),
+        });
+        app.initpage("stcDefault");
+        return;
+      }
+
+      //	  	modify by fenghy@20170404  头像更换,互联网和游客为固定头像
+
+      if (app.data[0].data.userType == 0) {
+        //手机号登录
+        require(["commonutil"], function (ajaxUtil) {
+          var phone = app.data[0].data.loginValue;
+          ajaxUtil.GET(
+            "/v1/cust/headicon/" + phone,
+            {},
+            function (data) {
+              imageIndex = data; //记录此刻图片的数据
+              if (imageIndex == null) {
+                $("#image-alert")
+                  .find("img")
+                  .attr("src", "/i/nresource/image/icon-user.jpg");
+              } else {
+                var str = "/nresource/image/icon-user-" + imageIndex + ".jpg";
+              }
+              $("#image-alert")
+                .find("img")
+                .attr("src", "/i" + str);
+            },
+            function (code, msg) {
+              $("#image-alert")
+                .find("img")
+                .attr("src", "/i/nresource/image/icon-user.jpg");
+            },
+            function (code, msg) {
+              $("#image-alert")
+                .find("img")
+                .attr("src", "/i/nresource/image/icon-user.jpg");
+            }
+          );
+        });
+      } else {
+        //默认头像
+        $("#image-alert")
+          .find("img")
+          .attr("src", "/i/nresource/image/icon-user.jpg");
+      }
+
+      //accountop 活动区域 begin
+      require([
+        "/i/apps/serviceapps/home/tpl/myaccount_11deb37.js",
+        "/i/apps/serviceapps/home/js/myaccount_262b2c4.js",
+      ], function (myaccount, accountop) {
+        //如果异网账号接入后需要修改类型的判断 @lujx 2019-03-15
+        if (
+          app.data[0].data.userType == 1 &&
+          app.data[0].mobile == app.data[0].data.loginValue
+        ) {
+          //注册账号登录且当前是注册账号选中
+          $("#stc_myaccount").html(myaccount({ userType: 1 }));
+          accountop.tipShow();
+          accountop.getShopOrder(app.data[0].mobile, app.data[0].data.provice);
+          $("#stc_packramin").hide();
+          $("#stc_expnese_area").hide();
+          $("#stc_order_area").hide();
+
+          //                add by　fenghy@20170111　　　互联网账号  商品订单
+          $(".point-pp").on("click", function () {
+            if (app.data[0].data.userType == 1) {
+              app.initpage("myorders");
+            }
+          });
+          $(".point-ss").on("click", function () {
+            if (app.data[0].data.userType == 1) {
+              app.initpage("myorders");
+            }
+          });
+          $(".point-cl").on("click", function () {
+            if (app.data[0].data.userType == 1) {
+              app.initpage("myorders");
+            }
+          });
+        } else {
+          //手机用户选中
+          $("#stc_myaccount").html(myaccount({ userType: 0 }));
+          accountop.tipShow();
+          require(["/i/service/model/user_a79371f.js"], function (user) {
+            accountop.getBalance(app.data[0].mobile, user); //动态获取余额
+            accountop.getPoint(app.data[0].mobile, user); //获取用户积分
+            accountop.getShopOrder(
+              app.data[0].mobile,
+              app.data[0].data.provice
+            ); //商品订单
+            $("#stc_packramin_btn").unbind();
+            user.getPackRemain(
+              function (outdata) {
+                require([
+                  "/i/apps/serviceapps/home/tpl/myfav_a1579ef.js",
+                ], function (myfav) {
+                  var temp = accountop.dealPackRemain(outdata);
+                  //=================================modify by guoqx_bj@20160807 start============================
+                  for (var i = 0; i < temp.length; i++) {
+                    if (temp[i].realUnit == "03") {
+                      //KB
+                      temp[i].totalMealGBMB = getGBMB(
+                        parseFloat(temp[i].totalMeal)
+                      ).data;
+                      temp[i].totalMealGB = getGBMB(
+                        parseFloat(temp[i].totalMeal)
+                      ).GB;
+                      temp[i].totalMealMB = getGBMB(
+                        parseFloat(temp[i].totalMeal)
+                      ).MB;
+                      temp[i].totalMealKB = getGBMB(
+                        parseFloat(temp[i].totalMeal)
+                      ).KB;
+                      temp[i].useMealGBMB = getGBMB(
+                        parseFloat(temp[i].useMeal)
+                      ).data;
+                      temp[i].useMealGB = getGBMB(
+                        parseFloat(temp[i].useMeal)
+                      ).GB;
+                      temp[i].useMealMB = getGBMB(
+                        parseFloat(temp[i].useMeal)
+                      ).MB;
+                      temp[i].useMealKB = getGBMB(
+                        parseFloat(temp[i].useMeal)
+                      ).KB;
+                      temp[i].balMealGBMB = getGBMB(
+                        parseFloat(temp[i].balMeal)
+                      ).data;
+                      temp[i].balMealGB = getGBMB(
+                        parseFloat(temp[i].balMeal)
+                      ).GB;
+                      temp[i].balMealMB = getGBMB(
+                        parseFloat(temp[i].balMeal)
+                      ).MB;
+                      temp[i].balMealKB = getGBMB(
+                        parseFloat(temp[i].balMeal)
+                      ).KB;
+                    } else if (temp[i].realUnit == "04") {
+                      //MB
+                      temp[i].totalMealGBMB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024
+                      ).data;
+                      temp[i].totalMealGB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024
+                      ).GB;
+                      temp[i].totalMealMB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024
+                      ).MB;
+                      temp[i].totalMealKB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024
+                      ).KB;
+                      temp[i].useMealGBMB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024
+                      ).data;
+                      temp[i].useMealGB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024
+                      ).GB;
+                      temp[i].useMealMB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024
+                      ).MB;
+                      temp[i].useMealKB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024
+                      ).KB;
+                      temp[i].balMealGBMB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024
+                      ).data;
+                      temp[i].balMealGB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024
+                      ).GB;
+                      temp[i].balMealMB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024
+                      ).MB;
+                      temp[i].balMealKB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024
+                      ).KB;
+                    } else if (temp[i].realUnit == "05") {
+                      //GB
+                      temp[i].totalMealGBMB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024 * 1024
+                      ).data;
+                      temp[i].totalMealGB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024 * 1024
+                      ).GB;
+                      temp[i].totalMealMB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024 * 1024
+                      ).MB;
+                      temp[i].totalMealKB = getGBMB(
+                        parseFloat(temp[i].totalMeal) * 1024 * 1024
+                      ).KB;
+                      temp[i].useMealGBMB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024 * 1024
+                      ).data;
+                      temp[i].useMealGB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024 * 1024
+                      ).GB;
+                      temp[i].useMealMB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024 * 1024
+                      ).MB;
+                      temp[i].useMealKB = getGBMB(
+                        parseFloat(temp[i].useMeal) * 1024 * 1024
+                      ).KB;
+                      temp[i].balMealGBMB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024 * 1024
+                      ).data;
+                      temp[i].balMealGB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024 * 1024
+                      ).GB;
+                      temp[i].balMealMB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024 * 1024
+                      ).MB;
+                      temp[i].balMealKB = getGBMB(
+                        parseFloat(temp[i].balMeal) * 1024 * 1024
+                      ).KB;
+                    }
+                  }
+                  console.log(
+                    "====================================================================="
+                  );
+                  console.log(temp);
+                  //=================================modify by guoqx_bj@20160807 end============================
+                  $("#stc_packramin").html(
+                    myfav({ packdata: temp, util: stcDic })
+                  );
+                  $("#stc_packramin_btn")
+                    .bind("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("packremainqry");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                  //                           modify by fenghy@20170122
+                  $(".bl-approve").on("click", function () {
+                    app.initpage("rechargecredit");
+                  });
+                  $(".bl-arrearage").on("click", function () {
+                    app.initpage("rechargecredit");
+                  });
+                  $(".bl-overall").on("click", function () {
+                    app.initpage("billqry");
+                  });
+                  $(".bl-consume").on("click", function () {
+                    app.initpage("billdetailqry");
+                  });
+                  $("#stc_myorders_btn")
+                    .bind("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("myorders");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                  $("#stc_myfav_btn")
+                    .on("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("myfav");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                });
+              },
+              function (code, msg) {
+                //异常需要处理 to do
+                require([
+                  "/i/apps/serviceapps/home/tpl/myfav_a1579ef.js",
+                ], function (myfav) {
+                  $("#stc_packramin").html(myfav({ packdata: {} }));
+                  if (
+                    code == "666666" &&
+                    typeof msg != "undefined" &&
+                    $.trim(msg) != "" &&
+                    msg != null
+                  ) {
+                    $("#show_msg").show().text(msg);
+                  }
+                  $("#stc_packramin_btn")
+                    .bind("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("packremainqry");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                  $("#stc_myorders_btn")
+                    .bind("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("myorders");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                  $("#stc_myfav_btn")
+                    .on("click", function () {
+                      $("html,body").animate(
+                        { scrollTop: $("#stc_anchor").offset().top },
+                        1000
+                      );
+                      app.initpage("myfav");
+                    })
+                    .on("hover", function () {
+                      $(this).css({ cursor: "pointer" });
+                    });
+                });
+              },
+              app.data[0].mobile
+            );
+          });
+          var req = {};
+          req.userid = app.data[0].mobile;
+          req.provice = app.data[0].data.provice;
+          require(["/i/service/model/fee_7871fe8.js"], function (fee) {
+            util.getSysDate(function (sysdata) {
+              var myDate = sysdata;
+              var lastMonth = "";
+              if (myDate.getMonth() < 10 && myDate.getMonth() > 0) {
+                lastMonth = myDate.getFullYear() + ("0" + myDate.getMonth());
+              } else if (myDate.getMonth() == 0) {
+                lastMonth = myDate.getFullYear() - 1 + "12";
+              } else {
+                lastMonth = myDate.getFullYear() + "" + myDate.getMonth();
+              }
+              console.log(lastMonth); //201810
+              //获取系统本月时间
+              var y = myDate.getFullYear();
+              var m = myDate.getMonth() + 1;
+              var newdates = y + "" + dealTime(m);
+              var req = {};
+              req.userid = app.data[0].mobile;
+              req.nowMonth = newdates;
+              fee.getconsumtrend(
+                req,
+                function (data) {
+                  //修改了账单展示的形式 @2016-08-10
+                  var ava_val = 0;
+                  var tot_val = 0;
+                  var last_val = 0;
+                  var mcount = data.length;
+                  var avacount = mcount;
+                  var sixBillIndfo = [];
+                  if (mcount > 0) {
+                    for (var i = 0; i < mcount; i++) {
+                      var obj = JSON.parse(JSON.stringify(data[i]));
+                      sixBillIndfo.push(obj);
+                      //总共金额
+                      var temp_fee = eval(data[i].bill);
+                      if (temp_fee >= 0) {
+                        tot_val += temp_fee;
+                      }
+                      //上个月消费金额 模块
+                      if (data[i].month == lastMonth) {
+                        last_val = data[i].bill;
+                        if (parseFloat(last_val) == 0) {
+                          last_val = "0.00";
+                        }
+
+                        if (
+                          data[i].bill == "-0" ||
+                          data[i].bill == "-" ||
+                          data[i].bill == "" ||
+                          data[i].bill == null ||
+                          typeof data[i].bill == "undefined"
+                        ) {
+                          last_val = "暂无数据";
+                          $("#stc_last_month_unit").hide();
+                        }
+                      }
+                    }
+                    //平均消费金额 模块
+                    if (avacount > 0) {
+                      ava_val = Math.round((tot_val / avacount) * 100);
+                      ava_val = ava_val / 100;
+                      if (parseFloat(ava_val) == 0) {
+                        ava_val = "0.00";
+                      }
+                    } else {
+                      ava_val = "0.00";
+                    }
+
+                    $("#stc_last_month").html(last_val);
+                    $("#stc_ava_expense").html(ava_val);
+                    accountop.drawExpenseChart(sixBillIndfo); //画消费历史饼图
+                  } else {
+                    $("#chartline").html(
+                      '<img style="margin-top: 20px !important;" src="/i/nresource/image/billqry/zd-nodata.png"/><p style="padding-top: 30px;">暂时无法查询此业务</p>'
+                    );
+                    $("#chartline").addClass("tc");
+                    $("#stc_last_month").html(" 0 ");
+                    $("#stc_ava_expense").html(" 0 ");
+                  }
+                },
+                function (code, msg) {
+                  //不可用配置处理
+                  if (
+                    code == "666666" &&
+                    typeof msg != "undefined" &&
+                    $.trim(msg) != "" &&
+                    msg != null
+                  ) {
+                    $("#chartline")
+                      .text(msg)
+                      .removeAttr("style")
+                      .addClass("ued-none-balance");
+                  }
+                }
+              );
+            });
+          });
+        }
+        accountop.rollingEffect(); //调用滚动绑定事件。
+      });
+      var dealTime = function (str) {
+        var time = str.toString().length == 1 ? "0" + str : str;
+        return time;
+      };
+      //add by guoqx_bj@20160808
+      var getGBMB = function (meal) {
+        //传入的meal是以KB为单位的
+        var result = "";
+        var own = this;
+        var gB;
+        var GBMB = { GB: 0, MB: 0, KB: -1, totalMB: 0 };
+        gB = meal / 1024 / 1024; //KB转为GB
+        GBMB.GB = parseInt(gB); //得到GB部分
+
+        GBMB.MB = parseFloat((gB - GBMB.GB) * 1024).toFixed(2); //得到MB部分
+        if (GBMB.MB > 1) {
+          GBMB.MB = parseFloat((gB - GBMB.GB) * 1024).toFixed(2); //得到MB部分
+        }
+        GBMB.totalMB = parseFloat(meal / 1024).toFixed(2); //得到总的MB
+        if (GBMB.totalMB > 1) {
+          GBMB.totalMB = parseFloat(meal / 1024).toFixed(2); //得到总的MB
+        }
+        if (meal >= 1024) {
+          //>=1MB
+          if (GBMB.GB > 0 || GBMB.MB > 0) {
+            if (GBMB.GB > 0) {
+              result = GBMB.GB + "GB";
+            }
+            if (GBMB.MB > 0) {
+              var aa = GBMB.MB.toString();
+              if (aa.substring(aa.indexOf(".")) == ".00") {
+                GBMB.MB = aa.substring(0, aa.indexOf("."));
+              }
+              result += GBMB.MB + "MB";
+            }
+            GBMB.data = result;
+          } else {
+            GBMB.data = "0.00" + "MB";
+          }
+        } else {
+          //<1MB,以KB展示
+          GBMB.data = meal + "KB";
+          GBMB.KB = meal;
+        }
+
+        return GBMB;
+      };
+      //accountop 活动区域 end
+      var favPro = function (myfav) {
+        //require(["../../../component/ui"],function(){
+        require(["/i/service/model/wish_4cfe149.js"], function (wish) {
+          var req = {};
+          req.user = app.data[0].mobile;
+          wish.getShopWishInfo(
+            req,
+            function (fav_data) {
+              fav_data = $.map(fav_data, function (item) {
+                item.snapUrl =
+                  typeof item.snapUrl == "string"
+                    ? item.snapUrl.replace(
+                        /http(s)?:/,
+                        window.location.protocol
+                      )
+                    : item.snapUrl;
+                item.imgUrl =
+                  typeof item.imgUrl == "string"
+                    ? item.imgUrl.replace(/http(s)?:/, window.location.protocol)
+                    : item.imgUrl;
+                return item;
+              });
+              fav_data.stcDic = stcDic;
+              $("#stc_myfav").html(myfav({ data: fav_data }));
+              gotoMyFav();
+              //						if(fav_data!=undefined&&fav_data.length>0){
+              //						var str = "<li class='tab_num_btn btn_ac'></li>";
+              //							for(var i=0;i< Math.ceil(fav_data.length/4)-1;i++){
+              //								str+="<li class='tab_num_btn'></li>"
+              //							}
+              //						$("#fav-pro").html(str);
+              //						}
+              //给每一个轮播选择li动态绑定单击事件
+              //					$("#fav-pro").on("click","li",function(){
+              //						//每触发一次单击事件，加载4张图片
+              //						var index = $(this).index();
+              //						var li=$("#fav_ul li").eq(index);
+              //						for(var i=0;i<4;i++){
+              //							var img_url=li.find("img").eq(i).attr("data-src");
+              //					        li.find("img").eq(i).attr("src",img_url);
+              //
+              //						}
+              //					});
+              var this_width = $("#fav_ul li").eq(0).width();
+              //					每点击一次加载图片
+              function loadimg(l, $itemli) {
+                var li = $("#fav_ul li").eq(l);
+                for (var i = 0; i < 4; i++) {
+                  var img_url = li.find("img").eq(i).attr("data-src");
+                  li.find("img").eq(i).attr("src", img_url);
+                }
+              }
+              loadimg(0, $("#fav_ul li"));
+              //点击时添加附属项，用来避免空白
+              $("#fav_ul").append(
+                "<li>" + $("#fav_ul li").first().html() + "</li>"
+              );
+              $("#fav_ul").prepend(
+                "<li>" +
+                  $("#fav_ul li")
+                    .eq($("#fav_ul li").length - 2)
+                    .html() +
+                  "</li>"
+              );
+              var movobj = $(".ued-viwe-big");
+              movobj[0].style.left = -(this_width + 15) + "px";
+              var leftStartL = $("#fav_ul li").length - 1;
+              var rightStartL = 1;
+              $(window).resize(function () {
+                this_width = $("#fav_ul li").eq(0).width();
+                movobj[0].style.left = -(this_width + 15) + "px";
+              });
+
+              var animated = false;
+              function goanimate(offsetlf, l, $this) {
+                var time = 300,
+                  interval = 10,
+                  speed = Math.round(offsetlf / (time / interval));
+                animated = true;
+                var movobj = $(".ued-viwe-big");
+                //						var lileng= $('#fav_ul li').length;
+                var lileng = $this.parent().prev().children().length;
+                var newb = movobj[0].offsetLeft + offsetlf;
+
+                function go() {
+                  if (
+                    (speed < 0 && movobj[0].offsetLeft > newb) ||
+                    (speed > 0 && movobj[0].offsetLeft < newb)
+                  ) {
+                    movobj[0].style.left = movobj[0].offsetLeft + speed + "px";
+                    setTimeout(go, 10);
+                  } else {
+                    movobj[0].style.left = newb + "px";
+                    if (newb < -(lileng - 2) * (this_width + 15)) {
+                      movobj[0].style.left = -(this_width + 15) + "px";
+                    }
+                    if (newb > -200) {
+                      movobj[0].style.left =
+                        -(lileng - 2) * (this_width + 15) + "px";
+                    }
+                    animated = false;
+                  }
+                  //							if( (speed<0&&(movobj[0].offsetLeft>newb)) ){
+                  //
+                  //								movobj[0].style.left =movobj[0].offsetLeft + speed+'px';
+                  //								setTimeout(go,10);
+                  //							}else{
+                  //								movobj[0].style.left=newb+'px';
+                  //								if(newb<-(lileng-1)*(this_width+15)){
+                  //									movobj[0].style.left=0
+                  //								}
+                  //
+                  //							}
+                  //							if( speed>0 && (movobj[0].offsetLeft<newb) ){
+                  //								movobj[0].style.left =movobj[0].offsetLeft + speed+'px';
+                  //								setTimeout(go,10);
+                  //							}else{
+                  //								movobj[0].style.left=newb+'px';
+                  //								if(newb>0){
+                  //									movobj[0].style.left=-(lileng-1)*(this_width+15)+'px';
+                  //								}
+                  //							}
+                }
+                go();
+              }
+              $("#fav-pro .arrowl").on("click", function () {
+                if (animated) return;
+                leftStartL--;
+                loadimg(leftStartL);
+                //						romater--;
+                //						romatel++;
+                //						if (romatel >= 0) {
+                //							loadimg(romatel);
+                //						}
+                var _this = $(this);
+                goanimate(this_width + 15, l, _this);
+              });
+              $("#fav-pro .arrowr").on("click", function () {
+                if (animated) return;
+                rightStartL++;
+                loadimg(rightStartL);
+                //						romater++;
+                //						romatel--;
+                //						alert(romater);
+                //						alert(totnum);
+                //						if (romater <= totnum) {
+                //							loadimg(romater);
+                //						}
+                var _this = $(this);
+                goanimate(-(this_width + 15), l, _this);
+              });
+
+              //					var autolp=setInterval(function(){
+              //						$('#fav-pro .arrowr').click();
+              //					},5000)
+              //					$("#fav-pro .arrowl,#fav-pro .arrowr").hide();
+              $("#fav-pro .arrowl,#fav-pro .arrowr").hover(function () {
+                $("#fav-pro .arrowl,#fav-pro .arrowr").css("cursor", "pointer");
+              });
+              //					$("#fav_ul,#fav-pro").hover(function(){
+              //						clearInterval(autolp);
+              //						$("#fav-pro .arrowl,#fav-pro .arrowr").show();
+              //
+              //					},function(){
+              //						$("#fav-pro .arrowl,#fav-pro .arrowr").hide();
+              //						autolp=setInterval(function(){
+              //							$('#fav-pro .arrowr').click();
+              //						},5000)
+              //					})
+              //页面加载后，给第一个li模拟触发单击事件
+              //					$("#fav-pro").find("li").eq(0).click();
+              //我的收藏-图片   我的收藏-价格   我的收藏-标题   插码
+              $("#stc_myfav").on("click", "img", function () {
+                stcEcode.commTrack("UCenter_Content_SCTP", false); //@2016-04-14
+              });
+              $("#stc_myfav").on("click", "p", function () {
+                if ($(this).text().indexOf("￥") == 0) {
+                  stcEcode.commTrack("UCenter_Content_SCJG", false); //@2016-04-14
+                } else {
+                  stcEcode.commTrack("UCenter_Content_SCBT", false); //@2016-04-14
+                }
+              });
+            },
+            function (code, msg) {
+              var fav_data = [];
+              fav_data.stcDic = stcDic;
+              $("#stc_myfav").html(myfav({ data: fav_data }));
+              gotoMyFav();
+            },
+            function (code, msg) {
+              var fav_data = [];
+              fav_data.stcDic = stcDic;
+              $("#stc_myfav").html(myfav({ data: fav_data }));
+              //  add by fenghy@20170111  我的收藏点击事件,
+              gotoMyFav();
+            }
+          );
+        });
+        //})
+      };
+      var getYouLove = function (myfav) {
+        var user_id = app.data[0].mobile; //用户标识
+        var catalog_id = ""; //商品类目ID (手机 101 ，配件 128 ，业务 146 ,空为全部)
+        var type = "1"; //商品类别枚举值（1:热销商品， 2:精品推荐商品）
+        var provice = app.data[0].data.provice;
+        //-----------------
+        if (provice == "") {
+          //注册账号或者未登录账号，首先去查看cookie的情况，如果cookie存在，以cookie的为主 @2015-06-03
+          var tempCm = $.cookie("CmLocation");
+          if (typeof tempCm != "undefined" && tempCm.split("|").length > 0) {
+            var tempPv = tempCm.split("|")[0];
+            if (typeof tempPv == "undefined") {
+              tempPv = "100";
+            }
+            var reqData = {
+              scene_id: "scene_009",
+              page_no: "1",
+              page_size: "20",
+              user_id: user_id,
+            };
+
+            getLoveData(reqData, myfav);
+          } else {
+            require(["/i/service/model/user_a79371f.js"], function (user) {
+              user.getAreaCodeByIp(
+                function (result) {
+                  var tempPv = "";
+                  if (typeof result.provCode != "undefined") {
+                    tempPv = result.provCode;
+                  }
+                  var reqData = {
+                    scene_id: "scene_009",
+                    page_no: "1",
+                    page_size: "20",
+                    user_id: user_id,
+                  };
+
+                  getLoveData(reqData, myfav);
+                },
+                function () {
+                  var tempPv = "100";
+                  var reqData = {
+                    scene_id: "scene_009",
+                    page_no: "1",
+                    page_size: "20",
+                    user_id: user_id,
+                  };
+
+                  getLoveData(reqData, myfav);
+                },
+                function () {
+                  var tempPv = "100";
+                  var reqData = {
+                    scene_id: "scene_009",
+                    page_no: "1",
+                    page_size: "20",
+                    user_id: user_id,
+                  };
+
+                  getLoveData(reqData, myfav);
+                }
+              );
+            });
+          }
+        } else {
+          //			    modify by fenghy@20170209  互联网的province值为000,与触屏版保持一致
+          if (provice == "000") {
+            var province_id = "100";
+            var city_id = "100";
+          } else {
+            var province_id = app.data[0].data.provice;
+            var city_id = app.data[0].data.provice;
+          }
+
+          var reqData = {
+            scene_id: "scene_009",
+            page_no: "1",
+            page_size: "20",
+            user_id: user_id,
+          };
+
+          getLoveData(reqData, myfav);
+        }
+      };
+      var getLoveData = function (reqData, myfav) {
+        require(["/i/service/model/user_a79371f.js"], function (user) {
+          var dealData = [];
+          function dealAllData() {
+            dealData.stcDic = stcDic;
+
+            $("#stc_guesslove").html(myfav({ lovedata: dealData }));
+            console.log(",,,,,", dealData);
+            //给每一个轮播按钮绑定单击事件
+            var this_width = $("#guess_ul li").eq(0).width();
+            var animated = false;
+            //					每点击一次加载图片
+            function loadimg(l, $itemli) {
+              var li = $("#guess_ul li").eq(l);
+              for (var i = 0; i < 4; i++) {
+                var img_url = li.find("img").eq(i).attr("data-src");
+                li.find("img").eq(i).attr("src", img_url);
+              }
+              //打点
+              var skuids = "";
+              li.find("a").each(function () {
+                skuid = $(this).attr("skuid");
+                if (skuid != undefined && skuid != "")
+                  skuids += "," + $(this).attr("skuid");
+              });
+              if (skuids != "") {
+                require(["stclog"], function (stclog) {
+                  var item = {};
+                  item.skuIds = skuids.substring(1);
+                  item.channelId = "www";
+                  item.directCode = "8";
+                  item.shopId = stcDic.getAspireShopId()[reqData.province_id];
+                  stclog.info(null, item);
+                });
+              }
+            }
+            loadimg(0);
+            //点击时添加附属项，用来避免空白
+
+            //                    add by fenghy@20170119  猜你喜欢轮播图   start---
+            var clone = $("#guess_ul li").first().clone();
+            $("#guess_ul").append(clone);
+            var wid = $("#guess_ul li").first().width() + 37;
+            var i = 0;
+            var len = $("#guess_ul li").length;
+            function move() {
+              if (i == len) {
+                i = 1;
+                $("#guess_ul").css({ left: 0 });
+              }
+              if (i == -1) {
+                i = len - 2;
+                $("#guess_ul").css({ left: -wid * (len - 1) });
+              }
+              $("#guess_ul")
+                .stop()
+                .animate({ left: -wid * i }, 500);
+            }
+            $("#love-pro .arrowl").on("click", function () {
+              i--;
+              loadimg(i);
+              move();
+            });
+            $("#love-pro .arrowr").on("click", function () {
+              i++;
+              loadimg(i);
+              move();
+            });
+            //					add by fenghy@20170119  end-----
+
+            //猜你喜欢-图片  猜你喜欢-价格  猜你喜欢-标题  插码
+            $("#stc_guesslove").on("click", "img", function () {
+              var skuInx = $(this).parent().attr("skuInx");
+              if (skuInx != undefined && skuInx != "") {
+                stcEcode.commTrack("UCenter_home_guess" + skuInx, false); //@2016-09-26
+              } else {
+                var _inx = $(this).parent().attr("_index");
+                var goodsid = $(this).parent().attr("goodsid");
+                stcEcode.commTrack(
+                  "UCenter_Content_CNXHTP" + "_" + _inx + "_" + goodsid,
+                  false
+                ); //@2016-04-14
+              }
+            });
+            $("#stc_guesslove").on("click", "p", function () {
+              var skuInx = $(this).parent().attr("skuInx");
+              if (skuInx != undefined && skuInx != "") {
+                stcEcode.commTrack("UCenter_home_guess" + skuInx, false); //@2016-09-26
+              } else {
+                var _inx = $(this).parent().attr("_index");
+                var goodsid = $(this).parent().attr("goodsid");
+                if ($(this).attr("class")) {
+                  stcEcode.commTrack(
+                    "UCenter_Content_CNXHJG" + "_" + _inx + "_" + goodsid,
+                    false
+                  ); //@2016-04-14
+                } else {
+                  stcEcode.commTrack(
+                    "UCenter_Content_CNXHBT" + "_" + _inx + "_" + goodsid,
+                    false
+                  ); //@2016-04-14
+                }
+              }
+            });
+          }
+          function dealElearnData() {
+            if (dealData.length >= 24) {
+              dealAllData();
+            } else {
+              user.recomhobbies(
+                reqData,
+                function (data) {
+                  var need = 24 - dealData.length;
+                  //最多只取前24个商品
+                  if (data.length > need) {
+                    Array.prototype.push.apply(dealData, data.slice(0, need));
+                  } else {
+                    Array.prototype.push.apply(dealData, data);
+                  }
+                  dealAllData();
+                },
+                function (code, msg) {
+                  dealAllData();
+                },
+                function (code, msg) {
+                  dealAllData();
+                }
+              );
+            }
+          }
+          user.getUserBelongInfo(
+            reqData.user_id,
+            function (data) {
+              var province_id = data.prov_cd;
+              var city_id = data.id_area_cd;
+              var reqData1 = {
+                user_id: reqData.user_id,
+                province_id: province_id,
+                city_id: city_id,
+              };
+              user.recomhobbies(
+                reqData,
+                function (data) {
+                  if (data.rec.length > 0) {
+                    for (var i = 0; i < data.rec.length; i++) {
+                      data.rec[i].isElearn = 1;
+                    }
+                    if (data.rec.length >= 24) {
+                      dealData = data.rec.slice(0, 24);
+                    } else {
+                      dealData = data.rec;
+                    }
+                  }
+                  dealData = $.map(dealData, function (item) {
+                    item.trace_id = data.trace_id;
+                    item.picture_url =
+                      typeof item.picture_url == "string"
+                        ? item.picture_url.replace(
+                            /http(s)?:/,
+                            window.location.protocol
+                          )
+                        : item.picture_url;
+                    item.url =
+                      typeof item.url == "string"
+                        ? item.url.replace(
+                            /http(s)?:/,
+                            window.location.protocol
+                          ) +
+                          "?WT.ac=rec_search_009_" +
+                          data.province_id +
+                          "_" +
+                          data.trace_id +
+                          "_" +
+                          item.item_id
+                        : item.url;
+                    return item;
+                  });
+                  try {
+                    showLog(reqData, data);
+                    sendQuerylog(reqData, data);
+                  } catch (e) {}
+                  console.log("11111111111", dealData);
+                  dealElearnData();
+                },
+                function (code, msg) {
+                  dealElearnData();
+                },
+                function (code, msg) {
+                  dealElearnData();
+                }
+              );
+            },
+            function (code, msg) {
+              dealElearnData();
+            },
+            function (code, msg) {
+              dealElearnData();
+            }
+          );
+        });
+      };
+      /**
+       * 请求日志采集
+       */
+
+      function sendQuerylog(reqData, data) {
+        window.Collecter.pageEnviroment["wt_co_f"] = $.cookie("WT_FPC")
+          ? $.cookie("WT_FPC").match(/id=([a-z\d]+):/i)[1]
+          : ""; //与请求参数user_id一致。
+        window.Collecter.pageEnviroment["login_name"] = reqData.user_id; //用户登录名  与请求参数user_account一致。
+        window.Collecter.pageEnviroment["page_id"] = "shop_ihome"; //页面ID
+        window.Collecter.pageEnviroment["trace_id"] = data.trace_id; //追踪ID,取值应答报文 trace_id
+        window.Collecter.push("bus_id", "001"); //业务ID（不需要修改）
+        window.Collecter.push("scene_id", "009"); //场景ID，需根据实际场景修改，取5.1中sence_id，中的数字即可
+        window.Collecter.push("log_type", "1"); //日志类型 （不需要修改）
+        window.Collecter.push("channel_id", "05"); //渠道ID （不需要修改）
+        window.Collecter.push("province_id", data.province_id); //省ID，取值请求参数省份ID
+        window.Collecter.push("city_id", data.province_id); //市区ID
+        window.Collecter.loadListener();
+      }
+      /**
+       * 展示日志采集
+       */
+      function showLog(reqData, data) {
+        var newArr = [];
+        for (var i = 0; i < data.rec.length; i++) {
+          newArr[i] = {};
+          newArr[i].data_id = data.rec[i].data_id;
+          newArr[i].data_type = data.rec[i].data_type;
+          newArr[i].item_id = data.rec[i].item_id;
+        }
+        var newdata = {};
+        newdata.rec = newArr;
+        console.log("555555", newArr);
+        window.Collecter.pageEnviroment["wt_co_f"] = $.cookie("WT_FPC")
+          ? $.cookie("WT_FPC").match(/id=([a-z\d]+):/i)[1]
+          : ""; //访客ID，与请求参数user_id一致。
+        window.Collecter.pageEnviroment["login_name"] = reqData.user_id; //用户登录名  与请求参数user_account一致。
+        window.Collecter.pageEnviroment["trace_id"] = data.trace_id; //追踪ID,取值应答报文 trace_id
+        window.Collecter.push("scene_id", "009"); //场景ID，需根据实际场景修改，取5.1中sence_id，中的数字即可
+        window.Collecter.push("page_no", reqData.page_no); //页码 取值请求参数page_no
+        window.Collecter.push("show_num", reqData.page_size); //展示数量取值应答结果数量
+        window.Collecter.push("item_list", JSON.stringify(newdata)); //展示搜索结果集 item_list 是jsonObject 格式字符串。 item_list 格式请参考基础代码item_list标识
+        window.Collecter.push("version", data.version_id); //版本取值应答报文version_id
+        window.Collecter.push("uid", data.uid); //用户ID  取值应答报文 uid
+        window.Collecter.push("log_type", "2"); //日志类型（不需要修改）
+        window.Collecter.loadListener();
+      }
+
+      //  add by fenghy@20170111  我的收藏点击事件,
+      var gotoMyFav = function () {
+        $("#stc_myfav_btn").unbind();
+        $("#stc_myfav_btn")
+          .on("click", function () {
+            app.initpage("myfav");
+          })
+          .on("hover", function () {
+            $(this).css({ cursor: "pointer" });
+          });
+      };
+      setTimeout(function () {
+        require([
+          "/i/apps/serviceapps/home/tpl/myfav_a1579ef.js",
+        ], function (myfav) {
+          favPro(myfav);
+          getYouLove(myfav);
+        });
+      }, 1500);
+      fastRecharge();
+    });
+    //url中直接访问功能时打点
+    require(["stclog"], function (stclog) {
+      var item = {};
+      item.funcName = "home";
+      item.areaCode = "00"; //PC的渠道标识，表示是从url直接访问的打点
+      stclog.info(null, item);
+    });
+  });
+</script>

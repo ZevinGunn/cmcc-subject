@@ -1,0 +1,11 @@
+node_modules/
+frontend/node_modules/
+frontend/dist/
+backend/node_modules/
+backend/data/catalog.json
+backend/data/rights-catalog.json
+backend/data/pending/
+backend/data/backups/
+backend/logs/
+backend/.env
+.DS_Store

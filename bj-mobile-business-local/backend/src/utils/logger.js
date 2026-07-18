@@ -10,7 +10,22 @@ function redactValue(key, value) {
   const name = String(key || '').toLowerCase()
   if (value === undefined) return undefined
   if (value === null) return null
-  if (name.includes('password') || name.includes('token') || name.includes('authorization')) {
+  if (
+    name.includes('password') ||
+    name.includes('token') ||
+    name.includes('authorization') ||
+    name.includes('cookie') ||
+    name.includes('key') ||
+    name.includes('secret') ||
+    name.includes('captcha') ||
+    (name !== 'errorcode' &&
+      (name === 'code' || name === 'inputcode' || name === 'randomcode' || name.includes('smscode') || name.includes('verificationcode'))) ||
+    name.includes('identity') ||
+    name.includes('idcard') ||
+    name === 'id' ||
+    name.includes('name') ||
+    name.includes('address')
+  ) {
     const text = String(value)
     return text ? `[REDACTED len=${text.length}]` : ''
   }

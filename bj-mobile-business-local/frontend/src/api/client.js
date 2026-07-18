@@ -2,10 +2,32 @@ function redactBody(body = {}) {
   const out = { ...body }
   for (const key of Object.keys(out)) {
     const lower = key.toLowerCase()
-    if (lower.includes('code') || lower.includes('captcha') || lower.includes('token')) out[key] = '[REDACTED]'
+    if (lower.includes('code') || lower.includes('captcha') || lower.includes('token') || lower.includes('cookie')) out[key] = '[REDACTED]'
     if (lower.includes('phone')) out[key] = String(out[key]).replace(/^(\d{3})\d{4}(\d+)/, '$1****$2')
   }
   return out
+}
+
+function requestBodyForLog(path, body = {}) {
+  if (path.startsWith('/debug/crypto')) {
+    return {
+      mode: body.mode || '',
+      operation: body.operation || '',
+      hasInput: Boolean(body.input),
+      hasSessionId: Boolean(body.sessionId),
+      omitted: '[CRYPTO_INPUT_AND_KEYS_OMITTED]',
+    }
+  }
+  if (path.startsWith('/custom-orders')) {
+    return {
+      sessionId: body.sessionId || '',
+      hasConfig: Boolean(body.config),
+      hasOtp: Boolean(body.smsCode),
+      agreed: body.agreed === true,
+      omitted: '[CUSTOM_ORDER_CONFIG_AND_SMS_OMITTED]',
+    }
+  }
+  return redactBody(body)
 }
 
 function logFrontend(type, payload = {}) {
@@ -32,7 +54,7 @@ async function request(path, options = {}) {
   logFrontend('frontend:request', {
     path,
     method: options.method || 'GET',
-    body: redactBody(options.body),
+    body: requestBodyForLog(path, options.body),
   })
   const res = await fetch(`/api${path}`, {
     headers: {
@@ -104,5 +126,44 @@ export const api = {
   },
   getCryptoDebugSession(sessionId) {
     return request(`/debug/crypto/session/${encodeURIComponent(sessionId)}`)
+  },
+  cryptoTransform(body) {
+    return request('/debug/crypto/transform', { method: 'POST', body })
+  },
+  queryShopBusiness(body) {
+    return request('/shop-business/query', { method: 'POST', body })
+  },
+  sendShopUnsubscribeSms(body) {
+    return request('/shop-business/unsubscribe/sms', { method: 'POST', body })
+  },
+  unsubscribeShopBusiness(body) {
+    return request('/shop-business/unsubscribe', { method: 'POST', body })
+  },
+  listActivities() {
+    return request('/activities')
+  },
+  checkActivity(id, body) {
+    return request(`/activities/${encodeURIComponent(id)}/check`, { method: 'POST', body })
+  },
+  previewActivity(id, body) {
+    return request(`/activities/${encodeURIComponent(id)}/preview`, { method: 'POST', body })
+  },
+  subscribeActivity(id, body) {
+    return request(`/activities/${encodeURIComponent(id)}/subscribe`, { method: 'POST', body })
+  },
+  initializeCustomOrder(body) {
+    return request('/custom-orders/initialize', { method: 'POST', body })
+  },
+  previewCustomOrder(body) {
+    return request('/custom-orders/preview', { method: 'POST', body })
+  },
+  submitCustomOrder(body) {
+    return request('/custom-orders/submit', { method: 'POST', body })
+  },
+  sendCustomOrderSms(orderId, body) {
+    return request(`/custom-orders/${encodeURIComponent(orderId)}/sms/send`, { method: 'POST', body })
+  },
+  verifyCustomOrderSms(orderId, body) {
+    return request(`/custom-orders/${encodeURIComponent(orderId)}/sms/verify`, { method: 'POST', body })
   },
 }

@@ -3,6 +3,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream, existsSync } from "node:fs";
 import http from "node:http";
+import { isIP } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -231,6 +232,9 @@ async function storageItems() {
     "bj-mobile-business-local/frontend/node_modules",
     "bj-mobile-business-local/backend/node_modules",
     "bj-mobile-business-local/node_modules",
+    "bjcmcc-route-hub/backend/node_modules",
+    "bjcmcc-route-hub/frontend/node_modules",
+    "bjcmcc-route-hub/node_modules",
     "bj-cmcc-qy/frontend/node_modules",
     "bj-cmcc-qy/backend/node_modules",
     "cmcc-notice/node_modules",
@@ -524,7 +528,7 @@ async function portOpen(targetPort) {
 }
 
 async function httpCode(domain) {
-  const result = await runFile("/usr/bin/curl", [
+  const args = [
     "-s",
     "-o",
     "/dev/null",
@@ -533,8 +537,37 @@ async function httpCode(domain) {
     "--max-time",
     "5",
     `https://${domain}/`,
+  ];
+  let result = await runFile("/usr/bin/curl", args);
+  if (result.ok) return result.stdout.trim();
+
+  const lookup = await runFile("/usr/bin/dig", ["+short", "@1.1.1.1", "A", domain], { timeout: 8000 });
+  const address = lookup.stdout.split(/\s+/).find((value) => isIP(value) === 4);
+  if (!address) return "000";
+  result = await runFile("/usr/bin/curl", [
+    ...args.slice(0, -1),
+    "--resolve",
+    `${domain}:443:${address}`,
+    args.at(-1),
   ]);
   return result.ok ? result.stdout.trim() : "000";
+}
+
+async function projectCheck(project) {
+  let open = false;
+  let code = "000";
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    [open, code] = await Promise.all([portOpen(project.backend.port), httpCode(project.domain)]);
+    if (open && Number(code) < 500 && code !== "000") break;
+    await new Promise((resolve) => setTimeout(resolve, 750));
+  }
+  return {
+    ok: open && Number(code) < 500 && code !== "000",
+    code: 0,
+    signal: null,
+    stdout: `port:${open ? "open" : "closed"}\nhttps:${code}`,
+    stderr: "",
+  };
 }
 
 async function statusPayload() {
@@ -664,13 +697,7 @@ async function handleApi(req, res) {
         return updateFrontend(project);
       }
       if (action === "check") {
-        return Promise.all([portOpen(project.backend.port), httpCode(project.domain)]).then(([open, code]) => ({
-          ok: open && Number(code) < 500 && code !== "000",
-          code: 0,
-          signal: null,
-          stdout: `port:${open ? "open" : "closed"}\nhttps:${code}`,
-          stderr: "",
-        }));
+        return projectCheck(project);
       }
       const pm2Action = action.replace("backend-", "");
       return runFile(pm2, [pm2Action, project.backend.pm2Name]);

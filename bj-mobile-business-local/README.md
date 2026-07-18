@@ -8,9 +8,15 @@
 - 查询门户已订业务。
 - 按“基础功能 / 套餐 / 增值业务”分类展示。
 - 对增值业务发起退订。
+- 从本地 JSON 配置读取活动，完成资格检查、办理预览和订阅受理。
+- 按策划 ID、活动编码、资源编码等参数预览并办理自定义业务，支持短信确认流程。
+- 按密钥、AES 模式、IV 和输入输出编码执行本地加解密。
+- 本地导入 HAR、JSON 或 TXT 中的请求参数和响应值进行解密。
+- 使用 `shop.10086.cn` 登录 Cookie 查询商城已订业务，并按短信验证码确认退订。
+- 按商城固定 AES-CBC 双层 Base64 协议加密或解密 `inParam`、`msgId`、`outParam` 和手机号路径。
 
 ## 启动
-w
+
 ```bash
 npm run install:all
 npm run dev
@@ -47,7 +53,27 @@ POST /api/auth/send-sms
 POST /api/auth/login
 POST /api/business/query
 POST /api/business/unsubscribe
+POST /api/shop-business/session
+POST /api/shop-business/query
+POST /api/shop-business/unsubscribe/sms
+POST /api/shop-business/unsubscribe
+GET  /api/activities
+POST /api/activities/:id/check
+POST /api/activities/:id/preview
+POST /api/activities/:id/subscribe
+POST /api/custom-orders/initialize
+POST /api/custom-orders/preview
+POST /api/custom-orders/submit
+POST /api/custom-orders/:orderId/sms/send
+POST /api/custom-orders/:orderId/sms/verify
+POST /api/debug/crypto/transform
 ```
+
+商城查询、退订接口、字段、密钥、加解密协议和页面设计见 `docs/SHOP_BUSINESS_QUERY_DESIGN.md`。
+
+活动配置位于 `backend/activities/`。1000M 优享活动的接口、字段、业务规则、加密协议和扩展配置说明见 `docs/ACTIVITY_SUBSCRIPTION_DESIGN.md`。
+
+承诺低消权益回馈版示例、统一订购字段、短信确认状态机、自定义办理 API 和 HAR 解密边界见 `docs/CUSTOM_PRODUCT_ORDER_DESIGN.md`。
 
 ## 移动侧接口链路
 

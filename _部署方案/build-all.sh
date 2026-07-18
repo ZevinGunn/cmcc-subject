@@ -62,4 +62,12 @@ if [ "$FRESH" = "1" ]; then rm -rf node_modules frontend/node_modules backend/no
 npm install --no-audit --no-fund
 npm run build
 
+# ---------- 7. 北京移动业务快捷入口（bjcmcc）----------
+log "7) bjcmcc-route-hub"
+cd "$ROOT/bjcmcc-route-hub"
+if [ "$FRESH" = "1" ]; then rm -rf node_modules backend/node_modules frontend/node_modules frontend/dist; fi
+npm run install:all
+npm test
+npm run build
+
 log "ALL DONE"

@@ -48,14 +48,14 @@ sep "5. 拉起业务后端 + 管理后台（PM2）"
 sleep 5
 
 sep "6. 自检：业务后端端口 + 管理后台"
-for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notic 7607:qqt 8788:bmcc 7800:project; do
+for p in 3010:rights 3101:home 3000:arpu 8899:qqtlocal 3111:notic 7607:qqt 8788:bmcc 8790:bjcmcc 7800:project; do
   port=${p%%:*}; name=${p##*:}
   if lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null 2>&1; then ok "$name :$port"
   else bad "$name :$port 未起"; fi
 done
 
 sep "7. 自检：域名本机直连"
-for d in home rights arpu qqtlocal notice qqt bmcc project; do
+for d in home rights arpu qqtlocal notice qqt bmcc bjcmcc project; do
   code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 -H "Host: $d.1008086.xyz" http://127.0.0.1/)
   printf "  %-25s -> %s\n" "$d.1008086.xyz" "$code"
 done

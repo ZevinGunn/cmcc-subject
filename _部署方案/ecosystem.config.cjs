@@ -51,6 +51,12 @@ module.exports = {
       env: { NODE_ENV: "production", PORT: "8788" },
     },
     {
+      name: "bjcmcc-route-hub",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/bjcmcc-route-hub/backend",
+      script: "src/server.js",
+      env: { NODE_ENV: "production", HOST: "127.0.0.1", PORT: "8790" },
+    },
+    {
       name: "bmcc-tunnel",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT",
       script: "/opt/homebrew/bin/cloudflared",

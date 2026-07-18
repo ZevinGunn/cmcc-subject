@@ -1,0 +1,158 @@
+<script type="text/javascript">
+  $(function () {
+    var _Constant = Namespace("all.constant");
+    var pid = _Constant.FUNCODE;
+    if (typeof pid == "undefined" || pid == "") {
+      pid = "home";
+    }
+    stcEcode.pvTrack(pid); //url直接访问的时候记录pv
+
+    //url中直接访问功能时打点
+    require(["stclog"], function (stclog) {
+      var item = {};
+      item.funcName = pid;
+      item.areaCode = "00"; //PC的渠道标识，表示是从url直接访问的打点
+      stclog.info(null, item);
+    });
+
+    var realFun = "home";
+    require([
+      "appmanage",
+      "stcutil",
+      "/i/apps/pageapps/pmenu/menu_ed0c528.js",
+      "/i/service/model/user_a79371f.js",
+      "stcDic",
+      "/i/apps/pageapps/pmenu/js/menu_af0cf21.js",
+    ], function (app, util, menu, user, stcDic, menuJs) {
+      //data(登录用户信息), type（登陆类型）, user（登录用户）, mobile（当前切换的用户）
+      var tp = util.getProvince(
+        app.data[0].data,
+        app.data[0].data.userType,
+        app.data[0].data.loginValue,
+        app.data[0].mobile
+      ); //切换手机号的归属省
+      _Constant.CURRENTMENUS = stcDic.getDefaultMenu();
+      if (tp == "311") {
+        //20180830 河北添加省份专区业务。
+        $("#specProvince").removeClass("none");
+      } else {
+        $("#specProvince").addClass("none");
+      }
+      user.getMenuInfo(
+        tp,
+        function (data) {
+          if (typeof data == "undefined" || data == null) {
+            data = stcDic.getDefaultMenu();
+          }
+          var tempData = stcDic.cloneObj(data);
+          _Constant.CURRENTMENUS = tempData;
+          menuJs.dealMenu(tempData, menu, tp);
+          if (pid != "home") {
+            menuJs.emit(realFun, pid);
+          }
+        },
+        function () {
+          menuJs.dealMenu(stcDic.getDefaultMenu(), menu, tp);
+          if (pid != "home") {
+            menuJs.emit(realFun, pid);
+          }
+        },
+        function () {
+          menuJs.dealMenu(stcDic.getDefaultMenu(), menu, tp);
+          if (pid != "home") {
+            menuJs.emit(realFun, pid);
+          }
+        }
+      );
+      //公告信息
+      require([
+        "/i/apps/serviceapps/home/tpl/noticeTop_d1b5508.js",
+      ], function (noticeTop) {
+        _Constant.noticeIndex = 0;
+        var ProCode;
+        if (
+          app.data[0].data.userType == "1" &&
+          app.data[0].mobile == app.data[0].data.loginValue
+        ) {
+          //互联网用户//如果异网账号接入后需要修改类型的判断 @lujx 2019-03-15
+          var proCode = "99";
+          ProCode = proCode;
+        } else {
+          //手机用户
+          ProCode = app.data[0].data.provice;
+        }
+        user.getNoticeList(
+          ProCode,
+          function (data) {
+            if (typeof data != "undefined") {
+              if (data.length > 0) {
+                $("#stc-content-notice").remove();
+                $("#stc_head").after(noticeTop({ data: data }));
+                var i = 0;
+                //					if(data.length>1){
+                //					var id = setInterval(function(){
+                //							i++;
+                //							var str = data[i].title;
+                //							$("#noticeTitle").text(str);
+                //							if(i==data.length-1){
+                //								i=-1;
+                //							}
+                //						},3000);
+                //					}
+                //if(data.length==1)$("#noticeTitle").html(data[0].title)
+                if (data.length > 1) {
+                  var s_tag = $("#noticeTitle")[0];
+                  s_tag.innerHTML += s_tag.innerHTML;
+                  var timer,
+                    speed = 50,
+                    interval = 1700;
+
+                  function startmove() {
+                    timer = setInterval(scrollUp, speed);
+                    s_tag.scrollTop++;
+                  }
+                  function scrollUp() {
+                    if (s_tag.scrollTop % 30 == 0) {
+                      clearInterval(timer);
+                      //对应内容变量
+                      i++;
+                      if (i == data.length - 1) {
+                        i = -1;
+                      }
+                      setTimeout(startmove, interval);
+                    } else {
+                      s_tag.scrollTop++;
+                      if (s_tag.scrollTop >= s_tag.scrollHeight / 2) {
+                        s_tag.scrollTop = 0;
+                      }
+                    }
+                  }
+                  setTimeout(startmove, interval);
+                }
+
+                $(".noticeTitle_new")
+                  .off("click")
+                  .on("click", function () {
+                    _Constant.noticeIndex = i;
+                    _Constant.noticeData = data;
+                    _Constant.prov4Notice = ProCode;
+                    app.initpage("noticeinfo");
+                  });
+                $("div.stc-notice-derection")
+                  .off("click")
+                  .on("click", function () {
+                    $("#stc-content-notice").remove();
+                  });
+              } else {
+                //处理空数据
+                return;
+              }
+            }
+          },
+          function () {},
+          function () {}
+        );
+      });
+    });
+  });
+</script>

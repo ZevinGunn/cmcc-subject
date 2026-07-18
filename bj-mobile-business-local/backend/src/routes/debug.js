@@ -9,6 +9,10 @@ import {
   encryptPortalKeyWithServerKey,
   encryptReplayVersion,
   rsaEncryptLogin,
+  decryptShopWireInput,
+  shopWireEncrypt,
+  SHOP_BUSINESS_KEY,
+  symmetricTransform,
 } from '../services/cryptoService.js'
 import { normalizeBase64Maybe, parseJsonMaybeBase64 } from '../utils/http.js'
 import { fail, ok } from '../utils/response.js'
@@ -64,6 +68,15 @@ router.get('/crypto/session/:id', (req, res) => {
   })
 })
 
+router.post('/crypto/transform', (req, res) => {
+  try {
+    const result = symmetricTransform(req.body || {})
+    ok(res, result)
+  } catch (error) {
+    fail(res, 400, error instanceof Error ? error.message : '加解密失败', 'CRYPTO_TRANSFORM_FAILED')
+  }
+})
+
 router.post('/crypto', (req, res) => {
   try {
     const mode = String(req.body?.mode || '').trim()
@@ -107,6 +120,14 @@ router.post('/crypto', (req, res) => {
       result = encodeURIComponent(String(input ?? ''))
     } else if (mode === 'url-decode') {
       result = decodeURIComponent(String(input ?? ''))
+    } else if (mode === 'shop-wire-encrypt') {
+      result = shopWireEncrypt(input, key || SHOP_BUSINESS_KEY)
+      details.algorithm = 'AES-128-CBC / PKCS7 / Base64(AES-Base64)'
+      details.iv = 'same-as-key'
+    } else if (mode === 'shop-wire-decrypt') {
+      result = decryptShopWireInput(input, key || SHOP_BUSINESS_KEY)
+      details.algorithm = 'Base64 decode -> AES-128-CBC / PKCS7'
+      details.iv = 'same-as-key'
     } else {
       return fail(res, 400, '请选择调试类型', 'INVALID_MODE')
     }

@@ -1,7 +1,9 @@
 <template>
   <CryptoDebugPage v-if="view === 'debug'" @back="onDebugBack" />
-  <LoginPage v-else-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" />
-  <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" />
+  <ShopBusinessPage v-else-if="view === 'shop'" @back="onShopBack" @open-debug="pushRoute('/debug')" />
+  <ActivityPage v-else-if="view === 'activity'" @back="onActivityBack" />
+  <LoginPage v-else-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" @open-shop="pushRoute('/shop')" @open-debug="pushRoute('/debug')" />
+  <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" @open-activities="onOpenActivities" />
 </template>
 
 <script setup>
@@ -9,6 +11,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import LoginPage from './pages/LoginPage.vue'
 import BusinessPage from './pages/BusinessPage.vue'
 import CryptoDebugPage from './pages/CryptoDebugPage.vue'
+import ActivityPage from './pages/ActivityPage.vue'
+import ShopBusinessPage from './pages/ShopBusinessPage.vue'
 import { api } from './api/client'
 import { clearSession, sessionState, setSession } from './stores/session'
 
@@ -16,6 +20,8 @@ const booting = ref(Boolean(sessionState.sessionId))
 const route = ref(readRoute())
 const view = computed(() => {
   if (route.value.name === 'debug') return 'debug'
+  if (route.value.name === 'shop') return 'shop'
+  if (route.value.name === 'activity' && sessionState.sessionId) return 'activity'
   return !booting.value && sessionState.sessionId && route.value.name === 'business' ? 'business' : 'login'
 })
 const canReturnToBusiness = computed(() => Boolean(sessionState.sessionId && route.value.name === 'login' && route.value.params.from === 'business'))
@@ -26,7 +32,7 @@ function readRoute() {
   const params = Object.fromEntries(new URLSearchParams(query))
   const name = path.replace(/^\//, '') || ''
   return {
-    name: name === 'business' ? 'business' : name.startsWith('debug') ? 'debug' : 'login',
+    name: name === 'business' ? 'business' : name === 'activity' ? 'activity' : name === 'shop' ? 'shop' : name.startsWith('debug') ? 'debug' : 'login',
     params,
   }
 }
@@ -49,8 +55,8 @@ function pushRoute(path) {
 
 function syncRoute() {
   route.value = readRoute()
-  if (route.value.name === 'debug') return
-  if (route.value.name === 'business' && !sessionState.sessionId) replaceRoute('/login')
+  if (['debug', 'shop'].includes(route.value.name)) return
+  if (['business', 'activity'].includes(route.value.name) && !sessionState.sessionId) replaceRoute('/login')
 }
 
 function onLoggedIn(payload) {
@@ -79,9 +85,25 @@ function onDebugBack() {
   replaceRoute(sessionState.sessionId ? '/business' : '/login')
 }
 
+function onShopBack() {
+  replaceRoute(sessionState.sessionId ? '/business' : '/login')
+}
+
+function onOpenActivities() {
+  pushRoute('/activity')
+}
+
+function onActivityBack() {
+  replaceRoute('/business')
+}
+
 onMounted(async () => {
   window.addEventListener('hashchange', syncRoute)
   if (!window.location.hash) replaceRoute(sessionState.sessionId ? '/business' : '/login')
+  if (['debug', 'shop'].includes(route.value.name)) {
+    booting.value = false
+    return
+  }
   if (!sessionState.sessionId) {
     booting.value = false
     return
@@ -94,7 +116,7 @@ onMounted(async () => {
       return
     }
     setSession({ userInfo: data.session.userInfo })
-    if (!['login', 'debug'].includes(route.value.name)) replaceRoute('/business')
+    if (!['login', 'debug', 'shop', 'activity'].includes(route.value.name)) replaceRoute('/business')
   } catch {
     clearSession()
     replaceRoute('/login')

@@ -5,6 +5,7 @@ import { logEvent } from '../utils/logger.js'
 import { warmPortalBusinessPage } from './loginClient.js'
 import { ensureWafToken } from './wafClient.js'
 import {
+  aesEcbEncrypt,
   decodePortalKeyPayload,
   decryptPortalBody,
   encryptPortalBody,
@@ -134,9 +135,18 @@ export async function initPortalKey(session, options = {}) {
 }
 
 async function portalPost(session, path, data = {}) {
-  await logEvent('portal:post:start', {
+  return portalRequest(session, { method: 'POST', path, data })
+}
+
+async function portalGet(session, path, params = {}, clearQuery = {}) {
+  return portalRequest(session, { method: 'GET', path, params, clearQuery })
+}
+
+async function portalRequest(session, request) {
+  await logEvent('portal:request:start', {
     sessionId: session.id,
-    path,
+    method: request.method,
+    path: request.path,
     hasPortalKey: Boolean(session.portalKey),
     hasWafToken: Boolean(session.wafToken),
   })
@@ -153,12 +163,13 @@ async function portalPost(session, path, data = {}) {
   }
   let lastResult = null
   for (let redirects = 0; redirects <= MAX_WAF_REDIRECTS; redirects += 1) {
-    lastResult = await encryptedPortalPost(session, path, data)
+    lastResult = await encryptedPortalRequest(session, request)
     if (!isRootRedirect(lastResult)) return lastResult
 
-    await logEvent('portal:post:wafRedirect', {
+    await logEvent('portal:request:wafRedirect', {
       sessionId: session.id,
-      path,
+      method: request.method,
+      path: request.path,
       redirects,
       location: lastResult.raw.location,
       wafTokenLength: session.wafToken ? session.wafToken.length : 0,
@@ -172,19 +183,60 @@ async function portalPost(session, path, data = {}) {
   return lastResult
 }
 
-async function encryptedPortalPost(session, path, data = {}) {
-  const url = withWaf(`${config.portalOrigin}/nwt${path}`, session)
-  const body = encryptPortalBody(data, session.portalKey)
+export async function executePortalActivityStep(session, step) {
+  const method = String(step?.method || '').toUpperCase()
+  if (!['GET', 'POST'].includes(method)) {
+    return { ok: false, message: '活动配置仅支持 GET 或 POST 门户接口', errorCode: 'ACTIVITY_METHOD_NOT_ALLOWED' }
+  }
+  if (!/^\/portal-bff\/api\/[A-Za-z0-9._/-]+$/.test(step?.path || '')) {
+    return { ok: false, message: '活动接口路径不在允许范围内', errorCode: 'ACTIVITY_PATH_NOT_ALLOWED' }
+  }
+  const query = new URLSearchParams()
+  for (const [key, value] of Object.entries(step.query || {})) {
+    if (value !== undefined && value !== null && String(value) !== '') query.set(key, String(value))
+  }
+  if (method === 'GET') {
+    return step.queryMode === 'clear'
+      ? portalGet(session, step.path, {}, step.query || {})
+      : portalGet(session, step.path, step.query || {})
+  }
+  const path = query.size ? `${step.path}?${query.toString()}` : step.path
+  return portalPost(session, path, step.body || {})
+}
+
+export function serializePortalQuery(query = {}) {
+  return Object.entries(query)
+    .filter(([, value]) => value !== undefined && value !== null && String(value) !== '')
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join('&')
+}
+
+function appendQuery(path, query = {}) {
+  const serialized = serializePortalQuery(query)
+  if (!serialized) return path
+  return `${path}${path.includes('?') ? '&' : '?'}${serialized}`
+}
+
+async function encryptedPortalRequest(session, request) {
+  let requestPath = appendQuery(request.path, request.clearQuery)
+  if (request.method === 'GET') {
+    const plainParams = serializePortalQuery(request.params)
+    if (plainParams) {
+      const encryptedParams = encodeURIComponent(aesEcbEncrypt(plainParams, session.portalKey))
+      requestPath = `${requestPath}${requestPath.includes('?') ? '&' : '?'}p=${encryptedParams}`
+    }
+  }
+  const url = withWaf(`${config.portalOrigin}/nwt${requestPath}`, session)
   const replayVersion = encryptReplayVersion(session.replayVersion++, session.portalKey)
   const res = await requestWithJar({
     jar: session.jar,
     url,
-    method: 'POST',
+    method: request.method,
     headers: portalHeaders(session, {
       'X-DATA-TOKEN': session.dataToken,
       'X-REPLAY-VERSION': replayVersion,
     }),
-    data: JSON.stringify(body),
+    data: request.method === 'POST' ? JSON.stringify(encryptPortalBody(request.data || {}, session.portalKey)) : undefined,
   })
   if (res.status >= 300 && res.status < 400) {
     return {

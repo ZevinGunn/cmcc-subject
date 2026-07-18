@@ -1,0 +1,65 @@
+{
+  "id": "integrated-broadband-1000m",
+  "name": "融合宽带1000M优享套餐（三年）",
+  "shortName": "1000M优享",
+  "enabled": true,
+  "transport": "bmcc-portal-v1",
+  "description": "福利狂欢奖上加奖中奖客户专享的新装融合宽带活动。",
+  "product": {
+    "itemCode": "111602057454",
+    "speedDown": "1000M",
+    "speedUp": "50M",
+    "contractMonths": 36,
+    "monthlyCommitmentYuan": 100,
+    "terminationFeeYuan": 200
+  },
+  "notices": [
+    "仅限参与福利狂欢奖上加奖活动中奖的客户新装办理。",
+    "每月手机实付通信费需达到100元，未达到时收取补差款。",
+    "合约期内取消需交纳200元违约款。",
+    "接口受理成功不等于最终装机成功，以地址覆盖和工作人员确认为准。"
+  ],
+  "form": [
+    { "name": "district", "label": "安装城区", "type": "select", "required": true, "options": ["东城区", "西城区", "朝阳区", "丰台区", "石景山区", "海淀区", "门头沟区", "房山区", "通州区", "顺义区", "昌平区", "大兴区", "怀柔区", "平谷区", "密云区", "延庆区"] },
+    { "name": "address", "label": "详细地址", "type": "text", "required": true, "minLength": 2, "maxLength": 120, "sensitive": true },
+    { "name": "contactPhone", "label": "联系电话", "type": "tel", "required": true, "pattern": "^1\\d{10}$", "sensitive": true },
+    { "name": "appointmentDate", "label": "预约日期", "type": "date", "required": false },
+    { "name": "appointmentSlot", "label": "预约时间段", "type": "select", "required": false, "options": [{ "value": "1", "label": "09:00-11:00" }, { "value": "2", "label": "11:00-13:00" }, { "value": "3", "label": "13:00-17:00" }, { "value": "4", "label": "17:00-20:00" }] },
+    { "name": "identityNo", "label": "身份证号码（未实名时填写）", "type": "text", "required": false, "sensitive": true }
+  ],
+  "steps": {
+    "eligibility": {
+      "method": "POST",
+      "path": "/portal-bff/api/ajybz/v1.0/index1000MYXTC",
+      "body": {}
+    },
+    "existingBroadband": {
+      "method": "POST",
+      "path": "/portal-bff/api/ajybz/v1.0/index",
+      "body": {}
+    },
+    "precheck": {
+      "method": "POST",
+      "path": "/portal-bff/api/ajybz/v1.0/checkMobile",
+      "query": { "itemCode": "{{activity.product.itemCode}}" },
+      "body": { "itemCode": "{{activity.product.itemCode}}" }
+    },
+    "realName": {
+      "method": "POST",
+      "path": "/portal-bff/api/ajybz/v1.0/checkRealName",
+      "body": { "ID": "{{input.identityNo}}", "NAME": "{{input.ownerName}}" }
+    },
+    "commit": {
+      "method": "POST",
+      "path": "/portal-bff/api/ajybz/v1.0/commit1000MYXTC",
+      "body": {
+        "item_code": "{{activity.product.itemCode}}",
+        "address": "{{input.district}}-{{input.address}}",
+        "lx_phoneNo": "{{input.contactPhone}}",
+        "lx_name": "{{input.ownerName}}",
+        "pre_date": "{{input.appointmentDate}}",
+        "pre_date_quantum": "{{input.appointmentSlot}}"
+      }
+    }
+  }
+}

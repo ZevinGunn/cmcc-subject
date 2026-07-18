@@ -2,6 +2,10 @@
   <main class="business-page">
     <section class="business-hero">
       <div class="hero-actions">
+        <button type="button" @click="$emit('open-activities')">
+          <TicketCheck :size="16" />
+          活动办理
+        </button>
         <button type="button" @click="showAccountPanel = true">切换账号</button>
         <button type="button" @click="clearCache">清缓存</button>
       </div>
@@ -119,7 +123,7 @@
 </template>
 
 <script setup>
-import { CalendarDays, Search } from 'lucide-vue-next'
+import { CalendarDays, Search, TicketCheck } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import BusinessDetailDrawer from '../components/BusinessDetailDrawer.vue'
 import BusinessItem from '../components/BusinessItem.vue'
@@ -136,7 +140,7 @@ import {
   switchAccount,
 } from '../stores/session'
 
-const emit = defineEmits(['logout', 'login-new'])
+const emit = defineEmits(['logout', 'login-new', 'open-activities'])
 
 const activeTab = ref(sessionState.activeTab || 'valueAdded')
 const categories = ref(sessionState.businessCache?.categories || { base: [], package: [], valueAdded: [] })

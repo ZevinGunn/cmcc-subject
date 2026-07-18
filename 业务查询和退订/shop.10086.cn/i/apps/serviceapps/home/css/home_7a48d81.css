@@ -1,0 +1,125 @@
+.stc-base-display-inline {
+  zoom: 1;
+  display: inline-block;
+  vertical-align: top;
+}
+.stc-content-public {
+  height: 30px;
+  line-height: 30px;
+  padding-left: 1px;
+  color: #fff;
+}
+.stc-common-inline {
+  zoom: 1;
+  display: inline-block;
+  *display: inline;
+}
+.stc-notice-list-data {
+  width: 395px;
+}
+.stc-notice-derection {
+  margin-left: 600px;
+  cursor: pointer;
+}
+.stc-content-public-background {
+  position: relative;
+  width: 1000px;
+  margin: 0 auto;
+  margin-bottom: 7px;
+  height: 31px;
+  line-height: 30px;
+  background-image: url(../images/icon/1000-31.png);
+}
+#fav-pro .arrowl,
+#love-pro .arrowl {
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  background: url(/i/nresource/image/fav-arrowl.png) no-repeat;
+  font-size: 20px;
+  position: absolute;
+  color: #ccc;
+  left: -211px;
+  top: -144px;
+}
+#fav-pro .arrowr,
+#love-pro .arrowr {
+  width: 30px;
+  height: 30px;
+  background: url(/i/nresource/image/fav-arrowr.png) no-repeat;
+  cursor: pointer;
+  font-size: 20px;
+  color: #ccc;
+  position: absolute;
+  right: -276px;
+  top: -144px;
+}
+.ued-viwe-big li {
+  padding-left: 18px;
+  width: 426px;
+  overflow: hidden;
+}
+.ued-viwe-big li a {
+  width: 136px;
+  position: relative;
+  border: 2px solid #fff;
+  padding-top: 6px;
+}
+.ued-viwe-big li a p {
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ued-gbox ul li p.offstore {
+  width: 91px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 12px;
+  background: #666;
+  color: #fff;
+  position: absolute;
+  left: 22px;
+  top: 95px;
+}
+.ued-gbox ul li p.offstore:hover {
+  color: #fff;
+}
+.guess-love {
+  width: 100000%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.guess-love li {
+  padding-left: 0;
+  margin: 0 15px 0 22px;
+  width: 436px;
+  overflow: hidden;
+  float: left;
+  padding-top: 15px;
+}
+.guess-love li a {
+  width: 130px;
+  position: relative;
+  margin: 0 5px;
+  border: 2px solid #fff;
+  padding: 10px 0;
+}
+.guess-love li a:hover {
+  border-color: #ed2688;
+  text-decoration: none;
+}
+.guess-love li a p {
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.guess-love li a p.bd {
+  border-top: 1px solid #d5d5d5;
+}
