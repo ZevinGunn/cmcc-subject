@@ -28,7 +28,7 @@
             "port": 3010
           },
           "frontend": {
-            "cwd": "bj-cmcc-qy",
+            "cwd": "bj-cmcc-qy/frontend",
             "dist": "bj-cmcc-qy/frontend/dist",
             "build": ["npm", "run", "build"]
           },
@@ -76,7 +76,7 @@
             "port": 7607
           },
           "frontend": {
-            "cwd": "qqt",
+            "cwd": "qqt/frontend",
             "dist": "qqt/frontend/dist",
             "build": ["npm", "run", "build"]
           },
@@ -91,7 +91,7 @@
             "port": 8788
           },
           "frontend": {
-            "cwd": "bj-mobile-business-local",
+            "cwd": "bj-mobile-business-local/frontend",
             "dist": "bj-mobile-business-local/frontend/dist",
             "build": ["npm", "run", "build"]
           },
@@ -106,7 +106,7 @@
             "port": 8790
           },
           "frontend": {
-            "cwd": "bjcmcc-route-hub",
+            "cwd": "bjcmcc-route-hub/frontend",
             "dist": "bjcmcc-route-hub/frontend/dist",
             "build": ["npm", "run", "build"]
           },

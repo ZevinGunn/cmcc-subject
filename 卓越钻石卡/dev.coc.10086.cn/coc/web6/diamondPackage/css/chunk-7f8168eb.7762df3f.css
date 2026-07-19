@@ -1,0 +1,50 @@
+.content[data-v-84073baa] {
+  height: 100vh;
+  background-color: #fff;
+  box-sizing: border-box;
+  position: relative;
+}
+.content .bg[data-v-84073baa] {
+  width: 100%;
+}
+.failMes h2[data-v-84073baa] {
+  font-size: 0.3rem;
+  line-height: 0.44rem;
+  position: absolute;
+  top: 5.2rem;
+  text-align: center;
+  width: 100%;
+  color: #666;
+}
+.failMes .failMes-container[data-v-84073baa] {
+  width: 6.5rem;
+  position: absolute;
+  top: 5.7rem;
+  left: 50%;
+  text-align: center;
+  transform: translateX(-50%);
+}
+.failMes p[data-v-84073baa] {
+  font-size: 0.3rem;
+  color: #666;
+  line-height: 0.55rem;
+}
+.failMes .button-pay[data-v-84073baa] {
+  width: 7rem;
+  margin: 0.3rem auto 0;
+  display: block;
+}
+.failBtn[data-v-84073baa] {
+  width: 6.8rem;
+  height: 0.8rem;
+  margin-top: 0.4rem;
+  left: 50%;
+}
+.failBtn .icon-title[data-v-84073baa] {
+  width: 5.11rem;
+  margin: 0.6rem auto 0.3rem;
+}
+.failBtn .banner-ad[data-v-84073baa] {
+  width: 7.02rem;
+  margin: 0 auto;
+}

@@ -2,13 +2,12 @@
 // 使用：cd ~/CMCC-PROJECT && pm2 start ecosystem.config.cjs && pm2 save
 // 把 /Users/ZevinGunn 改成真实家目录
 
-module.exports = {
-  apps: [
+const apps = [
     {
       name: "cookie-app",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app",
-      script: "npx",
-      args: "tsx api/server.ts",
+      script: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app/node_modules/tsx/dist/cli.mjs",
+      args: "api/server.ts",
       env: { NODE_ENV: "production", PORT: "3101" },
       max_memory_restart: "1G",
     },
@@ -42,7 +41,7 @@ module.exports = {
       script: "venv/bin/python",
       args: "-m uvicorn backend.app:app --host 127.0.0.1 --port 8899",
       interpreter: "none",
-      env: { NODE_ENV: "production", PORT: "8899" },
+      env: { NODE_ENV: "production", PORT: "8899", QQT_HOST: "127.0.0.1", QQT_PORT: "8899" },
     },
     {
       name: "bmcc-backend",
@@ -92,5 +91,9 @@ module.exports = {
         PATH: "/Users/ZevinGunn/.nvm/versions/node/v18.20.8/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
       },
     },
-  ],
+  ];
+
+module.exports = {
+  // Project Ops loads its own .env at process start; no app inherits manager credentials from PM2.
+  apps: apps.map((app) => ({ ...app, filter_env: ["MANAGER_"] })),
 };

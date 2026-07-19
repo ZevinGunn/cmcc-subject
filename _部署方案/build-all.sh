@@ -1,73 +1,48 @@
 #!/usr/bin/env bash
-# 一键安装依赖 + 构建六个项目的前端
-# 在 ~/CMCC-PROJECT 下：bash _部署方案/build-all.sh
-# 选项：
-#   FRESH=1            清掉 node_modules、venv、dist 后重新构建（强烈推荐换机器后用）
-#   SKIP_QQTLOCAL=1    跳过 python venv 步骤
+# 通过统一运维 CLI 隔离构建清单中的全部应用；不清理或直接覆写生产 dist。
 set -euo pipefail
+
+bad() { printf "  \033[1;31m✗\033[0m %s\n" "$*" >&2; }
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-echo "ROOT=$ROOT"
-FRESH="${FRESH:-0}"
+OPS_CLI="$ROOT/project-manager/ops-cli.js"
+NODE="${NODE_BIN:-$(command -v node || true)}"
+PM2="${PM2_BIN:-$HOME/.nvm/versions/node/v18.20.8/bin/pm2}"
+[ -x "$PM2" ] || PM2="$(command -v pm2 || true)"
 
-log() { printf "\n\033[1;36m==> %s\033[0m\n" "$*"; }
-err() { printf "\033[1;31m!! %s\033[0m\n" "$*" >&2; }
+usage() {
+  cat <<'EOF'
+用法：bash _部署方案/build-all.sh
 
-# ---------- 1. cookie-app（home）----------
-log "1) cookie-app (home)"
-cd "$ROOT/免登录进入全球通/cookie-app"
-[ -f .env ]            || ([ -f .env.development.example ] && cp .env.development.example .env || true)
-[ -f .env.production ] || cp .env.production.example .env.production
-if [ "$FRESH" = "1" ]; then rm -rf node_modules dist; fi
-npm install --no-audit --no-fund
-# Prisma client（依 schema.prisma 的 binaryTargets，跨平台都能用）
-npx prisma generate
-npm run build
+按 services.json 的能力白名单逐项执行隔离构建与测试。
+候选产物只做校验，不清理、不替换线上 dist，也不重启任何服务。
+EOF
+}
 
-# ---------- 2. bj-cmcc-qy（rights）----------
-log "2) bj-cmcc-qy (rights)"
-cd "$ROOT/bj-cmcc-qy"
-[ -f .env ] || cp .env.example .env
-if [ "$FRESH" = "1" ]; then rm -rf node_modules frontend/node_modules backend/node_modules frontend/dist; fi
-npm run install:all
-npm run build
-
-# ---------- 3. 好礼多多本地版查询（arpu）----------
-log "3) arpu 无构建步骤（纯 HTML + node 内置模块）"
-
-# ---------- 4. qqtlocal-rights ----------
-if [ "${SKIP_QQTLOCAL:-0}" != "1" ]; then
-  log "4) qqtlocal-rights (qqtlocal)"
-  cd "$ROOT/qqtlocal-rights"
-  if [ "$FRESH" = "1" ]; then rm -rf venv go-worker/worker; fi
-  [ -d venv ] || python3 -m venv venv
-  ./venv/bin/pip install -q --upgrade pip
-  ./venv/bin/pip install -q -r backend/requirements.txt aiohttp
-  if command -v go >/dev/null 2>&1; then
-    [ -f go-worker/worker ] || (cd go-worker && go build -o worker main.go) || err "go-worker build failed"
-  else
-    err "go 未安装，跳过 go-worker 编译；可只用 Python 执行器"
-  fi
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  usage
+  exit 0
+fi
+if [ "$#" -ne 0 ]; then
+  bad "build-all 不接受参数"
+  usage >&2
+  exit 2
+fi
+if [ -z "$NODE" ] || [ ! -x "$NODE" ]; then
+  bad "找不到 node；请设置 NODE_BIN 或安装 Node.js"
+  exit 1
+fi
+if [ -z "$PM2" ] || [ ! -x "$PM2" ]; then
+  bad "找不到 pm2；请设置 PM2_BIN 或安装 PM2"
+  exit 1
+fi
+if [ ! -f "$OPS_CLI" ]; then
+  bad "统一运维 CLI 不存在：$OPS_CLI"
+  exit 1
 fi
 
-# ---------- 5. cmcc-notice（notic）----------
-log "5) cmcc-notice (notic)"
-cd "$ROOT/cmcc-notice"
-if [ "$FRESH" = "1" ]; then rm -rf node_modules; fi
-npm install --no-audit --no-fund
+export NODE_BIN="$NODE"
+export PM2_BIN="$PM2"
+export PATH="$(dirname "$NODE"):$(dirname "$PM2"):/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-# ---------- 6. qqt（qqt 公共版）----------
-log "6) qqt"
-cd "$ROOT/qqt"
-if [ "$FRESH" = "1" ]; then rm -rf node_modules frontend/node_modules backend/node_modules frontend/dist; fi
-npm install --no-audit --no-fund
-npm run build
-
-# ---------- 7. 北京移动业务快捷入口（bjcmcc）----------
-log "7) bjcmcc-route-hub"
-cd "$ROOT/bjcmcc-route-hub"
-if [ "$FRESH" = "1" ]; then rm -rf node_modules backend/node_modules frontend/node_modules frontend/dist; fi
-npm run install:all
-npm test
-npm run build
-
-log "ALL DONE"
+exec "$NODE" "$OPS_CLI" build-all

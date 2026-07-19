@@ -98,6 +98,7 @@ function shellView() {
           <h1>项目运行工作台</h1>
         </div>
         <div class="top-actions">
+          <button class="secondary" data-action="v2">V2 工作台</button>
           <button class="secondary" data-action="refresh">刷新</button>
           <button class="secondary" data-action="start-all">一键启动服务</button>
           <button class="secondary" data-action="restart-all">一键重启服务</button>
@@ -336,10 +337,24 @@ document.addEventListener("click", async (event) => {
     return;
   }
   if (project && action === "logs") return showProjectLogs(project);
-  if (project) return runAction(`/api/projects/${project}/${action}`, `${project} ${action}`);
+  if (project) {
+    const target = state.data?.projects?.find((item) => item.id === project);
+    const targetName = target?.name || project;
+    const confirmations = {
+      "backend-stop": `确认停止“${targetName}”？服务将停止响应，需再次启动才能恢复。`,
+      "backend-restart": `确认重启“${targetName}”？现有连接可能短暂中断。`,
+      "frontend-update": `确认部署“${targetName}”当前本地代码？将构建、切换产物、重启并执行公网后检。`,
+    };
+    if (confirmations[action] && !confirm(confirmations[action])) return null;
+    return runAction(`/api/projects/${project}/${action}`, `${project} ${action}`);
+  }
   if (action === "refresh") return refresh();
+  if (action === "v2") {
+    location.href = "/v2";
+    return null;
+  }
   if (action === "start-all") return runAction("/api/actions/start-all", "一键启动服务");
-  if (action === "restart-all" && confirm("确认一键重启服务？将先停止业务服务，再重新打包前端并启动。")) {
+  if (action === "restart-all" && confirm("确认一键重启业务服务？不会重新打包前端，也不会停止管理台、Nginx、Tunnel 或数据库。")) {
     return runAction("/api/actions/restart-all", "一键重启服务");
   }
   if (action === "stop-all" && confirm("确认一键停止服务？管理页面会继续运行。")) {

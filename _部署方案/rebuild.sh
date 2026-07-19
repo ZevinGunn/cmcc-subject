@@ -1,109 +1,62 @@
 #!/usr/bin/env bash
-# 重新构建并重启某个项目
-# 用法：bash rebuild.sh <项目名>
-#   home / rights / arpu / qqtlocal / notice / qqt / bmcc / bjcmcc
-#   或 all 全部重构
-set +e
-sep() { printf "\n\033[1;36m===== %s =====\033[0m\n" "$*"; }
-ok()  { printf "  \033[1;32m✓\033[0m %s\n" "$*"; }
-bad() { printf "  \033[1;31m✗\033[0m %s\n" "$*"; }
+# 通过统一运维 CLI 安全重建服务；构建、切换、后检与回滚均由 CLI 实现。
+set -euo pipefail
 
-PM2="$HOME/.nvm/versions/node/v18.20.8/bin/pm2"
-[ ! -x "$PM2" ] && PM2=$(npm config get prefix 2>/dev/null)/bin/pm2
+bad() { printf "  \033[1;31m✗\033[0m %s\n" "$*" >&2; }
 
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+OPS_CLI="$ROOT/project-manager/ops-cli.js"
+NODE="${NODE_BIN:-$(command -v node || true)}"
+PM2="${PM2_BIN:-$HOME/.nvm/versions/node/v18.20.8/bin/pm2}"
+[ -x "$PM2" ] || PM2="$(command -v pm2 || true)"
 TARGET="${1:-}"
-if [ -z "$TARGET" ]; then
-  cat <<EOF
-用法：bash rebuild.sh <name>
 
-可选 name：
-  home       - 重构 cookie-app（vite build + pm2 restart）
-  rights     - 重构 bj-cmcc-qy（vite build + pm2 restart）
-  qqt        - 重构 qqt（vite build + pm2 restart）
-  bmcc       - 重构北京移动业务查询退订（vite build + pm2 restart）
-  bjcmcc     - 重构北京移动业务快捷入口（测试 + vite build + pm2 restart）
-  arpu       - 只重启 arpu-proxy（无构建步骤）
-  qqtlocal   - 只重启 qqtlocal（无构建步骤）
-  notice     - 只重启 cmcc-notice（无构建步骤）
-  all        - 全部重新构建 + 重启
+usage() {
+  cat <<'EOF'
+用法：bash _部署方案/rebuild.sh <name>
+
+常用 name：
+  home       cookie-app
+  rights     北京移动权益
+  qqt        QQT 公共版
+  bmcc       北京移动业务查询退订
+  bjcmcc     北京移动业务快捷入口
+  arpu       好礼多多 ARPU
+  qqtlocal   QQT 本地极速抢购
+  notice     公告查询
+  wangka     王卡会员便捷订购
+  yunpan     云盘登录工作台
+  project    Project Ops 管理台
+  all        清单允许自动操作的全部业务应用（不重建管理台）
+
+服务白名单、测试、隔离构建、受保护切换、后检和失败回滚均由
+project-manager/ops-cli.js 根据 services.json 统一执行。
 EOF
+}
+
+if [ "$TARGET" = "-h" ] || [ "$TARGET" = "--help" ]; then
+  usage
   exit 0
 fi
+if [ "$#" -ne 1 ] || [ -z "$TARGET" ]; then
+  usage >&2
+  exit 2
+fi
+if [ -z "$NODE" ] || [ ! -x "$NODE" ]; then
+  bad "找不到 node；请设置 NODE_BIN 或安装 Node.js"
+  exit 1
+fi
+if [ -z "$PM2" ] || [ ! -x "$PM2" ]; then
+  bad "找不到 pm2；请设置 PM2_BIN 或安装 PM2"
+  exit 1
+fi
+if [ ! -f "$OPS_CLI" ]; then
+  bad "统一运维 CLI 不存在：$OPS_CLI"
+  exit 1
+fi
 
-rebuild_home() {
-  sep "重构 cookie-app (home)"
-  cd "$HOME/CMCC-PROJECT/免登录进入全球通/cookie-app" || return 1
-  npm run build && ok "前端已构建"
-  "$PM2" restart cookie-app --update-env
-  ok "cookie-app 已重启"
-}
+export NODE_BIN="$NODE"
+export PM2_BIN="$PM2"
+export PATH="$(dirname "$NODE"):$(dirname "$PM2"):/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-rebuild_rights() {
-  sep "重构 bj-cmcc-qy (rights)"
-  cd "$HOME/CMCC-PROJECT/bj-cmcc-qy" || return 1
-  npm run build && ok "前端已构建"
-  "$PM2" restart rights-backend --update-env
-  ok "rights-backend 已重启"
-}
-
-rebuild_qqt() {
-  sep "重构 qqt"
-  cd "$HOME/CMCC-PROJECT/qqt" || return 1
-  npm run build && ok "前端已构建"
-  "$PM2" restart qqt-backend --update-env
-  ok "qqt-backend 已重启"
-}
-
-rebuild_bmcc() {
-  sep "重构北京移动业务查询退订 (bmcc)"
-  cd "$HOME/CMCC-PROJECT/bj-mobile-business-local" || return 1
-  npm run build && ok "前端已构建"
-  "$PM2" restart bmcc-backend --update-env
-  ok "bmcc-backend 已重启"
-}
-
-rebuild_bjcmcc() {
-  sep "重构北京移动业务快捷入口 (bjcmcc)"
-  cd "$HOME/CMCC-PROJECT/bjcmcc-route-hub" || return 1
-  npm test && npm run build && ok "测试与前端构建已完成"
-  "$PM2" restart bjcmcc-route-hub --update-env
-  ok "bjcmcc-route-hub 已重启"
-}
-
-restart_arpu() {
-  sep "重启 arpu-proxy"
-  "$PM2" restart arpu-proxy --update-env
-}
-restart_qqtlocal() {
-  sep "重启 qqtlocal"
-  "$PM2" restart qqtlocal --update-env
-}
-restart_notice() {
-  sep "重启 cmcc-notice"
-  "$PM2" restart cmcc-notice --update-env
-}
-
-case "$TARGET" in
-  home) rebuild_home ;;
-  rights) rebuild_rights ;;
-  qqt) rebuild_qqt ;;
-  bmcc) rebuild_bmcc ;;
-  bjcmcc) rebuild_bjcmcc ;;
-  arpu) restart_arpu ;;
-  qqtlocal) restart_qqtlocal ;;
-  notice) restart_notice ;;
-  all)
-    rebuild_home
-    rebuild_rights
-    rebuild_qqt
-    rebuild_bmcc
-    rebuild_bjcmcc
-    restart_arpu
-    restart_qqtlocal
-    restart_notice
-    ;;
-  *) bad "未知项目：$TARGET"; exit 1 ;;
-esac
-
-sep "完成。当前状态："
-"$PM2" status
+exec "$NODE" "$OPS_CLI" rebuild "$TARGET"

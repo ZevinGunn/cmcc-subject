@@ -1,0 +1,19 @@
+{
+  "code": "0",
+  "messageInternal": null,
+  "message": "成功",
+  "data": {
+    "cocEnContent": null,
+    "isCmcc": "0",
+    "bizCode": "1",
+    "bizDesc": "成功",
+    "isLocal": null,
+    "cityId": "351",
+    "cityName": "山西",
+    "areaCode": "358",
+    "areaName": "吕梁",
+    "numberNet": null
+  },
+  "cocEnContent": null,
+  "success": true
+}
