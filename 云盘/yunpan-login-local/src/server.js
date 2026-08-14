@@ -12,6 +12,8 @@ import {
   querySpecToken,
   sendSmsCode
 } from './yunpanClient.js';
+import { getLogLocation, logEvent, summarizeResponse, withLogContext } from './diagnosticLogger.js';
+import { buildGlobalTelecomJump } from './globalTelecom.js';
 import { clearSession, loadSession, patchSession, sessionSummary } from './sessionStore.js';
 import { maskSecret } from './cryptoBox.js';
 
@@ -19,6 +21,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.resolve(__dirname, '..', 'public');
 const PORT = Number(process.env.PORT || 7399);
 const HOST = process.env.HOST || '127.0.0.1';
+const responseSummaryKey = Symbol('responseSummary');
+const requestIdKey = Symbol('requestId');
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -28,24 +32,58 @@ const mimeTypes = {
   '.svg': 'image/svg+xml; charset=utf-8'
 };
 
-const server = http.createServer(async (req, res) => {
-  try {
-    if (req.url.startsWith('/api/')) {
-      await handleApi(req, res);
-      return;
+const server = http.createServer((req, res) => {
+  const requestId = crypto.randomUUID();
+  const startedAt = Date.now();
+  const requestUrl = req.url || '/';
+  const isApi = requestUrl.startsWith('/api/');
+  res[requestIdKey] = requestId;
+  res.setHeader('X-Request-Id', requestId);
+
+  void withLogContext({ requestId }, async () => {
+    if (isApi) {
+      await logEvent('info', 'api.request.start', {
+        method: req.method,
+        url: requestUrl
+      });
     }
-    await serveStatic(req, res);
-  } catch (error) {
-    sendJson(res, 500, {
-      success: false,
-      message: error.message || '服务异常',
-      stack: process.env.NODE_ENV === 'production' ? undefined : error.stack
-    });
-  }
+    try {
+      if (isApi) {
+        await handleApi(req, res);
+        return;
+      }
+      await serveStatic(req, res);
+    } catch (error) {
+      if (isApi) {
+        await logEvent('error', 'api.request.error', {
+          method: req.method,
+          url: requestUrl,
+          error: error.message
+        });
+      }
+      sendJson(res, 500, {
+        success: false,
+        message: error.message || '服务异常',
+        stack: process.env.NODE_ENV === 'production' ? undefined : error.stack
+      });
+    } finally {
+      if (isApi) {
+        await logEvent(res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info', 'api.request.complete', {
+          method: req.method,
+          url: requestUrl,
+          httpStatus: res.statusCode,
+          durationMs: Date.now() - startedAt,
+          response: res[responseSummaryKey]
+        });
+      }
+    }
+  });
 });
 
 server.listen(PORT, HOST, () => {
   console.log(`Yunpan login local running at http://${HOST}:${PORT}`);
+  console.log(`Diagnostic logs: ${getLogLocation()}`);
+  void logEvent('info', 'server.started', { host: HOST, port: PORT, logDirectory: getLogLocation() });
 });
 
 async function handleApi(req, res) {
@@ -130,14 +168,52 @@ async function handleApi(req, res) {
     sendJson(res, 200, await collectWxCookie(body));
     return;
   }
+  if (req.method === 'POST' && pathname === '/api/tools/global-jump') {
+    const body = await readJson(req);
+    const mode = body.mode === 'v2' ? 'v2' : 'v1';
+    const tokenResult = await querySpecToken({
+      toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
+      mode
+    });
+    if (!tokenResult.success || !tokenResult.ssoToken) {
+      sendJson(res, 200, {
+        success: false,
+        message: tokenResult.response?.message || '获取全球通临时票据失败',
+        response: tokenResult.response
+      });
+      return;
+    }
+    const result = await buildGlobalTelecomJump({
+      ssoToken: tokenResult.ssoToken,
+      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID
+    });
+    if (result.success) {
+      await patchSession({
+        lastGlobalTelecomUrl: result.url,
+        lastGlobalTelecomAt: new Date().toISOString()
+      });
+    }
+    sendJson(res, 200, result);
+    return;
+  }
   sendJson(res, 404, { success: false, message: 'API 不存在' });
 }
 
 async function buildDefaultJumpUrl({ mode = 'v1' } = {}) {
   const tokenResult = await querySpecToken({ toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID, mode });
   const session = await loadSession();
+  if (!tokenResult.success || !tokenResult.ssoToken) {
+    return {
+      success: false,
+      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
+      template: DEFAULT_FLOW_SHOP_URL,
+      url: '',
+      token: '',
+      response: tokenResult.response
+    };
+  }
   const url = buildSsoUrl(DEFAULT_FLOW_SHOP_URL, {
-    ssoToken: tokenResult.ssoToken || session.lastSsoToken,
+    ssoToken: tokenResult.ssoToken,
     account: session.completeAccount,
     appendAccount: false
   });
@@ -166,7 +242,7 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     throw new Error('只允许获取 10086.cn 域名的 Cookie');
   }
 
-  const cookieJar = new Map();
+  const cookieJar = new Map(Object.entries(makeWxCookieSeed(targetUrl)));
   const visited = [];
   let currentUrl = targetUrl;
   let status = 0;
@@ -182,6 +258,7 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     if (cookieHeader) headers.Cookie = cookieHeader;
     if (visited.length > 0) headers.Referer = visited[visited.length - 1].url;
 
+    const redirectStartedAt = Date.now();
     const response = await fetch(currentUrl, {
       method: 'GET',
       redirect: 'manual',
@@ -193,15 +270,24 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
       const cookie = parseSetCookie(line);
       if (cookie) cookieJar.set(cookie.name, cookie.value);
     }
+    const location = response.headers.get('location') || '';
+    await logEvent(response.ok || (status >= 300 && status < 400) ? 'info' : 'warn', 'wx.redirect.response', {
+      step: index,
+      method: 'GET',
+      url: currentUrl,
+      httpStatus: status,
+      durationMs: Date.now() - redirectStartedAt,
+      setCookieNames: setCookies.map((line) => parseSetCookie(line)?.name).filter(Boolean),
+      location
+    });
 
     visited.push({
       url: currentUrl,
       status,
       setCookieCount: setCookies.length,
-      location: response.headers.get('location') || ''
+      location
     });
 
-    const location = response.headers.get('location');
     if (!location || status < 300 || status >= 400) break;
     const nextUrl = new URL(location, currentUrl);
     if (!is10086Host(nextUrl.hostname)) break;
@@ -221,8 +307,8 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     lastWxAuthToken: userAuth?.token || session.lastWxAuthToken || ''
   });
 
-  return {
-    success: Boolean(cookie),
+  const output = {
+    success: Boolean(userAuth?.success && userAuth.token && cookieJar.get('shareToken')),
     url: targetUrl,
     cookie,
     cookiePreview: maskCookie(cookie),
@@ -230,6 +316,58 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     authToken: userAuth?.token ? maskSecret(userAuth.token) : '',
     auth: userAuth,
     visited
+  };
+  await logEvent(output.success ? 'info' : 'warn', 'wx.cookie.complete', {
+    success: output.success,
+    redirectCount: visited.length,
+    finalHttpStatus: status,
+    cookieNames: Array.from(cookieJar.keys()),
+    hasShareToken: Boolean(cookieJar.get('shareToken')),
+    hasBusinessToken: Boolean(userAuth?.token)
+  });
+  return output;
+}
+
+function makeWxCookieSeed(targetUrl) {
+  const clientId = crypto.randomUUID();
+  const compactId = crypto.randomUUID().replace(/-/g, '');
+  const gdpUserId = `gioenc-${compactId.slice(0, 8)}%2C${compactId.slice(8, 16)}`;
+  const sessionId = crypto.randomUUID();
+  const now = Date.now();
+  let lastUrl = '/website/spa/main/newHome';
+  try {
+    const url = new URL(targetUrl);
+    lastUrl = encodeURIComponent(`${url.pathname}${url.search}`);
+  } catch {
+    // Keep the stable 10086 landing page when the target URL is malformed.
+  }
+  const sensors = encodeURIComponent(
+    JSON.stringify({
+      distinct_id: clientId,
+      first_id: '',
+      props: {},
+      identities: { $identity_cookie_id: clientId },
+      history_login_id: { name: '', value: '' },
+      $device_id: clientId
+    })
+  );
+  return {
+    _zw_kvani5r: crypto.randomBytes(36).toString('hex'),
+    clientId,
+    gdp_user_id: gdpUserId,
+    CmLocation: '100|100',
+    CmProvid: 'bj',
+    '9e4e5fa7244c6b6e_gdp_user_key': '',
+    verifyCode: crypto.randomBytes(20).toString('hex'),
+    WT_FPC: `id=${compactId}:lv=${now}:ss=${now}`,
+    '9e4e5fa7244c6b6e_gdp_cs1': gdpUserId,
+    '9e4e5fa7244c6b6e_gdp_gio_id': gdpUserId,
+    '9e4e5fa7244c6b6e_gdp_session_id_sent': sessionId,
+    '9e4e5fa7244c6b6e_gdp_sequence_ids': encodeURIComponent(
+      JSON.stringify({ globalKey: 1, VISIT: 1, PAGE: 1 })
+    ),
+    sensorsdata2015jssdkcross: sensors,
+    lastUrl
   };
 }
 
@@ -259,6 +397,7 @@ async function requestWxUserAuth(targetUrl, cookieJar) {
   const cookieHeader = serializeCookieJar(cookieJar);
   if (cookieHeader) headers.Cookie = cookieHeader;
 
+  const startedAt = Date.now();
   const response = await fetch('https://wx.10086.cn/website/nrapigate/nrauth/auth/encryt/userAuth', {
     method: 'POST',
     redirect: 'manual',
@@ -273,8 +412,8 @@ async function requestWxUserAuth(targetUrl, cookieJar) {
   const rawText = await response.text();
   const parsed = safeJson(rawText);
   const decrypted = decryptWxResponse(parsed);
-  return {
-    success: response.ok,
+  const output = {
+    success: Boolean(response.ok && decrypted?.data?.token && cookieJar.get('shareToken')),
     status: response.status,
     url: 'https://wx.10086.cn/website/nrapigate/nrauth/auth/encryt/userAuth',
     plainPayload: bodyPlain,
@@ -283,6 +422,20 @@ async function requestWxUserAuth(targetUrl, cookieJar) {
     token: decrypted?.data?.token || '',
     response: decrypted || parsed || rawText || ''
   };
+  await logEvent(output.success ? 'info' : 'warn', 'wx.user-auth.complete', {
+    method: 'POST',
+    url: output.url,
+    httpStatus: output.status,
+    durationMs: Date.now() - startedAt,
+    requestBytes: Buffer.byteLength(encryptedBody),
+    responseBytes: Buffer.byteLength(rawText),
+    setCookieNames: setCookies.map((line) => parseSetCookie(line)?.name).filter(Boolean),
+    hasShareToken: Boolean(cookieJar.get('shareToken')),
+    hasBusinessToken: Boolean(decrypted?.data?.token),
+    success: output.success,
+    response: summarizeResponse(decrypted || parsed)
+  });
+  return output;
 }
 
 function wxAesEncryptHex(plainText) {
@@ -401,8 +554,13 @@ async function readJson(req) {
 }
 
 function sendJson(res, status, payload) {
+  const responsePayload =
+    payload && typeof payload === 'object' && !Array.isArray(payload)
+      ? { ...payload, requestId: payload.requestId || res[requestIdKey] }
+      : payload;
+  res[responseSummaryKey] = summarizeResponse(responsePayload);
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
-  res.end(JSON.stringify(payload, null, 2));
+  res.end(JSON.stringify(responsePayload, null, 2));
 }
 
 function sendText(res, status, text) {

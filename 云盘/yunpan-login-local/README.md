@@ -1,6 +1,6 @@
 # 云盘登录本地工作台
 
-本项目封装中国移动云盘 H5 登录链路：获取 RSA 公钥、发送短信验证码、短信登录保存 `authToken/token/Authorization`、获取 `ssoToken`、生成带认证参数的跳转 URL。
+本项目按中国移动云盘 Web `7.17.10` 封装登录链路：获取 RSA 公钥、发送短信验证码、短信登录保存 `authToken/token/Authorization`、获取 `ssoToken`、生成带认证参数的跳转 URL。
 
 ## 启动
 
@@ -17,13 +17,14 @@ http://localhost:7399
 
 ## 推荐流程
 
-1. 输入手机号。通常可直接点“发送验证码”，系统会自动准备 RSA 公钥和 AESKey。
+1. 输入手机号并发送验证码。短信请求使用用户域固定 AES-CBC，不复用登录 AESKey。
 2. 如果短信接口提示需要人机验证，点击“打开官方滑块验证”，完成后页面会自动填入 `puzzleToken`。
 3. 再次点击“发送验证码”，等待云盘短信验证码。
-4. 输入短信验证码，点击“登录并保存 Token”。
-5. 登录成功后系统会尝试自动获取 `toSourceId=017018` 的 `ssoToken`，并生成 10086 flowShop 跳转链接。
+4. 输入短信验证码，点击“登录并保存 Token”。系统会在此时重新获取 RSA 公钥并生成本轮专用 AESKey/`mcloud-skey`。
+5. 登录成功后系统会尝试自动获取 `toSourceId=001003` 的 `ssoToken`，并生成 10086 flowShop 跳转链接。
 6. 如需手动刷新，点击“生成 10086 跳转”；如需其他业务地址，输入自定义跳转链接后点击“生成认证链接”。
 7. 点击“获取 wx.10086 CK”会访问生成的 10086 链接、跟随重定向并收集 `Set-Cookie`，页面支持复制完整 CK。
+8. 点击“生成全球通跳转”，系统使用 `toSourceId=001003` 获取新短票，直接生成 `targetSourceId=001191` 的全球通 SSO 链接。10086 链接和全球通链接分别保存、分别复制。
 
 “公钥”按钮保留为调试入口；正常使用时不需要手动点。
 
@@ -33,26 +34,44 @@ http://localhost:7399
 - `src/yunpanClient.js`：云盘远端接口封装。
 - `src/sessionStore.js`：本地会话持久化。
 - `src/server.js`：本地 API 和静态文件服务。
+- `src/diagnosticLogger.js`：请求链路日志、请求 ID 和统一脱敏。
+- `src/globalTelecom.js`：全球通绑定入口及安全跳转地址校验。
 - `public/`：前端工作台。
 - `data/session.json`：运行后生成的本地会话文件，包含 token，注意不要提交或外传。
+- `logs/yunpan-YYYY-MM-DD.jsonl`：按天生成的脱敏诊断日志，已被 Git 忽略。
 
-登录成功后，项目会把账号、`authToken`、加密 `token`、`Authorization`、最近一次 `ssoToken`、最近生成的跳转链接、最近一次 wx.10086 CK 写入 `data/session.json`。刷新页面或重启服务后，页面会自动读取该文件并恢复登录状态展示、手机号、上次生成的认证链接和 CK。
+登录成功后，项目会把账号、`authToken`、加密 `token`、`Authorization`、最近一次 `ssoToken`、10086/全球通跳转链接、最近一次 wx.10086 CK 写入 `data/session.json`。刷新页面或重启服务后会恢复这些缓存，但在没有本轮成功记录时明确显示“已缓存，待验证”，不会把旧缓存视为本轮登录成功。
 
 ## 注意
 
-短信接口和 `querySpecTokenV2` 使用用户域 AES-CBC 加密，登录接口使用 AES-ECB 加密业务体并通过 RSA 加密 AESKey。`authToken` 用于生成业务 `Authorization`，`ssoToken` 需要登录后通过 `querySpecToken` 或 `querySpecTokenV2` 获取。
+短信接口和 Web `querySpecTokenV2` 使用 7.17.10 用户域 AES-CBC 加密，登录接口使用 AES-ECB 加密业务体并通过 RSA 加密本轮 AESKey。登录内层字段为 `account/dycPwd/loginStyle/ifOpenAccount/verType/clientEnv/setCookie`，外层还包含 `encryptMsg/clientId/autoLogin/returnToken`。V1 请求体为 `account + toSourceId`；V2 请求体为 `phoneNumber + toSourceId`。登录和换 token 请求携带匹配当前加密材料的 `mcloud-skey`，短信和公钥请求不携带旧 `mcloud-skey`，V2 不再发送旧的 `mcloud-cool-skey`。`toSourceId` 不允许为空，10086 默认使用新版 HAR 已验证成功的 `001003`；如需联调其他目标系统，可通过 `FLOW_SHOP_SOURCE_ID` 覆盖。
+
+`querySpecTokenV2` 会优先使用登录响应 `routerInfo` 中 `modName=user` 的 HTTPS 地址；缺失或不可信时才回退到南京用户域。原生 App 抓包中只传 `toSourceId` 的 V2 是 App 注入认证上下文的另一套协议，本工作台不会模拟该模式。
 
 10086 CK 获取不是单纯访问 flowShop 链接。根据 `用户认证.har` 和 `10086ssoToken访问` 源码，浏览器流程是：
 
-1. 访问 `https://wx.10086.cn/website/businessPlatform/flowShop?...netToken=<ssoToken>&targetSourceId=017018`，拿到页面初始化 cookie。
-2. 前端调用 `POST /website/nrapigate/nrauth/auth/encryt/userAuth`，请求明文为 `{ "backUrl": "/website/businessPlatform/flowShop?...netToken=...&targetSourceId=017018" }`。
+1. 访问 `https://wx.10086.cn/website/businessPlatform/flowShop?...netToken=<ssoToken>&targetSourceId=001003`，拿到页面初始化 cookie。
+2. 前端调用 `POST /website/nrapigate/nrauth/auth/encryt/userAuth`，请求明文为 `{ "backUrl": "/website/businessPlatform/flowShop?...netToken=...&targetSourceId=001003" }`。
 3. `userAuth` 请求体使用 10086 前端固定 AES-CBC/PKCS7 加密，Key 为 `1234123412ABCDEF`，IV 为 `ABCDEF1234123412`，输出大写 hex。
 4. `userAuth` 响应通过 `Set-Cookie` 下发 `shareToken`，这是完整 CK 的关键增量。后续页面接口还会使用响应体中的 10086 `token` 作为 `Authorization`。
 
 本地“获取 wx.10086 CK”会按这个顺序执行：先访问页面链接收集初始 cookie，再调用 `userAuth` 合并 `shareToken`，最后缓存完整 CK。
 
+全球通链接按新版 `mcloud.har` 的官方路径生成：云盘用 `001003` 换取短时 `ssoToken`，再传入 `https://qqt.cmicrwx.cn/2016tyjf/xhmqqthy/new/ssoTokenLogin.action`，目标来源为 `001191`。该链路与 10086 CK 获取并行，不再依赖 wx 绑定页的 Cookie 桥接；旧 Cookie 绑定实现仅保留为兼容能力。
+
+## 诊断日志
+
+每个本地 API 响应都包含 `requestId`，也会通过 `X-Request-Id` 响应头返回。可使用该值在当天的 `logs/yunpan-YYYY-MM-DD.jsonl` 中关联以下事件：
+
+- 本地 API 开始、完成和异常。
+- 云盘 HTTP 状态、耗时、请求/响应字节数和脱密后的业务码。
+- 10086 每次重定向状态、Cookie 名称、`userAuth` 结果。
+- 全球通绑定入口状态和安全跳转地址校验结果。
+
+日志不会记录手机号、短信验证码、Cookie 值、Authorization、token、AES/RSA 密钥、加密业务体或完整的含 token URL。可通过 `YUNPAN_LOG_DIR` 修改日志目录。
+
 短信验证码接口当前必须在加密业务体里携带 `random` 随机串；如果只发送 `{ account, reqType }`，服务端会返回 `01000001 随机字符串不能为空`。本项目会在发送短信时生成 16 位随机串并保存到本地 session，方便排查同一轮验证码请求。
 
-注意不要把短信接口的 `random` 带进登录接口。登录接口的加密业务体按成功抓包保持为 `account/dycPwd/loginStyle/ifOpenAccount/setCookie`；多传 `random` 这类短信阶段字段会触发 `1010010001 参数错误`。
+注意不要把短信接口的 `random` 带进登录接口。7.17.10 Web 登录的加密业务体必须包含 `verType: 2`、`clientEnv: "3"`，短信登录的 `ifOpenAccount` 为字符串 `"1"`；外层必须包含 `clientId: "10701"`。缺少这些字段、字段类型不符，或让 `mcloud-skey` 与 `encryptMsg` 使用不同轮次的 AESKey，都可能触发 `1010010001 参数错误`。
 
 滑块验证码不能绕过，也不建议做自动破解。前端接入的是官方 AliyunCaptcha 脚本，完成滑块后会拿到 `captchaVerifyParam` 并写入请求的 `puzzleToken` 字段，由云盘短信接口做最终校验。若网络环境拦截了 `o.alicdn.com`，页面会提示滑块脚本未加载，需要更换网络或放行该域名。

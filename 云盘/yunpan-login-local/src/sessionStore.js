@@ -15,6 +15,7 @@ const defaultSession = {
   aesKey: '',
   rsaPublicKey: '',
   secretKey: '',
+  cryptoPreparedAt: '',
   belongsPlatform: '',
   cutoverStatus: '',
   userDomainId: '',
@@ -23,6 +24,11 @@ const defaultSession = {
   routerInfo: [],
   cookieJar: {},
   lastSmsRandom: '',
+  lastLoginStatus: '',
+  lastLoginAttemptAt: '',
+  lastLoginSucceededAt: '',
+  lastLoginErrorCode: '',
+  lastLoginErrorMessage: '',
   lastSsoToken: '',
   lastSsoSourceId: '',
   lastBuiltUrl: '',
@@ -31,6 +37,8 @@ const defaultSession = {
   lastWxCookieUrl: '',
   lastWxCookieAt: '',
   lastWxAuthToken: '',
+  lastGlobalTelecomUrl: '',
+  lastGlobalTelecomAt: '',
   updatedAt: ''
 };
 
@@ -65,6 +73,9 @@ export async function clearSession() {
 }
 
 export function sessionSummary(session) {
+  const authState = !session.authorization
+    ? session.lastLoginStatus === 'failed' ? 'failed' : 'signed-out'
+    : session.lastLoginStatus === 'success' ? 'active' : 'cached';
   return {
     account: session.account,
     completeAccount: session.completeAccount,
@@ -73,6 +84,13 @@ export function sessionSummary(session) {
     hasAuthorization: Boolean(session.authorization),
     hasRsaPublicKey: Boolean(session.rsaPublicKey),
     hasAesKey: Boolean(session.aesKey),
+    cryptoPreparedAt: session.cryptoPreparedAt,
+    authState,
+    lastLoginStatus: session.lastLoginStatus,
+    lastLoginAttemptAt: session.lastLoginAttemptAt,
+    lastLoginSucceededAt: session.lastLoginSucceededAt,
+    lastLoginErrorCode: session.lastLoginErrorCode,
+    lastLoginErrorMessage: session.lastLoginErrorMessage,
     belongsPlatform: session.belongsPlatform,
     cutoverStatus: session.cutoverStatus,
     userDomainId: session.userDomainId,
@@ -87,6 +105,8 @@ export function sessionSummary(session) {
     lastWxCookieUrl: session.lastWxCookieUrl,
     lastWxCookieAt: session.lastWxCookieAt,
     hasLastWxAuthToken: Boolean(session.lastWxAuthToken),
+    lastGlobalTelecomUrl: session.lastGlobalTelecomUrl,
+    lastGlobalTelecomAt: session.lastGlobalTelecomAt,
     lastSmsRandom: session.lastSmsRandom ? '已生成' : '',
     updatedAt: session.updatedAt
   };

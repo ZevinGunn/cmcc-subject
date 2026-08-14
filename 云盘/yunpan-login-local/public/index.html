@@ -73,7 +73,7 @@
 
           <label class="field compact">
             <span>toSourceId</span>
-            <input id="sourceIdInput" value="017018" />
+            <input id="sourceIdInput" value="001003" />
           </label>
 
           <div class="segmented" role="group" aria-label="sso token mode">
@@ -88,13 +88,19 @@
 
           <label class="field">
             <span>跳转链接</span>
-            <textarea id="urlInput" rows="4">https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=017018</textarea>
+            <textarea id="urlInput" rows="4">https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=001003</textarea>
           </label>
 
-          <button id="defaultJumpBtn" class="action-button full accent">
-            <span class="button-icon">J</span>
-            生成 10086 跳转
-          </button>
+          <div class="button-row">
+            <button id="defaultJumpBtn" class="action-button accent">
+              <span class="button-icon">86</span>
+              生成 10086 跳转
+            </button>
+            <button id="globalJumpBtn" class="action-button accent">
+              <span class="button-icon">GT</span>
+              生成全球通跳转
+            </button>
+          </div>
 
           <button id="buildUrlBtn" class="action-button full secondary">
             <span class="button-icon">U</span>
@@ -150,12 +156,22 @@
             </article>
           </section>
 
-          <section class="panel url-panel">
-            <div class="panel-title">
-              <span>认证链接</span>
-              <button id="copyUrlBtn" class="icon-button" title="复制链接">C</button>
-            </div>
-            <input id="builtUrlOutput" readonly placeholder="生成后显示" />
+          <section class="link-output-grid" aria-label="跳转链接">
+            <article class="panel url-panel">
+              <div class="panel-title">
+                <span>10086 跳转链接</span>
+                <button id="copyUrlBtn" class="icon-button" title="复制 10086 跳转链接">C</button>
+              </div>
+              <input id="builtUrlOutput" readonly placeholder="生成后显示" />
+            </article>
+
+            <article class="panel url-panel">
+              <div class="panel-title">
+                <span>全球通跳转链接</span>
+                <button id="copyGlobalUrlBtn" class="icon-button" title="复制全球通跳转链接">C</button>
+              </div>
+              <input id="globalUrlOutput" readonly placeholder="生成后显示" />
+            </article>
           </section>
 
           <section class="panel url-panel">

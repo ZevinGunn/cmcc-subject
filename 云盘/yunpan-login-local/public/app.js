@@ -1,7 +1,8 @@
 const state = {
   mode: 'v1',
   lastResult: null,
-  builtUrl: ''
+  builtUrl: '',
+  globalUrl: ''
 };
 
 const $ = (id) => document.getElementById(id);
@@ -19,11 +20,13 @@ const els = {
   sessionList: $('sessionList'),
   sessionTime: $('sessionTime'),
   builtUrl: $('builtUrlOutput'),
+  globalUrl: $('globalUrlOutput'),
   wxCookie: $('wxCookieOutput')
 };
 
+const defaultSourceId = '001003';
 const defaultJumpTemplate =
-  'https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=017018';
+  `https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=${defaultSourceId}`;
 
 const stepMap = {
   key: document.querySelector('[data-step="key"]'),
@@ -45,11 +48,13 @@ $('smsBtn').addEventListener('click', sendSms);
 $('loginBtn').addEventListener('click', login);
 $('ssoBtn').addEventListener('click', getSsoToken);
 $('defaultJumpBtn').addEventListener('click', buildDefaultJump);
+$('globalJumpBtn').addEventListener('click', buildGlobalJump);
 $('buildUrlBtn').addEventListener('click', buildUrl);
 $('wxCookieBtn').addEventListener('click', getWxCookie);
 $('clearBtn').addEventListener('click', clearSession);
 $('copyResultBtn').addEventListener('click', () => copyText(JSON.stringify(state.lastResult || {}, null, 2)));
 $('copyUrlBtn').addEventListener('click', () => copyText(state.builtUrl || els.builtUrl.value));
+$('copyGlobalUrlBtn').addEventListener('click', () => copyText(state.globalUrl || els.globalUrl.value));
 $('copyWxCookieBtn').addEventListener('click', () => copyText(els.wxCookie.value));
 
 refreshSession();
@@ -125,8 +130,14 @@ async function login() {
 }
 
 async function getSsoToken() {
+  const toSourceId = els.sourceId.value.trim();
+  if (!toSourceId) {
+    setStatus('toSourceId 不能为空', 'err');
+    els.sourceId.focus();
+    return;
+  }
   await runStep('sso', '获取 ssoToken', '/api/auth/sso-token', {
-    toSourceId: els.sourceId.value.trim() || '001005',
+    toSourceId,
     mode: state.mode
   });
 }
@@ -161,10 +172,31 @@ async function buildDefaultJump() {
     setStatus(result.success ? '10086 跳转链接已生成' : '生成 10086 跳转失败', result.success ? 'ok' : 'err');
     await refreshSession(false);
   } catch (error) {
-    const payload = { success: false, message: error.message };
+    const payload = errorResult(error);
     state.lastResult = payload;
     renderResult(payload);
     setStatus('生成 10086 跳转失败', 'err');
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function buildGlobalJump() {
+  setBusy(true);
+  setStatus('生成全球通跳转中', 'warn');
+  try {
+    const result = await api('/api/tools/global-jump', { mode: state.mode });
+    state.globalUrl = result.url || '';
+    els.globalUrl.value = state.globalUrl;
+    state.lastResult = result;
+    renderResult(result);
+    setStatus(result.success ? '全球通跳转链接已生成' : '生成全球通跳转失败', result.success ? 'ok' : 'err');
+    await refreshSession(false);
+  } catch (error) {
+    const payload = errorResult(error);
+    state.lastResult = payload;
+    renderResult(payload);
+    setStatus('生成全球通跳转失败', 'err');
   } finally {
     setBusy(false);
   }
@@ -185,7 +217,7 @@ async function getWxCookie() {
     setStatus(result.success ? 'wx.10086 CK 已获取' : '未获取到 CK', result.success ? 'ok' : 'err');
     await refreshSession(false);
   } catch (error) {
-    const payload = { success: false, message: error.message };
+    const payload = errorResult(error);
     state.lastResult = payload;
     renderResult(payload);
     setStatus('获取 wx.10086 CK 失败', 'err');
@@ -200,6 +232,11 @@ async function clearSession() {
   renderResult(result);
   updateSession(result.session);
   setStatus('本地会话已清空', 'warn');
+  state.builtUrl = '';
+  state.globalUrl = '';
+  els.builtUrl.value = '';
+  els.globalUrl.value = '';
+  els.wxCookie.value = '';
   Object.values(stepMap).forEach((step) => step.classList.remove('done', 'active'));
 }
 
@@ -220,7 +257,7 @@ async function runStep(step, label, url, body) {
     stepMap[step].classList.toggle('done', Boolean(result.success));
     await refreshSession(false);
   } catch (error) {
-    const payload = { success: false, message: error.message };
+    const payload = errorResult(error);
     state.lastResult = payload;
     renderResult(payload);
     setStatus(`${label}失败`, 'err');
@@ -244,8 +281,22 @@ async function api(url, body) {
     body: JSON.stringify(body || {})
   });
   const result = await res.json();
-  if (!res.ok) throw new Error(result.message || `HTTP ${res.status}`);
+  const requestId = res.headers.get('x-request-id') || '';
+  if (requestId && result && typeof result === 'object') result.requestId = requestId;
+  if (!res.ok) {
+    const error = new Error(result.message || `HTTP ${res.status}`);
+    error.requestId = requestId;
+    throw error;
+  }
   return result;
+}
+
+function errorResult(error) {
+  return {
+    success: false,
+    message: error.message,
+    requestId: error.requestId || ''
+  };
 }
 
 function requirePhone() {
@@ -262,9 +313,18 @@ function renderResult(result) {
 }
 
 function updateSession(session = {}, secrets = {}) {
+  const authLabels = {
+    active: '本轮登录成功',
+    cached: '已缓存，待验证',
+    failed: '本轮登录失败',
+    'signed-out': '未登录'
+  };
+  const authLabel = authLabels[session.authState] || '未登录';
   const rows = [
     ['账号', session.account || '-'],
     ['完整账号', session.completeAccount || '-'],
+    ['登录状态', authLabel],
+    ['登录错误', session.lastLoginErrorCode ? `${session.lastLoginErrorCode} ${session.lastLoginErrorMessage || ''}`.trim() : '-'],
     ['Authorization', session.hasAuthorization ? '已生成' : '未生成'],
     ['authToken', secrets.authToken || (session.hasAuthToken ? '已保存' : '-')],
     ['token', secrets.token || (session.hasEncryptedToken ? '已保存' : '-')],
@@ -277,6 +337,7 @@ function updateSession(session = {}, secrets = {}) {
     ['上次跳转', session.lastBuiltUrl ? '已缓存' : '-'],
     ['wx CK', secrets.wxCookie || (session.hasLastWxCookie ? '已保存' : '-')],
     ['wx 认证', session.hasLastWxAuthToken ? '已完成' : '-'],
+    ['全球通跳转', session.lastGlobalTelecomUrl ? '已缓存' : '-'],
     ['短信随机串', session.lastSmsRandom || '-'],
     ['模块数', session.routerModules?.length || 0]
   ];
@@ -284,9 +345,9 @@ function updateSession(session = {}, secrets = {}) {
     .map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(String(value))}</dd></div>`)
     .join('');
   els.sessionTime.textContent = session.updatedAt ? new Date(session.updatedAt).toLocaleString() : '-';
-  els.loginPill.textContent = session.hasAuthorization ? '已登录' : '未登录';
-  els.loginPill.classList.toggle('ok', Boolean(session.hasAuthorization));
-  els.loginPill.classList.toggle('err', false);
+  els.loginPill.textContent = authLabel;
+  els.loginPill.classList.toggle('ok', session.authState === 'active');
+  els.loginPill.classList.toggle('err', session.authState === 'failed');
   if (session.completeAccount && !els.phone.value.trim()) {
     els.phone.value = session.completeAccount;
   }
@@ -299,6 +360,10 @@ function updateSession(session = {}, secrets = {}) {
   if (session.lastBuiltUrl) {
     state.builtUrl = session.lastBuiltUrl;
     els.builtUrl.value = session.lastBuiltUrl;
+  }
+  if (session.lastGlobalTelecomUrl) {
+    state.globalUrl = session.lastGlobalTelecomUrl;
+    els.globalUrl.value = session.lastGlobalTelecomUrl;
   }
   if (secrets.wxCookieValue && !els.wxCookie.value.trim()) {
     els.wxCookie.value = secrets.wxCookieValue;

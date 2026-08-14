@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 
-const USER_DOMAIN_AES_KEY = 'h7DLzCTAjn+altjy2a9E9FSt7AC6pmx1';
+const USER_DOMAIN_AES_KEY = 'UqEZkrjCKfa02pP6jntzFmkzOz86zHUC';
 const UPLOAD_BROWSE_AES_KEY = 'bgo3OUIS7eQgVewk';
 
 export function randomString(length = 16) {
