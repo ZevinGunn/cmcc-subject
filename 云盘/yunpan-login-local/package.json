@@ -8,7 +8,7 @@
     "start": "node src/server.js",
     "dev": "node src/server.js",
     "restart": "./start.sh",
-    "check": "node --check src/server.js && node --check src/yunpanClient.js && node --check src/cryptoBox.js && node --check src/sessionStore.js && node --check src/diagnosticLogger.js && node --check src/globalTelecom.js && node --check public/app.js",
+    "check": "node --check src/server.js && node --check src/yunpanClient.js && node --check src/cryptoBox.js && node --check src/sessionStore.js && node --check src/diagnosticLogger.js && node --check src/globalTelecom.js && node --check src/cookieJar.js && node --check public/app.js",
     "test": "node --test src/*.test.js"
   },
   "engines": {

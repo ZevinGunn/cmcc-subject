@@ -16,6 +16,13 @@ import { getLogLocation, logEvent, summarizeResponse, withLogContext } from './d
 import { buildGlobalTelecomJump } from './globalTelecom.js';
 import { clearSession, loadSession, patchSession, sessionSummary } from './sessionStore.js';
 import { maskSecret } from './cryptoBox.js';
+import {
+  absorbSetCookieLines,
+  getSetCookieLines,
+  parseSetCookie,
+  selectCookieJar,
+  serializeCookieJar
+} from './cookieJar.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.resolve(__dirname, '..', 'public');
@@ -145,17 +152,14 @@ async function handleApi(req, res) {
   }
   if (req.method === 'POST' && pathname === '/api/tools/build-url') {
     const body = await readJson(req);
-    const session = await loadSession();
     const template = body.url || DEFAULT_FLOW_SHOP_URL;
-    const url = buildSsoUrl(template, {
-      ssoToken: body.ssoToken || session.lastSsoToken,
-      account: body.account || session.completeAccount,
+    sendJson(res, 200, await buildFreshJumpUrl({
+      template,
+      toSourceId: body.toSourceId || findTargetSourceId(template),
+      mode: body.mode,
+      account: body.account,
       appendAccount: body.appendAccount !== false
-    });
-    if (url) {
-      await patchSession({ lastBuiltUrl: url, lastJumpTemplate: template });
-    }
-    sendJson(res, 200, { success: Boolean(url), url });
+    }));
     return;
   }
   if (req.method === 'POST' && pathname === '/api/tools/default-jump') {
@@ -165,12 +169,35 @@ async function handleApi(req, res) {
   }
   if (req.method === 'POST' && pathname === '/api/tools/wx-cookie') {
     const body = await readJson(req);
-    sendJson(res, 200, await collectWxCookie(body));
+    let jump = null;
+    if (body.refreshJump !== false) {
+      jump = await buildDefaultJumpUrl({ mode: body.mode });
+      if (!jump.success || !jump.url) {
+        sendJson(res, 200, {
+          success: false,
+          message: '现场换取 10086 跳转票据失败，未继续获取 CK',
+          jump
+        });
+        return;
+      }
+    }
+    const result = await collectWxCookie({ ...body, url: jump?.url || body.url });
+    sendJson(res, 200, {
+      ...result,
+      jump: jump ? {
+        url: jump.url,
+        sourceId: jump.sourceId,
+        generatedAt: jump.generatedAt,
+        freshness: jump.freshness,
+        upstreamReusedTicket: jump.upstreamReusedTicket
+      } : null
+    });
     return;
   }
   if (req.method === 'POST' && pathname === '/api/tools/global-jump') {
     const body = await readJson(req);
     const mode = body.mode === 'v2' ? 'v2' : 'v1';
+    const previousSession = await loadSession();
     const tokenResult = await querySpecToken({
       toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
       mode
@@ -179,6 +206,8 @@ async function handleApi(req, res) {
       sendJson(res, 200, {
         success: false,
         message: tokenResult.response?.message || '获取全球通临时票据失败',
+        generatedAt: tokenResult.generatedAt || '',
+        freshness: 'live',
         response: tokenResult.response
       });
       return;
@@ -187,48 +216,105 @@ async function handleApi(req, res) {
       ssoToken: tokenResult.ssoToken,
       sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID
     });
+    const generatedAt = tokenResult.generatedAt || new Date().toISOString();
+    const output = {
+      ...result,
+      generatedAt,
+      freshness: 'live',
+      upstreamReusedTicket: Boolean(
+        previousSession.lastSsoSourceId === DEFAULT_FLOW_SHOP_SOURCE_ID &&
+        previousSession.lastSsoToken &&
+        previousSession.lastSsoToken === tokenResult.ssoToken
+      )
+    };
     if (result.success) {
       await patchSession({
         lastGlobalTelecomUrl: result.url,
-        lastGlobalTelecomAt: new Date().toISOString()
+        lastGlobalTelecomAt: generatedAt
       });
     }
-    sendJson(res, 200, result);
+    await logEvent(result.success ? 'info' : 'warn', 'jump.generated', {
+      kind: 'global-telecom',
+      mode,
+      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
+      generatedAt,
+      upstreamReusedTicket: output.upstreamReusedTicket,
+      success: result.success
+    });
+    sendJson(res, 200, output);
     return;
   }
   sendJson(res, 404, { success: false, message: 'API 不存在' });
 }
 
 async function buildDefaultJumpUrl({ mode = 'v1' } = {}) {
-  const tokenResult = await querySpecToken({ toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID, mode });
+  return buildFreshJumpUrl({
+    template: DEFAULT_FLOW_SHOP_URL,
+    toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
+    mode,
+    appendAccount: false
+  });
+}
+
+async function buildFreshJumpUrl({
+  template = DEFAULT_FLOW_SHOP_URL,
+  toSourceId = DEFAULT_FLOW_SHOP_SOURCE_ID,
+  mode = 'v1',
+  account = '',
+  appendAccount = true
+} = {}) {
+  const previousSession = await loadSession();
+  const sourceId = String(toSourceId || '').trim();
+  if (!sourceId) throw new Error('toSourceId 不能为空，无法现场换取跳转票据');
+  const tokenResult = await querySpecToken({ toSourceId: sourceId, mode });
   const session = await loadSession();
   if (!tokenResult.success || !tokenResult.ssoToken) {
     return {
       success: false,
-      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
-      template: DEFAULT_FLOW_SHOP_URL,
+      sourceId,
+      template,
       url: '',
       token: '',
+      generatedAt: tokenResult.generatedAt || '',
+      freshness: 'live',
       response: tokenResult.response
     };
   }
-  const url = buildSsoUrl(DEFAULT_FLOW_SHOP_URL, {
+  const url = buildSsoUrl(template, {
     ssoToken: tokenResult.ssoToken,
-    account: session.completeAccount,
-    appendAccount: false
+    account: account || session.completeAccount,
+    appendAccount
   });
+  const generatedAt = tokenResult.generatedAt || new Date().toISOString();
   await patchSession({
     lastBuiltUrl: url,
-    lastJumpTemplate: DEFAULT_FLOW_SHOP_URL
+    lastJumpTemplate: template,
+    lastBuiltAt: generatedAt
   });
-  return {
+  const output = {
     success: Boolean(tokenResult.success && url),
-    sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
-    template: DEFAULT_FLOW_SHOP_URL,
+    sourceId,
+    template,
     url,
     token: tokenResult.ssoToken ? maskSecret(tokenResult.ssoToken) : '',
+    generatedAt,
+    freshness: 'live',
+    upstreamReusedTicket: Boolean(
+      previousSession.lastSsoSourceId === sourceId &&
+      previousSession.lastSsoToken &&
+      previousSession.lastSsoToken === tokenResult.ssoToken
+    ),
     response: tokenResult.response
   };
+  await logEvent(output.success ? 'info' : 'warn', 'jump.generated', {
+    kind: template === DEFAULT_FLOW_SHOP_URL ? '10086-default' : 'custom',
+    mode: mode === 'v2' ? 'v2' : 'v1',
+    sourceId,
+    generatedAt,
+    upstreamReusedTicket: output.upstreamReusedTicket,
+    success: output.success
+  });
+  return output;
 }
 
 async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true } = {}) {
@@ -243,6 +329,8 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
   }
 
   const cookieJar = new Map(Object.entries(makeWxCookieSeed(targetUrl)));
+  const seedCookieNames = new Set(cookieJar.keys());
+  const upstreamCookieNames = new Set();
   const visited = [];
   let currentUrl = targetUrl;
   let status = 0;
@@ -266,10 +354,7 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     });
     status = response.status;
     const setCookies = getSetCookieLines(response.headers);
-    for (const line of setCookies) {
-      const cookie = parseSetCookie(line);
-      if (cookie) cookieJar.set(cookie.name, cookie.value);
-    }
+    absorbSetCookieLines(cookieJar, setCookies, upstreamCookieNames);
     const location = response.headers.get('location') || '';
     await logEvent(response.ok || (status >= 300 && status < 400) ? 'info' : 'warn', 'wx.redirect.response', {
       step: index,
@@ -296,14 +381,19 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
 
   let userAuth = null;
   if (runUserAuth) {
-    userAuth = await requestWxUserAuth(targetUrl, cookieJar);
+    userAuth = await requestWxUserAuth(targetUrl, cookieJar, upstreamCookieNames);
   }
 
-  const cookie = serializeCookieJar(cookieJar);
+  const realCookieJar = selectCookieJar(cookieJar, upstreamCookieNames);
+  const cookie = serializeCookieJar(realCookieJar);
+  const generatedAt = new Date().toISOString();
   await patchSession({
     lastWxCookie: cookie,
     lastWxCookieUrl: targetUrl,
-    lastWxCookieAt: new Date().toISOString(),
+    lastWxCookieAt: generatedAt,
+    lastWxCookieSource: 'upstream-set-cookie',
+    lastWxUpstreamCookieNames: Array.from(realCookieJar.keys()),
+    lastWxSeedCookieNames: Array.from(seedCookieNames),
     lastWxAuthToken: userAuth?.token || session.lastWxAuthToken || ''
   });
 
@@ -312,7 +402,12 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     url: targetUrl,
     cookie,
     cookiePreview: maskCookie(cookie),
-    cookieCount: cookieJar.size,
+    cookieCount: realCookieJar.size,
+    cookieSource: 'upstream-set-cookie',
+    upstreamCookieNames: Array.from(realCookieJar.keys()),
+    seedCookieNames: Array.from(seedCookieNames),
+    generatedAt,
+    freshness: 'live',
     authToken: userAuth?.token ? maskSecret(userAuth.token) : '',
     auth: userAuth,
     visited
@@ -321,7 +416,8 @@ async function collectWxCookie({ url = '', maxRedirects = 10, runUserAuth = true
     success: output.success,
     redirectCount: visited.length,
     finalHttpStatus: status,
-    cookieNames: Array.from(cookieJar.keys()),
+    cookieNames: Array.from(realCookieJar.keys()),
+    seedCookieNames: Array.from(seedCookieNames),
     hasShareToken: Boolean(cookieJar.get('shareToken')),
     hasBusinessToken: Boolean(userAuth?.token)
   });
@@ -371,7 +467,7 @@ function makeWxCookieSeed(targetUrl) {
   };
 }
 
-async function requestWxUserAuth(targetUrl, cookieJar) {
+async function requestWxUserAuth(targetUrl, cookieJar, upstreamCookieNames) {
   const target = new URL(targetUrl);
   const backUrl = `${target.pathname}${target.search}`;
   const secondChannel = target.searchParams.get('secondChannel') || 'P00000116110';
@@ -405,10 +501,7 @@ async function requestWxUserAuth(targetUrl, cookieJar) {
     body: encryptedBody
   });
   const setCookies = getSetCookieLines(response.headers);
-  for (const line of setCookies) {
-    const cookie = parseSetCookie(line);
-    if (cookie) cookieJar.set(cookie.name, cookie.value);
-  }
+  absorbSetCookieLines(cookieJar, setCookies, upstreamCookieNames);
   const rawText = await response.text();
   const parsed = safeJson(rawText);
   const decrypted = decryptWxResponse(parsed);
@@ -476,38 +569,6 @@ function safeJson(value) {
   }
 }
 
-function getSetCookieLines(headers) {
-  if (typeof headers.getSetCookie === 'function') {
-    return headers.getSetCookie();
-  }
-  const combined = headers.get('set-cookie');
-  return combined ? splitSetCookieHeader(combined) : [];
-}
-
-function splitSetCookieHeader(value) {
-  return String(value)
-    .split(/,(?=\s*[^;,=\s]+=[^;,]*)/g)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function parseSetCookie(line) {
-  const [pair] = String(line).split(';');
-  const index = pair.indexOf('=');
-  if (index <= 0) return null;
-  return {
-    name: pair.slice(0, index).trim(),
-    value: pair.slice(index + 1).trim()
-  };
-}
-
-function serializeCookieJar(cookieJar) {
-  return Array.from(cookieJar.entries())
-    .filter(([name]) => Boolean(name))
-    .map(([name, value]) => `${name}=${value}`)
-    .join('; ');
-}
-
 function maskCookie(cookie) {
   if (!cookie) return '';
   const parts = String(cookie).split(';').map((item) => item.trim()).filter(Boolean);
@@ -525,6 +586,15 @@ function maskCookie(cookie) {
 
 function is10086Host(hostname) {
   return /(\.|^)10086\.cn$/i.test(hostname);
+}
+
+function findTargetSourceId(template) {
+  const value = String(template || '').match(/[?&#]targetSourceId=([^&#]+)/i)?.[1] || '';
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 async function serveStatic(req, res) {
@@ -559,7 +629,10 @@ function sendJson(res, status, payload) {
       ? { ...payload, requestId: payload.requestId || res[requestIdKey] }
       : payload;
   res[responseSummaryKey] = summarizeResponse(responsePayload);
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, max-age=0'
+  });
   res.end(JSON.stringify(responsePayload, null, 2));
 }
 

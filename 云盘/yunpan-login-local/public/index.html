@@ -104,7 +104,7 @@
 
           <button id="buildUrlBtn" class="action-button full secondary">
             <span class="button-icon">U</span>
-            生成认证链接
+            现场换票并生成认证链接
           </button>
 
           <button id="clearBtn" class="quiet-button">清空本地会话</button>
@@ -159,16 +159,22 @@
           <section class="link-output-grid" aria-label="跳转链接">
             <article class="panel url-panel">
               <div class="panel-title">
-                <span>10086 跳转链接</span>
-                <button id="copyUrlBtn" class="icon-button" title="复制 10086 跳转链接">C</button>
+                <div class="title-with-status">
+                  <span>10086 跳转链接</span>
+                  <span id="builtUrlFreshness" class="freshness">未生成</span>
+                </div>
+                <button id="copyUrlBtn" class="icon-button" title="复制 10086 跳转链接" disabled>C</button>
               </div>
               <input id="builtUrlOutput" readonly placeholder="生成后显示" />
             </article>
 
             <article class="panel url-panel">
               <div class="panel-title">
-                <span>全球通跳转链接</span>
-                <button id="copyGlobalUrlBtn" class="icon-button" title="复制全球通跳转链接">C</button>
+                <div class="title-with-status">
+                  <span>全球通跳转链接</span>
+                  <span id="globalUrlFreshness" class="freshness">未生成</span>
+                </div>
+                <button id="copyGlobalUrlBtn" class="icon-button" title="复制全球通跳转链接" disabled>C</button>
               </div>
               <input id="globalUrlOutput" readonly placeholder="生成后显示" />
             </article>
@@ -176,10 +182,13 @@
 
           <section class="panel url-panel">
             <div class="panel-title">
-              <span>wx.10086 CK</span>
-              <button id="copyWxCookieBtn" class="icon-button" title="复制 CK">C</button>
+              <div class="title-with-status">
+                <span>wx.10086 上游 CK</span>
+                <span id="wxCookieFreshness" class="freshness">未获取</span>
+              </div>
+              <button id="copyWxCookieBtn" class="icon-button" title="复制上游 CK" disabled>C</button>
             </div>
-            <textarea id="wxCookieOutput" readonly rows="4" placeholder="获取后显示完整 CK"></textarea>
+            <textarea id="wxCookieOutput" readonly rows="4" placeholder="获取后显示上游 Set-Cookie 实际下发的 CK"></textarea>
             <button id="wxCookieBtn" class="action-button full accent">
               <span class="button-icon">CK</span>
               获取 wx.10086 CK

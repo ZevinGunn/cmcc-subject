@@ -413,10 +413,17 @@ export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnT
       cookieJar,
       lastSsoToken: '',
       lastSsoSourceId: '',
+      lastSsoRequestedAt: '',
+      lastSsoReceivedAt: '',
       lastBuiltUrl: '',
+      lastJumpTemplate: '',
+      lastBuiltAt: '',
       lastWxCookie: '',
       lastWxCookieUrl: '',
       lastWxCookieAt: '',
+      lastWxCookieSource: '',
+      lastWxUpstreamCookieNames: [],
+      lastWxSeedCookieNames: [],
       lastWxAuthToken: '',
       lastGlobalTelecomUrl: '',
       lastGlobalTelecomAt: '',
@@ -437,10 +444,17 @@ export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnT
       routerInfo: [],
       lastSsoToken: '',
       lastSsoSourceId: '',
+      lastSsoRequestedAt: '',
+      lastSsoReceivedAt: '',
       lastBuiltUrl: '',
+      lastJumpTemplate: '',
+      lastBuiltAt: '',
       lastWxCookie: '',
       lastWxCookieUrl: '',
       lastWxCookieAt: '',
+      lastWxCookieSource: '',
+      lastWxUpstreamCookieNames: [],
+      lastWxSeedCookieNames: [],
       lastWxAuthToken: '',
       lastGlobalTelecomUrl: '',
       lastGlobalTelecomAt: '',
@@ -490,6 +504,7 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
   }
 
   const useV2 = mode === 'v2';
+  const requestedAt = new Date().toISOString();
   const completeAccount = account || phoneNumber || session.completeAccount;
   const payload = useV2
     ? buildQuerySpecTokenV2Payload(completeAccount, toSourceId)
@@ -522,10 +537,13 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
   }
 
   const ssoToken = response?.data?.token || response?.token || '';
+  const receivedAt = new Date().toISOString();
   if (ssoToken) {
     await patchSession({
       lastSsoToken: ssoToken,
       lastSsoSourceId: payload.toSourceId,
+      lastSsoRequestedAt: requestedAt,
+      lastSsoReceivedAt: receivedAt,
       cookieJar: absorbSetCookie(session.cookieJar, result.headers)
     });
   }
@@ -534,12 +552,17 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
     success: Boolean(result.ok && ssoToken),
     status: result.status,
     ssoToken,
+    requestedAt,
+    generatedAt: receivedAt,
+    freshness: 'live',
     request: { url, headers: redactHeaders(headers), body: useV2 ? { encrypted: true, payload } : payload },
     response
   };
   await logEvent(output.success ? 'info' : 'warn', 'yunpan.sso-token.complete', {
     protocol: useV2 ? 'querySpecTokenV2-web' : 'querySpecToken-v1',
     sourceId: payload.toSourceId,
+    requestedAt,
+    receivedAt,
     httpStatus: output.status,
     success: output.success,
     hasSsoToken: Boolean(ssoToken),

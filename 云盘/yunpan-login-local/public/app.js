@@ -2,7 +2,10 @@ const state = {
   mode: 'v1',
   lastResult: null,
   builtUrl: '',
-  globalUrl: ''
+  globalUrl: '',
+  builtStatus: 'initial',
+  globalStatus: 'initial',
+  cookieStatus: 'initial'
 };
 
 const $ = (id) => document.getElementById(id);
@@ -21,7 +24,13 @@ const els = {
   sessionTime: $('sessionTime'),
   builtUrl: $('builtUrlOutput'),
   globalUrl: $('globalUrlOutput'),
-  wxCookie: $('wxCookieOutput')
+  wxCookie: $('wxCookieOutput'),
+  builtFreshness: $('builtUrlFreshness'),
+  globalFreshness: $('globalUrlFreshness'),
+  cookieFreshness: $('wxCookieFreshness'),
+  copyBuilt: $('copyUrlBtn'),
+  copyGlobal: $('copyGlobalUrlBtn'),
+  copyCookie: $('copyWxCookieBtn')
 };
 
 const defaultSourceId = '001003';
@@ -53,9 +62,9 @@ $('buildUrlBtn').addEventListener('click', buildUrl);
 $('wxCookieBtn').addEventListener('click', getWxCookie);
 $('clearBtn').addEventListener('click', clearSession);
 $('copyResultBtn').addEventListener('click', () => copyText(JSON.stringify(state.lastResult || {}, null, 2)));
-$('copyUrlBtn').addEventListener('click', () => copyText(state.builtUrl || els.builtUrl.value));
-$('copyGlobalUrlBtn').addEventListener('click', () => copyText(state.globalUrl || els.globalUrl.value));
-$('copyWxCookieBtn').addEventListener('click', () => copyText(els.wxCookie.value));
+els.copyBuilt.addEventListener('click', () => copyText(els.builtUrl.value));
+els.copyGlobal.addEventListener('click', () => copyText(els.globalUrl.value));
+els.copyCookie.addEventListener('click', () => copyText(els.wxCookie.value));
 
 refreshSession();
 initCaptcha();
@@ -148,33 +157,49 @@ async function buildUrl() {
     setStatus('请输入跳转链接', 'err');
     return;
   }
-  const result = await api('/api/tools/build-url', {
-    url,
-    appendAccount: !isDefaultJumpTemplate(url)
-  });
-  state.builtUrl = result.url || '';
-  els.builtUrl.value = state.builtUrl;
-  state.lastResult = result;
-  renderResult(result);
-  setStatus(result.success ? '认证链接已生成' : '生成失败', result.success ? 'ok' : 'err');
+  const toSourceId = els.sourceId.value.trim();
+  if (!toSourceId) {
+    setStatus('toSourceId 不能为空', 'err');
+    els.sourceId.focus();
+    return;
+  }
+  beginLiveOutput('built', '现场换票中');
+  setBusy(true);
+  setStatus('现场换票并生成认证链接中', 'warn');
+  try {
+    const result = await api('/api/tools/build-url', {
+      url,
+      toSourceId,
+      mode: state.mode,
+      appendAccount: !isDefaultJumpTemplate(url)
+    });
+    applyLiveBuiltUrl(result);
+    state.lastResult = result;
+    renderResult(result);
+    setStatus(result.success ? '认证链接已现场换票生成' : '生成失败', result.success ? 'ok' : 'err');
+    await refreshSession(false);
+  } catch (error) {
+    handleOutputError('built', error);
+    setStatus('生成认证链接失败', 'err');
+  } finally {
+    setBusy(false);
+  }
 }
 
 async function buildDefaultJump() {
+  beginLiveOutput('built', '现场换票中');
   setBusy(true);
   setStatus('生成 10086 跳转中', 'warn');
   try {
     const result = await api('/api/tools/default-jump', { mode: state.mode });
-    state.builtUrl = result.url || '';
-    els.builtUrl.value = state.builtUrl;
+    applyLiveBuiltUrl(result);
     if (!els.url.value.trim()) els.url.value = result.template || defaultJumpTemplate;
     state.lastResult = result;
     renderResult(result);
     setStatus(result.success ? '10086 跳转链接已生成' : '生成 10086 跳转失败', result.success ? 'ok' : 'err');
     await refreshSession(false);
   } catch (error) {
-    const payload = errorResult(error);
-    state.lastResult = payload;
-    renderResult(payload);
+    handleOutputError('built', error);
     setStatus('生成 10086 跳转失败', 'err');
   } finally {
     setBusy(false);
@@ -182,20 +207,18 @@ async function buildDefaultJump() {
 }
 
 async function buildGlobalJump() {
+  beginLiveOutput('global', '现场换票中');
   setBusy(true);
   setStatus('生成全球通跳转中', 'warn');
   try {
     const result = await api('/api/tools/global-jump', { mode: state.mode });
-    state.globalUrl = result.url || '';
-    els.globalUrl.value = state.globalUrl;
+    applyLiveGlobalUrl(result);
     state.lastResult = result;
     renderResult(result);
     setStatus(result.success ? '全球通跳转链接已生成' : '生成全球通跳转失败', result.success ? 'ok' : 'err');
     await refreshSession(false);
   } catch (error) {
-    const payload = errorResult(error);
-    state.lastResult = payload;
-    renderResult(payload);
+    handleOutputError('global', error);
     setStatus('生成全球通跳转失败', 'err');
   } finally {
     setBusy(false);
@@ -203,24 +226,40 @@ async function buildGlobalJump() {
 }
 
 async function getWxCookie() {
-  const url = (state.builtUrl || els.builtUrl.value || '').trim();
+  beginLiveOutput('cookie', '现场换票并获取中');
   setBusy(true);
-  setStatus('获取 wx.10086 CK 中', 'warn');
+  setStatus('现场换票并获取 wx.10086 上游 CK 中', 'warn');
   try {
-    const result = await api('/api/tools/wx-cookie', { url });
+    const result = await api('/api/tools/wx-cookie', {
+      mode: state.mode,
+      refreshJump: true
+    });
     els.wxCookie.value = result.cookie || '';
+    state.cookieStatus = result.success ? 'live' : 'error';
+    setFreshness(
+      els.cookieFreshness,
+      result.success ? liveLabel(result.generatedAt) : '获取失败',
+      result.success ? 'live' : 'error'
+    );
+    els.copyCookie.disabled = !result.success || !result.cookie;
+    if (result.jump?.url) {
+      applyLiveBuiltUrl({
+        success: true,
+        url: result.jump.url,
+        generatedAt: result.jump.generatedAt,
+        upstreamReusedTicket: result.jump.upstreamReusedTicket
+      });
+    }
     state.lastResult = {
       ...result,
       cookie: result.cookiePreview || result.cookie
     };
     renderResult(state.lastResult);
-    setStatus(result.success ? 'wx.10086 CK 已获取' : '未获取到 CK', result.success ? 'ok' : 'err');
+    setStatus(result.success ? 'wx.10086 上游 CK 已获取' : '未获取到上游 CK', result.success ? 'ok' : 'err');
     await refreshSession(false);
   } catch (error) {
-    const payload = errorResult(error);
-    state.lastResult = payload;
-    renderResult(payload);
-    setStatus('获取 wx.10086 CK 失败', 'err');
+    handleOutputError('cookie', error);
+    setStatus('获取 wx.10086 上游 CK 失败', 'err');
   } finally {
     setBusy(false);
   }
@@ -234,9 +273,18 @@ async function clearSession() {
   setStatus('本地会话已清空', 'warn');
   state.builtUrl = '';
   state.globalUrl = '';
+  state.builtStatus = 'initial';
+  state.globalStatus = 'initial';
+  state.cookieStatus = 'initial';
   els.builtUrl.value = '';
   els.globalUrl.value = '';
   els.wxCookie.value = '';
+  setFreshness(els.builtFreshness, '未生成');
+  setFreshness(els.globalFreshness, '未生成');
+  setFreshness(els.cookieFreshness, '未获取');
+  els.copyBuilt.disabled = true;
+  els.copyGlobal.disabled = true;
+  els.copyCookie.disabled = true;
   Object.values(stepMap).forEach((step) => step.classList.remove('done', 'active'));
 }
 
@@ -248,8 +296,7 @@ async function runStep(step, label, url, body) {
     const result = await api(url, body);
     state.lastResult = result;
     if (result.defaultJump?.url) {
-      state.builtUrl = result.defaultJump.url;
-      els.builtUrl.value = result.defaultJump.url;
+      applyLiveBuiltUrl(result.defaultJump);
       els.url.value = result.defaultJump.template || els.url.value || defaultJumpTemplate;
     }
     renderResult(result);
@@ -334,10 +381,13 @@ function updateSession(session = {}, secrets = {}) {
     ['平台', session.belongsPlatform || '-'],
     ['国家码', session.nationCode || '-'],
     ['上次 sourceId', session.lastSsoSourceId || '-'],
-    ['上次跳转', session.lastBuiltUrl ? '已缓存' : '-'],
+    ['上次换票', session.lastSsoReceivedAt ? formatTime(session.lastSsoReceivedAt) : '-'],
+    ['上次跳转', session.lastBuiltUrl ? cachedLabel(session.lastBuiltAt) : '-'],
     ['wx CK', secrets.wxCookie || (session.hasLastWxCookie ? '已保存' : '-')],
+    ['CK 来源', session.lastWxCookieSource === 'upstream-set-cookie' ? '上游 Set-Cookie' : '-'],
+    ['上游 CK 项', session.lastWxUpstreamCookieNames?.join(', ') || '-'],
     ['wx 认证', session.hasLastWxAuthToken ? '已完成' : '-'],
-    ['全球通跳转', session.lastGlobalTelecomUrl ? '已缓存' : '-'],
+    ['全球通跳转', session.lastGlobalTelecomUrl ? cachedLabel(session.lastGlobalTelecomAt) : '-'],
     ['短信随机串', session.lastSmsRandom || '-'],
     ['模块数', session.routerModules?.length || 0]
   ];
@@ -357,19 +407,110 @@ function updateSession(session = {}, secrets = {}) {
   if (session.lastJumpTemplate && !els.url.value.trim()) {
     els.url.value = session.lastJumpTemplate;
   }
-  if (session.lastBuiltUrl) {
+  if (session.lastBuiltUrl && state.builtStatus === 'initial') {
     state.builtUrl = session.lastBuiltUrl;
     els.builtUrl.value = session.lastBuiltUrl;
+    state.builtStatus = 'cached';
+    setFreshness(els.builtFreshness, cachedLabel(session.lastBuiltAt), 'cached');
+    els.copyBuilt.disabled = true;
   }
-  if (session.lastGlobalTelecomUrl) {
+  if (session.lastGlobalTelecomUrl && state.globalStatus === 'initial') {
     state.globalUrl = session.lastGlobalTelecomUrl;
     els.globalUrl.value = session.lastGlobalTelecomUrl;
+    state.globalStatus = 'cached';
+    setFreshness(els.globalFreshness, cachedLabel(session.lastGlobalTelecomAt), 'cached');
+    els.copyGlobal.disabled = true;
   }
-  if (secrets.wxCookieValue && !els.wxCookie.value.trim()) {
+  if (secrets.wxCookieValue && state.cookieStatus === 'initial') {
     els.wxCookie.value = secrets.wxCookieValue;
-  } else if (secrets.wxCookie && !els.wxCookie.value.trim()) {
+    state.cookieStatus = 'cached';
+    setFreshness(els.cookieFreshness, cachedLabel(session.lastWxCookieAt), 'cached');
+    els.copyCookie.disabled = true;
+  } else if (secrets.wxCookie && state.cookieStatus === 'initial') {
     els.wxCookie.placeholder = `已缓存：${secrets.wxCookie}`;
   }
+}
+
+function beginLiveOutput(kind, label) {
+  if (kind === 'built') {
+    state.builtUrl = '';
+    state.builtStatus = 'loading';
+    els.builtUrl.value = '';
+    els.copyBuilt.disabled = true;
+    setFreshness(els.builtFreshness, label, 'loading');
+  } else if (kind === 'global') {
+    state.globalUrl = '';
+    state.globalStatus = 'loading';
+    els.globalUrl.value = '';
+    els.copyGlobal.disabled = true;
+    setFreshness(els.globalFreshness, label, 'loading');
+  } else {
+    state.cookieStatus = 'loading';
+    els.wxCookie.value = '';
+    els.copyCookie.disabled = true;
+    setFreshness(els.cookieFreshness, label, 'loading');
+  }
+}
+
+function applyLiveBuiltUrl(result = {}) {
+  const success = Boolean(result.success && result.url);
+  state.builtUrl = success ? result.url : '';
+  state.builtStatus = success ? 'live' : 'error';
+  els.builtUrl.value = state.builtUrl;
+  els.copyBuilt.disabled = !success;
+  setFreshness(
+    els.builtFreshness,
+    success ? liveLabel(result.generatedAt, result.upstreamReusedTicket) : '生成失败',
+    success ? 'live' : 'error'
+  );
+}
+
+function applyLiveGlobalUrl(result = {}) {
+  const success = Boolean(result.success && result.url);
+  state.globalUrl = success ? result.url : '';
+  state.globalStatus = success ? 'live' : 'error';
+  els.globalUrl.value = state.globalUrl;
+  els.copyGlobal.disabled = !success;
+  setFreshness(
+    els.globalFreshness,
+    success ? liveLabel(result.generatedAt, result.upstreamReusedTicket) : '生成失败',
+    success ? 'live' : 'error'
+  );
+}
+
+function handleOutputError(kind, error) {
+  const payload = errorResult(error);
+  state.lastResult = payload;
+  renderResult(payload);
+  if (kind === 'built') {
+    state.builtStatus = 'error';
+    setFreshness(els.builtFreshness, '生成失败', 'error');
+  } else if (kind === 'global') {
+    state.globalStatus = 'error';
+    setFreshness(els.globalFreshness, '生成失败', 'error');
+  } else {
+    state.cookieStatus = 'error';
+    setFreshness(els.cookieFreshness, '获取失败', 'error');
+  }
+}
+
+function setFreshness(element, text, tone = '') {
+  element.textContent = text;
+  element.className = `freshness${tone ? ` ${tone}` : ''}`;
+}
+
+function liveLabel(generatedAt, upstreamReusedTicket = false) {
+  const prefix = upstreamReusedTicket ? '实时请求 · 上游复用票据' : '实时请求';
+  return generatedAt ? `${prefix} · ${formatTime(generatedAt)}` : prefix;
+}
+
+function cachedLabel(generatedAt) {
+  return generatedAt ? `缓存 · ${formatTime(generatedAt)}` : '缓存';
+}
+
+function formatTime(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString();
 }
 
 function setStatus(text, tone) {

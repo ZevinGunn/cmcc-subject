@@ -22,8 +22,8 @@ http://localhost:7399
 3. 再次点击“发送验证码”，等待云盘短信验证码。
 4. 输入短信验证码，点击“登录并保存 Token”。系统会在此时重新获取 RSA 公钥并生成本轮专用 AESKey/`mcloud-skey`。
 5. 登录成功后系统会尝试自动获取 `toSourceId=001003` 的 `ssoToken`，并生成 10086 flowShop 跳转链接。
-6. 如需手动刷新，点击“生成 10086 跳转”；如需其他业务地址，输入自定义跳转链接后点击“生成认证链接”。
-7. 点击“获取 wx.10086 CK”会访问生成的 10086 链接、跟随重定向并收集 `Set-Cookie`，页面支持复制完整 CK。
+6. 如需手动刷新，点击“生成 10086 跳转”；如需其他业务地址，输入自定义跳转链接后点击“现场换票并生成认证链接”。这两个入口都会重新调用 `querySpecToken/querySpecTokenV2`，不会使用本地缓存票据。
+7. 点击“获取 wx.10086 CK”会先现场换取 10086 票据，再访问新链接、跟随重定向并收集 `Set-Cookie`。页面只返回上游服务器实际下发的 CK。
 8. 点击“生成全球通跳转”，系统使用 `toSourceId=001003` 获取新短票，直接生成 `targetSourceId=001191` 的全球通 SSO 链接。10086 链接和全球通链接分别保存、分别复制。
 
 “公钥”按钮保留为调试入口；正常使用时不需要手动点。
@@ -40,7 +40,7 @@ http://localhost:7399
 - `data/session.json`：运行后生成的本地会话文件，包含 token，注意不要提交或外传。
 - `logs/yunpan-YYYY-MM-DD.jsonl`：按天生成的脱敏诊断日志，已被 Git 忽略。
 
-登录成功后，项目会把账号、`authToken`、加密 `token`、`Authorization`、最近一次 `ssoToken`、10086/全球通跳转链接、最近一次 wx.10086 CK 写入 `data/session.json`。刷新页面或重启服务后会恢复这些缓存，但在没有本轮成功记录时明确显示“已缓存，待验证”，不会把旧缓存视为本轮登录成功。
+登录成功后，项目会把账号、`authToken`、加密 `token`、`Authorization`、最近一次 `ssoToken`、10086/全球通跳转链接、最近一次 wx.10086 CK 写入 `data/session.json`。刷新页面或重启服务后会恢复这些内容并标记为“缓存”，缓存链接和 CK 不可直接复制；重新生成后才会标记为“实时请求”并开放复制。
 
 ## 注意
 
@@ -55,7 +55,9 @@ http://localhost:7399
 3. `userAuth` 请求体使用 10086 前端固定 AES-CBC/PKCS7 加密，Key 为 `1234123412ABCDEF`，IV 为 `ABCDEF1234123412`，输出大写 hex。
 4. `userAuth` 响应通过 `Set-Cookie` 下发 `shareToken`，这是完整 CK 的关键增量。后续页面接口还会使用响应体中的 10086 `token` 作为 `Authorization`。
 
-本地“获取 wx.10086 CK”会按这个顺序执行：先访问页面链接收集初始 cookie，再调用 `userAuth` 合并 `shareToken`，最后缓存完整 CK。
+本地“获取 wx.10086 CK”会按这个顺序执行：先重新换票，再访问页面链接收集初始 `Set-Cookie`，然后调用 `userAuth` 收集 `shareToken`。为了模拟浏览器而在本地生成的 `clientId/WT_FPC/GDP` 等种子 Cookie 只用于内部请求，不会再对外标记为真实 CK。
+
+链接响应中的 `generatedAt` 表示本次上游换票响应时间。如果页面显示“实时请求 · 上游复用票据”，表示本地已经重新发起请求，但云盘在票据有效期内返回了与上次相同的值；这与本地直接使用缓存是两种情况。
 
 全球通链接按新版 `mcloud.har` 的官方路径生成：云盘用 `001003` 换取短时 `ssoToken`，再传入 `https://qqt.cmicrwx.cn/2016tyjf/xhmqqthy/new/ssoTokenLogin.action`，目标来源为 `001191`。该链路与 10086 CK 获取并行，不再依赖 wx 绑定页的 Cookie 桥接；旧 Cookie 绑定实现仅保留为兼容能力。
 
