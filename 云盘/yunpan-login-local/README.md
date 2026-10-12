@@ -9,6 +9,8 @@ cd /Users/ZevinGunn/CMCC-PROJECT/云盘/yunpan-login-local
 npm start
 ```
 
+正式 PM2 服务使用 `npm run restart`，配置只更新 `yunpan-login`。项目固定 Volta Node 20.20.2；其他环境可用 `YUNPAN_NODE_PATH` 指定 Node 20+，避免 PM2 守护进程沿用旧 Node 18。
+
 访问：
 
 ```text
