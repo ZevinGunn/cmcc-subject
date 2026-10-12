@@ -6,11 +6,16 @@ const { spawnSync } = require('node:child_process');
 // A long-running PM2 daemon may retain Node 18 in PATH. Use this project's
 // Volta version, or an explicit runtime, without changing other applications.
 const voltaNode = path.join(os.homedir(), '.volta', 'bin', 'node');
-const interpreter = process.env.YUNPAN_NODE_PATH || (fs.existsSync(voltaNode) ? voltaNode : process.execPath);
-const version = spawnSync(interpreter, ['-p', 'process.versions.node.split(".")[0]'], { cwd: __dirname, encoding: 'utf8', timeout: 5000 });
-if (version.status !== 0 || Number(version.stdout.trim()) < 20) {
+const candidate = process.env.YUNPAN_NODE_PATH || (fs.existsSync(voltaNode) ? voltaNode : process.execPath);
+const version = spawnSync(candidate, ['-p', 'JSON.stringify({major:Number(process.versions.node.split(".")[0]),executable:process.execPath})'], { cwd: __dirname, encoding: 'utf8', timeout: 5000 });
+let runtime;
+try { runtime = JSON.parse(version.stdout); } catch { runtime = {}; }
+if (version.status !== 0 || !(runtime.major >= 20) || !path.isAbsolute(runtime.executable || '')) {
   throw new Error('yunpan-login 需要 Node 20 或更新版本，请设置 YUNPAN_NODE_PATH');
 }
+// Resolve the actual executable: a Volta shim launched against PM2's own
+// wrapper can select PM2's Node 18 version despite this application's cwd.
+const interpreter = runtime.executable;
 
 module.exports = {
   apps: [{
