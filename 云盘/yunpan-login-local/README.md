@@ -11,6 +11,8 @@ npm start
 
 正式 PM2 服务使用 `npm run restart`，配置只更新 `yunpan-login`。项目固定 Volta Node 20.20.2；其他环境可用 `YUNPAN_NODE_PATH` 指定 Node 20+，避免 PM2 守护进程沿用旧 Node 18。
 
+重载入口使用现有 PM2 CLI；当 CLI 安装在旧 nvm 版本目录时自动定位该安装，不安装或启动另一套进程管理器。需要指定安装位置时设置 `YUNPAN_PM2_PATH`。
+
 访问：
 
 ```text

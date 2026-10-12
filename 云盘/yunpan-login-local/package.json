@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
-    "restart": "pm2 startOrReload ecosystem.config.cjs --only yunpan-login --update-env",
+    "restart": "node src/restartService.js",
     "check": "node --check src/server.js && node --check src/yunpanClient.js && node --check src/cryptoBox.js && node --check src/sessionStore.js && node --check src/diagnosticLogger.js && node --check src/globalTelecom.js && node --check src/cloudPhone.js && node --check src/businessJumps.js && node --check src/ssoBrowser.js && node --check src/cookieJar.js && node --check public/app.js",
     "test": "node --test src/*.test.js"
   },
