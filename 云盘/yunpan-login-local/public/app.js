@@ -61,9 +61,14 @@ $('loginBtn').addEventListener('click', login);
 $('importSessionBtn').addEventListener('click', async () => {
   const input = $('importAuthorizationInput');
   if (!input.value.trim()) { setStatus('请输入自己的 App Authorization', 'err'); return; }
+  const headerInput = $('importHeadersInput');
+  let replayHeaders;
+  try { replayHeaders = JSON.parse(headerInput.value.trim() || '{}'); }
+  catch { setStatus('原会话请求头必须是 JSON 对象', 'err'); return; }
   resetBusinessOutputs();
-  await runStep('login', '导入 App 会话', '/api/auth/import', { authorization: input.value.trim() });
+  await runStep('login', '导入 App 会话', '/api/auth/import', { authorization: input.value.trim(), replayHeaders });
   input.value = '';
+  headerInput.value = '';
 });
 $('ssoBtn').addEventListener('click', getSsoToken);
 $('defaultJumpBtn').addEventListener('click', buildDefaultJump);
@@ -89,16 +94,41 @@ refreshSession();
 initCaptcha();
 
 async function sendSms() {
+  if (state.busy || Date.now() < (state.smsRetryAt || 0)) return;
   const phone = requirePhone();
   if (!phone) return;
-  await runStep('sms', '发送短信验证码', '/api/auth/send-sms', {
+  if (!els.puzzle.value.trim()) {
+    $('captchaTriggerBtn').click();
+    setStatus('请完成官方滑块后发送短信', 'warn');
+    return;
+  }
+  const result = await runStep('sms', '发送短信验证码', '/api/auth/send-sms', {
     phone,
     nationCode: els.nation.value,
     puzzleVerifyCode: els.puzzle.value.trim(),
     captchaType: 2
   });
   els.puzzle.value = '';
+  if (result?.success) {
+    state.smsRetryAt = Date.now() + 60000;
+    syncSmsControls();
+  }
+  return result;
 }
+
+$('captchaTriggerBtn').addEventListener('click', event => {
+  if (state.busy || Date.now() < (state.smsRetryAt || 0) || !requirePhone()) {
+    event.preventDefault(); event.stopImmediatePropagation();
+  }
+}, true);
+
+function syncSmsControls() {
+  const seconds = Math.max(0, Math.ceil(((state.smsRetryAt || 0) - Date.now()) / 1000));
+  $('smsBtn').disabled = !!state.busy || seconds > 0;
+  $('captchaTriggerBtn').disabled = !!state.busy || seconds > 0;
+  $('smsBtn').textContent = seconds > 0 ? `${seconds} 秒后可重发` : '发送验证码';
+}
+setInterval(syncSmsControls, 1000);
 
 function initCaptcha() {
   const status = $('captchaStatus');
@@ -124,12 +154,15 @@ function initCaptcha() {
         },
         // 官方 SDK 在云端 VerifyCaptcha 成功后调用 success；业务短信发送另行验证。
         async success(proof) {
+          if (state.busy || Date.now() < (state.smsRetryAt || 0)) return;
           const phone = requirePhone();
           if (!phone) return;
           els.puzzle.value = typeof proof === 'string' ? proof : JSON.stringify(proof);
           status.textContent = '滑块通过，正在发送短信验证码。';
-          await sendSms();
-          status.textContent = state.lastResult?.success ? '短信已发送，请输入验证码。' : '短信未发送成功，请查看接口结果后重新验证。';
+          const result = await sendSms();
+          status.textContent = result?.success ? '短信已发送，请输入验证码。' :
+            `短信未发送成功：${result?.message || '请查看接口结果后重新验证'}`;
+          if (!result?.success) window.__yunpanCaptcha?.refresh?.();
         },
         error() { status.textContent = '滑块验证失败，请重试。'; }
       });
@@ -239,7 +272,7 @@ async function buildGlobalJump() {
   setBusy(true);
   setStatus('生成全球通跳转中', 'warn');
   try {
-    const result = await api('/api/tools/global-jump', { mode: state.mode, protocol: state.protocol });
+    const result = await api('/api/tools/global-jump', { mode: state.mode, protocol: state.protocol, campaign: $('globalCampaignInput').value.trim() });
     applyLiveGlobalUrl(result);
     state.lastResult = result;
     renderResult(result);
@@ -274,6 +307,7 @@ async function buildBusinessOutput(kind) {
   try {
     const result = await api(`/api/tools/${kind === 'global-access-token' ? kind : kind + '-jump'}`, {
       mode: state.mode, protocol: state.protocol,
+      ...(kind === 'global-access-token' ? { campaign: $('globalCampaignInput').value.trim() } : {}),
       ...(kind === 'capp' ? { template: $('cappTemplateInput').value.trim() } : {}),
       ...(kind === 'global-access-token' ? { url: globalTicketUrl } : {})
     });
@@ -386,11 +420,13 @@ async function runStep(step, label, url, body) {
     setStatus(result.success ? `${label}成功` : `${label}未完成`, result.success ? 'ok' : 'err');
     stepMap[step].classList.toggle('done', Boolean(result.success));
     await refreshSession(false);
+    return result;
   } catch (error) {
     const payload = errorResult(error);
     state.lastResult = payload;
     renderResult(payload);
     setStatus(`${label}失败`, 'err');
+    return payload;
   } finally {
     setBusy(false);
     stepMap[step].classList.remove('active');
@@ -607,8 +643,8 @@ function formatTime(value) {
 
 function setStatus(text, tone) {
   els.status.textContent = text;
-  els.loginPill.classList.toggle('err', tone === 'err');
-  if (tone === 'ok') els.loginPill.classList.add('ok');
+  // Operation feedback must not change the independent authentication verdict.
+  els.status.dataset.tone = tone || '';
 }
 
 function markActive(step) {
@@ -617,6 +653,7 @@ function markActive(step) {
 }
 
 function setBusy(busy) {
+  state.busy = busy;
   document.body.classList.toggle('busy', busy);
   document.body.setAttribute('aria-busy', String(busy));
   // Preserve each control's disabled state while preventing duplicate submissions.
@@ -627,6 +664,7 @@ function setBusy(busy) {
       delete button.dataset.wasDisabled;
     }
   });
+  syncSmsControls();
 }
 
 async function copyText(text) {

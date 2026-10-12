@@ -16,6 +16,7 @@ const defaultSession = {
   authorization: '',
   nativeClientInfo: '',
   nativeChannel: '',
+  ssoReplayHeaders: {},
   aesKey: '',
   rsaPublicKey: '',
   secretKey: '',

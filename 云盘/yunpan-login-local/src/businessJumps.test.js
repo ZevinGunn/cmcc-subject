@@ -8,7 +8,7 @@ test('全球通独立请求 001191，不把 001003 票据当作全球通成功',
     query: async input => { asked = input; return { success: false, response: { code: '403', message: '暂无权限' } }; },
     persist: () => assert.fail('失败不保存链接')
   });
-  assert.deepEqual(asked, { toSourceId: '001191', mode: 'auto', protocol: 'auto' });
+  assert.deepEqual(asked, { toSourceId: '001191', mode: 'v2', protocol: 'app' });
   assert.equal(result.success, false);
   assert.equal(result.message, '暂无权限');
   assert.equal(result.url, undefined);

@@ -4,7 +4,7 @@ import { formatMcloudTimestamp, randomString } from './cryptoBox.js';
 
 export const CLOUD_PHONE_SOURCE_ID = '001216';
 export const CAPP_SOURCE_ID = '001304';
-export const CLOUD_PHONE_TEMPLATE = 'https://cloud.139.com/#/?token=#ssoToken#&targetSourceId=001216&loginType=0&channelSrc=02040';
+export const CLOUD_PHONE_TEMPLATE = 'https://cloud.139.com/#/?token=#ssoToken#&targetSourceId=001216&loginType=0&channelSrc=02207';
 export const CAPP_TEMPLATE = 'https://capp.139.com/#/?i=DYFvhV8fncc%3D&token=#ssoToken#&targetSourceId=001304';
 const API = 'https://cloud.139.com/uniphone';
 // These constants are the public H5 protocol configuration in app.02d2bfc2.js.

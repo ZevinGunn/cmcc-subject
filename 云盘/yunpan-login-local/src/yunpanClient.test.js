@@ -26,6 +26,33 @@ test('新版短信滑块使用 phoneNumber 和大小写准确的 puzzleVerfycode
   assert.throws(() => aesCbcDecryptWithIvPrefix(encrypted));
 });
 
+test('短信专用请求不携带旧网关协议头或旧账号凭据', () => {
+  const headers = __test__.buildSmsHeaders('+86');
+  assert.equal(headers['hcy-cool-flag'], '1');
+  for (const key of Object.keys(headers)) assert.doesNotMatch(key, /^mcloud-|^CMS-|authorization|cookie|skey/i);
+});
+
+test('短信响应同时识别新协议结果和旧网关解密错误，拒绝不透明原文', () => {
+  const good = { success: true, code: '0000' };
+  const bad = { success: false, code: '01000019', message: '动态解密错误' };
+  assert.deepEqual(__test__.decodeSmsResponse(JSON.stringify(aesCbcEncryptWithIvPrefix(good, SMS_AES_KEY))).response, good);
+  assert.deepEqual(__test__.decodeSmsResponse(aesCbcEncryptWithIvPrefix(bad)).response, bad);
+  assert.equal(__test__.decodeSmsResponse('opaque-secret').response.code, 'SMS_RESPONSE_INVALID');
+});
+
+test('原生明文 SSO 保留捕获上下文但拒绝旧加密头和头注入', () => {
+  const replay = { 'User-Agent': 'captured-browser', 'x-DeviceInfo': 'captured-device', Cookie: 'demo=synthetic' };
+  const headers = __test__.buildAppSsoHeaders({ authorization: 'Basic synthetic', ssoReplayHeaders: replay });
+  assert.equal(headers['user-agent'], 'captured-browser');
+  assert.equal(headers['x-deviceinfo'], 'captured-device');
+  assert.equal(headers.cookie, 'demo=synthetic');
+  assert.equal(headers.Authorization, 'Basic synthetic');
+  for (const key of Object.keys(headers)) assert.doesNotMatch(key, /^mcloud-|hcy-cool-flag/i);
+  assert.throws(() => __test__.validateSsoHeaders({ 'hcy-cool-flag': '1' }), /不支持/);
+  assert.throws(() => __test__.validateSsoHeaders({ cookie: 'a\r\nInjected: true' }), /不合法/);
+  assert.throws(() => __test__.validateSsoHeaders({ origin: 'https://evil.example' }), /云盘 HTTPS/);
+});
+
 test('SMS login matches the current web payload contract', () => {
   assert.deepEqual(__test__.buildSmsLoginPayload('13800000000', '123456', '+86'), {
     account: '13800000000',

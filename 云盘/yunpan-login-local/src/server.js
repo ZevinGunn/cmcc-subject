@@ -32,7 +32,7 @@ const HOST = process.env.HOST || '127.0.0.1';
 const responseSummaryKey = Symbol('responseSummary');
 const requestIdKey = Symbol('requestId');
 let mutationInFlight = false;
-const BUILD_ID = 'yunpan-sso-20261012-v2';
+const BUILD_ID = 'yunpan-sso-20261013-v3';
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',

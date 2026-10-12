@@ -71,6 +71,7 @@
           <details>
             <summary>导入自己的 App 登录会话</summary>
             <label class="field"><span>Authorization</span><input id="importAuthorizationInput" type="password" autocomplete="off" placeholder="Basic …" /></label>
+            <label class="field"><span>原会话请求头（可选 JSON）</span><textarea id="importHeadersInput" rows="2" autocomplete="off" spellcheck="false" placeholder='{"x-deviceinfo":"…","x-huawei-channelsrc":"…"}'></textarea></label>
             <button id="importSessionBtn" class="action-button full secondary" type="button">导入并保存会话</button>
           </details>
 
@@ -83,7 +84,7 @@
 
           <div class="segmented" role="group" aria-label="sso token mode">
             <button class="segment active" data-mode="auto" data-protocol="auto">自动</button>
-            <button class="segment" data-mode="v2" data-protocol="app">App V2</button>
+            <button class="segment" data-mode="v2" data-protocol="app">明文 V2</button>
             <button class="segment" data-mode="v1" data-protocol="web">Web V1</button>
             <button class="segment" data-mode="v2" data-protocol="web">Web V2</button>
           </div>
@@ -118,6 +119,8 @@
               生成全球通跳转
             </button>
           </div>
+
+          <label class="field compact"><span>星动日活动编号</span><input id="globalCampaignInput" value="66050" inputmode="numeric" maxlength="10" /></label>
 
           <button id="buildUrlBtn" class="action-button full secondary">
             <span class="button-icon">U</span>

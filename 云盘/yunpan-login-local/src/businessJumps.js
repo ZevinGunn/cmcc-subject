@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { buildSsoUrl, querySpecToken } from './yunpanClient.js';
-import { buildGlobalTelecomJump, exchangeGlobalTelecomAccessToken, validateGlobalTelecomUrl } from './globalTelecom.js';
+import { buildGlobalTelecomJump, validateGlobalTelecomUrl } from './globalTelecom.js';
+import { verifyBrowserSso } from './ssoBrowser.js';
 import { CLOUD_PHONE_SOURCE_ID, CLOUD_PHONE_TEMPLATE, CAPP_SOURCE_ID, CAPP_TEMPLATE,
   exchangeCloudPhoneTicket, buildCappUrl } from './cloudPhone.js';
 import { patchSession } from './sessionStore.js';
@@ -17,8 +18,12 @@ export async function generateBusinessJump(kind, options = {}, deps = {}) {
   const sourceId = kind === 'global' ? '001191' : CLOUD_PHONE_SOURCE_ID;
   if (!['global', 'cloudphone', 'capp', 'ai'].includes(kind)) throw new Error('未知跳转业务');
   if (kind === 'capp') buildCappUrl('validation-only', options.template || CAPP_TEMPLATE);
-  // Native signing was not captured. Request the actual destination and propagate any denial.
-  const result = await query({ toSourceId: sourceId, mode: options.mode || 'auto', protocol: options.protocol || 'auto' });
+  // The supplied current-session client verified these targets with plaintext App V2.
+  if (kind === 'global' && !/^\d{1,10}$/.test(String(options.campaign || '66050'))) throw new Error('全球通活动编号必须为数字');
+  const automatic = (!options.mode || options.mode === 'auto') && (!options.protocol || options.protocol === 'auto');
+  const result = await query({ toSourceId: sourceId,
+    mode: automatic ? 'v2' : options.mode || 'auto',
+    protocol: automatic ? 'app' : options.protocol || 'auto' });
   if (!result.success || !result.ssoToken) {
     return { success: false, sourceId, validationState: 'failed', freshness: 'live',
       message: result.response?.message || '目标换票失败，请重新登录或检查目标授权；不会回退复用 001003 票据',
@@ -27,7 +32,7 @@ export async function generateBusinessJump(kind, options = {}, deps = {}) {
   let url;
   let sessionPatch = {};
   if (kind === 'global') {
-    url = (await buildGlobalTelecomJump({ ssoToken: result.ssoToken, sourceId })).url;
+    url = (await buildGlobalTelecomJump({ ssoToken: result.ssoToken, sourceId, campaign: options.campaign || '66050' })).url;
   } else if (kind === 'cloudphone') {
     url = buildSsoUrl(CLOUD_PHONE_TEMPLATE, { ssoToken: result.ssoToken, appendAccount: false });
   } else {
@@ -50,7 +55,7 @@ export async function generateBusinessJump(kind, options = {}, deps = {}) {
 }
 
 export async function collectGlobalAccessToken(options = {}, deps = {}) {
-  // Generate a fresh ticket by default. Supplying a native App URL skips the missing signing hop.
+  // Generate a fresh ticket by default; a pasted native URL uses its own ticket.
   let url = options.url;
   if (!url) {
     const jump = await generateBusinessJump('global', options, deps);
@@ -62,7 +67,7 @@ export async function collectGlobalAccessToken(options = {}, deps = {}) {
   // Even a rejected/timeout exchange may have consumed the short ticket.
   await persist({ lastGlobalTelecomUrl: '', lastGlobalTelecomAt: '',
     lastGlobalAccessToken: '', lastGlobalCookie: '', lastGlobalAccessAt: '' });
-  const result = await (deps.exchangeGlobal || exchangeGlobalTelecomAccessToken)({ url });
+  const result = await (deps.exchangeGlobal || verifyBrowserSso)({ kind: 'global', url });
   if (result.success) await persist({ lastGlobalAccessToken: result.accessToken,
     lastGlobalCookie: result.cookie, lastGlobalAccessAt: result.generatedAt,
     lastGlobalTelecomUrl: '', lastGlobalTelecomAt: '' });

@@ -22,6 +22,13 @@ test('全球通拒绝复用邮箱来源 001003 的票据', async () => {
   await assert.rejects(buildGlobalTelecomJump({ ssoToken: 'mail-ticket', sourceId: '001003' }), /必须使用 001191/);
 });
 
+test('全球通活动编号独立配置，回跳完整编码并保留 enableShare', async () => {
+  const url = new URL((await buildGlobalTelecomJump({ ssoToken: 'demo', campaign: '66051' })).url);
+  assert.equal(url.searchParams.get('backUrl'), 'https://qqt.cmicrwx.cn/2016tyjf/xdractivity?sspId=66051');
+  assert.equal(url.searchParams.get('enableShare'), '1');
+  await assert.rejects(buildGlobalTelecomJump({ ssoToken: 'demo', campaign: '66050&evil=1' }), /必须为数字/);
+});
+
 test('全球通必须新下发 access_token 且登录状态为 1', async () => {
   const calls = [];
   const result = await exchangeGlobalTelecomAccessToken({ url: validJump, fetchImpl: async (url, options) => {

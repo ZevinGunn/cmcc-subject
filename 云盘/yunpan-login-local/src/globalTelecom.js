@@ -13,11 +13,13 @@ export const GLOBAL_TELECOM_BIND_URL =
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 
-export async function buildGlobalTelecomJump({ ssoToken, sourceId = '001191', cookie, fetchImpl = fetch } = {}) {
+export async function buildGlobalTelecomJump({ ssoToken, sourceId = '001191', campaign = '66050', cookie, fetchImpl = fetch } = {}) {
+  if (!/^\d{1,10}$/.test(String(campaign))) throw new Error('全球通活动编号必须为数字');
   const ticket = String(ssoToken || '').trim();
   if (ticket) {
     if (sourceId !== GLOBAL_TELECOM_TARGET_SOURCE_ID) throw new Error('全球通必须使用 001191 专用票据，不能复用 001003 邮箱/10086 票据');
     const url = new URL(GLOBAL_TELECOM_BACK_URL);
+    url.searchParams.set('backUrl', `https://qqt.cmicrwx.cn/2016tyjf/xdractivity?sspId=${campaign}`);
     url.searchParams.set('token', ticket);
     url.searchParams.set('targetSourceId', GLOBAL_TELECOM_TARGET_SOURCE_ID);
     url.searchParams.set('enableShare', '1');
