@@ -9,11 +9,12 @@ import {
   buildSsoUrl,
   getRsaPublicKey,
   loginWithSms,
+  importAuthorization,
   querySpecToken,
   sendSmsCode
 } from './yunpanClient.js';
 import { getLogLocation, logEvent, summarizeResponse, withLogContext } from './diagnosticLogger.js';
-import { buildGlobalTelecomJump } from './globalTelecom.js';
+import { generateBusinessJump, collectGlobalAccessToken } from './businessJumps.js';
 import { clearSession, loadSession, patchSession, sessionSummary } from './sessionStore.js';
 import { maskSecret } from './cryptoBox.js';
 import {
@@ -30,6 +31,8 @@ const PORT = Number(process.env.PORT || 7399);
 const HOST = process.env.HOST || '127.0.0.1';
 const responseSummaryKey = Symbol('responseSummary');
 const requestIdKey = Symbol('requestId');
+let mutationInFlight = false;
+const BUILD_ID = 'yunpan-sso-20261012-v2';
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -48,6 +51,7 @@ const server = http.createServer((req, res) => {
   res.setHeader('X-Request-Id', requestId);
 
   void withLogContext({ requestId }, async () => {
+    let ownsMutation = false;
     if (isApi) {
       await logEvent('info', 'api.request.start', {
         method: req.method,
@@ -56,6 +60,14 @@ const server = http.createServer((req, res) => {
     }
     try {
       if (isApi) {
+        if (req.method === 'POST') {
+          if (mutationInFlight) { sendJson(res, 409, { success: false, message: '已有操作进行中，请稍后重试' }); return; }
+          const origin = req.headers.origin;
+          if (origin && new URL(origin).host !== req.headers.host) { sendJson(res, 403, { success: false, message: '不允许跨站操作会话' }); return; }
+          if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '')) { sendJson(res, 415, { success: false, message: '请求必须使用 JSON' }); return; }
+          mutationInFlight = true;
+          ownsMutation = true;
+        }
         await handleApi(req, res);
         return;
       }
@@ -74,6 +86,7 @@ const server = http.createServer((req, res) => {
         stack: process.env.NODE_ENV === 'production' ? undefined : error.stack
       });
     } finally {
+      if (ownsMutation) mutationInFlight = false;
       if (isApi) {
         await logEvent(res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info', 'api.request.complete', {
           method: req.method,
@@ -96,7 +109,7 @@ server.listen(PORT, HOST, () => {
 async function handleApi(req, res) {
   const { pathname } = new URL(req.url, `http://${req.headers.host}`);
   if (req.method === 'GET' && pathname === '/api/health') {
-    sendJson(res, 200, { success: true, now: new Date().toISOString() });
+    sendJson(res, 200, { success: true, buildId: BUILD_ID, now: new Date().toISOString() });
     return;
   }
   if (req.method === 'GET' && pathname === '/api/session') {
@@ -111,7 +124,8 @@ async function handleApi(req, res) {
         ssoToken: maskSecret(session.lastSsoToken),
         wxCookie: maskCookie(session.lastWxCookie),
         wxCookieValue: session.lastWxCookie,
-        wxAuthToken: maskSecret(session.lastWxAuthToken)
+        wxAuthToken: maskSecret(session.lastWxAuthToken),
+        globalAccessToken: maskSecret(session.lastGlobalAccessToken)
       }
     });
     return;
@@ -133,16 +147,12 @@ async function handleApi(req, res) {
   if (req.method === 'POST' && pathname === '/api/auth/login') {
     const body = await readJson(req);
     const loginResult = await loginWithSms(body);
-    if (loginResult.success) {
-      try {
-        const jumpResult = await buildDefaultJumpUrl({ mode: body.ssoMode || 'v1' });
-        sendJson(res, 200, { ...loginResult, defaultJump: jumpResult });
-      } catch (error) {
-        sendJson(res, 200, { ...loginResult, defaultJump: { success: false, message: error.message } });
-      }
-      return;
-    }
+    // 登录成功仅保存会话；各目标使用独立票据，避免自动消耗登录后的短票。
     sendJson(res, 200, loginResult);
+    return;
+  }
+  if (req.method === 'POST' && pathname === '/api/auth/import') {
+    sendJson(res, 200, await importAuthorization(await readJson(req)));
     return;
   }
   if (req.method === 'POST' && pathname === '/api/auth/sso-token') {
@@ -157,6 +167,7 @@ async function handleApi(req, res) {
       template,
       toSourceId: body.toSourceId || findTargetSourceId(template),
       mode: body.mode,
+      protocol: body.protocol,
       account: body.account,
       appendAccount: body.appendAccount !== false
     }));
@@ -196,62 +207,27 @@ async function handleApi(req, res) {
   }
   if (req.method === 'POST' && pathname === '/api/tools/global-jump') {
     const body = await readJson(req);
-    const mode = body.mode === 'v2' ? 'v2' : 'v1';
-    const previousSession = await loadSession();
-    const tokenResult = await querySpecToken({
-      toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
-      mode
-    });
-    if (!tokenResult.success || !tokenResult.ssoToken) {
-      sendJson(res, 200, {
-        success: false,
-        message: tokenResult.response?.message || '获取全球通临时票据失败',
-        generatedAt: tokenResult.generatedAt || '',
-        freshness: 'live',
-        response: tokenResult.response
-      });
-      return;
-    }
-    const result = await buildGlobalTelecomJump({
-      ssoToken: tokenResult.ssoToken,
-      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID
-    });
-    const generatedAt = tokenResult.generatedAt || new Date().toISOString();
-    const output = {
-      ...result,
-      generatedAt,
-      freshness: 'live',
-      upstreamReusedTicket: Boolean(
-        previousSession.lastSsoSourceId === DEFAULT_FLOW_SHOP_SOURCE_ID &&
-        previousSession.lastSsoToken &&
-        previousSession.lastSsoToken === tokenResult.ssoToken
-      )
-    };
-    if (result.success) {
-      await patchSession({
-        lastGlobalTelecomUrl: result.url,
-        lastGlobalTelecomAt: generatedAt
-      });
-    }
-    await logEvent(result.success ? 'info' : 'warn', 'jump.generated', {
-      kind: 'global-telecom',
-      mode,
-      sourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
-      generatedAt,
-      upstreamReusedTicket: output.upstreamReusedTicket,
-      success: result.success
-    });
-    sendJson(res, 200, output);
+    sendJson(res, 200, await generateBusinessJump('global', body));
+    return;
+  }
+  if (req.method === 'POST' && pathname === '/api/tools/global-access-token') {
+    sendJson(res, 200, await collectGlobalAccessToken(await readJson(req)));
+    return;
+  }
+  if (req.method === 'POST' && ['/api/tools/cloudphone-jump', '/api/tools/capp-jump', '/api/tools/ai-phone-jump'].includes(pathname)) {
+    const kind = { '/api/tools/cloudphone-jump': 'cloudphone', '/api/tools/capp-jump': 'capp', '/api/tools/ai-phone-jump': 'ai' }[pathname];
+    sendJson(res, 200, await generateBusinessJump(kind, await readJson(req)));
     return;
   }
   sendJson(res, 404, { success: false, message: 'API 不存在' });
 }
 
-async function buildDefaultJumpUrl({ mode = 'v1' } = {}) {
+async function buildDefaultJumpUrl({ mode = 'v1', protocol = 'web' } = {}) {
   return buildFreshJumpUrl({
     template: DEFAULT_FLOW_SHOP_URL,
     toSourceId: DEFAULT_FLOW_SHOP_SOURCE_ID,
     mode,
+    protocol,
     appendAccount: false
   });
 }
@@ -260,13 +236,14 @@ async function buildFreshJumpUrl({
   template = DEFAULT_FLOW_SHOP_URL,
   toSourceId = DEFAULT_FLOW_SHOP_SOURCE_ID,
   mode = 'v1',
+  protocol = 'web',
   account = '',
   appendAccount = true
 } = {}) {
   const previousSession = await loadSession();
   const sourceId = String(toSourceId || '').trim();
   if (!sourceId) throw new Error('toSourceId 不能为空，无法现场换取跳转票据');
-  const tokenResult = await querySpecToken({ toSourceId: sourceId, mode });
+  const tokenResult = await querySpecToken({ toSourceId: sourceId, mode, protocol });
   const session = await loadSession();
   if (!tokenResult.success || !tokenResult.ssoToken) {
     return {
@@ -617,7 +594,12 @@ async function serveStatic(req, res) {
 
 async function readJson(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 16384) throw new Error('请求体超过 16KB');
+    chunks.push(chunk);
+  }
   const raw = Buffer.concat(chunks).toString('utf8');
   if (!raw) return {};
   return JSON.parse(raw);

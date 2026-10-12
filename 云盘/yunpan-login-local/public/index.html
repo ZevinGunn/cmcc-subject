@@ -38,8 +38,8 @@
           </label>
 
           <label class="field">
-            <span>滑块结果</span>
-            <input id="puzzleInput" placeholder="触发风控后填写" />
+            <span>滑块验证凭据</span>
+            <input id="puzzleInput" autocomplete="off" placeholder="完成官方滑块后自动填写" />
           </label>
 
           <div class="captcha-box">
@@ -68,6 +68,11 @@
             <span class="button-icon">L</span>
             登录并保存 Token
           </button>
+          <details>
+            <summary>导入自己的 App 登录会话</summary>
+            <label class="field"><span>Authorization</span><input id="importAuthorizationInput" type="password" autocomplete="off" placeholder="Basic …" /></label>
+            <button id="importSessionBtn" class="action-button full secondary" type="button">导入并保存会话</button>
+          </details>
 
           <div class="divider"></div>
 
@@ -77,9 +82,21 @@
           </label>
 
           <div class="segmented" role="group" aria-label="sso token mode">
-            <button class="segment active" data-mode="v1">querySpecToken</button>
-            <button class="segment" data-mode="v2">querySpecTokenV2</button>
+            <button class="segment active" data-mode="auto" data-protocol="auto">自动</button>
+            <button class="segment" data-mode="v2" data-protocol="app">App V2</button>
+            <button class="segment" data-mode="v1" data-protocol="web">Web V1</button>
+            <button class="segment" data-mode="v2" data-protocol="web">Web V2</button>
           </div>
+
+          <div class="button-row">
+            <button id="cloudPhoneJumpBtn" class="action-button accent">生成云手机跳转</button>
+            <button id="cappJumpBtn" class="action-button accent">生成 CAPP 跳转</button>
+          </div>
+          <label class="field">
+            <span>CAPP 应用入口</span>
+            <input id="cappTemplateInput" value="https://capp.139.com/#/?i=DYFvhV8fncc%3D&amp;token=#ssoToken#&amp;targetSourceId=001304" />
+            <small class="helper-text">默认应用：芒果 TV，可替换为其他 CAPP 应用入口。</small>
+          </label>
 
           <button id="ssoBtn" class="action-button full accent">
             <span class="button-icon">T</span>
@@ -136,6 +153,30 @@
               <span class="step-index">4</span>
               <span>ssoToken</span>
             </button>
+          </section>
+
+          <section class="link-output-grid" aria-label="云手机与云应用链接">
+            <article class="panel url-panel">
+              <div class="panel-title"><span>云手机跳转链接</span><button id="copyCloudPhoneBtn" class="icon-button" title="复制云手机链接" disabled>C</button></div>
+              <span id="cloudPhoneFreshness" class="freshness" role="status">未生成</span>
+              <input id="cloudPhoneOutput" readonly aria-label="云手机链接" placeholder="生成后显示" />
+            </article>
+            <article class="panel url-panel">
+              <div class="panel-title"><span>CAPP 云应用链接</span><button id="copyCappBtn" class="icon-button" title="复制 CAPP 链接" disabled>C</button></div>
+              <span id="cappFreshness" class="freshness" role="status">未生成</span>
+              <input id="cappOutput" readonly aria-label="CAPP 链接" placeholder="生成后显示" />
+            </article>
+          </section>
+
+          <section class="panel url-panel">
+            <div class="panel-title"><span>全球通 access_token</span><button id="copyGlobalAccessBtn" class="icon-button" title="复制全球通 access_token" disabled>C</button></div>
+            <span id="globalAccessFreshness" class="freshness" role="status">未置换</span>
+            <input id="globalAccessOutput" readonly aria-label="全球通 access_token" placeholder="校验登录成功后显示" />
+            <details>
+              <summary>使用 App 已签发的全球通链接</summary>
+              <label class="field"><span>全球通 SSO 链接</span><textarea id="nativeGlobalUrlInput" rows="2" placeholder="可选：粘贴当前 App 生成的 HTTPS SSO 链接" autocomplete="off"></textarea></label>
+            </details>
+            <button id="globalAccessBtn" class="action-button accent">置换全球通 access_token 并验证登录</button>
           </section>
 
           <section class="output-grid">

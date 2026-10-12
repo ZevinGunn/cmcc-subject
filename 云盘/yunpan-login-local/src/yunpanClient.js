@@ -4,17 +4,17 @@ import {
   aesEcbDecrypt,
   aesEcbEncrypt,
   base64Decode,
-  encryptUploadBrowseData,
   formatMcloudTimestamp,
   getNewSign,
   makeAuthorization,
   maskSecret,
   randomString,
   rsaEncryptWithPublicKey,
-  safeJsonParse
+  safeJsonParse,
+  SMS_AES_KEY
 } from './cryptoBox.js';
 import { logEvent, summarizeResponse } from './diagnosticLogger.js';
-import { loadSession, patchSession } from './sessionStore.js';
+import { loadSession, patchSession, saveSession } from './sessionStore.js';
 
 const ENDPOINTS = {
   yun: 'https://yun.139.com',
@@ -54,10 +54,26 @@ function buildQuerySpecTokenV1Payload(account, toSourceId) {
   };
 }
 
-function buildQuerySpecTokenV2Payload(account, toSourceId) {
+function buildQuerySpecTokenV2Payload(account, toSourceId, protocol = 'web') {
+  if (protocol === 'app') return { toSourceId: requireSourceId(toSourceId) };
   return {
     phoneNumber: String(account || '').trim(),
     toSourceId: requireSourceId(toSourceId)
+  };
+}
+
+function buildSmsPayload(phone, nationCode, proof = '', captchaType = 2) {
+  const normalizedNation = normalizeNationCode(nationCode);
+  if (!/^\d{5,15}$/.test(String(phone || ''))) throw new Error('请输入有效手机号');
+  if (![1, 2, 3].includes(Number(captchaType))) throw new Error('滑块类型不合法');
+  return {
+    random: String(Date.now()) + String(Math.floor(Math.random() * 100000)),
+    additionalSpaceSelected: 1,
+    clientType: '412',
+    reqType: '3',
+    nationCode: normalizedNation,
+    phoneNumber: String(phone),
+    ...(proof ? { captchaType: Number(captchaType), puzzleVerfycode: String(proof) } : {})
   };
 }
 
@@ -183,7 +199,8 @@ async function requestJson(url, { method = 'POST', headers = {}, body, raw = fal
     const res = await fetch(url, {
       method,
       headers,
-      body: requestBody
+      body: requestBody,
+      signal: AbortSignal.timeout(20000)
     });
     const text = await res.text();
     const parsed = raw ? text : safeJsonParse(text);
@@ -273,28 +290,13 @@ async function prepareFreshLoginCrypto() {
   return { ...(await loadSession()), rsaPublicKey, aesKey, secretKey, cryptoPreparedAt };
 }
 
-export async function sendSmsCode({ phone, nationCode = '+86', puzzleVerifyCode = '' }) {
+export async function sendSmsCode({ phone, nationCode = '+86', puzzleVerifyCode = '', captchaType = 2 }) {
   const session = await loadSession();
   const normalizedNation = normalizeNationCode(nationCode);
-  const smsRandom = randomString(16);
-  let plainPayload;
-  if (normalizedNation === '+852' || normalizedNation === '92') {
-    plainPayload = {
-      phoneNumber: phone,
-      reqType: 3,
-      random: smsRandom,
-      nationCode: normalizedNation,
-      clientType: CLIENT.mcloudClient
-    };
-    if (puzzleVerifyCode) {
-      plainPayload.puzzleVerfycode = encryptUploadBrowseData(puzzleVerifyCode, 'CREATPUZZLE03F9A');
-    }
-  } else {
-    plainPayload = { account: phone, reqType: 3, random: smsRandom };
-    if (puzzleVerifyCode) plainPayload.puzzleVerfyCode = puzzleVerifyCode;
-  }
+  const plainPayload = buildSmsPayload(phone, normalizedNation, puzzleVerifyCode, captchaType);
+  const smsRandom = plainPayload.random;
 
-  const encryptedBody = aesCbcEncryptWithIvPrefix(plainPayload);
+  const encryptedBody = aesCbcEncryptWithIvPrefix(plainPayload, SMS_AES_KEY);
   const headers = commonHeaders({
     data: plainPayload,
     session,
@@ -313,7 +315,7 @@ export async function sendSmsCode({ phone, nationCode = '+86', puzzleVerifyCode 
 
   let response = result.rawText;
   try {
-    response = safeJsonParse(aesCbcDecryptWithIvPrefix(result.rawText));
+    response = safeJsonParse(aesCbcDecryptWithIvPrefix(result.rawText, SMS_AES_KEY));
   } catch {
     response = safeJsonParse(result.rawText);
   }
@@ -332,7 +334,8 @@ export async function sendSmsCode({ phone, nationCode = '+86', puzzleVerifyCode 
     ...(plainPayload.puzzleVerfycode ? { puzzleVerfycode: '[REDACTED]' } : {})
   };
   const output = {
-    success: result.ok && (response?.success || response?.code === '0' || response?.resultCode === '0' || response?.status === '200'),
+    success: Boolean(result.ok && response?.success === true && ['0000', '0'].includes(String(response?.code))),
+    captchaRequired: ['200059552', '200059553', '200059555', '200059508'].includes(String(response?.code)),
     status: result.status,
     plainPayload: diagnosticPayload,
     encryptedPreview: maskSecret(encryptedBody, 14, 12),
@@ -349,12 +352,20 @@ export async function sendSmsCode({ phone, nationCode = '+86', puzzleVerifyCode 
 }
 
 export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnToken = true, autoLogin = true }) {
+  if (!/^\d{5,15}$/.test(String(phone || '')) || !/^\d{4,8}$/.test(String(smsCode || ''))) {
+    throw new Error('请输入有效手机号和短信验证码');
+  }
   const loginAttemptAt = new Date().toISOString();
   await patchSession({
     lastLoginStatus: 'pending',
     lastLoginAttemptAt: loginAttemptAt,
     lastLoginErrorCode: '',
-    lastLoginErrorMessage: ''
+    lastLoginErrorMessage: '',
+    authToken: '', token: '', authorization: '', cookieJar: {},
+    nativeClientInfo: '', nativeChannel: '',
+    lastSsoToken: '', lastBuiltUrl: '', lastWxCookie: '', lastWxAuthToken: '',
+    lastGlobalTelecomUrl: '', lastGlobalAccessToken: '', lastGlobalCookie: '',
+    lastCloudPhoneUrl: '', lastCappUrl: '', lastAiPhoneUrl: '', cloudPhoneSession: null
   });
   const session = await prepareFreshLoginCrypto();
   const normalizedNation = normalizeNationCode(nationCode);
@@ -376,7 +387,7 @@ export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnT
   });
 
   const data = result.data?.data || {};
-  const encryptedAccount = data.encryptAccount || session.encryptedAccount;
+  const encryptedAccount = data.encryptAccount || '';
   const completeAccount = encryptedAccount ? base64Decode(encryptedAccount) : phone;
   const account = data.simplifyAccount || maskPhone(completeAccount);
   const authToken = data.authToken || (data.token ? tryDecryptToken(data.token, session.aesKey) : '');
@@ -475,7 +486,7 @@ export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnT
     },
     encryptedPreview: maskSecret(body.encryptMsg, 14, 12),
     request: { url: `${ENDPOINTS.yun}/orchestration/auth-rebuild/permission/v1.0/login`, headers: redactHeaders(headers), body: { ...body, encryptMsg: maskSecret(body.encryptMsg) } },
-    response: result.data,
+    response: summarizeResponse(result.data),
     session: {
       account,
       completeAccount,
@@ -497,17 +508,24 @@ export async function loginWithSms({ phone, smsCode, nationCode = '+86', returnT
   return output;
 }
 
-export async function querySpecToken({ toSourceId, account = '', phoneNumber = '', mode = 'v1' } = {}) {
+export async function querySpecToken({ toSourceId, account = '', phoneNumber = '', mode = 'v1', protocol = 'web' } = {}) {
+  if (!['web', 'app', 'auto'].includes(protocol)) throw new Error('换票协议不合法');
+  if (!['v1', 'v2', 'auto'].includes(mode)) throw new Error('换票版本不合法');
   const session = await loadSession();
   if (!session.authorization || !session.completeAccount) {
     throw new Error('请先完成登录，当前没有 Authorization 或完整账号');
+  }
+  if (protocol === 'auto' || mode === 'auto') {
+    const isMobile = Buffer.from(session.authorization.replace(/^Basic /, ''), 'base64').toString().startsWith('mobile:');
+    protocol = isMobile ? 'app' : 'web';
+    mode = isMobile ? 'v2' : 'v1';
   }
 
   const useV2 = mode === 'v2';
   const requestedAt = new Date().toISOString();
   const completeAccount = account || phoneNumber || session.completeAccount;
   const payload = useV2
-    ? buildQuerySpecTokenV2Payload(completeAccount, toSourceId)
+    ? buildQuerySpecTokenV2Payload(completeAccount, toSourceId, protocol)
     : buildQuerySpecTokenV1Payload(completeAccount, toSourceId);
   const url = useV2
     ? `${resolveUserDomainUrl(session.routerInfo)}/querySpecTokenV2`
@@ -515,9 +533,17 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
 
   let body = payload;
   const headers = commonHeaders({ data: payload, session, includeAuthorization: true });
-  if (useV2) {
+  if (useV2 && protocol === 'web') {
     headers['hcy-cool-flag'] = '1';
     body = JSON.stringify(aesCbcEncryptWithIvPrefix(payload));
+  }
+  if (useV2 && protocol === 'app') {
+    // HAR 中的 App V2 是明文 toSourceId，不能套用旧 Web 的 hcy-cool-flag。
+    delete headers['mcloud-skey'];
+    headers['x-MM-Source'] = '001';
+    headers['x-yun-tid'] = randomString(36);
+    if (session.nativeClientInfo) headers['x-DeviceInfo'] = session.nativeClientInfo;
+    if (session.nativeChannel) headers['x-huawei-channelSrc'] = session.nativeChannel;
   }
 
   const result = await requestJson(url, {
@@ -536,16 +562,31 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
     }
   }
 
-  const ssoToken = response?.data?.token || response?.token || '';
+  const accepted = result.ok && response?.success === true && ['0000', '0'].includes(String(response?.code)) &&
+    (!response?.data?.resultCode || String(response.data.resultCode) === '104000');
+  const candidate = response?.data?.token || response?.token;
+  const ssoToken = accepted && typeof candidate === 'string' ? candidate : '';
   const receivedAt = new Date().toISOString();
   if (ssoToken) {
     await patchSession({
+      lastLoginStatus: 'verified', lastLoginErrorCode: '', lastLoginErrorMessage: '',
       lastSsoToken: ssoToken,
       lastSsoSourceId: payload.toSourceId,
       lastSsoRequestedAt: requestedAt,
       lastSsoReceivedAt: receivedAt,
       cookieJar: absorbSetCookie(session.cookieJar, result.headers)
     });
+  } else if (String(response?.code) === '1010010015') {
+    await patchSession({ lastLoginStatus: 'expired', lastLoginErrorCode: '1010010015',
+      lastLoginErrorMessage: response.message || '鉴权失效', lastSsoToken: '',
+      lastSsoSourceId: '', lastSsoRequestedAt: '', lastSsoReceivedAt: '',
+      lastBuiltUrl: '', lastBuiltAt: '', lastJumpTemplate: '',
+      lastWxCookie: '', lastWxCookieUrl: '', lastWxCookieAt: '', lastWxCookieSource: '',
+      lastWxAuthToken: '', lastWxUpstreamCookieNames: [], lastWxSeedCookieNames: [],
+      lastGlobalTelecomUrl: '', lastGlobalTelecomAt: '',
+      lastGlobalAccessToken: '', lastGlobalCookie: '', lastGlobalAccessAt: '',
+      lastCloudPhoneUrl: '', lastCloudPhoneAt: '', lastCappUrl: '', lastCappAt: '',
+      lastAiPhoneUrl: '', lastAiPhoneAt: '', cloudPhoneSession: null });
   }
 
   const output = {
@@ -555,11 +596,13 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
     requestedAt,
     generatedAt: receivedAt,
     freshness: 'live',
-    request: { url, headers: redactHeaders(headers), body: useV2 ? { encrypted: true, payload } : payload },
+    sourceId: payload.toSourceId,
+    protocol: useV2 ? `querySpecTokenV2-${protocol}` : 'querySpecToken-v1',
+    request: { url, headers: redactHeaders(headers), body: useV2 && protocol === 'web' ? { encrypted: true, payload: { ...payload, phoneNumber: maskPhone(completeAccount) } } : { ...payload, ...(payload.account ? { account: maskPhone(completeAccount) } : {}) } },
     response
   };
   await logEvent(output.success ? 'info' : 'warn', 'yunpan.sso-token.complete', {
-    protocol: useV2 ? 'querySpecTokenV2-web' : 'querySpecToken-v1',
+    protocol: output.protocol,
     sourceId: payload.toSourceId,
     requestedAt,
     receivedAt,
@@ -569,6 +612,22 @@ export async function querySpecToken({ toSourceId, account = '', phoneNumber = '
     response: summarizeResponse(output.response)
   });
   return output;
+}
+
+export async function importAuthorization({ authorization, deviceInfo = '', channel = '' } = {}) {
+  const value = String(authorization || '').trim();
+  if (!/^Basic [A-Za-z0-9+/]+=*$/.test(value)) throw new Error('请输入云盘 Basic Authorization');
+  const decoded = Buffer.from(value.slice(6), 'base64').toString('utf8');
+  const match = decoded.match(/^(pc|mobile):(\d{5,15}):([^:\s]+)$/);
+  if (!match) throw new Error('云盘 Authorization 格式不合法');
+  if (/[\r\n]/.test(deviceInfo + channel)) throw new Error('客户端信息不合法');
+  const [, realm, completeAccount, authToken] = match;
+  const session = await saveSession({ authorization: value, authToken, completeAccount,
+    account: maskPhone(completeAccount), nativeClientInfo: String(deviceInfo), nativeChannel: String(channel),
+    lastLoginStatus: 'imported' });
+  await logEvent('info', 'yunpan.session.imported', { realm, success: true, hasAuthorization: true });
+  return { success: true, message: '已保存 App 会话，有效性需由目标换票接口验证',
+    session: { account: session.account, hasAuthorization: true, authState: 'cached' } };
 }
 
 export function buildSsoUrl(rawUrl, { ssoToken, account, appendAccount = true } = {}) {
@@ -594,6 +653,7 @@ export const __test__ = {
   buildSmsLoginRequest,
   buildQuerySpecTokenV1Payload,
   buildQuerySpecTokenV2Payload,
+  buildSmsPayload,
   requireSourceId,
   resolveUserDomainUrl
 };

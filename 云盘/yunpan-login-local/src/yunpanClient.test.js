@@ -2,10 +2,28 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { DEFAULT_FLOW_SHOP_SOURCE_ID, DEFAULT_FLOW_SHOP_URL, __test__ } from './yunpanClient.js';
+import { aesCbcEncryptWithIvPrefix, aesCbcDecryptWithIvPrefix, SMS_AES_KEY } from './cryptoBox.js';
 
 test('10086 jump uses the current authorized source id', () => {
   assert.equal(DEFAULT_FLOW_SHOP_SOURCE_ID, '001003');
   assert.match(DEFAULT_FLOW_SHOP_URL, /targetSourceId=001003$/);
+});
+
+test('App V2 仅传 toSourceId，与旧 Web V2 分开', () => {
+  assert.deepEqual(__test__.buildQuerySpecTokenV2Payload('13800000000', '001216', 'app'), { toSourceId: '001216' });
+});
+
+test('新版短信滑块使用 phoneNumber 和大小写准确的 puzzleVerfycode', () => {
+  const payload = __test__.buildSmsPayload('13800000000', '+86', 'fresh-proof', 2);
+  assert.equal(payload.phoneNumber, '13800000000');
+  assert.equal(payload.clientType, '412');
+  assert.equal(payload.captchaType, 2);
+  assert.equal(payload.puzzleVerfycode, 'fresh-proof');
+  assert.equal(payload.account, undefined);
+  assert.equal(payload.puzzleVerfyCode, undefined);
+  const encrypted = aesCbcEncryptWithIvPrefix(payload, SMS_AES_KEY);
+  assert.deepEqual(JSON.parse(aesCbcDecryptWithIvPrefix(encrypted, SMS_AES_KEY)), payload);
+  assert.throws(() => aesCbcDecryptWithIvPrefix(encrypted));
 });
 
 test('SMS login matches the current web payload contract', () => {

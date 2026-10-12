@@ -1,13 +1,15 @@
 import crypto from 'node:crypto';
 
 const USER_DOMAIN_AES_KEY = 'UqEZkrjCKfa02pP6jntzFmkzOz86zHUC';
+// 云盘 2026-10 captcha.js 使用的短信密钥；旧 Web V2 密钥仍独立保留。
+export const SMS_AES_KEY = 'h7DLzCTAjn+altjy2a9E9FSt7AC6pmx1';
 const UPLOAD_BROWSE_AES_KEY = 'bgo3OUIS7eQgVewk';
 
 export function randomString(length = 16) {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let out = '';
   for (let i = 0; i < length; i += 1) {
-    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+    out += alphabet[crypto.randomInt(alphabet.length)];
   }
   return out;
 }

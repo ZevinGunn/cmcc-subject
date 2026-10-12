@@ -59,7 +59,7 @@ http://localhost:7399
 
 链接响应中的 `generatedAt` 表示本次上游换票响应时间。如果页面显示“实时请求 · 上游复用票据”，表示本地已经重新发起请求，但云盘在票据有效期内返回了与上次相同的值；这与本地直接使用缓存是两种情况。
 
-全球通链接按新版 `mcloud.har` 的官方路径生成：云盘用 `001003` 换取短时 `ssoToken`，再传入 `https://qqt.cmicrwx.cn/2016tyjf/xhmqqthy/new/ssoTokenLogin.action`，目标来源为 `001191`。该链路与 10086 CK 获取并行，不再依赖 wx 绑定页的 Cookie 桥接；旧 Cookie 绑定实现仅保留为兼容能力。
+全球通使用 `001191` 专用票据，云手机使用 `001216`，CAPP 使用 `001304`，AI 助手使用 `001005`。不会将 `001003` 的票据直接当作全球通票据。生成链接与全球通 `access_token` 置换分开；只有新 `Set-Cookie` 与登录状态检查均通过才报告全球通认证成功。原生目标签发请求的缺失证据与实测要求见 [2026-10-12 HAR 说明](docs/20261012-HAR登录与业务换票说明.md)。
 
 ## 诊断日志
 
@@ -76,4 +76,6 @@ http://localhost:7399
 
 注意不要把短信接口的 `random` 带进登录接口。7.17.10 Web 登录的加密业务体必须包含 `verType: 2`、`clientEnv: "3"`，短信登录的 `ifOpenAccount` 为字符串 `"1"`；外层必须包含 `clientId: "10701"`。缺少这些字段、字段类型不符，或让 `mcloud-skey` 与 `encryptMsg` 使用不同轮次的 AESKey，都可能触发 `1010010001 参数错误`。
 
-滑块验证码不能绕过，也不建议做自动破解。前端接入的是官方 AliyunCaptcha 脚本，完成滑块后会拿到 `captchaVerifyParam` 并写入请求的 `puzzleToken` 字段，由云盘短信接口做最终校验。若网络环境拦截了 `o.alicdn.com`，页面会提示滑块脚本未加载，需要更换网络或放行该域名。
+前端接入官方 AliyunCaptcha。官方滑块成功后，以 `captchaType=2`、`puzzleVerfycode` 向短信服务提交证明；后端采用本次 HAR 的新 AES-CBC 协议。短信服务端确认成功后才提示已发送，证明使用后清除。若网络环境拦截了 `o.alicdn.com`，页面会提示滑块脚本未加载。
+
+新增云手机、CAPP 链接操作和“置换全球通 access_token 并验证登录”。自动协议根据保存的 pc/mobile 会话选择 Web V1 或 App V2，也可手动选择协议。Web 登录和原生 App 会话不能假定具有相同目标授权；可通过“导入自己的 App 登录会话”保存当前真实 Authorization，或用当前 App 的全球通 SSO 链接验证消费链路。缓存结果刷新后禁止复制，须重新生成；已消费的全球通短票从输出中移除。

@@ -1,11 +1,13 @@
 const state = {
-  mode: 'v1',
+  mode: 'auto',
+  protocol: 'auto',
   lastResult: null,
   builtUrl: '',
   globalUrl: '',
   builtStatus: 'initial',
   globalStatus: 'initial',
-  cookieStatus: 'initial'
+  cookieStatus: 'initial',
+  outputs: {}
 };
 
 const $ = (id) => document.getElementById(id);
@@ -47,6 +49,7 @@ const stepMap = {
 document.querySelectorAll('.segment').forEach((button) => {
   button.addEventListener('click', () => {
     state.mode = button.dataset.mode;
+    state.protocol = button.dataset.protocol;
     document.querySelectorAll('.segment').forEach((item) => item.classList.toggle('active', item === button));
   });
 });
@@ -55,9 +58,25 @@ $('refreshSessionBtn').addEventListener('click', refreshSession);
 $('publicKeyBtn').addEventListener('click', () => runStep('key', '获取 RSA 公钥', '/api/auth/public-key', {}));
 $('smsBtn').addEventListener('click', sendSms);
 $('loginBtn').addEventListener('click', login);
+$('importSessionBtn').addEventListener('click', async () => {
+  const input = $('importAuthorizationInput');
+  if (!input.value.trim()) { setStatus('请输入自己的 App Authorization', 'err'); return; }
+  resetBusinessOutputs();
+  await runStep('login', '导入 App 会话', '/api/auth/import', { authorization: input.value.trim() });
+  input.value = '';
+});
 $('ssoBtn').addEventListener('click', getSsoToken);
 $('defaultJumpBtn').addEventListener('click', buildDefaultJump);
 $('globalJumpBtn').addEventListener('click', buildGlobalJump);
+$('cloudPhoneJumpBtn').addEventListener('click', () => buildBusinessOutput('cloudphone'));
+$('cappJumpBtn').addEventListener('click', () => buildBusinessOutput('capp'));
+$('globalAccessBtn').addEventListener('click', () => buildBusinessOutput('global-access-token'));
+const businessOutputs = {
+  cloudphone: { output: $('cloudPhoneOutput'), status: $('cloudPhoneFreshness'), copy: $('copyCloudPhoneBtn'), label: '云手机' },
+  capp: { output: $('cappOutput'), status: $('cappFreshness'), copy: $('copyCappBtn'), label: 'CAPP 云应用' },
+  'global-access-token': { output: $('globalAccessOutput'), status: $('globalAccessFreshness'), copy: $('copyGlobalAccessBtn'), label: '全球通 access_token' }
+};
+for (const item of Object.values(businessOutputs)) item.copy.addEventListener('click', () => copyText(item.output.value));
 $('buildUrlBtn').addEventListener('click', buildUrl);
 $('wxCookieBtn').addEventListener('click', getWxCookie);
 $('clearBtn').addEventListener('click', clearSession);
@@ -75,8 +94,10 @@ async function sendSms() {
   await runStep('sms', '发送短信验证码', '/api/auth/send-sms', {
     phone,
     nationCode: els.nation.value,
-    puzzleVerifyCode: els.puzzle.value.trim()
+    puzzleVerifyCode: els.puzzle.value.trim(),
+    captchaType: 2
   });
+  els.puzzle.value = '';
 }
 
 function initCaptcha() {
@@ -101,12 +122,16 @@ function initCaptcha() {
           window.__yunpanCaptcha = instance;
           status.textContent = '官方滑块已就绪。';
         },
-        async captchaVerifyCallback(captchaVerifyParam) {
-          els.puzzle.value = captchaVerifyParam;
-          status.textContent = '滑块完成，已写入验证参数，请重新发送验证码。';
-          return { captchaResult: true, bizResult: true };
+        // 官方 SDK 在云端 VerifyCaptcha 成功后调用 success；业务短信发送另行验证。
+        async success(proof) {
+          const phone = requirePhone();
+          if (!phone) return;
+          els.puzzle.value = typeof proof === 'string' ? proof : JSON.stringify(proof);
+          status.textContent = '滑块通过，正在发送短信验证码。';
+          await sendSms();
+          status.textContent = state.lastResult?.success ? '短信已发送，请输入验证码。' : '短信未发送成功，请查看接口结果后重新验证。';
         },
-        onBizResultCallback() {}
+        error() { status.textContent = '滑块验证失败，请重试。'; }
       });
     } catch (error) {
       status.textContent = `滑块初始化失败：${error.message}`;
@@ -128,6 +153,7 @@ async function login() {
     setStatus('请输入短信验证码', 'err');
     return;
   }
+  resetBusinessOutputs();
   await runStep('login', '登录并保存 Token', '/api/auth/login', {
     phone,
     smsCode,
@@ -147,7 +173,8 @@ async function getSsoToken() {
   }
   await runStep('sso', '获取 ssoToken', '/api/auth/sso-token', {
     toSourceId,
-    mode: state.mode
+    mode: state.mode,
+    protocol: state.protocol
   });
 }
 
@@ -171,6 +198,7 @@ async function buildUrl() {
       url,
       toSourceId,
       mode: state.mode,
+      protocol: state.protocol,
       appendAccount: !isDefaultJumpTemplate(url)
     });
     applyLiveBuiltUrl(result);
@@ -191,7 +219,7 @@ async function buildDefaultJump() {
   setBusy(true);
   setStatus('生成 10086 跳转中', 'warn');
   try {
-    const result = await api('/api/tools/default-jump', { mode: state.mode });
+    const result = await api('/api/tools/default-jump', { mode: state.mode, protocol: state.protocol });
     applyLiveBuiltUrl(result);
     if (!els.url.value.trim()) els.url.value = result.template || defaultJumpTemplate;
     state.lastResult = result;
@@ -211,7 +239,7 @@ async function buildGlobalJump() {
   setBusy(true);
   setStatus('生成全球通跳转中', 'warn');
   try {
-    const result = await api('/api/tools/global-jump', { mode: state.mode });
+    const result = await api('/api/tools/global-jump', { mode: state.mode, protocol: state.protocol });
     applyLiveGlobalUrl(result);
     state.lastResult = result;
     renderResult(result);
@@ -223,6 +251,60 @@ async function buildGlobalJump() {
   } finally {
     setBusy(false);
   }
+}
+
+async function buildBusinessOutput(kind) {
+  const item = businessOutputs[kind];
+  const globalTicketUrl = kind === 'global-access-token' ?
+    $('nativeGlobalUrlInput').value.trim() || (state.globalStatus === 'live' ? state.globalUrl : '') : '';
+  if (kind === 'global-access-token') {
+    // A timeout can occur after upstream has consumed the short ticket.
+    state.globalUrl = '';
+    state.globalStatus = 'consumed';
+    els.globalUrl.value = '';
+    els.copyGlobal.disabled = true;
+    $('nativeGlobalUrlInput').value = '';
+    setFreshness(els.globalFreshness, '票据已用于置换，请重新生成', 'cached');
+  }
+  item.output.value = '';
+  item.copy.disabled = true;
+  state.outputs[kind] = 'loading';
+  setFreshness(item.status, '实时换票中', 'loading');
+  setBusy(true);
+  try {
+    const result = await api(`/api/tools/${kind === 'global-access-token' ? kind : kind + '-jump'}`, {
+      mode: state.mode, protocol: state.protocol,
+      ...(kind === 'capp' ? { template: $('cappTemplateInput').value.trim() } : {}),
+      ...(kind === 'global-access-token' ? { url: globalTicketUrl } : {})
+    });
+    const value = kind === 'global-access-token' ? result.accessToken : result.url;
+    item.output.value = result.success ? value || '' : '';
+    item.copy.disabled = !result.success || !value;
+    state.outputs[kind] = result.success ? 'live' : 'error';
+    setFreshness(item.status, result.success ? `${result.validationState === 'authenticated' ? '已验证登录' : '已换票 · 待目标登录'} · ${formatTime(result.generatedAt)}` : '换票失败', result.success ? 'live' : 'error');
+    state.lastResult = result;
+    renderResult(result);
+    setStatus(result.message || (result.success ? `${item.label}已生成` : `${item.label}未完成`), result.success ? 'ok' : 'err');
+    await refreshSession(false);
+  } catch (error) {
+    state.outputs[kind] = 'error';
+    setFreshness(item.status, '换票失败', 'error');
+    state.lastResult = errorResult(error);
+    renderResult(state.lastResult);
+    setStatus(error.message, 'err');
+  } finally { setBusy(false); }
+}
+
+function resetBusinessOutputs() {
+  state.builtUrl = ''; state.globalUrl = '';
+  state.builtStatus = 'cleared'; state.globalStatus = 'cleared'; state.cookieStatus = 'cleared';
+  for (const [output, freshness, copy] of [[els.builtUrl, els.builtFreshness, els.copyBuilt], [els.globalUrl, els.globalFreshness, els.copyGlobal], [els.wxCookie, els.cookieFreshness, els.copyCookie]]) {
+    output.value = ''; copy.disabled = true; setFreshness(freshness, '未生成');
+  }
+  for (const [kind, item] of Object.entries(businessOutputs)) {
+    item.output.value = ''; item.copy.disabled = true; setFreshness(item.status, '未生成'); state.outputs[kind] = 'cleared';
+  }
+  $('nativeGlobalUrlInput').value = '';
 }
 
 async function getWxCookie() {
@@ -270,6 +352,7 @@ async function clearSession() {
   state.lastResult = result;
   renderResult(result);
   updateSession(result.session);
+  resetBusinessOutputs();
   setStatus('本地会话已清空', 'warn');
   state.builtUrl = '';
   state.globalUrl = '';
@@ -360,9 +443,11 @@ function renderResult(result) {
 }
 
 function updateSession(session = {}, secrets = {}) {
+  if (session.authState === 'expired') resetBusinessOutputs();
   const authLabels = {
-    active: '本轮登录成功',
+    active: '登录会话有效',
     cached: '已缓存，待验证',
+    expired: '鉴权失效，请重新登录',
     failed: '本轮登录失败',
     'signed-out': '未登录'
   };
@@ -388,6 +473,7 @@ function updateSession(session = {}, secrets = {}) {
     ['上游 CK 项', session.lastWxUpstreamCookieNames?.join(', ') || '-'],
     ['wx 认证', session.hasLastWxAuthToken ? '已完成' : '-'],
     ['全球通跳转', session.lastGlobalTelecomUrl ? cachedLabel(session.lastGlobalTelecomAt) : '-'],
+    ['全球通认证', session.hasGlobalAccessToken ? `${secrets.globalAccessToken || '已保存'} · ${cachedLabel(session.lastGlobalAccessAt)}` : '-'],
     ['短信随机串', session.lastSmsRandom || '-'],
     ['模块数', session.routerModules?.length || 0]
   ];
@@ -397,7 +483,13 @@ function updateSession(session = {}, secrets = {}) {
   els.sessionTime.textContent = session.updatedAt ? new Date(session.updatedAt).toLocaleString() : '-';
   els.loginPill.textContent = authLabel;
   els.loginPill.classList.toggle('ok', session.authState === 'active');
-  els.loginPill.classList.toggle('err', session.authState === 'failed');
+  els.loginPill.classList.toggle('err', ['failed', 'expired'].includes(session.authState));
+  for (const [kind, field] of [['cloudphone', 'lastCloudPhone'], ['capp', 'lastCapp']]) {
+    if (state.outputs[kind] || !session[field + 'Url']) continue;
+    const item = businessOutputs[kind];
+    item.output.value = session[field + 'Url']; item.copy.disabled = true;
+    state.outputs[kind] = 'cached'; setFreshness(item.status, cachedLabel(session[field + 'At']), 'cached');
+  }
   if (session.completeAccount && !els.phone.value.trim()) {
     els.phone.value = session.completeAccount;
   }
@@ -460,7 +552,7 @@ function applyLiveBuiltUrl(result = {}) {
   els.copyBuilt.disabled = !success;
   setFreshness(
     els.builtFreshness,
-    success ? liveLabel(result.generatedAt, result.upstreamReusedTicket) : '生成失败',
+    success ? `已换票 · 待目标登录 · ${formatTime(result.generatedAt)}` : '生成失败',
     success ? 'live' : 'error'
   );
 }
@@ -473,7 +565,7 @@ function applyLiveGlobalUrl(result = {}) {
   els.copyGlobal.disabled = !success;
   setFreshness(
     els.globalFreshness,
-    success ? liveLabel(result.generatedAt, result.upstreamReusedTicket) : '生成失败',
+    success ? `已换票 · 待目标登录 · ${formatTime(result.generatedAt)}` : '生成失败',
     success ? 'live' : 'error'
   );
 }
@@ -526,6 +618,15 @@ function markActive(step) {
 
 function setBusy(busy) {
   document.body.classList.toggle('busy', busy);
+  document.body.setAttribute('aria-busy', String(busy));
+  // Preserve each control's disabled state while preventing duplicate submissions.
+  document.querySelectorAll('.action-button, .segment, #refreshSessionBtn, #clearBtn').forEach(button => {
+    if (busy) { button.dataset.wasDisabled = String(button.disabled); button.disabled = true; }
+    else if ('wasDisabled' in button.dataset) {
+      if (button.dataset.wasDisabled === 'false') button.disabled = false;
+      delete button.dataset.wasDisabled;
+    }
+  });
 }
 
 async function copyText(text) {

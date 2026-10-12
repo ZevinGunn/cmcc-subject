@@ -1,10 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import crypto from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.resolve(__dirname, '..', 'data');
+const DATA_DIR = path.resolve(process.env.YUNPAN_DATA_DIR || path.join(__dirname, '..', 'data'));
 const SESSION_FILE = path.join(DATA_DIR, 'session.json');
+let writeQueue = Promise.resolve();
 
 const defaultSession = {
   account: '',
@@ -12,6 +14,8 @@ const defaultSession = {
   authToken: '',
   token: '',
   authorization: '',
+  nativeClientInfo: '',
+  nativeChannel: '',
   aesKey: '',
   rsaPublicKey: '',
   secretKey: '',
@@ -45,6 +49,16 @@ const defaultSession = {
   lastWxAuthToken: '',
   lastGlobalTelecomUrl: '',
   lastGlobalTelecomAt: '',
+  lastGlobalAccessToken: '',
+  lastGlobalCookie: '',
+  lastGlobalAccessAt: '',
+  lastCloudPhoneUrl: '',
+  lastCloudPhoneAt: '',
+  lastCappUrl: '',
+  lastCappAt: '',
+  lastAiPhoneUrl: '',
+  lastAiPhoneAt: '',
+  cloudPhoneSession: null,
   updatedAt: ''
 };
 
@@ -52,25 +66,41 @@ export async function loadSession() {
   try {
     const raw = await fs.readFile(SESSION_FILE, 'utf8');
     return { ...defaultSession, ...JSON.parse(raw) };
-  } catch {
-    return { ...defaultSession };
+  } catch (error) {
+    if (error.code === 'ENOENT') return { ...defaultSession };
+    throw new Error('会话文件读取失败，请保留文件并检查权限或 JSON 格式');
   }
 }
 
-export async function saveSession(nextSession) {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+async function writeSession(nextSession) {
+  await fs.mkdir(DATA_DIR, { recursive: true, mode: 0o700 });
   const session = {
     ...defaultSession,
     ...nextSession,
     updatedAt: new Date().toISOString()
   };
-  await fs.writeFile(SESSION_FILE, `${JSON.stringify(session, null, 2)}\n`, 'utf8');
+  const tempFile = SESSION_FILE + '.' + crypto.randomUUID() + '.tmp';
+  try {
+    await fs.writeFile(tempFile, `${JSON.stringify(session, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+    await fs.rename(tempFile, SESSION_FILE);
+  } finally {
+    await fs.unlink(tempFile).catch(() => {});
+  }
   return session;
 }
 
+function enqueueWrite(callback) {
+  const pending = writeQueue.then(callback);
+  writeQueue = pending.catch(() => {});
+  return pending;
+}
+
+export function saveSession(nextSession) {
+  return enqueueWrite(() => writeSession(nextSession));
+}
+
 export async function patchSession(patch) {
-  const current = await loadSession();
-  return saveSession({ ...current, ...patch });
+  return enqueueWrite(async () => writeSession({ ...await loadSession(), ...patch }));
 }
 
 export async function clearSession() {
@@ -79,9 +109,9 @@ export async function clearSession() {
 }
 
 export function sessionSummary(session) {
-  const authState = !session.authorization
+  const authState = session.lastLoginStatus === 'expired' ? 'expired' : !session.authorization
     ? session.lastLoginStatus === 'failed' ? 'failed' : 'signed-out'
-    : session.lastLoginStatus === 'success' ? 'active' : 'cached';
+    : ['success', 'verified'].includes(session.lastLoginStatus) ? 'active' : 'cached';
   return {
     account: session.account,
     completeAccount: session.completeAccount,
@@ -119,6 +149,12 @@ export function sessionSummary(session) {
     hasLastWxAuthToken: Boolean(session.lastWxAuthToken),
     lastGlobalTelecomUrl: session.lastGlobalTelecomUrl,
     lastGlobalTelecomAt: session.lastGlobalTelecomAt,
+    hasGlobalAccessToken: Boolean(session.lastGlobalAccessToken),
+    lastGlobalAccessAt: session.lastGlobalAccessAt,
+    lastCloudPhoneUrl: session.lastCloudPhoneUrl,
+    lastCloudPhoneAt: session.lastCloudPhoneAt,
+    lastCappUrl: session.lastCappUrl,
+    lastCappAt: session.lastCappAt,
     lastSmsRandom: session.lastSmsRandom ? '已生成' : '',
     updatedAt: session.updatedAt
   };

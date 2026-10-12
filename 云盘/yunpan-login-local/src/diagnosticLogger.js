@@ -70,6 +70,8 @@ export function summarizeResponse(payload) {
     dataCode: data?.code,
     dataResultCode: data?.resultCode,
     dataMessage: data?.message || data?.msg,
+    businessStatus: payload.header?.status,
+    businessMessage: payload.header?.errMsg,
     keys: Object.keys(payload).slice(0, 30),
     dataKeys: data ? Object.keys(data).slice(0, 30) : []
   });
