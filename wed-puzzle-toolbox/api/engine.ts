@@ -3,8 +3,10 @@ import { canDraw, ordinaryReady, missingIndex, missingPieces, unlocked, count, c
 import type { Store, Job, Checkpoint } from './store.js'
 import type { Client } from './client.js'
 import { resolveWedRechargeTaskStrategy, WedBusinessError } from './protocol/wedRecharge.js'
+import { relayStages, stageKey, type RelayPreview } from '../shared/relay.js'
+import { AccessError } from './access.js'
 
-export type JobInput = { kind: Job['kind']; donors: string[]; to: string; round: number; mode: Job['mode']; autoDraw: boolean; autoAdvance?: boolean; fastTasks?: boolean; taskFilter?: string[]; tokens?: string[]; requestId: string; expectedTransfers?: Transfer[] }
+export type JobInput = { kind: Job['kind']; donors: string[]; to: string; round: number; mode: Job['mode']; autoDraw: boolean; autoAdvance?: boolean; relayTargets?: string[]; relayEnd?: number; expectedRevision?: string; fastTasks?: boolean; taskFilter?: string[]; tokens?: string[]; requestId: string; expectedTransfers?: Transfer[] }
 export type Transport = Pick<Client, 'query' | 'trade' | 'gift' | 'receive' | 'draw' | 'redeem' | 'tasks' | 'finish' | 'jt' | 'open' | 'openFinish'>
 export class Engine {
   get busy() { return this.gate.busy }
@@ -16,6 +18,29 @@ export class Engine {
   }
   private log(j: Job, message: string) { j.logs.push({ at: new Date().toISOString(), message }); if (j.logs.length > 1000) j.logs.splice(0, j.logs.length - 1000); this.store.save() }
   private label(id: string) { const a = this.store.account(id); return a.phone.slice(0, 3) + '****' + a.phone.slice(-4) }
+  private async relaySnapshot(scope: string[], targets: string[], start: number, end: number, completed: string[] = [], drawn: string[] = []): Promise<RelayPreview> {
+    if (!scope.length || scope.length > 100 || new Set(scope).size !== scope.length || new Set(targets).size !== targets.length || !targets.length || targets.some(id => !scope.includes(id))) throw new Error('请选择号池及其中的接力目标号码')
+    config(start); config(end); if (start > end) throw new Error('接力档位范围无效')
+    // Validate the complete scope before any upstream call; refresh is strictly serial.
+    for (const id of scope) this.store.account(id)
+    const allowed: Record<string, string[]> = {}, excluded: string[] = []
+    for (const id of scope) {
+      allowed[id] = []
+      try { await this.query(id) } catch (error) {
+        if (error instanceof AccessError) throw error
+        this.store.account(id).error = '活动库存查询失败，请刷新或重新登录'; excluded.push(id); this.store.save(); continue
+      }
+      try { allowed[id] = (await this.io.trade(id)).filter(p => p.btnStatus === 2 && p.num > 1 && /^dp[123]_\d$/.test(p.prize) && p.num === count(this.store.account(id).info, Number(p.prize[2]), Number(p.prize.split('_')[1]))).map(p => p.prize).sort() } catch (error) {
+        if (error instanceof AccessError) throw error
+        excluded.push(id)
+      }
+    }
+    const pool = this.store.view().accounts.filter(a => scope.includes(a.id))
+    const stages = relayStages(pool, scope, targets, start, end, allowed, completed, drawn)
+    const revision = crypto.createHash('sha256').update(JSON.stringify({ scope, targets, start, end, pool: pool.map(({ id, info, error }) => ({ id, info, error })), allowed })).digest('hex')
+    return { revision, stages, excluded, allComplete: stages.every(s => s.strategy === 'complete') }
+  }
+  previewRelay(scope: string[], targets: string[], start: number, end: number) { return this.exclusive(() => this.relaySnapshot(scope, targets, start, end)) }
   async create(input: JobInput) {
     const previous = this.store.state.jobs.find(j => j.requestId === input.requestId)
     if (previous) return previous
@@ -23,7 +48,12 @@ export class Engine {
       if (this.store.state.jobs.some(j => ['running', 'paused'].includes(j.status))) throw new Error('请先继续或结束已有任务')
       const ids = [...new Set([...input.donors, ...(input.to ? [input.to] : [])])]
       if (!ids.length || ids.length > 100) throw new Error('请选择 1–100 个号码')
-      for (const id of ids) { this.store.account(id); if (input.kind !== 'daily') await this.io.query(id) }
+      for (const id of ids) { this.store.account(id); if (!['daily', 'relay'].includes(input.kind)) await this.io.query(id) }
+      if (input.kind === 'relay') {
+        const preview = await this.relaySnapshot(input.donors, input.relayTargets || [], input.round, input.relayEnd || input.round)
+        if (!input.expectedRevision || preview.revision !== input.expectedRevision) throw new Error('库存已变化，请重新核对接力预览')
+        if (preview.allComplete || !preview.stages.some(s => ['direct', 'draw'].includes(s.strategy))) throw new Error('当前没有可完成的接力目标，请查看逐号缺口')
+      }
       if (input.kind === 'transfer') {
         if (input.donors.includes(input.to)) throw new Error('赠送号码不能包含接收号码')
         const plan = planTransfers(this.store.view().accounts, input.donors, input.to, input.round, input.mode, input.autoAdvance)
@@ -35,6 +65,7 @@ export class Engine {
       if (input.taskFilter?.length && input.kind !== 'daily') throw new Error('单项任务选择仅适用于每日任务')
       const j: Job = { ...input, fastTasks: input.fastTasks ?? true, id: crypto.randomUUID(), status: 'paused', logs: [], createdAt: new Date().toISOString(), transfersDone: 0, drawDone: false, drawnRounds: [], completedRounds: [], cursor: 0, taskIndex: 0, tasksDone: [] }
       if (j.kind === 'transfer') j.remaining = planTransfers(this.store.view().accounts, j.donors, j.to, j.round, j.mode, j.autoAdvance).transfers
+      if (j.kind === 'relay') { j.relayStart = input.round; j.relayEnd = input.relayEnd || input.round; j.relayCompleted = []; j.relayDrawn = []; j.relayActive = false }
       this.store.state.jobs.push(j)
       // Retain unfinished jobs; old finished journal entries are bounded.
       if (this.store.state.jobs.length > 100) this.store.state.jobs.splice(0, this.store.state.jobs.length - 100)
@@ -78,7 +109,9 @@ export class Engine {
       const deltas = Array.from({ length: c.size }, (_, i) => count(after, p.round, i) - count(p.before, p.round, i))
       if (Number(after.drawTimes) !== Number(p.before.drawTimes) - 1 || deltas.filter(n => n !== 0).length !== 1 || !deltas.includes(1)) throw new Error('抽图结果尚未确认，禁止重复抽取。请刷新核对后继续。')
       const expected = missingIndex(p.before, p.round)
-      j.drawDone = true; j.drawnRounds = [...new Set([...(j.drawnRounds || []), p.round])]; j.checkpoint = undefined
+      j.drawDone = true; j.drawnRounds = [...new Set([...(j.drawnRounds || []), p.round])];
+      if (j.kind === 'relay') j.relayDrawn = [...new Set([...(j.relayDrawn || []), stageKey(p.to, p.round)])]
+      j.checkpoint = undefined
       const index = deltas.indexOf(1)
       this.log(j, `一次抽图已核验：${c.label} ${index + 1} 号${index === expected ? '缺失拼图' : '其他拼图'}，剩余 ${after.drawTimes} 次`)
       if (index !== expected) throw new Error('本次未抽到缺失拼图，已暂停，不会自动再抽一次')
@@ -122,10 +155,47 @@ export class Engine {
     await this.reconcile(j)
   }
   private async draw(j: Job, before: Info) {
-    if (!ordinaryReady(before, j.round) || !canDraw(before, j.round) || j.drawDone || j.drawnRounds?.includes(j.round)) throw new Error('抽图前复查未通过：须只缺一张、其他每种大于 10、档位开放、次数充足且该档未抽过')
+    const already = j.kind === 'relay' ? j.relayDrawn?.includes(stageKey(j.to, j.round)) : j.drawDone || j.drawnRounds?.includes(j.round)
+    if (!ordinaryReady(before, j.round) || !canDraw(before, j.round) || already) throw new Error('抽图前复查未通过：须只缺一张、其他每种大于 10、档位开放、次数充足且该档未抽过')
     j.checkpoint = { kind: 'draw', to: j.to, round: j.round, before }; this.store.save()
     await this.io.draw(j.to, j.round)
     await this.reconcile(j)
+  }
+  private async relay(j: Job) {
+    for (;;) {
+      if (this.stopped(j)) return
+      if (j.relayActive) {
+        const info = await this.query(j.to)
+        if (stageComplete(info, j.round)) {
+          j.relayCompleted = [...new Set([...(j.relayCompleted || []), stageKey(j.to, j.round)])]
+          j.relayActive = false; j.remaining = undefined; this.store.save()
+          this.log(j, `${this.label(j.to)}：${config(j.round).label}已完成，每种保留 1 张，余图继续参与号池接力`)
+          continue
+        }
+        if (!unlocked(info, j.round)) { await this.unlock(j, j.round - 1, info); continue }
+        const next = j.remaining?.[0]
+        if (next) { await this.gift(j, next.from, next.piece); continue }
+        if (j.relayDrawn?.includes(stageKey(j.to, j.round))) throw new Error('该号码该档已抽一次但缺图未补齐，已暂停；不会自动重复抽图')
+        if (!ordinaryReady(info, j.round) || !canDraw(info, j.round)) throw new Error('接力转赠后抽图条件发生变化，已暂停，请核对最新库存及官方资格')
+        await this.draw(j, info)
+        continue
+      }
+      const preview = await this.relaySnapshot(j.donors, j.relayTargets!, j.relayStart!, j.relayEnd!, j.relayCompleted, j.relayDrawn)
+      // Record skipped/completed stages by account+round; never reuse another account's draw history.
+      for (const to of j.relayTargets!) for (let r = j.relayStart!; r <= j.relayEnd!; r++) {
+        const account = this.store.account(to)
+        if (account.info && !account.error && stageComplete(account.info, r)) j.relayCompleted = [...new Set([...(j.relayCompleted || []), stageKey(to, r)])]
+      }
+      this.store.save()
+      if (preview.allComplete) return
+      const next = preview.stages.find(s => ['direct', 'draw'].includes(s.strategy))
+      if (!next) {
+        for (const s of preview.stages.filter(s => s.strategy === 'blocked')) this.log(j, `${this.label(s.to)} ${config(s.round).label}：${s.reason}${s.shortages.length ? `（${s.shortages.map(p => `${Number(p.piece.split('_')[1]) + 1} 号缺 ${p.need} 张`).join('、')}）` : ''}`)
+        throw new Error('号池当前没有可完成的目标，接力已暂停；补充本次号池库存或任务次数后可继续，新号码需重新选择并预览')
+      }
+      j.to = next.to; j.round = next.round; j.remaining = next.transfers; j.drawDone = false; j.relayActive = true; this.store.save()
+      this.log(j, `${this.label(j.to)} ${config(j.round).label}：${next.strategy === 'direct' ? '直接补齐缺图，不消耗抽图次数' : '筹齐其他每种至 11 张后，仅抽一次'}；计划转赠 ${next.total} 张`)
+    }
   }
   private async transfers(j: Job) {
     for (;;) {
@@ -240,6 +310,7 @@ export class Engine {
       await this.reconcile(j)
       if (this.stopped(j)) return
       if (j.kind === 'transfer') await this.transfers(j)
+      else if (j.kind === 'relay') await this.relay(j)
       else if (j.kind === 'draw') { if (!j.drawDone) await this.draw(j, await this.query(j.to)) }
       else if (j.kind === 'daily') await this.daily(j)
       else if (j.kind === 'receive') {
@@ -251,7 +322,7 @@ export class Engine {
         j.checkpoint = { kind: 'redeem', to: j.to, round: j.round, before: await this.query(j.to) }; this.store.save()
         await this.io.redeem(j.to, j.round); await this.reconcile(j)
       }
-      if (j.status === 'running') { j.status = 'completed'; this.log(j, j.kind === 'daily' ? `队列处理结束，已核验完成 ${j.tasksDone.length} 次任务${j.tasksUnconfirmed?.length ? `，${j.tasksUnconfirmed.length} 项上报未确认` : ''}${j.tasksFailed?.length ? `，${j.tasksFailed.length} 项未通过` : ''}` : `队列完成，已核验转赠/接收 ${j.transfersDone} 张，抽图 ${j.drawnRounds?.length ?? (j.drawDone ? 1 : 0)} 次`) }
+      if (j.status === 'running') { j.status = 'completed'; this.log(j, j.kind === 'daily' ? `队列处理结束，已核验完成 ${j.tasksDone.length} 次任务${j.tasksUnconfirmed?.length ? `，${j.tasksUnconfirmed.length} 项上报未确认` : ''}${j.tasksFailed?.length ? `，${j.tasksFailed.length} 项未通过` : ''}` : `队列完成，已核验转赠/接收 ${j.transfersDone} 张，抽图 ${j.kind === 'relay' ? j.relayDrawn?.length || 0 : j.drawnRounds?.length ?? (j.drawDone ? 1 : 0)} 次`) }
     } catch (error) { j.status = 'paused'; this.log(j, error instanceof Error ? error.message : '任务异常，已暂停') }
   }
 }

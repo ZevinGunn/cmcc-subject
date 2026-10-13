@@ -98,19 +98,28 @@ app.post('/api/plan', wrap(async (req, res) => {
   const plan = await engine.exclusive(async () => { for (const id of [...new Set([...donors, to])]) await client.query(id); return planTransfers(store.view().accounts, donors, to, round, mode, req.body?.autoAdvance === true) })
   res.json({ ok: true, plan, ...store.view(), busy: engine.busy, identity: res.locals.identity })
 }))
+app.post('/api/relay/preview', wrap(async (req, res) => {
+  const scope = idsOf(req.body?.scope), targets = idsOf(req.body?.targets), start = Number(req.body?.start), end = Number(req.body?.end)
+  const relay = await engine.previewRelay(scope, targets, start, end)
+  res.json({ ok: true, relay, ...store.view(), busy: engine.busy, identity: res.locals.identity })
+}))
 app.post('/api/jobs', wrap(async (req, res) => {
   const body = req.body || {}, requestId = String(body.requestId || '')
   if (!/^[0-9a-f-]{36}$/i.test(requestId)) throw new Error('缺少有效任务幂等标识')
-  if (!['transfer', 'daily', 'receive', 'redeem', 'draw'].includes(body.kind)) throw new Error('任务类型无效')
-  const kind = body.kind as JobInput['kind'], donors = idsOf(body.donors || []), to = String(body.to || ''), round = Number(body.round || 1)
+  if (!['transfer', 'relay', 'daily', 'receive', 'redeem', 'draw'].includes(body.kind)) throw new Error('任务类型无效')
+  const kind = body.kind as JobInput['kind'], donors = idsOf(body.donors || []), to = kind === 'relay' ? '' : String(body.to || ''), round = Number(body.round || 1)
   config(round)
-  if (kind !== 'daily') store.account(to)
+  if (!['daily', 'relay'].includes(kind)) store.account(to)
+  const relayTargets = kind === 'relay' ? idsOf(body.relayTargets) : undefined
+  const relayEnd = kind === 'relay' ? Number(body.relayEnd) : undefined
+  const expectedRevision = kind === 'relay' ? String(body.expectedRevision || '') : undefined
+  if (kind === 'relay' && !/^[a-f0-9]{64}$/.test(expectedRevision!)) throw new Error('请先核对接力库存与预览')
   let tokens: string[] | undefined
   if (kind === 'receive') { if (!Array.isArray(body.links) || !body.links.length || body.links.length > 500) throw new Error('请提供 1–500 个转赠链接'); tokens = [...new Set<string>((body.links as unknown[]).map(s => parseWedReceiveToken(String(s))))] }
   const expectedTransfers = kind === 'transfer' && Array.isArray(body.expectedTransfers) ? body.expectedTransfers : undefined
   const taskFilter = body.taskFilter === undefined ? undefined : idsOf(body.taskFilter)
   if (taskFilter && (!taskFilter.length || taskFilter.some(id => !id || id.length > 128))) throw new Error('任务编号格式错误')
-  const j = await engine.create({ kind, donors, to, round, mode: body.mode === 'all' ? 'all' : 'fill', autoDraw: body.autoDraw === true, autoAdvance: kind === 'transfer' && body.autoAdvance === true, fastTasks: body.fastTasks !== false, taskFilter, tokens, requestId, expectedTransfers })
+  const j = await engine.create({ kind, donors, to, round, mode: body.mode === 'all' ? 'all' : 'fill', autoDraw: body.autoDraw === true, autoAdvance: kind === 'transfer' && body.autoAdvance === true, relayTargets, relayEnd, expectedRevision, fastTasks: body.fastTasks !== false, taskFilter, tokens, requestId, expectedTransfers })
   if (j.status === 'paused' && !j.logs.some(l => l.message !== '任务已进入串行队列')) start(j, res)
   send(res)
 }))
@@ -143,7 +152,7 @@ const apiAccess = wrap(async (req, res, next) => {
   if (!router) { router = apiRouter(context); routers.set(identity.key, router) }
   router(req, res, next)
 })
-app.get([`${base}/api/health`, '/api/health'], (_req, res) => { res.json({ ok: true, service: 'wed-puzzle-toolbox' }) })
+app.get([`${base}/api/health`, '/api/health'], (_req, res) => { res.json({ ok: true, service: 'wed-puzzle-toolbox', features: ['pool-relay'] }) })
 // Keep the /api prefix inside the router; remove only the deployment base.
 app.use(base, (req, res, next) => { if (req.path.startsWith('/api/')) apiAccess(req, res, next); else next() })
 app.use('/api/', (req, res, next) => { req.url = `/api${req.url}`; apiAccess(req, res, next) })

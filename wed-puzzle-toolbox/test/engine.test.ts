@@ -10,6 +10,8 @@ import { count, config, ordinaryReady, missingIndex, missingPieces, planTransfer
 import { parseImport, profilePhone, decodePayload } from '../api/client.js'
 import { parseWedGiftToken, parseWedReceiveToken, WedBusinessError, type WedRechargeTask } from '../api/protocol/wedRecharge.js'
 import { aesEncrypt, aesDecrypt } from '../api/protocol/cmccCrypto.js'
+import { relayStage, stageKey } from '../shared/relay.js'
+import { AccessError } from '../api/access.js'
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 function info(n = 10, rare = 0, round = 2, gap = [1, 3, 0][round - 1]): Info {
@@ -44,6 +46,111 @@ function setup(t: TestContext, donor = info(2, 1), recipient = info()) {
   return { dir, store, engine, transport, input, calls, options, gifts, taskRows, maxActive: () => maxActive }
 }
 async function run(engine: Engine, j: Job) { engine.start(j); const end = Date.now() + 6000; while (engine.busy) { if (Date.now() > end) throw new Error('测试队列超时'); await new Promise(r => setTimeout(r, 2)) } }
+
+async function relayJob(f: ReturnType<typeof setup>, targets = ['target'], start = 2, end = start) {
+  const scope = f.store.state.accounts.map(a => a.id), preview = await f.engine.previewRelay(scope, targets, start, end)
+  return f.engine.create(f.input({ kind: 'relay', to: '', donors: scope, relayTargets: targets, round: start, relayEnd: end, expectedRevision: preview.revision }))
+}
+function addTarget(f: ReturnType<typeof setup>, id: string, data: Info) {
+  f.store.state.accounts.push({ ...clone(f.store.account('target')), id, phone: '13900000003', identityKey: id, info: data }); f.store.save()
+}
+
+test('接力优先直接补缺图，不搬普通图、不消耗抽图次数', async t => {
+  const f = setup(t, info(2, 2), info(1)), j = await relayJob(f)
+  await run(f.engine, j)
+  assert.equal(j.status, 'completed'); assert.equal(j.transfersDone, 1); assert.equal(j.relayDrawn!.length, 0)
+  assert.ok(!f.calls.some(c => c.startsWith('draw')))
+  assert.equal(count(f.store.account('donor').info, 2, 3), 1)
+})
+test('接力按号码+档位记录抽取，完成号码的余图帮助后续目标', async t => {
+  const f = setup(t)
+  addTarget(f, 'target2', info())
+  const j = await relayJob(f, ['target', 'target2']); await run(f.engine, j)
+  assert.equal(j.status, 'completed'); assert.equal(j.transfersDone, 10)
+  assert.deepEqual(j.relayDrawn, ['target:2', 'target2:2'])
+  assert.deepEqual(j.relayCompleted, ['target:2', 'target2:2'])
+  assert.equal(f.store.view().jobs[0].drawCount, 2)
+  assert.equal(f.maxActive(), 1)
+  assert.ok(j.logs.some(l => l.message.includes('0002 →') && l.message.includes('0003')))
+  for (const a of f.store.state.accounts) for (let i = 0; i < 6; i++) assert.ok(count(a.info, 2, i) >= 1)
+})
+test('不同目标缺图不同也可以直接互补；不固定稀有编号', async t => {
+  const f = setup(t, info(1, 1), info(2, 0, 2, 0))
+  addTarget(f, 'target2', info(2, 0, 2, 4))
+  const j = await relayJob(f, ['target', 'target2']); await run(f.engine, j)
+  assert.equal(j.status, 'completed'); assert.equal(j.transfersDone, 2); assert.equal(j.relayDrawn!.length, 0)
+  assert.ok(j.logs.some(l => l.message.includes('1 号 ×1')))
+  assert.ok(j.logs.some(l => l.message.includes('5 号 ×1')))
+})
+test('接力仅使用官方允许转赠的余量，多个不可补缺图不提前搬运', async t => {
+  const f = setup(t, info(12, 1), info(1))
+  const target = f.store.account('target').info!; target.pictureList!['2'].dp2_0 = '0'
+  const original = f.transport.trade
+  f.transport.trade = async id => (await original(id)).map(p => p.prize === 'dp2_0' ? { ...p, btnStatus: 1 } : p)
+  const scope = ['donor', 'target'], p = await f.engine.previewRelay(scope, ['target'], 2, 2)
+  assert.equal(p.stages[0].strategy, 'blocked'); assert.equal(p.stages[0].total, 0)
+  assert.deepEqual(p.stages[0].shortages.map(p => p.piece), ['dp2_0', 'dp2_3'])
+  await assert.rejects(f.engine.create(f.input({ kind: 'relay', donors: scope, to: '', relayTargets: ['target'], relayEnd: 2, expectedRevision: p.revision })), /没有可完成/)
+  assert.ok(!f.calls.some(c => c.startsWith('gift')))
+})
+test('接力库存不足目标先等候，其他可行目标完成后仍不足则暂停', async t => {
+  const f = setup(t)
+  addTarget(f, 'blocked', info(0))
+  const j = await relayJob(f, ['blocked', 'target']); await run(f.engine, j)
+  assert.equal(j.status, 'paused'); assert.ok(j.relayCompleted!.includes('target:2'))
+  assert.ok(!j.relayCompleted!.includes('blocked:2'))
+  assert.equal(j.relayDrawn!.length, 1)
+  const blocked = f.store.account('blocked').info!
+  for (let i = 0; i < 6; i++) assert.equal(count(blocked, 2, i), 0)
+})
+test('接力凭证失效号码不贡献缓存；撤权错误不能被当作库存失败跳过', async t => {
+  const f = setup(t); addTarget(f, 'invalid', info(100, 100))
+  const query = f.transport.query
+  f.transport.query = async id => { if (id === 'invalid') throw new Error('活动凭证失效'); return query(id) }
+  const p = await f.engine.previewRelay(['donor', 'target', 'invalid'], ['target'], 2, 2)
+  assert.deepEqual(p.excluded, ['invalid']); assert.equal(p.stages[0].strategy, 'draw')
+  assert.ok(p.stages[0].transfers.every(x => x.from !== 'invalid'))
+  f.transport.query = async () => { throw new AccessError(403, '站点权限撤销') }
+  await assert.rejects(f.engine.previewRelay(['donor', 'target'], ['target'], 2, 2), /权限撤销/)
+})
+test('接力库存变化后拒绝旧预览；范围外目标不调用上游', async t => {
+  const f = setup(t), p = await f.engine.previewRelay(['donor', 'target'], ['target'], 2, 2)
+  f.store.account('donor').info!.drawTimes = '0'
+  await assert.rejects(f.engine.create(f.input({ kind: 'relay', donors: ['donor', 'target'], to: '', relayTargets: ['target'], relayEnd: 2, expectedRevision: p.revision })), /库存已变化/)
+  const before = f.calls.length
+  await assert.rejects(f.engine.previewRelay(['donor'], ['target'], 2, 2), /目标号码/)
+  await assert.rejects(f.engine.previewRelay(['other-owner'], ['other-owner'], 2, 2), /不在账号池/)
+  assert.equal(f.calls.length, before)
+})
+test('接力抽图响应丢失，重启恢复只核验一次，然后继续其他目标', async t => {
+  const f = setup(t); addTarget(f, 'target2', info())
+  const j = await relayJob(f, ['target', 'target2']); f.options.dropDraw = true
+  await run(f.engine, j); assert.equal(j.status, 'paused'); assert.equal(j.checkpoint?.kind, 'draw')
+  f.store.close(); const restored = new Store(f.dir), engine = new Engine(restored, f.transport)
+  t.after(() => restored.close())
+  // The mock transport operates on the live simulated upstream, independent of the restored journal.
+  engine.io.query = async id => { const latest = clone(f.store.account(id).info!); restored.account(id).info = latest; return clone(latest) }
+  f.options.dropDraw = false
+  const resumed = restored.state.jobs[0]; await run(engine, resumed)
+  assert.equal(resumed.status, 'completed'); assert.deepEqual(resumed.relayDrawn, ['target:2', 'target2:2'])
+  assert.equal(f.calls.filter(c => c.startsWith('draw')).length, 2)
+})
+test('接力未抽中缺图会持续暂停，继续不重抽、不切换目标', async t => {
+  const f = setup(t); addTarget(f, 'target2', info())
+  const j = await relayJob(f, ['target', 'target2']); f.options.wrongPrize = true
+  await run(f.engine, j); assert.equal(j.status, 'paused'); assert.equal(j.to, 'target')
+  await run(f.engine, j); assert.equal(j.status, 'paused'); assert.equal(j.relayDrawn!.length, 1)
+  assert.equal(f.calls.filter(c => c.startsWith('draw')).length, 1)
+})
+test('接力没有次数或门槛差一张时不搬运、不抽图；目标自身已达标也可参与', async t => {
+  const f = setup(t, info(1, 1), info(11))
+  const zero = clone(f.store.account('target').info!); zero.drawTimes = '0'
+  assert.equal(relayStage([{ ...f.store.view().accounts[1], info: zero }], ['target'], 'target', 2).strategy, 'blocked')
+  assert.equal(relayStage([{ ...f.store.view().accounts[1], info: info(10) }], ['target'], 'target', 2).strategy, 'blocked')
+  const p = await f.engine.previewRelay(['target'], ['target'], 2, 2)
+  const j = await f.engine.create(f.input({ kind: 'relay', donors: ['target'], to: '', relayTargets: ['target'], relayEnd: 2, expectedRevision: p.revision }))
+  await run(f.engine, j); assert.equal(j.status, 'completed'); assert.equal(j.transfersDone, 0); assert.deepEqual(j.relayDrawn, [stageKey('target', 2)])
+})
 
 test('每档任意编号都可能缺失；只缺一张且其他各 11 张才达标', () => {
   for (const r of ROUNDS) for (let gap = 0; gap < r.size; gap++) {
@@ -202,6 +309,22 @@ function chain(t: TestContext) {
   }
   f.store.save(); return f
 }
+test('接力跨三档解锁并接力下一号码，每个号码每档独立抽取', async t => {
+  const f = chain(t); addTarget(f, 'target2', clone(f.store.account('target').info!))
+  const j = await relayJob(f, ['target', 'target2'], 1, 3); await run(f.engine, j)
+  assert.equal(j.status, 'completed'); assert.equal(j.relayCompleted!.length, 6); assert.equal(j.relayDrawn!.length, 6)
+  assert.deepEqual(j.relayDrawn, ['target:1', 'target:2', 'target:3', 'target2:1', 'target2:2', 'target2:3'])
+  assert.equal(f.calls.filter(c => c.startsWith('redeem:')).length, 4)
+  assert.equal(f.store.account('target2').info!.r4Status, 2, '最后一档不自动领券')
+})
+test('接力领券解锁响应丢失后核验原记录，不能重复领取', async t => {
+  const f = chain(t), redeem = f.transport.redeem; let dropped = false
+  f.transport.redeem = async (...args) => { await redeem(...args); if (!dropped) { dropped = true; throw new Error('领券响应丢失') } }
+  const j = await relayJob(f, ['target'], 1, 3)
+  await run(f.engine, j); assert.equal(j.status, 'paused'); assert.equal(j.checkpoint?.kind, 'redeem')
+  await run(f.engine, j); assert.equal(j.status, 'completed'); assert.equal(j.relayDrawn!.length, 3)
+  assert.equal(f.calls.filter(c => c.startsWith('redeem:')).length, 2)
+})
 test('95 折→9 折→8 折连续串行，必要时领券解锁，每档仅抽一次', async t => {
   const f = chain(t), j = await f.engine.create(f.input({ round: 1, mode: 'all', autoAdvance: true }))
   await run(f.engine, j)
