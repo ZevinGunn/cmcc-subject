@@ -47,6 +47,11 @@ test('公网 API 登录、权限、撤权、上游故障、非法来源及子路
     assert.equal(req.headers['x-portal-admin-secret'], undefined)
     assert.equal(req.headers.cookie?.includes('foreign='), false)
     if (authDown) { res.writeHead(503).end('{}'); return }
+    if (req.url === '/api/wed-puzzle/toolbox/accounts') {
+      assert.equal(req.headers['x-wed-toolbox'], '1')
+      assert.equal(req.headers['x-wed-identity'], 'user:user-1')
+      res.end(JSON.stringify({ ok: true, data: { accounts: [], skipped: 2 } })); return
+    }
     const admin = req.url === '/api/admin/me', cookie = req.headers.cookie || ''
     if (admin && cookie.includes('admin_session=good')) { res.end(JSON.stringify({ ok: true, data: { admin: { id: 'admin-1', username: 'admin' } } })); return }
     if (!admin && /user_session=(good|limited|second)/.test(cookie)) {
@@ -73,6 +78,17 @@ test('公网 API 登录、权限、撤权、上游故障、非法来源及子路
   assert.equal(user.status, 200); assert.equal((await user.json()).identity.key, 'user:user-1')
   assert.equal((await request(undefined, 'user_session=second')).status, 200)
   assert.equal((await request(undefined, 'admin_session=good')).status, 200)
+  const imported = await request('/wed-puzzle/api/accounts/import-cookieapp', 'user_session=good', {}, 'POST')
+  assert.equal(imported.status, 200)
+  let snapshot = await imported.json()
+  assert.ok(snapshot.importJob?.id)
+  for (let attempt = 0; attempt < 20 && snapshot.importJob.status === 'running'; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 10))
+    snapshot = await (await request(undefined, 'user_session=good')).json()
+  }
+  assert.equal(snapshot.importJob.status, 'completed'); assert.equal(snapshot.importJob.skipped, 2)
+  assert.equal((await (await request(undefined, 'user_session=second')).json()).importJob, undefined)
+  assert.equal((await request('/wed-puzzle/api/accounts/import-cookieapp', 'user_session=limited', {}, 'POST')).status, 403)
   assert.equal(fs.readdirSync(path.join(dir, 'owners')).length, 3)
   revoked = true; assert.equal((await request(undefined, 'user_session=good')).status, 403); revoked = false
   authDown = true; assert.equal((await request(undefined, 'user_session=good')).status, 503); authDown = false

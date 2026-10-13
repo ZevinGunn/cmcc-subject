@@ -11,14 +11,14 @@ const browser = await chromium.launch({ headless: true, executablePath: '/Applic
 const out = await fs.mkdtemp(path.join(os.tmpdir(), 'wed-toolbox-ui-'))
 console.log(`Browser QA screenshots: ${out}`)
 const state = { accounts: [], jobs: [], busy: false }
-let smsRequests = 0, loginRequests = 0, giftRequests = 0
+let smsRequests = 0, loginRequests = 0, giftRequests = 0, importRequests = 0
 function inventory(n = 10, gap = 0) {
   return { activeIndex: 2, drawTimes: '5', r5DrawStatus: 1, pictureList: Object.fromEntries([4, 6, 9].map((size, r) => [String(r + 1), Object.fromEntries(Array.from({ length: size }, (_, i) => [`dp${r + 1}_${i}`, String(i === gap % size ? 0 : n + i)]))])) }
 }
 const accounts = [1, 2, 3].map(i => ({ id: `account-${i}`, phone: `1390000000${i}`, source: i === 2 ? 'appck' : 'sms', updatedAt: new Date().toISOString(), info: inventory(10, i) }))
 try {
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-    state.accounts = []; state.jobs = []; smsRequests = 0
+    state.accounts = []; state.jobs = []; delete state.importJob; state.busy = false; smsRequests = 0
     const page = await browser.newPage({ viewport, reducedMotion: 'reduce' }), errors = []
     page.on('pageerror', e => errors.push(e.message))
     await page.route('https://**/*', route => route.abort())
@@ -26,7 +26,11 @@ try {
       const request = route.request(), url = new URL(request.url()), data = request.postDataJSON() || {}
       url.pathname = url.pathname.replace(/^\/wed-puzzle/, '')
       let response = { ok: true, ...state }, status = 200
-      if (url.pathname === '/api/auth/sms') {
+      if (url.pathname === '/api/accounts/import-cookieapp') {
+        importRequests++; state.busy = true
+        state.importJob = { id: `import-${viewport.width}`, status: 'running', total: 3, processed: 0, imported: 0, updated: 0, skipped: 1, failed: 0, results: [] }
+        response = { ok: true, ...state }
+      } else if (url.pathname === '/api/auth/sms') {
         smsRequests++
         if (smsRequests === 1) { response = { ok: false, message: '上游火爆，请重试' }; status = 400 }
         else response = { ok: true, cooldownSeconds: 60 }
@@ -46,6 +50,26 @@ try {
     await page.goto('http://127.0.0.1:4186')
     await page.getByRole('heading', { name: '添加参与活动的号码' }).waitFor()
     await page.screenshot({ path: path.join(out, `empty-${viewport.width}.png`), fullPage: true })
+    const beforeImport = importRequests
+    await page.getByRole('button', { name: '一键导入 cookie-app', exact: true }).click()
+    await page.getByRole('dialog').filter({ hasText: 'cookie-app 账号导入' }).waitFor()
+    assert.equal(await page.getByRole('button', { name: '一键导入 cookie-app', exact: true }).isDisabled(), true)
+    assert.equal(importRequests, beforeImport + 1)
+    await page.getByRole('button', { name: '后台继续导入', exact: true }).click()
+    assert.equal(await page.locator('dialog').count(), 0)
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), '导入进行中不可横向溢出')
+    state.accounts = accounts.map(a => ({ ...a, source: 'cookieapp' })); state.busy = false
+    Object.assign(state.importJob, { status: 'completed', processed: 3, imported: 2, failed: 1, results: accounts.map((a, i) => ({ phone: a.phone.slice(0, 3) + '****' + a.phone.slice(-4), status: i === 2 ? 'failed' : 'imported', message: i === 2 ? '无法建立有效周三活动登录态，请在 cookie-app 重新登录' : '已导入并查询三档拼图' })) })
+    await page.getByRole('button', { name: '一键导入 cookie-app', exact: true }).waitFor({ state: 'visible' })
+    await page.waitForResponse(r => new URL(r.url()).pathname === '/wed-puzzle/api/state')
+    await page.getByRole('button', { name: '查看导入结果', exact: true }).click()
+    await page.getByText('无法建立有效周三活动登录态，请在 cookie-app 重新登录', { exact: true }).waitFor()
+    await page.screenshot({ path: path.join(out, `cookieapp-import-${viewport.width}.png`), fullPage: true })
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), '导入结果不可横向溢出')
+    await page.getByRole('button', { name: '关闭弹窗', exact: true }).click()
+    state.accounts = []; delete state.importJob
+    await page.reload()
+    await page.getByRole('heading', { name: '添加参与活动的号码' }).waitFor()
     await page.getByRole('button', { name: '添加号码', exact: true }).first().click()
     await page.getByRole('button', { name: '关闭弹窗', exact: true }).click()
     await assert.equal(await page.locator('dialog').count(), 0)

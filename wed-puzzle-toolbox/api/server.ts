@@ -6,6 +6,7 @@ import { Contexts } from './contexts.js'
 import { authenticate, checkSource, sessionCookies, AccessError, type Identity } from './access.js'
 import { config, planTransfers } from '../shared/puzzle.js'
 import { parseWedReceiveToken } from './protocol/wedRecharge.js'
+import { CookieAppBridge, newImportJob, runCookieAppImport } from './cookieAppImport.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const port = Number(process.env.PORT || 4186)
@@ -34,13 +35,33 @@ const wrap = (fn: (req: express.Request, res: express.Response, next: express.Ne
 function apiRouter(context: ReturnType<Contexts['get']>) {
 const { store, client, engine } = context
 const app = express.Router()
-const send = (res: express.Response) => res.json({ ok: true, ...store.view(), busy: engine.busy, identity: res.locals.identity })
+const send = (res: express.Response) => res.json({ ok: true, ...store.view(), importJob: store.state.importJob, busy: engine.busy, identity: res.locals.identity })
 const start = (j: ReturnType<typeof findJob>, res: express.Response) => { context.verifyJob = res.locals.verify; engine.start(j) }
 const phoneOf = (input: unknown) => { const p = String(input || '').trim(); if (!/^1\d{10}$/.test(p)) throw new Error('请输入正确的 11 位手机号'); return p }
 const idsOf = (input: unknown) => { if (!Array.isArray(input) || input.some(i => typeof i !== 'string') || input.length > 100) throw new Error('号码选择格式错误'); return [...new Set(input)] as string[] }
 const findJob = (id: string) => { const j = store.state.jobs.find(j => j.id === id); if (!j) throw new Error('任务不存在'); return j }
 
 app.get('/api/state', (_req, res) => { send(res) })
+app.post('/api/accounts/import-cookieapp', wrap(async (req, res) => {
+  const cookie = sessionCookies(req.headers.cookie), identity = await authenticate(cookie, authOrigin)
+  if (identity.key !== res.locals.identity.key) throw new AccessError(401, '请从已登录的 home 站点使用账号导入功能')
+  const bridge = new CookieAppBridge(identity, cookie, authOrigin)
+  if (store.state.importJob?.status === 'running') { send(res); return }
+  if (engine.busy) throw new Error('串行队列正在执行，请等待当前操作完成')
+  // Reserve the same global lock used by activity operations before replying.
+  const work = engine.exclusive(async () => {
+    const job = newImportJob(); store.state.importJob = job; store.save()
+    await runCookieAppImport(job, {
+      list: () => bridge.list(), credential: candidate => bridge.credential(candidate), verify: () => bridge.verify(),
+      add: (credential, phone) => client.importCookieApp(credential, phone),
+      exists: phone => store.state.accounts.some(a => a.phone === phone), save: () => store.save(),
+    })
+  })
+  void work.catch(() => {
+    if (store.state.importJob?.status === 'running') { store.state.importJob.status = 'interrupted'; store.state.importJob.message = '导入中断，已导入号码保留'; store.save() }
+  })
+  send(res)
+}))
 app.post('/api/auth/sms', wrap(async (req, res) => {
   const phone = phoneOf(req.body?.phone), until = cooldown.get(phone) || 0
   if (until > Date.now()) { res.status(429).json({ ok: false, message: `请等待 ${Math.ceil((until - Date.now()) / 1000)} 秒再发送` }); return }

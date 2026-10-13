@@ -49,6 +49,7 @@ export class Client {
   async sms(phone: string) { const r = await cmccSendSms(phone); if (!r.ok) throw new Error(r.message || '发送验证码失败') }
   async login(phone: string, code: string) { const r = await cmccLoginBySms(phone, code); if (!r.ok || !r.cookie) throw new Error(r.message || '短信登录失败'); return this.add({ cookie: r.cookie }, 'sms', phone) }
   async import(input: string, phone?: string) { return this.add(parseImport(input), 'appck', phone) }
+  async importCookieApp(cookie: string, phone: string) { return this.add(parseImport(cookie), 'cookieapp', phone) }
   private async session(credential: Account['credential'], forceRefresh = false) {
     if (credential.app) {
       const r = await exchangeAppTokenToActivityCookie({ ...credential.app, cookie: credential.cookie })
@@ -65,7 +66,7 @@ export class Client {
     return profilePhone(decodePayload(r.bodyText), expected)
   }
   private async add(credential: Account['credential'], source: Account['source'], expected?: string) {
-    const activityCookie = await this.session(credential), { phone, identityKey } = await this.identity(activityCookie, expected)
+    const activityCookie = await this.session(credential, source === 'cookieapp'), { phone, identityKey } = await this.identity(activityCookie, expected)
     let a = this.store.state.accounts.find(a => a.phone === phone || a.identityKey === identityKey)
     if (a && a.phone !== phone) throw new Error('此活动身份已绑定其他号码，请核对完整手机号')
     if (!a && this.store.state.accounts.length >= 100) throw new Error('号码池最多 100 个号码')

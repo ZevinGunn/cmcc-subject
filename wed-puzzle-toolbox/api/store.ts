@@ -3,10 +3,11 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import type { Info, Transfer } from '../shared/puzzle.js'
 
-export type Account = { id: string; phone: string; identityKey: string; source: 'sms' | 'appck'; credential: { cookie: string; app?: Record<string, unknown> }; activityCookie: string; info?: Info; error?: string; updatedAt: string }
+export type Account = { id: string; phone: string; identityKey: string; source: 'sms' | 'appck' | 'cookieapp'; credential: { cookie: string; app?: Record<string, unknown> }; activityCookie: string; info?: Info; error?: string; updatedAt: string }
+export type ImportJob = { id: string; status: 'running' | 'completed' | 'interrupted'; total: number; processed: number; imported: number; updated: number; skipped: number; failed: number; results: { phone: string; status: 'imported' | 'updated' | 'skipped' | 'failed'; message: string }[]; message?: string }
 export type Checkpoint = { kind: 'gift' | 'draw' | 'receive' | 'redeem' | 'task'; to: string; from?: string; piece?: string; token?: string; round: number; before: Info; fromBefore?: number; task?: { taskId: string; status?: number; completedTimes?: number }; phase?: string }
 export type Job = { id: string; requestId: string; kind: 'transfer' | 'daily' | 'receive' | 'redeem' | 'draw'; donors: string[]; to: string; round: number; mode: 'fill' | 'all'; autoDraw: boolean; autoAdvance?: boolean; fastTasks?: boolean; taskFilter?: string[]; drawnRounds?: number[]; completedRounds?: number[]; taskRuns?: Record<string, number>; tasksUnconfirmed?: string[]; tasksFailed?: string[]; status: 'running' | 'paused' | 'completed' | 'stopped'; createdAt: string; logs: { at: string; message: string }[]; checkpoint?: Checkpoint; transfersDone: number; drawDone: boolean; cursor: number; taskIndex: number; taskIds?: string[]; tasksDone: string[]; tokens?: string[]; remaining?: Transfer[]; cancel?: boolean }
-export type State = { version: 1; accounts: Account[]; jobs: Job[] }
+export type State = { version: 1; accounts: Account[]; jobs: Job[]; importJob?: ImportJob }
 export class Store {
   state: State
   private key: Buffer
@@ -24,6 +25,7 @@ export class Store {
       if (this.key.length !== 32) throw new Error('账号库密钥格式异常')
       this.state = fs.existsSync(file) ? this.decrypt(fs.readFileSync(file)) : { version: 1, accounts: [], jobs: [] }
       if (this.state.version !== 1 || !Array.isArray(this.state.accounts) || !Array.isArray(this.state.jobs)) throw new Error('账号库格式不兼容')
+      if (this.state.importJob?.status === 'running') { this.state.importJob.status = 'interrupted'; this.state.importJob.message = '服务重启，导入已中断；已导入号码保留，可重新导入' }
       for (const j of this.state.jobs) if (j.status === 'running') { j.status = 'paused'; j.cancel = false; j.logs.push({ at: new Date().toISOString(), message: '进程重启，任务已暂停。继续时先核对上次操作，禁止重复生成转赠或抽图。' }) }
       this.save()
     } catch (error) { fs.unlinkSync(this.lock); throw error }
