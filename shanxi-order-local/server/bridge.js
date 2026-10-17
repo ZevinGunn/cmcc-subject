@@ -102,7 +102,7 @@ export class OfficialBridge {
    if(result.environmentUnavailable)throw new AppError('OFFICIAL_ENV_UNAVAILABLE','官方环境参数未准备好，本次未发送请求，请重新打开官方窗口',503);
    this.lastRequest.phase='received';this.lastRequest.httpStatus=result.status;
    if(result.foreign)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，请退出并重新登录',409);
-   if([412,403,429].includes(result.status))throw new AppError('OFFICIAL_VERIFICATION_REQUIRED',`官方返回 HTTP ${result.status}，请在官方窗口完成页面验证后重试`,503);
+   if([412,403,429].includes(result.status))throw new AppError('OFFICIAL_VERIFICATION_REQUIRED',this.headless?`官方返回 HTTP ${result.status}，需要官方人工验证；请稍后重试或使用本机版完成验证`:`官方返回 HTTP ${result.status}，请在官方窗口完成页面验证后重试`,503);
    if(result.status!==200||result.invalid)throw new AppError('UPSTREAM_UNAVAILABLE','官方服务暂不可用，请稍后重试或打开官方窗口检查',502);
    return result.data;
   }catch(e){this.lastRequest.phase='failed';if(e instanceof AppError)throw e;throw new AppError('UPSTREAM_UNCERTAIN','官方请求未返回确定结果，请稍后核查；短信与订购不会自动重试',502);}

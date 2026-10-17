@@ -2,7 +2,7 @@ import express from 'express';
 import {randomBytes,timingSafeEqual} from 'node:crypto';
 import path from 'node:path';
 import {AppError} from './domain.js';
-export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin=''}={}){
+export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin='',publicMode=false}={}){
  const app=express();const csrf=randomBytes(32).toString('hex');
  const allowedHosts=new Set([`127.0.0.1:${port}`,`localhost:${port}`]);
  const origins=new Set([...allowedHosts].map(h=>'http://'+h));if(devOrigin)origins.add(devOrigin);
@@ -24,8 +24,9 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  const route=(fn)=>(req,res,next)=>Promise.resolve().then(()=>fn(req)).then(data=>res.json(data)).catch(next);
  // Account context is checked immediately before invoking the operation lock.
  const guarded=(fn)=>route(req=>{service.assertContext?.(req.headers['x-account-context']);return fn(req);});
- app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.3.0'}));
- app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf}));
+ app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.4.0'}));
+ app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf,publicMode}));
+ if(publicMode)app.post(['/api/login/open','/api/login/sync','/api/official/open'],(_req,res)=>res.status(409).json({error:{code:'REMOTE_WINDOW_UNAVAILABLE',message:'公网版请使用手机验证码登录；官方人工验证需在本机版完成'}}));
  app.get('/api/connection',route(()=>service.bridge.status()));
  app.post('/api/login/open',route(()=>service.openLogin?service.openLogin():service.exclusive(()=>service.bridge.open())));
  app.post('/api/login/sms',route(req=>service.sendLoginSms(req.body?.phone,req.body?.agreed)));

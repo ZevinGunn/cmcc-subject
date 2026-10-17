@@ -1,4 +1,5 @@
 // Local-only UI acceptance fixture. Never imports OfficialBridge or contacts CMCC.
+import http from 'node:http';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {Accounts} from '../server/accounts.js';
 import {createApp} from '../server/app.js';import {Service} from '../server/service.js';import {Ledger} from '../server/ledger.js';
@@ -10,5 +11,7 @@ const factory=()=>({...bridge,phone:null,ordered:false,restoreSession(s){this.ph
 const service=multi?new Accounts(factory,new Ledger(dir),{now:()=>fixtureNow}):new Service(bridge,new Ledger(dir));if(!multi||!service.items.length){await service.sync();await service.queryQualification();}
 const original=service.snapshot.bind(service);service.snapshot=()=>({...original(),environment:'fixture',fixtureLoginSmsCount:loginSmsCount});
 const port=Number(process.env.UI_FIXTURE_PORT||4320);
-const server=createApp(service,{port,dist:path.resolve('dist')}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
+const publicMode=process.env.UI_FIXTURE_PUBLIC==='1';
+const fixtureApp=createApp(service,{port,dist:path.resolve(publicMode?'dist-public':'dist'),publicMode});
+const server=http.createServer((req,res)=>{if(publicMode&&req.url.startsWith('/apps/shanxi'))req.url=req.url.slice('/apps/shanxi'.length)||'/';fixtureApp(req,res);}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
 async function close(){server.close();if(multi)await service.close();if(!process.env.UI_FIXTURE_DATA)fs.rmSync(dir,{recursive:true,force:true});process.exit(0);}process.on('SIGTERM',close);process.on('SIGINT',close);

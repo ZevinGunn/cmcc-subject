@@ -7,6 +7,32 @@
   ],
   "services": [
     {
+      "id": "shanxi",
+      "name": "山西移动业务订购",
+      "description": "晋速办 · 多账号登录、业务配置与验证码订购",
+      "group": "business",
+      "kind": "application",
+      "directory": "shanxi-order-local",
+      "runtime": "node",
+      "pm2Name": "shanxi-public",
+      "port": 4319,
+      "domains": [],
+      "publicUrl": "https://project.1008086.xyz/apps/shanxi/",
+      "healthPath": "/api/health",
+      "allowedStatus": [200],
+      "dependencies": ["pm2", "project"],
+      "capabilities": ["restart", "check", "logs"],
+      "build": null,
+      "test": {
+        "cwd": "shanxi-order-local",
+        "command": ["npm", "test"],
+        "requiredForDeploy": true
+      },
+      "automaticOperations": false,
+      "protected": false,
+      "exposure": "platform-authenticated"
+    },
+    {
       "id": "home",
       "name": "全球通免登录",
       "description": "Cookie 账号与移动业务管理主应用",

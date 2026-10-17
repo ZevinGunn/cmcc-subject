@@ -3,3 +3,5 @@ dist/
 .local/
 *.log
 *.zip
+dist-public/
+.public/

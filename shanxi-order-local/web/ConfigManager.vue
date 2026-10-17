@@ -47,7 +47,7 @@ defineExpose({edit,create});
     <label>查询参数 · JSON<textarea class="json-input" v-model="queryJson" rows="6" spellcheck="false"/></label>
    </div><p class="subtle">路径位于 /h/{入口}/rest/v1/ 下。uuid、验证码及敏感验证标记由当次流程提供；busiType 与短信业务类型保持一致。更换产品编码时，也需核对该产品的订购接口与必填参数。</p><details class="query-details"><summary>查看订购请求参数预览</summary><pre>{{preview}}</pre></details></fieldset>
    <div v-if="formError" class="feedback error" role="alert">{{formError}}</div>
-   <div class="config-save"><span class="subtle">配置保存在本机。保存不会发送短信或提交订单。</span><div class="actions"><button type="submit" class="button secondary" :disabled="busy">保存配置</button><button type="button" class="button primary" :disabled="busy" @click="e=>{if(e.target.closest('form').reportValidity())save(true)}">保存并尝试订购</button></div></div>
+   <div class="config-save"><span class="subtle">配置会自动保存。保存不会发送短信或提交订单。</span><div class="actions"><button type="submit" class="button secondary" :disabled="busy">保存配置</button><button type="button" class="button primary" :disabled="busy" @click="e=>{if(e.target.closest('form').reportValidity())save(true)}">保存并尝试订购</button></div></div>
   </form>
  </template>
 </template>

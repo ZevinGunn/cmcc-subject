@@ -6,19 +6,20 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+const publicMode=process.argv.includes('--public');
 const attempt=process.argv.includes('--attempt');
 const configFlow=process.argv.includes('--config');
 const directory=fs.mkdtempSync(path.join(os.tmpdir(),'sx-ui-acceptance-'));
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const portServer=http.createServer().listen(0,'127.0.0.1');await new Promise(r=>portServer.once('listening',r));const port=portServer.address().port;await new Promise(r=>portServer.close(r));
-const url=`http://127.0.0.1:${port}`;
-const fixture=spawn(process.execPath,['test/ui-fixture.mjs'],{cwd:root,env:{...process.env,UI_FIXTURE_PORT:String(port),UI_FIXTURE_QUALIFICATION:attempt?'included':'eligible'},stdio:['ignore','pipe','inherit']});
+const url=`http://127.0.0.1:${port}${publicMode?'/apps/shanxi':''}`;
+const fixture=spawn(process.execPath,['test/ui-fixture.mjs'],{cwd:root,env:{...process.env,UI_FIXTURE_PORT:String(port),UI_FIXTURE_PUBLIC:publicMode?'1':'0',UI_FIXTURE_QUALIFICATION:attempt?'included':'eligible'},stdio:['ignore','pipe','inherit']});
 let browser;
 try{
 await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('fixture startup timeout')),10000);fixture.once('error',e=>{clearTimeout(timer);reject(e);});fixture.once('exit',code=>{clearTimeout(timer);reject(Error(`fixture exited ${code}`));});fixture.stdout.once('data',()=>{clearTimeout(timer);resolve();});});
 assert.equal((await (await fetch(url+'/api/state')).json()).environment,'fixture');
 browser=await chromium.launch({headless:true,...(fs.existsSync('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')?{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'}:{})});
- const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.locator('.brand-mark').waitFor();await page.locator('.brand-mark').evaluate(img=>img.decode());assert.equal(await page.locator('.brand-mark').evaluate(img=>img.complete&&img.naturalWidth>0),true);const favicon=await fetch(url+'/favicon-32.png');assert.equal(favicon.status,200);assert.match(favicon.headers.get('content-type'),/image\/png/);await page.getByRole('button',{name:'退出登录',exact:true}).click();
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.locator('.brand-mark').waitFor();if(publicMode){await page.getByRole('link',{name:'返回项目管理',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'官方窗口',exact:true}).count(),0);}await page.locator('.brand-mark').evaluate(img=>img.decode());assert.equal(await page.locator('.brand-mark').evaluate(img=>img.complete&&img.naturalWidth>0),true);const favicon=await fetch(url+'/favicon-32.png');assert.equal(favicon.status,200);assert.match(favicon.headers.get('content-type'),/image\/png/);await page.getByRole('button',{name:'退出登录',exact:true}).click();
  await page.getByRole('button',{name:'验证码登录',exact:true}).last().click();await page.locator('#login-phone').fill('13900000000');await page.getByLabel('我已阅读并同意').check();await page.getByRole('button',{name:'获取验证码',exact:true}).click();await page.getByText('官方已受理登录短信请求，请以手机实际收到为准。',{exact:true}).waitFor();await page.locator('#login-code').fill('999999');await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByText('离线测试验证码错误',{exact:true}).waitFor();await page.locator('#login-code').fill('001234');await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByText('登录成功，可以查询业务。',{exact:true}).waitFor();assert.equal(await page.locator('dialog').evaluate(el=>el.open),false);
  if(configFlow){
   await page.getByRole('button',{name:'业务配置',exact:true}).click();await page.getByRole('button',{name:'新增业务',exact:true}).click();

@@ -1,0 +1,1 @@
+module.exports={apps:[{name:'shanxi-public',cwd:__dirname,script:'server/public.js',interpreter:process.execPath,instances:1,exec_mode:'fork',autorestart:true,max_memory_restart:'1G',kill_timeout:150000,env:{NODE_ENV:'production'}}]};
