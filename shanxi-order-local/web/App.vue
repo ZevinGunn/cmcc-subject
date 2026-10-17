@@ -20,7 +20,7 @@ async function run(name,fn){if(pending.value)return;pending.value=name;error.val
 async function refresh(){try{assign(await api('/state'));loaded.value=true;}catch(e){error.value=e.message;loaded.value=true;}}
 async function login(){trigger=document.activeElement;dialog.value='login';error.value='';notice.value='';loginCode.value='';loginAgreed.value=false;await nextTick();dialogRef.value.showModal();}
 async function openOfficialLogin(){await run('official-login',async()=>{await api('/login/open',{});loginOpened.value=true;notice.value='官方窗口已打开，完成登录后可同步账号。';});}
-async function sendLoginSms(){await run('login-sms',async()=>{sentPhone.value=loginPhone.value;assign(await api('/login/sms',{phone:loginPhone.value,agreed:loginAgreed.value}));loginCode.value='';notice.value='登录验证码已发送';});}
+async function sendLoginSms(){await run('login-sms',async()=>{sentPhone.value=loginPhone.value;assign(await api('/login/sms',{phone:loginPhone.value,agreed:loginAgreed.value}));loginCode.value='';notice.value='官方已受理登录短信请求，请以手机实际收到为准。';});}
 async function verifyLogin(){await run('login-verify',async()=>{assign(await api('/login/verify',{id:state.value.login.id,code:loginCode.value,agreed:loginAgreed.value}));loginCode.value='';loginPhone.value='';sentPhone.value='';loginOpened.value=false;dialogRef.value?.close();dialog.value=null;trigger?.focus();notice.value='登录成功，可以查询业务。';});}
 async function sync(){await run('sync',async()=>{assign(await api('/login/sync',{}));loginOpened.value=false;closeDialog();loginCode.value='';loginPhone.value='';notice.value='登录已同步，可以查询业务。';});}
 async function query(kind){await run(kind,async()=>{assign(await api('/query/'+kind,{}));notice.value=kind==='business'?'已订业务已更新':'业务内容与资格已更新';});}
@@ -28,7 +28,7 @@ async function showOfficial(){await run('official',async()=>{await api('/officia
 async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='home';notice.value='已退出，官方浏览器会话已清除';});}
 async function openDialog(){trigger=document.activeElement;dialog.value='order';error.value='';code.value='';consent.value=false;await nextTick();dialogRef.value.showModal();}
 function closeDialog(){if(['submit','login-verify','login-sms'].includes(pending.value))return;dialogRef.value?.close();dialog.value=null;resolution.value=null;code.value='';loginCode.value='';trigger?.focus();}
-async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{}));code.value='';await nextTick();codeRef.value?.focus();notice.value='业务验证码已发送';});}
+async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{}));code.value='';await nextTick();codeRef.value?.focus();notice.value='官方已受理业务短信请求，请以手机实际收到为准。';});}
 async function verify(){await run('verify',async()=>{assign(await api('/order/verify',{id:state.value.challenge.id,code:code.value}));code.value='';notice.value='验证码已验证，请确认办理';});}
 async function submit(){await run('submit',async()=>{assign(await api('/order/submit',{id:state.value.challenge.id,confirmed:consent.value}));dialogRef.value.close();dialog.value=null;tab.value='history';notice.value='办理结果已更新';});}
 async function reconcile(order){await run('reconcile-'+order.id,async()=>{assign(await api('/orders/'+order.id+'/reconcile',{}));notice.value=['ordered','included'].includes(q.value?.state)?'已核查当前权益状态':'当前未确认权益生效。请向官方核实后再决定是否重新办理。';});}

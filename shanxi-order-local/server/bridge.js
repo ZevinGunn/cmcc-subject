@@ -1,10 +1,35 @@
 import { chromium } from 'playwright';
 import { AppError } from './domain.js';
 import fs from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {Protocol} from './protocol.js';
 const ORIGIN='https://wap.sx.10086.cn';
 const ACT=ORIGIN+'/h/act/index.html#/qqt5ga';
 const LOGIN=ORIGIN+'/h/market/index.html#/loginSim?back='+encodeURIComponent(ACT)+'&busiType=SSO_LOGIN';
+const SDK=fileURLToPath(new URL('./vendor/kjjssdk.min.js',import.meta.url));
+// Evaluated inside the official origin. Identifiers come from the original SDK,
+// never from the HAR or a fabricated device profile.
+export async function browserRequest({endpoint,body,headers}){
+ if(location.origin!=='https://wap.sx.10086.cn')return {foreign:true};
+ const environment={sdk:false,telemetry:false};
+ const extra={};
+ const deadline=async promise=>{let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('SDK_TIMEOUT')),8000);})]);}finally{clearTimeout(timer);}};
+ try{
+  if(typeof window.YWKJ?.getHeader!=='function')return {environmentUnavailable:true,environment};
+  const generated=await deadline(window.YWKJ.getHeader());
+  if(generated?.url!==location.href||!/^[a-f0-9]{32}$/i.test(generated?.uuid||''))return {environmentUnavailable:true,environment};
+  extra['Content-M-CODE']=generated.uuid;extra['Content-M-URL']=generated.url;environment.sdk=true;
+  if(typeof window.vm?.$fchama?.httpReady==='function'){
+   const value=await deadline(window.vm.$fchama.httpReady());
+   if(typeof value==='string'){extra.restParams=value;environment.telemetry=true;}
+  }
+ }catch{return {environmentUnavailable:true,environment};}
+ // Header collection can yield; check the origin again before exposing payloads.
+ if(location.origin!=='https://wap.sx.10086.cn')return {foreign:true};
+ const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',redirect:'error',headers:{'Content-Type':'application/json',cookieid:'wapapp',...headers,...extra},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
+ if(!response.ok)return {status:response.status,environment};
+ try{return {status:response.status,data:await response.json(),environment};}catch{return {status:response.status,invalid:true,environment};}
+}
 // Runs only inside the dedicated official-site browser. The official interceptor
 // owns encryption, environment headers and cookies. No session data is exported.
 export function installBridge(){
@@ -48,6 +73,8 @@ export class OfficialBridge {
      try{const url=new URL(response.url());if(url.origin===ORIGIN&&url.pathname===this.lastRequest.path)this.lastRequest.httpStatus=response.status();}catch{}
     });
     await this.page.goto(LOGIN,{waitUntil:'domcontentloaded',timeout:15000});
+    // The supplied public SDK can run even when the official HTML is empty.
+    if(!await this.page.evaluate(()=>typeof window.YWKJ?.getHeader==='function'))await this.page.addScriptTag({path:SDK});
     return {opened:true,ready:true};
    }catch{await this.close();throw new AppError('BROWSER_UNAVAILABLE','官方会话未能打开，请检查网络与 Chrome 安装',503);}
   })().finally(()=>{this.launching=null;});
@@ -59,13 +86,9 @@ export class OfficialBridge {
   this.lastRequest={path:endpoint,phase:'sending',at:new Date().toISOString()};
   try{
    if(new URL(this.page.url()).origin!==ORIGIN)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，请退出并重新登录',409);
-   const result=await this.page.evaluate(async({endpoint,body,headers})=>{
-    if(location.origin!=='https://wap.sx.10086.cn')return {foreign:true};
-    // Let the official page own browser security cookies and URL processing.
-    const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',redirect:'error',headers:{'Content-Type':'application/json',cookieid:'wapapp','Content-M-URL':location.href,...headers},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
-    if(!response.ok)return {status:response.status};
-    try{return {status:response.status,data:await response.json()};}catch{return {status:response.status,invalid:true};}
-   },{endpoint,body,headers});
+   const result=await this.page.evaluate(browserRequest,{endpoint,body,headers});
+   this.lastRequest.environment=result.environment;
+   if(result.environmentUnavailable)throw new AppError('OFFICIAL_ENV_UNAVAILABLE','官方环境参数未准备好，本次未发送请求，请重新打开官方窗口',503);
    this.lastRequest.phase='received';this.lastRequest.httpStatus=result.status;
    if(result.foreign)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，请退出并重新登录',409);
    if([412,403,429].includes(result.status))throw new AppError('OFFICIAL_VERIFICATION_REQUIRED',`官方返回 HTTP ${result.status}，请在官方窗口完成页面验证后重试`,503);

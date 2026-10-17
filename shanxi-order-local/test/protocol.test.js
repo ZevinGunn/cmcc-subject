@@ -37,7 +37,7 @@ test('登录与订购使用独立公钥缓存，验证凭据只绑定一次请�
  await p.call('qqt5gaQryUserQualification');
  assert.equal(requests.filter(r=>r.url.endsWith('/getRsaPubKey')).length,2);
  const order=requests.find(r=>r.url.endsWith('/submitPrcOrder'));assert.equal(order.data.uuid,'synthetic-proof');assert.equal(order.data.busiType,'QQT5GA_SMS');
- assert.equal(requests.at(-1).data.uuid,undefined);assert.equal(requests[1].url,'/h/market/rest/v1/wapLogin/sendSmsCode');
+ assert.equal(requests.at(-1).data.uuid,undefined);assert.equal(requests[1].url,'/h/market/rest/v1/wapLogin/sendSmsCode');assert.equal(requests[1].data.couponsBusiName,'SIM认证');
  await assert.rejects(p.call('arbitrary'),{code:'UNSUPPORTED'});await assert.rejects(p.call('qqt5gaSubmitPrcOrder'),{code:'VERIFY_REQUIRED'});
  let attempts=0;const failing=new Protocol(async url=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};attempts++;throw Error('timeout');});
  await assert.rejects(failing.call('qqt5gaSubmitPrcOrder',{}, {uuid:'synthetic-proof'}));assert.equal(attempts,1);
@@ -48,3 +48,7 @@ test('仅在只读公钥探测失败后选择兼容入口，写操作不切入�
  await p.call('qqt5gaQryUserQualification');await assert.rejects(p.call('qqt5gaSubmitPrcOrder',{}, {uuid:'synthetic-proof'}));assert.equal(calls.filter(u=>u.endsWith('/submitPrcOrder')).length,1);assert.equal(calls.at(-1),'/h/market/rest/v1/qqt5ga/submitPrcOrder');assert.equal(p.scopes.get('act'),'market');
 });
 test('官方业务诊断区分响应码与嵌套状态，过滤号码和敏感字段',async()=>{const p=new Protocol(async(url,body,headers)=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};const {key}=open(body,headers);return response({retCode:'0000',retMsg:'已受理 13800000000',data:{retCode:'900001',retMsg:'通道拒绝',token:'synthetic-private',phoneNo:'13800000000'}},key);});await p.call('sendSmsCode',{pubInfo:{phoneNo:'13800000000'}});assert.equal(p.lastResult.code,'0000');assert.equal(p.lastResult.detailCode,'900001');assert.equal(p.lastResult.message,'已受理 138****0000');assert.equal(JSON.stringify(p.lastResult).includes('synthetic-private'),false);assert.equal(p.lastResult.dataFields.includes('phoneNo'),false);});
+test('仅保留发码响应中有限的通道状态，不将其推断为送达或暴露号码',async()=>{
+ const p=new Protocol(async(url,body,headers)=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};const {key}=open(body,headers);return response({retCode:'0000',data:{NET_FLAG:'Y',SEND_TYPE:'2',NET_TYPE:'13800000000',unknown:'private'}},key);});
+ await p.call('sendSmsCode');assert.deepEqual(p.lastResult.channelStatus,{NET_FLAG:'Y',SEND_TYPE:'2'});assert.equal(JSON.stringify(p.lastResult).includes('13800000000'),false);assert.equal(p.lastResult.delivered,undefined);
+});

@@ -25,6 +25,8 @@ Vue 3 → 同源 Express API → 单操作锁与状态机 → 独立 Chromium �
 
 `server/protocol.js` 为每次调用生成 16 位随机字母数字 AES 密钥与独立 16 字节 IV。AES-128-CBC/PKCS7 的报文为 IV 十六进制加密文十六进制；公钥支持官网返回的十六进制 DER SPKI，RSA PKCS#1 v1.5 密文放入 E-A-K，时间戳为 E-T-K，HMAC-SHA256(时间戳+报文, AES密钥) 为 E-S-K。响应按本次密钥解密；secretOutId=-1 时解析官方明文包装。解密失败不作为业务结果。
 
+登录请求的 `couponsBusiName` 对齐附件 `/loginSim` 路由标题“SIM认证”。请求环境头由官方 `YWKJ.getHeader()` 在当前浏览器计算；官方 HTML 为空时加载附件原样公共 SDK（来源与哈希见 `server/vendor/README.md`）。环境生成失败不发送请求。`restParams` 仅在官方 `$fchama.httpReady()` 可用时复用，缺失时诊断标记不可用，不构造替代值。发码诊断仅保留三项有限通道状态，不解释未证实的状态含义，也不把 `0000 / OK` 当作手机已收到。
+
 当前 act 公钥入口返回 HTTP 400，market 公钥入口正常。适配仅在无副作用的 act 公钥探测明确不可用时选择同源 market 入口；其相同资格路径已只读实测返回官方“用户未登录”。选好入口后业务请求只发一次，短信或订单绝不换入口重发。登录后的所有写操作仍须通过官方实际响应验证，不能仅依据未登录响应认定交易成功。
 
 已订业务保留原官方页面响应采集路径，不猜测缺失的查询参数。该路径使用此前分析的 act w//H 与 Axios 解密拦截器；官网页面或模块变更可能使列表不可用。
@@ -44,4 +46,4 @@ Vue 3 → 同源 Express API → 单操作锁与状态机 → 独立 Chromium �
 
 `bridge.js` 管理官方浏览器与请求传输；`protocol.js` 管理签名和解密；`service.js` 管理会话、验证码与订购；`domain.js` 管理严格业务码和脱敏；`ledger.js` 管理脱敏记录；`app.js` 管理本地边界；`web/` 为界面。
 
-测试使用生成的 RSA 密钥、合成号码、离线服务与响应，不导入真实 HAR。`test:ui` 在操作前断言环境为 fixture。真实发码、已登录资格、线上业务列表和真实订购尚未使用有效手机号联调，详见 `VERIFICATION.md`。
+测试使用生成的 RSA 密钥、合成号码、离线服务与响应，不导入真实 HAR。`test:ui` 在操作前断言环境为 fixture。真实登录发码已按用户授权测试，但用户未收到；已登录资格、线上业务列表和真实订购尚未通过线上验收，详见 `VERIFICATION.md`。

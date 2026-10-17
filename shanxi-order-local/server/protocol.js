@@ -25,8 +25,8 @@ export function unseal(data,key){
  }catch{throw new AppError('INVALID_RESPONSE','官方响应未能解密，请先核查办理结果',502);}
 }
 const routes=Object.freeze({
- sendSmsCode:['market','wapLogin/sendSmsCode','登录'],wapLogin:['market','wapLogin/login','登录'],
- checkLoginNew:['market','wapLogin/checkLogin','登录'],
+ sendSmsCode:['market','wapLogin/sendSmsCode','SIM认证'],wapLogin:['market','wapLogin/login','SIM认证'],
+ checkLoginNew:['market','wapLogin/checkLogin','SIM认证'],
  qqt5gaQryUserQualification:['act','qqt5ga/qryUserQualification','全球通5GA加速权益'],
  qrySensitiveTag:['act','sensitive/qryTag','全球通5GA加速权益'],
  getSmsCodeSmsver:['act','smsver/sendSmsCodeNew','全球通5GA加速权益'],
@@ -63,6 +63,9 @@ export class Protocol {
   const result=unseal(response,encrypted.key);
   if(!result||typeof result!=='object'||result.retCode===undefined)throw new AppError('INVALID_RESPONSE','官方未返回有效结果，请稍后核查',502);
   this.lastResult={operation:method,code:String(result.retCode),message:safeMessage(result.retMsg||''),detailCode:result.data&&typeof result.data==='object'&&result.data.retCode!==undefined?String(result.data.retCode):null,detailMessage:safeMessage(result.data?.retMsg||''),dataFields:result.data&&typeof result.data==='object'?Object.keys(result.data).filter(k=>!/(cookie|token|secret|password|uuid|sms|phone)/i.test(k)):[],at:new Date().toISOString()};
+  if(method==='sendSmsCode')this.lastResult.channelStatus=Object.fromEntries(['NET_FLAG','SEND_TYPE','NET_TYPE'].flatMap(k=>{
+   const value=result.data?.[k];return ['string','number','boolean'].includes(typeof value)&&/^[A-Za-z0-9_-]{0,16}$/.test(String(value))&&!/\d{6,}/.test(String(value))?[[k,value]]:[];
+  }));
   return result;
  }
  clear(){this.keys.clear();this.scopes.clear();this.lastResult=null;}
