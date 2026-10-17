@@ -1,0 +1,12 @@
+{
+  "pages": ["pages/accounts/index", "pages/coupons/index", "pages/settings/index", "pages/login/index"],
+  "window": { "navigationBarTitleText": "随行工具箱", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black", "backgroundColor": "#f6f7f9" },
+  "tabBar": { "color": "#66717e", "selectedColor": "#007caf", "backgroundColor": "#ffffff", "list": [
+    { "pagePath": "pages/accounts/index", "text": "移动账号" },
+    { "pagePath": "pages/coupons/index", "text": "星巴克卡券" },
+    { "pagePath": "pages/settings/index", "text": "我的" }
+  ] },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

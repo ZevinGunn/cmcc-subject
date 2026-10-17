@@ -1,0 +1,8 @@
+{
+  "origin": "https://home.1008086.xyz",
+  "services": [
+    { "id": "mobile", "name": "移动账号", "shortName": "移动", "path": "/public", "color": "#007caf", "description": "账号维护、业务查询与权益活动" },
+    { "id": "puzzle", "name": "周三拼图", "shortName": "拼图", "path": "/wed-puzzle/", "color": "#6f50b8", "description": "任务、转赠接收与拼图互助" },
+    { "id": "starbucks", "name": "星巴克卡券", "shortName": "卡券", "path": "/starbucks", "color": "#00754a", "description": "卡券查询、分类与批量复制" }
+  ]
+}

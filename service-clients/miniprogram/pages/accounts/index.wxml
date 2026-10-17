@@ -1,0 +1,14 @@
+<view class="page">
+  <view class="row"><view class="heading">移动账号</view><button class="small secondary" bindtap="reload" loading="{{busy}}" disabled="{{busy}}">刷新</button></view>
+  <view wx:if="{{!authenticated}}" class="empty"><text>登录后查看你的移动账号</text><button class="primary" bindtap="login">登录</button></view>
+  <block wx:else>
+    <input class="field" placeholder="搜索号码或备注" value="{{keyword}}" bindinput="search" />
+    <view class="muted">{{filtered.length}} 个账号 · {{updatedText || '尚未更新'}}</view><view class="spacer"></view>
+    <view wx:if="{{!filtered.length && !busy}}" class="empty">{{keyword ? '没有匹配的账号' : '暂无关联手机号，请先在站点添加账号'}}</view>
+    <view wx:for="{{filtered}}" wx:key="id" class="section" data-id="{{item.id}}" bindtap="detail" role="button">
+      <view class="row"><view class="name">{{item.displayPhone || item.phoneMasked}}</view><view class="{{item.cloudValid ? 'good' : 'warn'}}">{{item.cloudText}}</view></view>
+      <view wx:if="{{item.label}}" class="muted">{{item.label}}</view>
+      <view class="muted">10086：{{item.mobileText}}</view>
+    </view>
+  </block>
+</view>

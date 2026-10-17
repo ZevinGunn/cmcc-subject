@@ -1,0 +1,38 @@
+name: 随行工具箱客户端构建
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            command: build:mac
+            artifact: macOS
+          - os: windows-latest
+            command: build:win
+            artifact: Windows
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: service-clients
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: service-clients/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run ${{ matrix.command }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Suixing-${{ matrix.artifact }}
+          path: |
+            service-clients/artifacts/desktop/*.dmg
+            service-clients/artifacts/desktop/*.zip
+            service-clients/artifacts/desktop/*.exe
+          if-no-files-found: error
