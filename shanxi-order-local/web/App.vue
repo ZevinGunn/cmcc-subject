@@ -54,24 +54,21 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
 </script>
 <template>
  <div class="shell">
-  <aside class="sidebar">
-   <a class="brand" href="#" @click.prevent="tab='home'"><span class="brand-mark"><Zap :size="21" fill="currentColor"/></span><div><strong>晋速办</strong><small>山西移动 · 本地业务台</small></div></a>
-   <div class="workspace-label">工作空间 <span>LOCAL</span></div>
+  <header class="sidebar">
+   <a class="brand" href="#" @click.prevent="tab='home'" aria-label="晋速办首页"><img class="brand-mark" src="/shanxi-mobile-logo.png" alt="山西移动" width="52" height="52"/><div><strong>晋速办</strong><small>山西移动业务办理</small></div></a>
    <nav aria-label="主导航">
-    <button :class="{active:tab==='home'}" @click="tab='home'"><LayoutDashboard :size="18"/>快捷办理<ChevronRight class="nav-arrow" :size="15"/></button>
-    <button :class="{active:tab==='business'}" @click="tab='business'"><PackageSearch :size="18"/>已订业务</button>
-    <button :class="{active:tab==='history'}" @click="tab='history'"><History :size="18"/>办理记录<span v-if="unknown" class="nav-count">{{unknown}}</span></button>
+    <button :class="{active:tab==='home'}" :aria-current="tab==='home'?'page':undefined" @click="tab='home'"><LayoutDashboard :size="17"/>快捷办理</button>
+    <button :class="{active:tab==='business'}" :aria-current="tab==='business'?'page':undefined" @click="tab='business'"><PackageSearch :size="18"/>已订业务</button>
+    <button :class="{active:tab==='history'}" :aria-current="tab==='history'?'page':undefined" @click="tab='history'"><History :size="18"/>办理记录<span v-if="unknown" class="nav-count">{{unknown}}</span></button>
    </nav>
    <div class="account-panel">
-    <div class="eyebrow">当前账号</div>
-    <div class="account-line"><span class="account-icon"><Smartphone :size="18"/></span><div><strong>{{account?.phone||'尚未登录'}}</strong><small>{{account?'山西移动 · 已同步':'使用手机验证码登录'}}</small></div></div>
-    <template v-if="account"><button class="text-button account-action" @click="showOfficial" :disabled="busy">官方窗口<ArrowUpRight :size="14"/></button><button class="text-button account-action" @click="logout" :disabled="busy"><LogOut :size="13"/>退出登录</button></template>
-    <button v-else class="button primary full" @click="login" :disabled="busy"><LoaderCircle v-if="pending==='login'" class="spin" :size="15"/><Smartphone v-else :size="15"/>验证码登录</button>
+    <span v-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
+    <button class="icon-button" @click="showOfficial" :disabled="busy" aria-label="官方窗口" title="打开官方窗口"><ExternalLink :size="17"/></button>
+    <button v-if="account" class="icon-button" @click="logout" :disabled="busy" aria-label="退出登录" title="退出登录"><LogOut :size="17"/></button>
+    <button v-else class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>
    </div>
-   <div class="local-note"><span class="live-dot"></span>仅在本机运行 <span>v1.1</span></div>
-  </aside>
+  </header>
   <div class="body">
-   <header class="topbar"><div class="breadcrumb">业务工作台 <ChevronRight :size="13"/><span>{{{home:'快捷办理',business:'已订业务',history:'办理记录'}[tab]}}</span></div><div class="topbar-actions"><span v-if="account" class="mobile-account">{{account.phone}}</span><button v-if="account" class="text-button mobile-account" @click="logout" :disabled="busy">退出</button><button class="text-button" @click="showOfficial" :disabled="busy"><ExternalLink :size="14"/>官方窗口</button></div></header>
    <main>
     <div v-if="!loaded" class="loading"><LoaderCircle class="spin" :size="20"/>正在连接本地服务</div>
     <template v-else>
@@ -79,26 +76,26 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
      <div v-if="error&&!dialog" class="feedback error" role="alert"><AlertCircle :size="17"/><span>{{error}}</span><button class="icon-button" aria-label="关闭错误提示" @click="error=''"><X :size="15"/></button></div>
      <div v-if="notice&&!dialog" class="feedback" role="status"><Info :size="17"/><span>{{notice}}</span><button class="icon-button" aria-label="关闭提示" @click="notice=''"><X :size="15"/></button></div>
      <section v-if="!account" class="login-strip">
-      <span class="strip-icon"><ShieldCheck :size="24"/></span><div><h2>{{loginOpened?'在官方窗口完成登录':'登录后查询山西移动业务并办理'}}</h2><p>{{loginOpened?'完成官方登录后同步账号。':'输入手机号获取验证码，官方校验后登录。'}}</p></div>
+      <span class="strip-icon"><Smartphone :size="23"/></span><div><h2>{{loginOpened?'在官方窗口完成登录':'登录山西移动账号'}}</h2><p>{{loginOpened?'完成官方登录后同步账号。':'查询号码资格，办理专属权益。'}}</p></div>
       <button v-if="loginOpened" class="button primary" @click="sync" :disabled="busy"><LoaderCircle v-if="pending==='sync'" class="spin" :size="15"/><RefreshCw v-else :size="15"/>同步登录</button><button v-else class="button primary" @click="login" :disabled="busy">验证码登录<ArrowUpRight :size="15"/></button>
      </section>
      <template v-if="tab==='home'">
-      <div class="page-heading"><div><div class="eyebrow">QUICK SERVICE</div><h1>快捷办理</h1><p>查询当前号码资格，确认后直接办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
-      <div class="section-bar"><h2>可办权益 <span class="count">1</span></h2><span class="subtle">{{q?'更新于 '+date(q.checkedAt):'资格待查询'}}</span></div>
+      <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
       <div class="service-layout">
        <article class="product-panel">
-        <div class="product-top"><div class="product-symbol">5G<span>A</span></div><span class="tag">全球通专属</span></div>
+        <div class="product-top"><span class="product-symbol"><Zap :size="18"/>5G-A 权益</span><span class="tag">全球通专属</span></div>
         <h2>{{product.name}}</h2><p class="product-description">{{product.description}}</p>
         <div class="price-row"><strong>0<span>元</span></strong><span>免费办理</span></div>
         <dl class="terms"><div><dt>权益期限</dt><dd>{{product.term}}</dd></div><div><dt>生效时间</dt><dd>以开通成功短信为准</dd></div><div><dt>适用场景</dt><dd>游戏、视频、直播、办公等</dd></div></dl>
         <div class="eligibility" :class="q?.state==='eligible'?'eligible':''"><span class="status-dot"/><div><strong>{{q?.label||(account?'待查询办理资格':'登录后查询资格')}}</strong><p>{{q?.message||(account?'查询后可查看是否符合免费办理条件。':'登录不会自动订购任何业务。')}}</p></div></div>
-        <button v-if="q?.state==='eligible'&&!blocked" class="button primary full" :disabled="busy||!account" @click="openDialog">办理此权益<ChevronRight :size="16"/></button>
+        <button v-if="!account" class="button primary full" :disabled="busy" @click="login">登录后查询资格<ChevronRight :size="16"/></button>
+        <button v-else-if="q?.state==='eligible'&&!blocked" class="button primary full" :disabled="busy" @click="openDialog">办理此权益<ChevronRight :size="16"/></button>
         <button v-else-if="!q" class="button secondary full" :disabled="busy||!account" @click="query('content')">{{account?'查询办理资格':'请先登录'}}</button>
         <button v-else-if="blocked" class="button secondary full" @click="tab='history'">查看办理记录<ChevronRight :size="16"/></button>
         <button v-else-if="['included','ordered'].includes(q.state)" class="button secondary full" :disabled="busy||!account" @click="openDialog(true)">仍尝试办理<ChevronRight :size="16"/></button>
         <button v-else class="button secondary full" disabled>{{q.label}}</button>
        </article>
-       <aside class="details-panel"><h3>业务内容</h3><dl class="content-meta"><div><dt>业务编码</dt><dd>{{product.code}}</dd></div><div><dt>资费</dt><dd>{{product.fee}}</dd></div><div><dt>查询时间</dt><dd>{{date(state.content?.queriedAt)}}</dd></div></dl><details v-if="state.content" class="query-details"><summary>官方资格响应</summary><pre>{{JSON.stringify(state.content.data,null,2)}}</pre></details><h3>办理说明</h3><div class="steps"><div><span>01</span><section><strong>查询号码资格</strong><p>以当前账号的官方查询结果为准。</p></section></div><div><span>02</span><section><strong>验证业务短信</strong><p>业务验证码与登录验证码不同。</p></section></div><div><span>03</span><section><strong>确认办理结果</strong><p>服务端确认后显示结果并留存记录。</p></section></div></div><div class="divider"/><h3>使用条件</h3><ul class="requirements"><li v-for="item in product.requirements" :key="item"><Check :size="14"/><span>{{item}}</span></li></ul><div class="detail-bottom"><ShieldCheck :size="17"/><span>每笔办理均需手动确认</span></div></aside>
+       <aside class="details-panel"><h3>业务信息</h3><dl class="content-meta"><div><dt>业务编码</dt><dd>{{product.code}}</dd></div><div><dt>查询时间</dt><dd>{{date(state.content?.queriedAt)}}</dd></div></dl><h3>使用条件</h3><ul class="requirements"><li v-for="item in product.requirements" :key="item"><Check :size="14"/><span>{{item}}</span></li></ul><details v-if="state.content" class="query-details"><summary>查看官方资格响应</summary><pre>{{JSON.stringify(state.content.data,null,2)}}</pre></details><div class="detail-bottom"><ShieldCheck :size="16"/><span>短信验证 · 手动确认办理</span></div></aside>
       </div>
       <section class="recent-section"><div class="section-bar"><h2>最近办理</h2><button class="text-button" @click="tab='history'">全部记录<ChevronRight :size="14"/></button></div><div v-if="!state.orders.length" class="inline-empty"><History :size="20"/><span>暂无办理记录</span><span class="subtle">完成办理后，结果会保存在本机。</span></div><div v-else v-for="o in state.orders.slice(0,3)" :key="o.id" class="recent-row"><strong>{{o.name}}</strong><span>{{o.phone}}</span><span class="status" :class="statuses[o.status][1]">{{statuses[o.status][0]}}</span><time>{{date(o.createdAt)}}</time></div></section>
      </template>
@@ -117,7 +114,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
       <div v-if="!state.orders.length" class="empty-state"><History :size="30"/><h3>暂无办理记录</h3><p>账号登录后，可在快捷办理中查询资格。</p><button class="button secondary" @click="tab='home'">前往快捷办理<ChevronRight :size="15"/></button></div>
       <div v-else class="history-list"><article v-for="o in state.orders" :key="o.id"><div class="order-heading"><h3>{{o.name}}</h3><span class="status" :class="statuses[o.status][1]">{{statuses[o.status][0]}}</span></div><div class="order-meta"><span>{{o.phone}}</span><span>{{o.price}}</span><time>{{date(o.createdAt)}}</time></div><p>{{o.message}}</p><div class="order-bottom"><span class="subtle">本地记录号 {{o.id.slice(0,8)}}</span><div v-if="['unknown','success','held'].includes(o.status)" class="actions"><button class="text-button" :disabled="busy" @click="reconcile(o)"><RefreshCw :size="13"/>核查权益</button><button v-if="o.status==='unknown'" class="text-button muted" :disabled="busy" @click="openResolve(o)">人工核实未生效</button></div></div></article></div>
      </template>
-     <footer><span>晋速办 · 本地业务工具</span><span>业务与资费以中国移动官方结果为准</span></footer>
+     <footer><span><span class="live-dot"/>晋速办 · 仅在本机运行</span><span>业务与资费以中国移动官方结果为准</span></footer>
     </template>
    </main>
   </div>
