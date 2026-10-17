@@ -16,11 +16,11 @@
       "runtime": "node",
       "pm2Name": "shanxi-public",
       "port": 4319,
-      "domains": [],
-      "publicUrl": "https://project.1008086.xyz/apps/shanxi/",
+      "domains": ["shanxi.1008086.xyz"],
+      "publicUrl": "https://shanxi.1008086.xyz/",
       "healthPath": "/api/health",
       "allowedStatus": [200],
-      "dependencies": ["pm2", "project"],
+      "dependencies": ["pm2", "shanxi-tunnel"],
       "capabilities": ["restart", "check", "logs"],
       "build": null,
       "test": {
@@ -30,7 +30,7 @@
       },
       "automaticOperations": false,
       "protected": false,
-      "exposure": "platform-authenticated"
+      "exposure": "public"
     },
     {
       "id": "home",
@@ -303,6 +303,24 @@
     }
   ],
   "infrastructure": [
+    {
+      "id": "shanxi-tunnel",
+      "name": "晋速办独立隧道",
+      "description": "山西移动业务订购独立公网入口",
+      "group": "platform",
+      "kind": "infrastructure",
+      "directory": "shanxi-order-local",
+      "runtime": "pm2-cloudflared",
+      "pm2Name": "shanxi-tunnel",
+      "port": null,
+      "domains": ["shanxi.1008086.xyz"],
+      "healthPath": null,
+      "allowedStatus": [],
+      "capabilities": ["restart", "check", "logs"],
+      "build": null,
+      "test": null,
+      "protected": true
+    },
     {
       "id": "pm2",
       "name": "PM2 Runtime",

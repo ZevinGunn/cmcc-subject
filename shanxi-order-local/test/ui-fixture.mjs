@@ -13,5 +13,5 @@ const original=service.snapshot.bind(service);service.snapshot=()=>({...original
 const port=Number(process.env.UI_FIXTURE_PORT||4320);
 const publicMode=process.env.UI_FIXTURE_PUBLIC==='1';
 const fixtureApp=createApp(service,{port,dist:path.resolve(publicMode?'dist-public':'dist'),publicMode});
-const server=http.createServer((req,res)=>{if(publicMode&&req.url.startsWith('/apps/shanxi'))req.url=req.url.slice('/apps/shanxi'.length)||'/';fixtureApp(req,res);}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
+const server=http.createServer((req,res)=>{fixtureApp(req,res);}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
 async function close(){server.close();if(multi)await service.close();if(!process.env.UI_FIXTURE_DATA)fs.rmSync(dir,{recursive:true,force:true});process.exit(0);}process.on('SIGTERM',close);process.on('SIGINT',close);

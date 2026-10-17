@@ -4,7 +4,7 @@ import {Zap,LayoutDashboard,PackageSearch,History,ArrowUpRight,RefreshCw,Check,C
 import {api} from './api';
 import ConfigManager from './ConfigManager.vue';
 import AccountManager from './AccountManager.vue';
-const publicMode=import.meta.env.BASE_URL!=='/';
+const publicMode=import.meta.env.SHANXI_PUBLIC===true;
 const logoUrl=import.meta.env.BASE_URL+'shanxi-mobile-logo.png';
 const activeSaved=computed(()=>state.value.accounts?.find(a=>a.id===state.value.activeAccountId));
 async function switchAccount(id){await run('account-select',async()=>{assign(await api('/accounts/select',{id}));notice.value=account.value?'账号已切换，登录缓存已校验。':'此账号需重新登录。';});}
@@ -80,7 +80,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
    <div class="account-panel">
     <select v-if="state.accounts?.length" class="account-switch" aria-label="切换登录账号" :value="state.activeAccountId" :disabled="busy" @change="switchAccount($event.target.value)"><option v-for="a in state.accounts" :key="a.id" :value="a.id">{{a.label?a.label+' · ':''}}{{a.phone}}</option></select><span v-else-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
     <button class="icon-button" @click="tab='accounts'" :disabled="busy" aria-label="账号管理" title="账号管理"><Users :size="17"/></button>
-    <a v-if="publicMode" class="icon-button" href="/home" aria-label="返回项目管理" title="返回项目管理"><ArrowLeft :size="17"/></a>
+    <a v-if="publicMode" class="icon-button" href="https://project.1008086.xyz/home" aria-label="项目维护" title="项目维护"><ArrowLeft :size="17"/></a>
     <button v-if="!publicMode" class="icon-button" @click="showOfficial" :disabled="busy" aria-label="官方窗口" title="打开官方窗口"><ExternalLink :size="17"/></button>
     <button v-if="account" class="icon-button" @click="logout" :disabled="busy" aria-label="退出登录" title="退出登录"><LogOut :size="17"/></button>
     <button v-else-if="!state.accounts?.length" class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>

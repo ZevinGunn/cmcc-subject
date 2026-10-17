@@ -3,7 +3,7 @@ import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from
 import { mkdir, open, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createReadStream, existsSync } from "node:fs";
 import http from "node:http";
-import {createShanxiGateway,publicPrefix as shanxiPrefix} from "./shanxi-gateway.js";
+import {redirectShanxi,publicPrefix as shanxiPrefix} from "./shanxi-gateway.js";
 import { isIP } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -2779,13 +2779,6 @@ if (process.env.PROJECT_MANAGER_NO_LISTEN !== "1") {
   await recoverInterruptedFrontendActivations();
 }
 
-const shanxiGateway=createShanxiGateway({
-  keyPath:path.join(rootDir,"shanxi-order-local/.public/gateway-key"),
-  authorize:requestAdmin,
-  canAccess:admin=>canAccessService(admin,"shanxi"),
-  sameOrigin,
-});
-
 const server = http.createServer((req, res) => {
   securityHeaders(res, { secure: secureRequest(req) || process.env.NODE_ENV === "production" });
   if (!req.url) return json(res, 400, { error: "missing_url" });
@@ -2794,7 +2787,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(308, { location: `https://${requestHost}${req.url}`, "cache-control": "no-store" });
     return res.end();
   }
-  if (req.url === shanxiPrefix || req.url.startsWith(shanxiPrefix + "/")) return shanxiGateway(req,res);
+  if (req.url === shanxiPrefix || req.url.startsWith(shanxiPrefix + "/")) return redirectShanxi(req,res);
   if (req.url.startsWith("/api/")) {
     handleApi(req, res).catch((error) => {
       if (res.headersSent) return res.destroy();

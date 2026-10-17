@@ -9,7 +9,7 @@ import {createPublicApp} from './public-app.js';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const directory=path.join(root,'.public');
 const key=readFileSync(path.join(directory,'gateway-key'));
-if(key.length!==32)throw Error('公网网关密钥无效');
+if(key.length!==32)throw Error('公网缓存签名密钥无效');
 const service=createPublicApp({key,directory,dist:path.join(root,'dist-public'),makeService:dir=>new Accounts(()=>new OfficialBridge({headless:true}),new Ledger(dir))});
 const server=service.app.listen(4319,'127.0.0.1',()=>console.log('晋速办公网服务已启动：127.0.0.1:4319'));
 const timer=setInterval(()=>service.sweep().catch(()=>{}),60000);timer.unref();
