@@ -1,0 +1,25 @@
+import {chromium} from 'playwright';
+import {spawn} from 'node:child_process';
+import http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const directory=fs.mkdtempSync(path.join(os.tmpdir(),'sx-ui-acceptance-'));
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const portServer=http.createServer().listen(0,'127.0.0.1');await new Promise(r=>portServer.once('listening',r));const port=portServer.address().port;await new Promise(r=>portServer.close(r));
+const url=`http://127.0.0.1:${port}`;
+const fixture=spawn(process.execPath,['test/ui-fixture.mjs'],{cwd:root,env:{...process.env,UI_FIXTURE_PORT:String(port)},stdio:['ignore','pipe','inherit']});
+let browser;
+try{
+await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('fixture startup timeout')),10000);fixture.once('error',e=>{clearTimeout(timer);reject(e);});fixture.once('exit',code=>{clearTimeout(timer);reject(Error(`fixture exited ${code}`));});fixture.stdout.once('data',()=>{clearTimeout(timer);resolve();});});
+assert.equal((await (await fetch(url+'/api/state')).json()).environment,'fixture');
+browser=await chromium.launch({headless:true,...(fs.existsSync('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')?{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'}:{})});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.getByRole('button',{name:'退出登录',exact:true}).click();
+ await page.getByRole('button',{name:'验证码登录',exact:true}).last().click();await page.locator('#login-phone').fill('13900000000');await page.getByLabel('我已阅读并同意').check();await page.getByRole('button',{name:'获取验证码',exact:true}).click();await page.getByText('登录验证码已发送',{exact:true}).waitFor();await page.locator('#login-code').fill('999999');await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByText('离线测试验证码错误',{exact:true}).waitFor();await page.locator('#login-code').fill('001234');await page.getByRole('button',{name:'登录',exact:true}).click();await page.getByText('登录成功，可以查询业务。',{exact:true}).waitFor();assert.equal(await page.locator('dialog').evaluate(el=>el.open),false);
+ await page.getByRole('button',{name:'查询业务内容',exact:true}).click();await page.getByText('当前号码符合办理条件。',{exact:true}).waitFor();await page.screenshot({path:directory+'/desktop.png',fullPage:true});
+ await page.getByRole('button',{name:'办理此权益'}).click();await page.getByRole('button',{name:'获取验证码',exact:true}).click();await page.locator('#sms-code').fill('012345');await page.getByRole('button',{name:'验证',exact:true}).click();await page.getByText('业务验证码已验证',{exact:true}).waitFor();await page.getByLabel('我已确认办理号码').check();await page.getByRole('button',{name:'确认免费办理',exact:true}).click();await page.getByText('离线测试结果，未发生真实订购',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'已订业务',exact:true}).click();await page.getByRole('button',{name:'查询业务',exact:true}).click();await page.getByRole('heading',{name:'离线测试 · 全球通套餐',exact:true}).waitFor();await page.getByRole('button',{name:'退出登录',exact:true}).click();await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'验证码登录',exact:true}).last().click();await page.locator('#login-phone').fill('13800000000');await page.screenshot({path:directory+'/mobile-login.png',fullPage:true});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.equal(await page.locator('dialog').evaluate(el=>el.getBoundingClientRect().right>innerWidth),false);assert.deepEqual(errors,[]);console.log(JSON.stringify({passed:true,scenarios:['wrong-login-code','login','content','sensitive-sms','order','business','mobile-dialog'],screenshots:directory}));
+}finally{await browser?.close();fixture.kill('SIGTERM');}

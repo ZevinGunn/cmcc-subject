@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {qualification,success,composeCode,sensitiveChallenge,publicData} from '../server/domain.js';
+test('业务成功严格判定，HTTP 200 与字符串前缀均不能代替成功',()=>{for(const retCode of ['0000','0',0])assert.equal(success({retCode}),true);for(const retCode of ['0oops','0000失败',200,null,undefined,''])assert.equal(success({retCode}),false);});
+test('资格区分已领、默认享有、过期、无资格和可办等级',()=>{assert.equal(qualification({retCode:'0000',data:{gBrandLevel:'02'}}).state,'eligible');assert.equal(qualification({retCode:'0000',gBrandLevel:'03'}).state,'included');assert.equal(qualification({retCode:'0000',gBrandLevel:'unexpected'}).state,'ineligible');assert.equal(qualification({retCode:'900006'}).state,'ordered');assert.equal(qualification({retCode:'900010'}).state,'expired');for(const retCode of ['999999','777777'])assert.throws(()=>qualification({retCode}),{code:'AUTH_EXPIRED'});});
+test('敏感验证码固定位置和前导零',()=>{const c=sensitiveChallenge({retCode:'0000',data:{uuid:'fixture',pos1:2,pos2:7,val1:'9',val2:'0'}},true);assert.equal(composeCode('012345',c),'09123405');assert.throws(()=>composeCode(123456,c),{code:'INVALID_CODE'});assert.throws(()=>composeCode('12345',c));assert.equal(composeCode('012345',{sensitive:false}),'012345');});
+test('拒绝非法敏感固定位置，不降级验证',()=>{for(const fields of [{pos1:0,pos2:4,val1:'0',val2:'1'},{pos1:2,pos2:2,val1:'0',val2:'1'},{pos1:2,pos2:4,val1:'10',val2:'1'}])assert.throws(()=>sensitiveChallenge({retCode:'0000',uuid:'fixture',...fields},true),{code:'INVALID_SMS'});});
+test('查询返回过滤嵌套凭据并脱敏号码',()=>{assert.deepEqual(publicData({token:'secret',data:[{phoneNo:'13800000000',uuid:'secret',name:'套餐',secretKey:'key'}]}),{data:[{phoneNo:'138****0000',name:'套餐'}]});});

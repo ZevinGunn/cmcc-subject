@@ -1,0 +1,10 @@
+// Local-only UI acceptance fixture. Never imports OfficialBridge or contacts CMCC.
+import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
+import {createApp} from '../server/app.js';import {Service} from '../server/service.js';import {Ledger} from '../server/ledger.js';
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sx-ui-fixture-'));
+const bridge={ordered:false,async open(){return {opened:true};},async visible(){return {opened:true};},async close(){},async sendLoginSms(phone){this.phone=phone;return {retCode:'0000'};},async login(_phone,code){return code==='001234'?{retCode:'0000'}:{retCode:'900001',retMsg:'离线测试验证码错误'};},async authenticate(){return {retCode:'0000',data:{phone_no:this.phone||'13800000000'}};},async business(){return {retCode:'0000',data:{list:[{prcName:'离线测试 · 全球通套餐',prcId:'FIXTURE-01',status:'有效',effDate:'2026-09-01',expDate:'2026-09-30'},{prcName:'离线测试 · 来电显示',prcId:'FIXTURE-02',status:'有效'}]}};},async call(method,data){if(method==='qqt5gaQryUserQualification')return this.ordered?{retCode:'900006'}:{retCode:'0000',gBrandLevel:'02'};if(method==='qrySensitiveTag')return {retCode:'0000',data:{isSensitive:'Y'}};if(method==='getSmsCodeSmsver')return {retCode:'0000',uuid:'offline-fixture',data:{pos1:1,pos2:8,val1:'0',val2:'9'}};if(method==='chkSmsCodeSmsver')return data.smsCode==='00123459'?{retCode:'0000'}:{retCode:'900001',retMsg:'测试验证码不正确'};if(method==='qqt5gaSubmitPrcOrder'){this.ordered=true;return {retCode:'0000',retMsg:'离线测试结果，未发生真实订购'};}throw Error('Unsupported fixture method');}};
+const service=new Service(bridge,new Ledger(dir));await service.sync();await service.queryQualification();
+const original=service.snapshot.bind(service);service.snapshot=()=>({...original(),environment:'fixture'});
+const port=Number(process.env.UI_FIXTURE_PORT||4320);
+const server=createApp(service,{port,dist:path.resolve('dist')}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
+async function close(){server.close();fs.rmSync(dir,{recursive:true,force:true});process.exit(0);}process.on('SIGTERM',close);process.on('SIGINT',close);
