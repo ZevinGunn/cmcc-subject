@@ -34,7 +34,7 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  app.post('/api/query/qualification',route(()=>service.queryQualification()));
  app.post('/api/query/content',route(()=>service.queryQualification()));
  app.post('/api/query/business',route(()=>service.queryBusiness()));
- app.post('/api/order/sms',route(()=>service.sendSms()));
+ app.post('/api/order/sms',route(req=>service.sendSms(req.body?.attemptAnyway)));
  app.post('/api/order/verify',route(req=>service.verifySms(req.body.id,req.body.code)));
  app.post('/api/order/submit',route(req=>service.submit(req.body.id,req.body.confirmed)));
  app.post('/api/orders/:id/reconcile',route(req=>service.reconcile(req.params.id)));

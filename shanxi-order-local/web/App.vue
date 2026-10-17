@@ -5,6 +5,8 @@ import {api} from './api';
 const state=ref({account:null,product:{requirements:[]},orders:[],challenge:null});
 const tab=ref('home'),pending=ref(''),error=ref(''),notice=ref(''),search=ref(''),loaded=ref(false),loginOpened=ref(false);
 const dialog=ref(null),code=ref(''),consent=ref(false),countdown=ref(0),resolution=ref(null),resConsent=ref(false);
+const attemptAnyway=ref(false);
+const orderChallenge=computed(()=>state.value.challenge?.attemptAnyway===attemptAnyway.value?state.value.challenge:null);
 const loginPhone=ref(''),loginCode=ref(''),loginAgreed=ref(false),loginCountdown=ref(0),sentPhone=ref('');
 const dialogRef=ref(null),codeRef=ref(null);let trigger=null,timer,poll;
 const q=computed(()=>state.value.qualification);
@@ -26,11 +28,11 @@ async function sync(){await run('sync',async()=>{assign(await api('/login/sync',
 async function query(kind){await run(kind,async()=>{assign(await api('/query/'+kind,{}));notice.value=kind==='business'?'已订业务已更新':'业务内容与资格已更新';});}
 async function showOfficial(){await run('official',async()=>{await api('/official/open',{});});}
 async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='home';notice.value='已退出，官方浏览器会话已清除';});}
-async function openDialog(){trigger=document.activeElement;dialog.value='order';error.value='';code.value='';consent.value=false;await nextTick();dialogRef.value.showModal();}
+async function openDialog(attempt=false){trigger=document.activeElement;attemptAnyway.value=attempt===true;dialog.value='order';error.value='';code.value='';consent.value=false;await nextTick();dialogRef.value.showModal();}
 function closeDialog(){if(['submit','login-verify','login-sms'].includes(pending.value))return;dialogRef.value?.close();dialog.value=null;resolution.value=null;code.value='';loginCode.value='';trigger?.focus();}
-async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{}));code.value='';await nextTick();codeRef.value?.focus();notice.value='官方已受理业务短信请求，请以手机实际收到为准。';});}
-async function verify(){await run('verify',async()=>{assign(await api('/order/verify',{id:state.value.challenge.id,code:code.value}));code.value='';notice.value='验证码已验证，请确认办理';});}
-async function submit(){await run('submit',async()=>{assign(await api('/order/submit',{id:state.value.challenge.id,confirmed:consent.value}));dialogRef.value.close();dialog.value=null;tab.value='history';notice.value='办理结果已更新';});}
+async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{attemptAnyway:attemptAnyway.value}));code.value='';await nextTick();codeRef.value?.focus();notice.value='官方已受理业务短信请求，请以手机实际收到为准。';});}
+async function verify(){await run('verify',async()=>{assign(await api('/order/verify',{id:orderChallenge.value.id,code:code.value}));code.value='';notice.value='验证码已验证，请确认办理';});}
+async function submit(){await run('submit',async()=>{assign(await api('/order/submit',{id:orderChallenge.value.id,confirmed:consent.value}));dialogRef.value.close();dialog.value=null;tab.value='history';notice.value='办理结果已更新';});}
 async function reconcile(order){await run('reconcile-'+order.id,async()=>{assign(await api('/orders/'+order.id+'/reconcile',{}));notice.value=['ordered','included'].includes(q.value?.state)?'已核查当前权益状态':'当前未确认权益生效。请向官方核实后再决定是否重新办理。';});}
 async function openResolve(order){trigger=document.activeElement;resolution.value=order;resConsent.value=false;dialog.value='resolve';await nextTick();dialogRef.value.showModal();}
 async function resolve(){await run('resolve',async()=>{assign(await api('/orders/'+resolution.value.id+'/resolve',{confirmed:resConsent.value}));closeDialog();notice.value='已记录人工核查结果';});}
@@ -93,6 +95,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
         <button v-if="q?.state==='eligible'&&!blocked" class="button primary full" :disabled="busy||!account" @click="openDialog">办理此权益<ChevronRight :size="16"/></button>
         <button v-else-if="!q" class="button secondary full" :disabled="busy||!account" @click="query('content')">{{account?'查询办理资格':'请先登录'}}</button>
         <button v-else-if="blocked" class="button secondary full" @click="tab='history'">查看办理记录<ChevronRight :size="16"/></button>
+        <button v-else-if="['included','ordered'].includes(q.state)" class="button secondary full" :disabled="busy||!account" @click="openDialog(true)">仍尝试办理<ChevronRight :size="16"/></button>
         <button v-else class="button secondary full" disabled>{{q.label}}</button>
        </article>
        <aside class="details-panel"><h3>业务内容</h3><dl class="content-meta"><div><dt>业务编码</dt><dd>{{product.code}}</dd></div><div><dt>资费</dt><dd>{{product.fee}}</dd></div><div><dt>查询时间</dt><dd>{{date(state.content?.queriedAt)}}</dd></div></dl><details v-if="state.content" class="query-details"><summary>官方资格响应</summary><pre>{{JSON.stringify(state.content.data,null,2)}}</pre></details><h3>办理说明</h3><div class="steps"><div><span>01</span><section><strong>查询号码资格</strong><p>以当前账号的官方查询结果为准。</p></section></div><div><span>02</span><section><strong>验证业务短信</strong><p>业务验证码与登录验证码不同。</p></section></div><div><span>03</span><section><strong>确认办理结果</strong><p>服务端确认后显示结果并留存记录。</p></section></div></div><div class="divider"/><h3>使用条件</h3><ul class="requirements"><li v-for="item in product.requirements" :key="item"><Check :size="14"/><span>{{item}}</span></li></ul><div class="detail-bottom"><ShieldCheck :size="17"/><span>每笔办理均需手动确认</span></div></aside>
@@ -133,15 +136,16 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
     <div class="modal-footer"><button class="text-button" @click="openOfficialLogin" :disabled="busy"><ExternalLink :size="14"/>官方窗口登录</button><button class="button secondary" @click="sync" :disabled="busy">同步官方登录</button></div>
    </template>
    <template v-else-if="dialog==='order'">
-    <div class="modal-header"><div><div class="eyebrow">确认办理</div><h2 id="dialog-title">{{product.name}}</h2></div><button class="icon-button" aria-label="关闭办理窗口" @click="closeDialog" :disabled="pending==='submit'"><X :size="20"/></button></div>
+    <div class="modal-header"><div><div class="eyebrow">{{attemptAnyway?'尝试办理':'确认办理'}}</div><h2 id="dialog-title">{{product.name}}</h2></div><button class="icon-button" aria-label="关闭办理窗口" @click="closeDialog" :disabled="pending==='submit'"><X :size="20"/></button></div>
     <div class="modal-body"><dl class="confirm-terms"><div><dt>办理号码</dt><dd>{{account?.phone}}</dd></div><div><dt>业务资费</dt><dd class="green">0 元 · 免费办理</dd></div><div><dt>有效期限</dt><dd>{{product.term}}</dd></div></dl>
      <div v-if="error" class="feedback error" role="alert"><AlertCircle :size="16"/><span>{{error}}</span></div>
-     <div v-if="!state.challenge?.verified" class="sms-box"><div class="section-bar"><h3>业务短信验证</h3><button class="text-button" @click="sendSms" :disabled="busy||countdown>0">{{pending==='sms'?'发送中…':countdown>0?`${countdown} 秒后重发`:state.challenge?'重新发送':'获取验证码'}}</button></div>
-      <template v-if="state.challenge"><p v-if="state.challenge.sensitive" class="subtle">请填写短信中可输入的 6 位数字，固定位置已自动补齐。</p><p v-else class="subtle">请填写本次业务短信中的 6 位验证码。</p><div v-if="state.challenge.sensitive" class="fixed-digits" aria-label="验证码固定位置"><span v-for="n in 8" :key="n" :class="{fixed:state.challenge.fixed.some(f=>f.position===n)}">{{state.challenge.fixed.find(f=>f.position===n)?.value??'·'}}</span></div><label class="code-label" for="sms-code">业务验证码</label><div class="code-row"><input id="sms-code" ref="codeRef" v-model="code" @input="code=code.replace(/\D/g,'').slice(0,6)" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 位数字" :disabled="busy"/><button class="button secondary" :disabled="busy||code.length!==6" @click="verify">{{pending==='verify'?'验证中…':'验证'}}</button></div></template>
+     <p v-if="attemptAnyway" class="subtle" role="status">官方提示：{{q?.message}} 你仍可尝试提交，是否受理由官方决定。</p>
+     <div v-if="!orderChallenge?.verified" class="sms-box"><div class="section-bar"><h3>业务短信验证</h3><button class="text-button" @click="sendSms" :disabled="busy||countdown>0">{{pending==='sms'?'发送中…':countdown>0?`${countdown} 秒后重发`:orderChallenge?'重新发送':'获取验证码'}}</button></div>
+      <template v-if="orderChallenge"><p v-if="orderChallenge.sensitive" class="subtle">请填写短信中可输入的 6 位数字，固定位置已自动补齐。</p><p v-else class="subtle">请填写本次业务短信中的 6 位验证码。</p><div v-if="orderChallenge.sensitive" class="fixed-digits" aria-label="验证码固定位置"><span v-for="n in 8" :key="n" :class="{fixed:orderChallenge.fixed.some(f=>f.position===n)}">{{orderChallenge.fixed.find(f=>f.position===n)?.value??'·'}}</span></div><label class="code-label" for="sms-code">业务验证码</label><div class="code-row"><input id="sms-code" ref="codeRef" v-model="code" @input="code=code.replace(/\D/g,'').slice(0,6)" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 位数字" :disabled="busy"/><button class="button secondary" :disabled="busy||code.length!==6" @click="verify">{{pending==='verify'?'验证中…':'验证'}}</button></div></template>
       <p v-else class="subtle">点击“获取验证码”将向当前号码发送业务确认短信。</p>
      </div><div v-else class="verified"><CheckCircle2 :size="19"/>业务验证码已验证</div>
-     <label class="consent"><input v-model="consent" type="checkbox"/><span>我已确认办理号码、0 元资费及使用条件，同意办理该权益。</span></label>
-    </div><div class="modal-footer"><button class="button secondary" @click="closeDialog" :disabled="pending==='submit'">暂不办理</button><button class="button primary" @click="submit" :disabled="busy||!consent||!state.challenge?.verified"><LoaderCircle v-if="pending==='submit'" class="spin" :size="15"/>{{pending==='submit'?'等待官方结果…':'确认免费办理'}}</button></div>
+     <label class="consent"><input v-model="consent" type="checkbox"/><span>{{attemptAnyway?'我已知晓官方提示，确认办理号码、0 元资费及使用条件，仍尝试办理。':'我已确认办理号码、0 元资费及使用条件，同意办理该权益。'}}</span></label>
+    </div><div class="modal-footer"><button class="button secondary" @click="closeDialog" :disabled="pending==='submit'">暂不办理</button><button class="button primary" @click="submit" :disabled="busy||!consent||!orderChallenge?.verified"><LoaderCircle v-if="pending==='submit'" class="spin" :size="15"/>{{pending==='submit'?'等待官方结果…':attemptAnyway?'确认尝试办理':'确认免费办理'}}</button></div>
    </template>
    <template v-else-if="dialog==='resolve'"><div class="modal-header"><h2 id="dialog-title">记录人工核查结果</h2><button class="icon-button" aria-label="关闭核查窗口" @click="closeDialog"><X :size="20"/></button></div><div class="modal-body"><p>当前办理结果尚未确定。请先通过官方已订业务、成功短信或 10086 核实。</p><p>解除后可以重新办理；如果原请求已生效，重新操作可能重复提交。</p><label class="consent"><input v-model="resConsent" type="checkbox"/><span>我已向官方核实，这笔办理未生效，需要解除重复提交拦截。</span></label><div v-if="error" class="feedback error" role="alert">{{error}}</div></div><div class="modal-footer"><button class="button secondary" @click="closeDialog">继续等待</button><button class="button primary" :disabled="busy||!resConsent" @click="resolve">记录核查结果</button></div></template>
   </dialog>

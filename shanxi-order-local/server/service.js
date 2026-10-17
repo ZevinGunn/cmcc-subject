@@ -5,7 +5,7 @@ export class Service {
  snapshot(){
   return {product,account:this.account?{phone:maskPhone(this.account.phone),syncedAt:this.account.syncedAt}:null,qualification:this.qual,content:this.content,business:this.business,orders:this.account?this.ledger.list(this.account.hash):[],busy:this.busy,challenge:this.publicChallenge(),cooldown:Math.max(0,Math.ceil((this.lastSmsAt+60000-this.now())/1000)),login:this.loginAttempt?{id:this.loginAttempt.id,phone:maskPhone(this.loginAttempt.phone),expiresAt:this.loginAttempt.expiresAt}:null,loginCooldown:Math.max(0,Math.ceil((this.lastLoginSmsAt+60000-this.now())/1000))};
  }
- publicChallenge(){const c=this.challenge;return c?{id:c.id,sensitive:c.sensitive,fixed:c.fixed,verified:c.verified,expiresAt:c.expiresAt}:null;}
+ publicChallenge(){const c=this.challenge;return c?{id:c.id,sensitive:c.sensitive,fixed:c.fixed,verified:c.verified,attemptAnyway:c.attemptAnyway===true,expiresAt:c.expiresAt}:null;}
  async exclusive(fn){if(this.busy)throw new AppError('BUSY','上一项操作仍在处理中，请稍候',409);this.busy=true;try{const result=await fn();if(result&&Object.hasOwn(result,'busy'))result.busy=false;return result;}catch(e){if(e.status===401)this.clear();throw e;}finally{this.busy=false;}}
  clear(){this.account=null;this.qual=null;this.content=null;this.business=null;this.challenge=null;}
  async sendLoginSms(phone,agreed){return this.exclusive(async()=>{
@@ -58,10 +58,11 @@ export class Service {
  }
  async queryBusiness(){return this.exclusive(async()=>{await this.auth();const r=requireSuccess(await this.bridge.business());this.business={data:publicData(r.data??r),queriedAt:new Date(this.now()).toISOString(),message:safeMessage(r.retMsg||'查询成功')};return this.snapshot();});}
  assertNoOrder(){const blocking=this.ledger.blocking(this.account.hash);if(blocking)throw new AppError('ORDER_EXISTS',blocking.status==='unknown'?'已有结果待核查的办理，请先在办理记录中核查':'该权益已有办理记录，请查询当前权益状态',409);}
- async sendSms(){return this.exclusive(async()=>{
+ assertQualification(q,attemptAnyway){if(q.state!=='eligible'&&!(attemptAnyway===true&&['included','ordered'].includes(q.state)))throw new AppError('NOT_ELIGIBLE',q.message);}
+ async sendSms(attemptAnyway=false){return this.exclusive(async()=>{
   await this.auth();this.assertNoOrder();
   if(this.now()-this.lastSmsAt<60000)throw new AppError('SMS_COOLDOWN','请等待 60 秒后再发送验证码',429);
-  const q=await this.refreshQualification();if(q.state!=='eligible')throw new AppError('NOT_ELIGIBLE',q.message);
+  const q=await this.refreshQualification();this.assertQualification(q,attemptAnyway);
   const tag=requireSuccess(await this.bridge.call('qrySensitiveTag',{busiType:'QQT5GA_SMS'}));
   const value=tag.data?.isSensitive??tag.isSensitive;
   if(!['Y','N'].includes(value))throw new AppError('SMS_MODE_UNKNOWN','无法确认业务验证方式，请在官方窗口检查');
@@ -73,7 +74,7 @@ export class Service {
   const payload={channelId:'llwap0',busiType:'QQT5GA_SMS',busiName:'全球通5GA加速权益',prodDesc:'5GA加速权益',effDate:'立即生效',sendType:'2',actType:'',busiId:'',prcId:'BCAT5075',actId:'',meansId:'',...(sensitive?{isSensitive:'Y'}:{})};
   this.smsCount++;
   const c=sensitiveChallenge(await this.bridge.call('getSmsCodeSmsver',payload),sensitive);
-  this.challenge={...c,id:randomUUID(),account:this.account.hash,verified:false,expiresAt:this.now()+10*60*1000};
+  this.challenge={...c,id:randomUUID(),account:this.account.hash,verified:false,attemptAnyway:attemptAnyway===true,expiresAt:this.now()+10*60*1000};
   return this.snapshot();
  });}
  getChallenge(id){const c=this.challenge;if(!c||c.id!==id||c.account!==this.account?.hash)throw new AppError('CHALLENGE_INVALID','验证码流程已改变，请重新获取');if(c.expiresAt<=this.now()){this.challenge=null;throw new AppError('CHALLENGE_EXPIRED','本地确认流程已超时，请重新获取验证码');}return c;}
@@ -89,8 +90,8 @@ export class Service {
   const existing=this.ledger.rows.find(r=>r.intent===id&&r.account===this.account.hash);
   if(existing)return this.snapshot();
   const c=this.getChallenge(id);if(!c.verified)throw new AppError('VERIFY_REQUIRED','请先验证业务验证码');
-  this.assertNoOrder();const q=await this.refreshQualification();if(q.state!=='eligible')throw new AppError('NOT_ELIGIBLE',q.message);
-  const order=this.ledger.add({id:randomUUID(),intent:id,account:this.account.hash,phone:maskPhone(this.account.phone),product:'qqt5ga',name:product.name,price:product.price,status:'submitting',createdAt:new Date(this.now()).toISOString(),message:'已提交，正在等待官方结果'});
+  this.assertNoOrder();const q=await this.refreshQualification();this.assertQualification(q,c.attemptAnyway);
+  const order=this.ledger.add({id:randomUUID(),intent:id,account:this.account.hash,phone:maskPhone(this.account.phone),product:'qqt5ga',name:product.name,price:product.price,attemptAnyway:c.attemptAnyway,qualificationCode:q.code,status:'submitting',createdAt:new Date(this.now()).toISOString(),message:'已提交，正在等待官方结果'});
   // Durable write happens BEFORE the irreversible external request.
   this.challenge=null;
   let result;

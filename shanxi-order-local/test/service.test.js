@@ -17,6 +17,25 @@ test('完整普通短信闭环，重复请求只提交一次，不落盘验证�
 test('敏感短信保持验证级别和固定位置',async t=>{const {s,bridge}=setup(t);bridge.sensitive='Y';await verified(s);const check=bridge.calls.find(c=>c.method==='chkSmsCodeSmsver');assert.equal(check.data.smsCode,'00123459');assert.equal(check.data.isSensitive,'Y');assert.equal(bridge.calls.find(c=>c.method==='getSmsCodeSmsver').data.isSensitive,'Y');});
 test('未确认、未验证均不能下单',async t=>{const {s,bridge}=setup(t);await s.sync();await s.sendSms();await assert.rejects(s.submit(s.challenge.id,false),{code:'CONFIRM_REQUIRED'});await assert.rejects(s.submit(s.challenge.id,true),{code:'VERIFY_REQUIRED'});assert.equal(bridge.calls.filter(c=>c.method==='qqt5gaSubmitPrcOrder').length,0);});
 test('提交前资格变化阻断订购',async t=>{const {s,bridge}=setup(t);const id=await verified(s);bridge.qual={retCode:'900006'};await assert.rejects(s.submit(id,true),{code:'NOT_ELIGIBLE'});assert.equal(bridge.calls.filter(c=>c.method==='qqt5gaSubmitPrcOrder').length,0);});
+test('已默认享有和已办理需显式选择尝试，并保持短信验证、确认和官方拒绝结果',async t=>{
+ for(const code of ['900005','900006']){
+  const {s,bridge}=setup(t);bridge.qual={retCode:code};await s.sync();
+  for(const flag of [undefined,false,'true',1])await assert.rejects(s.sendSms(flag),{code:'NOT_ELIGIBLE'});
+  assert.equal(bridge.calls.filter(c=>c.method==='getSmsCodeSmsver').length,0);
+  const sent=await s.sendSms(true);const id=sent.challenge.id;assert.equal(sent.challenge.attemptAnyway,true);assert.equal(sent.qualification.code,code);
+  await assert.rejects(s.submit(id,true),{code:'VERIFY_REQUIRED'});await s.verifySms(id,'012345');await assert.rejects(s.submit(id,false),{code:'CONFIRM_REQUIRED'});
+  bridge.result={retCode:code,retMsg:'官方拒绝：该权益无需办理'};const result=await s.submit(id,true);
+  assert.equal(result.orders[0].status,'failed');assert.equal(result.orders[0].message,'官方拒绝：该权益无需办理');assert.equal(result.orders[0].attemptAnyway,true);assert.equal(result.orders[0].qualificationCode,code);assert.equal(result.qualification.code,code);
+  await s.submit(id,true);assert.equal(bridge.calls.filter(c=>c.method==='qqt5gaSubmitPrcOrder').length,1);assert.deepEqual(bridge.calls.find(c=>c.method==='qqt5gaSubmitPrcOrder').data,{});
+ }
+});
+test('尝试模式仍阻止失效资格、账号切换及结果未知的重复订购',async t=>{
+ const {s,bridge}=setup(t);await s.sync();
+ for(const code of ['900004','900010']){bridge.qual={retCode:code};await assert.rejects(s.sendSms(true),{code:'NOT_ELIGIBLE'});}
+ bridge.qual={retCode:'900005'};await s.sendSms(true);let id=s.challenge.id;await s.verifySms(id,'012345');bridge.qual={retCode:'900010'};await assert.rejects(s.submit(id,true),{code:'NOT_ELIGIBLE'});
+ bridge.qual={retCode:'900005'};bridge.errorMethod='qqt5gaSubmitPrcOrder';await s.submit(id,true);assert.equal(s.snapshot().orders[0].status,'unknown');await assert.rejects(s.sendSms(true),{code:'ORDER_EXISTS'});
+ const next=setup(t);next.bridge.qual={retCode:'900005'};await next.s.sync();await next.s.sendSms(true);id=next.s.challenge.id;await next.s.verifySms(id,'012345');next.bridge.phone='13900000000';await assert.rejects(next.s.submit(id,true),{code:'ACCOUNT_CHANGED'});
+});
 test('发送冷却、敏感验证码不可自动降级',async t=>{const {s,bridge}=setup(t);await s.sync();await s.sendSms();await assert.rejects(s.sendSms(),{code:'SMS_COOLDOWN'});assert.equal(bridge.calls.filter(c=>c.method==='getSmsCodeSmsver').length,1);});
 test('未知验证方式不能发短信',async t=>{const {s,bridge}=setup(t);bridge.sensitive='';await s.sync();await assert.rejects(s.sendSms(),{code:'SMS_MODE_UNKNOWN'});assert.equal(bridge.calls.filter(c=>c.method==='getSmsCodeSmsver').length,0);});
 test('账号切换清除原账号验证码和查询缓存',async t=>{const {s,bridge}=setup(t);const id=await verified(s);bridge.phone='13900000000';await assert.rejects(s.submit(id,true),{code:'ACCOUNT_CHANGED'});assert.equal(s.challenge,null);assert.equal(s.account,null);await s.sync();assert.equal(s.snapshot().orders.length,0);});
