@@ -1,9 +1,10 @@
 <script setup>
 import {computed,ref,onMounted,onUnmounted,nextTick} from 'vue';
-import {Zap,LayoutDashboard,PackageSearch,History,ArrowUpRight,RefreshCw,Check,ChevronRight,Smartphone,LogOut,ShieldCheck,LoaderCircle,X,Info,Search,CheckCircle2,AlertCircle,ExternalLink,Download,ArrowLeft,Monitor,Settings2,Users} from 'lucide-vue-next';
+import {Zap,LayoutDashboard,PackageSearch,History,ArrowUpRight,RefreshCw,Check,ChevronRight,Smartphone,LogOut,ShieldCheck,LoaderCircle,X,Info,Search,CheckCircle2,AlertCircle,ExternalLink,Download,ArrowLeft,Monitor,Settings2,Users,Braces} from 'lucide-vue-next';
 import {api} from './api';
 import ConfigManager from './ConfigManager.vue';
 import AccountManager from './AccountManager.vue';
+import CryptoTools from './CryptoTools.vue';
 const publicMode=import.meta.env.SHANXI_PUBLIC===true;
 const logoUrl=import.meta.env.BASE_URL+'shanxi-mobile-logo.png';
 const activeSaved=computed(()=>state.value.accounts?.find(a=>a.id===state.value.activeAccountId));
@@ -76,6 +77,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
     <button :class="{active:tab==='business'}" :aria-current="tab==='business'?'page':undefined" @click="tab='business'"><PackageSearch :size="18"/>已订业务</button>
     <button :class="{active:tab==='history'}" :aria-current="tab==='history'?'page':undefined" @click="tab='history'"><History :size="18"/>办理记录<span v-if="unknown" class="nav-count">{{unknown}}</span></button>
     <button :class="{active:tab==='config'}" :aria-current="tab==='config'?'page':undefined" @click="tab='config'"><Settings2 :size="17"/>业务配置</button>
+    <button :class="{active:tab==='crypto'}" :aria-current="tab==='crypto'?'page':undefined" @click="tab='crypto'"><Braces :size="17"/>加解密工具</button>
    </nav>
    <div class="account-panel">
     <select v-if="state.accounts?.length" class="account-switch" aria-label="切换登录账号" :value="state.activeAccountId" :disabled="busy" @change="switchAccount($event.target.value)"><option v-for="a in state.accounts" :key="a.id" :value="a.id">{{a.label?a.label+' · ':''}}{{a.phone}}</option></select><span v-else-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
@@ -94,10 +96,11 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
      <div v-if="error&&!dialog" class="feedback error" role="alert"><AlertCircle :size="17"/><span>{{error}}</span><button class="icon-button" aria-label="关闭错误提示" @click="error=''"><X :size="15"/></button></div>
      <div v-if="state.cacheError" class="feedback warning" role="status">{{state.cacheError}}</div>
      <div v-if="notice&&!dialog" class="feedback" role="status"><Info :size="17"/><span>{{notice}}</span><button class="icon-button" aria-label="关闭提示" @click="notice=''"><X :size="15"/></button></div>
-     <section v-if="!account&&tab!=='accounts'" class="login-strip">
+     <section v-if="!account&&!['accounts','crypto'].includes(tab)" class="login-strip">
       <span class="strip-icon"><Smartphone :size="23"/></span><div><h2>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'恢复已缓存的登录':loginOpened?'在官方窗口完成登录':'登录山西移动账号'}}</h2><p>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'缓存已保留，请重试官方登录状态校验。':loginOpened?'完成官方登录后同步账号。':'查询号码资格，办理专属权益。'}}</p></div>
       <button v-if="activeSaved&&['cached','unavailable'].includes(activeSaved.status)" class="button primary" @click="restoreAccount" :disabled="busy"><RefreshCw :size="15"/>重试恢复</button><button v-else-if="loginOpened" class="button primary" @click="sync" :disabled="busy"><LoaderCircle v-if="pending==='sync'" class="spin" :size="15"/><RefreshCw v-else :size="15"/>同步登录</button><button v-else class="button primary" @click="login" :disabled="busy">验证码登录<ArrowUpRight :size="15"/></button>
      </section>
+     <CryptoTools v-show="tab==='crypto'"/>
      <template v-if="tab==='home'">
       <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
       <div class="business-picker"><label for="selected-business">当前业务</label><select id="selected-business" :value="state.selectedId" :disabled="busy" @change="selectConfig($event.target.value)"><option v-for="c in state.configs" :key="c.id" :value="c.id">{{c.name}}</option></select><button class="text-button" :disabled="busy" @click="editCurrent"><Settings2 :size="14"/>修改配置</button></div>
@@ -130,7 +133,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
      </template>
      <template v-else-if="tab==='accounts'"><AccountManager :accounts="state.accounts||[]" :active-id="state.activeAccountId" :busy="busy" @login="login" @select="switchAccount" @rename="renameAccount" @remove="removeAccount"/></template>
      <template v-else-if="tab==='config'"><ConfigManager ref="configManager" :configs="state.configs" :selected-id="state.selectedId" :template="state.configTemplate" :busy="busy" @save="saveConfig" @select="selectConfig" @delete="deleteConfig"/></template>
-     <template v-else>
+     <template v-else-if="tab!=='crypto'">
       <div class="page-heading"><div><div class="eyebrow">ORDER HISTORY</div><h1>办理记录</h1><p>当前账号在此工作台发起的办理，不代表全部历史订单。</p></div><button class="button secondary" @click="download" :disabled="!state.orders.length"><Download :size="15"/>导出记录</button></div>
       <div v-if="unknown" class="feedback warning"><AlertCircle :size="18"/><span>{{unknown}} 笔办理结果待核查。请先确认权益状态，避免重复办理。</span></div>
       <div v-if="!state.orders.length" class="empty-state"><History :size="30"/><h3>暂无办理记录</h3><p>账号登录后，可在快捷办理中查询资格。</p><button class="button secondary" @click="tab='home'">前往快捷办理<ChevronRight :size="15"/></button></div>

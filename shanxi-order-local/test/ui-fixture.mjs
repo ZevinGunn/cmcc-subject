@@ -12,6 +12,6 @@ const service=multi?new Accounts(factory,new Ledger(dir),{now:()=>fixtureNow}):n
 const original=service.snapshot.bind(service);service.snapshot=()=>({...original(),environment:'fixture',fixtureLoginSmsCount:loginSmsCount});
 const port=Number(process.env.UI_FIXTURE_PORT||4320);
 const publicMode=process.env.UI_FIXTURE_PUBLIC==='1';
-const fixtureApp=createApp(service,{port,dist:path.resolve(publicMode?'dist-public':'dist'),publicMode});
+const fixtureApp=createApp(service,{port,dist:path.resolve(process.env.UI_FIXTURE_DIST||(publicMode?'dist-public':'dist')),publicMode});
 const server=http.createServer((req,res)=>{fixtureApp(req,res);}).listen(port,'127.0.0.1',()=>console.log(`离线 UI 验证 http://127.0.0.1:${port}`));
 async function close(){server.close();if(multi)await service.close();if(!process.env.UI_FIXTURE_DATA)fs.rmSync(dir,{recursive:true,force:true});process.exit(0);}process.on('SIGTERM',close);process.on('SIGINT',close);
