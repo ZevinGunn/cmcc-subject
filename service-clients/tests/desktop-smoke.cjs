@@ -17,6 +17,12 @@ const path = require('node:path');
     await shell.getByRole('alert').filter({ hasText: 'HTTPS' }).waitFor();
     await shell.getByRole('button', { name: '取消', exact: true }).click();
     assert.equal(await shell.locator('dialog').evaluate(element => element.open), false);
+    assert.equal(await shell.locator('[data-service]').count(), require('../shared/services.json').services.length);
+    await shell.locator('#tool-search').fill('合约');
+    assert.equal(await shell.locator('[data-service]').count(), 1);
+    await shell.locator('#tool-search').fill('不存在的工具');
+    assert.equal(await shell.locator('#no-results').isVisible(), true);
+    await shell.locator('#tool-search').fill('');
     for (const [name, service] of [['星巴克卡券','starbucks'], ['周三拼图','puzzle'], ['移动账号','mobile']]) {
       await shell.getByRole('button', { name, exact: true }).click();
       await shell.locator(`[data-service="${service}"][aria-current="page"]`).waitFor();

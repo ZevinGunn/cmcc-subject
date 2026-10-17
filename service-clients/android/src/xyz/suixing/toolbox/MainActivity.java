@@ -27,21 +27,34 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public final class MainActivity extends Activity {
     private static final String ORIGIN = "https://home.1008086.xyz";
-    private static final String[] PATHS = {"/public", "/wed-puzzle/", "/starbucks"};
-    private static final String[] NAMES = {"移动账号", "周三拼图", "星巴克卡券"};
+    private static final class Service {
+        final String id, name, url, group, description;
+        Service(JSONObject value) throws Exception {
+            id = value.getString("id"); name = value.getString("name"); url = value.getString("url");
+            group = value.getString("group"); description = value.getString("description");
+        }
+    }
+    private final List<Service> services = new ArrayList<>();
+    private final Set<String> allowedHosts = new HashSet<>();
     private static final int FILE_REQUEST = 21;
     private final Map<Integer, String> pages = new HashMap<>();
     private final Set<WebView> pendingPopups = new HashSet<>();
-    private final Button[] tabs = new Button[3];
     private WebView web;
     private ProgressBar progress;
     private LinearLayout errorPanel;
@@ -55,7 +68,7 @@ public final class MainActivity extends Activity {
     private boolean internal(String value) {
         if (value == null) return false;
         Uri uri = Uri.parse(value);
-        return "https".equalsIgnoreCase(uri.getScheme()) && "home.1008086.xyz".equalsIgnoreCase(uri.getHost())
+        return "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null && allowedHosts.contains(uri.getHost().toLowerCase(java.util.Locale.ROOT))
             && (uri.getPort() == -1 || uri.getPort() == 443) && uri.getUserInfo() == null;
     }
     private boolean https(String value) {
@@ -64,6 +77,20 @@ public final class MainActivity extends Activity {
         return "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null && uri.getUserInfo() == null;
     }
     private void message(String value) { Toast.makeText(this, value, Toast.LENGTH_SHORT).show(); }
+    private void loadServices() throws Exception {
+        try (InputStream input = getAssets().open("services.json"); ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[4096]; int length;
+            while ((length = input.read(buffer)) != -1) bytes.write(buffer, 0, length);
+            JSONObject config = new JSONObject(bytes.toString("UTF-8")); JSONArray entries = config.getJSONArray("services");
+            for (int i = 0; i < entries.length(); i++) {
+                Service service = new Service(entries.getJSONObject(i)); services.add(service);
+                allowedHosts.add(Uri.parse(service.url).getHost().toLowerCase(java.util.Locale.ROOT));
+            }
+            JSONArray aliases = config.getJSONArray("aliases");
+            for (int i = 0; i < aliases.length(); i++) allowedHosts.add(Uri.parse(aliases.getString(i)).getHost().toLowerCase(java.util.Locale.ROOT));
+            if (services.isEmpty()) throw new Exception("empty services");
+        }
+    }
     private Button button(String text, String description) {
         Button button = new Button(this);
         button.setText(text); button.setTextSize(14); button.setAllCaps(false);
@@ -78,6 +105,7 @@ public final class MainActivity extends Activity {
     }
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
+        try { loadServices(); } catch (Exception failure) { message("工具目录读取失败，请重新安装客户端"); finish(); return; }
         getWindow().setStatusBarColor(Color.WHITE);
         getWindow().setNavigationBarColor(Color.WHITE);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
@@ -111,14 +139,19 @@ public final class MainActivity extends Activity {
         errorPanel.setVisibility(View.GONE); content.addView(errorPanel, new FrameLayout.LayoutParams(-1,-1));
         root.addView(content, new LinearLayout.LayoutParams(-1, 0, 1));
         LinearLayout navigation = new LinearLayout(this);
-        for (int i = 0; i < NAMES.length; i++) {
-            final int index = i;
-            tabs[i] = button(NAMES[i], NAMES[i]); tabs[i].setOnClickListener(v -> navigate(index, null));
-            navigation.addView(tabs[i], new LinearLayout.LayoutParams(0, dp(54), 1));
-        }
+        Button all = button("全部工具", "全部工具"); all.setTextColor(Color.rgb(0,124,175)); all.setOnClickListener(v -> showTools());
+        navigation.addView(all, new LinearLayout.LayoutParams(0, dp(54), 1));
+        Button home = button("工具首页", "工具首页"); home.setOnClickListener(v -> navigate(selected, services.get(selected).url));
+        navigation.addView(home, new LinearLayout.LayoutParams(0, dp(54), 1));
+        Button invite = button("专属链接", "专属链接"); invite.setOnClickListener(v -> invitation());
+        navigation.addView(invite, new LinearLayout.LayoutParams(0, dp(54), 1));
         root.addView(navigation); setContentView(root);
+        // 兼容首版的编号设置，后续使用稳定 ID，目录调整不会切换到错误工具。
         selected = getPreferences(MODE_PRIVATE).getInt("service", 0);
-        if (selected < 0 || selected >= PATHS.length) selected = 0;
+        String last = getPreferences(MODE_PRIVATE).getString("serviceId", null);
+        if (last == null) last = selected == 1 ? "puzzle" : selected == 2 ? "starbucks" : "mobile";
+        selected = 0;
+        for (int i = 0; i < services.size(); i++) if (services.get(i).id.equals(last)) selected = i;
         // 不把凭证 URL 写入 Activity 状态或备份，进程重启后依靠站点 Cookie 恢复登录。
         navigate(selected, null);
     }
@@ -205,10 +238,41 @@ public final class MainActivity extends Activity {
     private void resetError() { loadFailed = false; if (errorPanel != null) errorPanel.setVisibility(View.GONE); }
     private void navigate(int index, String url) {
         if (web.getUrl() != null && internal(web.getUrl())) pages.put(selected, web.getUrl());
-        selected = index; title.setText(NAMES[index]); resetError();
-        getPreferences(MODE_PRIVATE).edit().putInt("service", index).apply();
-        for (int i = 0; i < tabs.length; i++) { tabs[i].setSelected(i == index); tabs[i].setTextColor(i == index ? Color.rgb(0,124,175) : Color.rgb(85,98,113)); }
-        web.loadUrl(url == null ? pages.getOrDefault(index, ORIGIN + PATHS[index]) : url);
+        selected = index; Service service = services.get(index); title.setText(service.name); resetError();
+        getPreferences(MODE_PRIVATE).edit().putString("serviceId", service.id).apply();
+        web.loadUrl(url == null ? pages.getOrDefault(index, service.url) : url);
+    }
+    private void showTools() {
+        LinearLayout panel = new LinearLayout(this); panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(12), 0, dp(12), 0);
+        EditText search = new EditText(this); search.setSingleLine(true); search.setHint("搜索工具"); search.setContentDescription("搜索工具");
+        panel.addView(search, new LinearLayout.LayoutParams(-1, dp(52)));
+        ScrollView scroll = new ScrollView(this); LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        scroll.addView(list); panel.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("全部工具 · " + services.size()).setView(panel).setNegativeButton("关闭", null).create();
+        Runnable render = () -> {
+            list.removeAllViews(); String query = search.getText().toString().trim().toLowerCase(java.util.Locale.ROOT); String previousGroup = "";
+            for (int i = 0; i < services.size(); i++) {
+                final int index = i; Service service = services.get(i);
+                if (!(service.name + service.description + service.group + service.url).toLowerCase(java.util.Locale.ROOT).contains(query)) continue;
+                if (!service.group.equals(previousGroup)) {
+                    TextView group = new TextView(this); group.setText(service.group); group.setTextSize(12); group.setPadding(dp(8), dp(16), 0, dp(4)); list.addView(group); previousGroup = service.group;
+                }
+                Button entry = button((index == selected ? "✓ " : "") + service.name + "\n" + service.description, service.name);
+                entry.setGravity(Gravity.START | Gravity.CENTER_VERTICAL); entry.setTextSize(13); entry.setSingleLine(false); entry.setPadding(dp(8), dp(10), dp(8), dp(10));
+                if (index == selected) entry.setTextColor(Color.rgb(0,124,175));
+                entry.setOnClickListener(v -> { dialog.dismiss(); navigate(index, null); }); list.addView(entry, new LinearLayout.LayoutParams(-1, -2));
+            }
+            if (list.getChildCount() == 0) { TextView empty = new TextView(this); empty.setText("未找到匹配的工具"); empty.setPadding(dp(8), dp(24), 0, dp(24)); list.addView(empty); }
+        };
+        search.addTextChangedListener(new android.text.TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) { render.run(); }
+            public void afterTextChanged(android.text.Editable value) {}
+        });
+        dialog.show();
+        dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        dialog.getWindow().setLayout(android.view.WindowManager.LayoutParams.MATCH_PARENT, Math.round(getResources().getDisplayMetrics().heightPixels * 0.82f));
+        render.run();
     }
     private void external(String url) {
         if (!https(url)) { message("已阻止不受支持的链接"); return; }
@@ -228,14 +292,14 @@ public final class MainActivity extends Activity {
             switch(item.getItemId()) {
                 case 1: invitation(); break;
                 case 2: external(web.getUrl()); break;
-                case 3: pages.remove(selected); navigate(selected, ORIGIN + PATHS[selected]); break;
+                case 3: pages.remove(selected); navigate(selected, services.get(selected).url); break;
                 case 4: new AlertDialog.Builder(this).setMessage("清除本机各工具的登录数据？服务端账号与任务不会删除。")
                     .setNegativeButton("取消", null).setPositiveButton("清除并退出登录", (d,w) -> {
                         web.stopLoading(); web.loadUrl("about:blank");
                         android.webkit.WebStorage.getInstance().deleteAllData(); web.clearCache(true); pages.clear();
-                        CookieManager.getInstance().removeAllCookies(done -> { CookieManager.getInstance().flush(); navigate(0, ORIGIN + PATHS[0]); web.clearHistory(); });
+                        CookieManager.getInstance().removeAllCookies(done -> { CookieManager.getInstance().flush(); navigate(0, services.get(0).url); web.clearHistory(); });
                     }).show(); break;
-                case 5: new AlertDialog.Builder(this).setTitle("随行工具箱 0.1.0").setMessage("服务地址：home.1008086.xyz\n\n客户端使用站点现有账号与权限。登录数据保存在应用专属存储中，不包含预置账号。服务端任务继续由服务器执行。清除登录可删除本机站点数据。\n\n如需移除服务端账号，请使用对应服务的账号管理功能。").setPositiveButton("知道了", null).show(); break;
+                case 5: new AlertDialog.Builder(this).setTitle("随行工具箱 0.2.0").setMessage("已集成 " + services.size() + " 个工具入口。\n\n客户端使用各站点现有账号与权限，各域名保持各自登录状态。登录数据保存在应用专属存储中，不包含预置账号。服务端任务继续由服务器执行。清除登录可删除本机站点数据。\n\n如需移除服务端账号，请使用对应服务的账号管理功能。").setPositiveButton("知道了", null).show(); break;
             }
             return true;
         }); menu.show();
@@ -249,7 +313,7 @@ public final class MainActivity extends Activity {
             String value = input.getText().toString().trim(); String code = value;
             if (value.startsWith("http")) {
                 Uri uri = Uri.parse(value); String route = uri.getPath();
-                if (!internal(value) || !("/public".equals(route) || "/app/cmcc-public".equals(route) || "/app/cmcc-public/".equals(route) || "/app/cmcc-public/public".equals(route))) { input.setError("请使用本站的 HTTPS 专属链接"); return; }
+                if (!internal(value) || !"home.1008086.xyz".equalsIgnoreCase(uri.getHost()) || !("/public".equals(route) || "/app/cmcc-public".equals(route) || "/app/cmcc-public/".equals(route) || "/app/cmcc-public/public".equals(route))) { input.setError("请使用本站的 HTTPS 专属链接"); return; }
                 code = uri.getQueryParameter("link");
             }
             if (code == null || !code.matches("[a-zA-Z0-9_-]{6,128}")) { input.setError("请输入有效的专属链接或邀请码"); return; }

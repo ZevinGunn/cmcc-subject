@@ -26,13 +26,15 @@ function sendState() {
   if (!main || main.isDestroyed() || !view) return;
   const contents = view.webContents;
   main.webContents.send('toolbox:state', { service: activeService, loading, error,
+    url: contents.getURL(),
     canGoBack: contents.navigationHistory.canGoBack(), canGoForward: contents.navigationHistory.canGoForward(), version: app.getVersion() });
 }
 function layout() {
   if (!main || !view) return;
   const [width, height] = main.getContentSize();
   view.setVisible(!overlay);
-  view.setBounds({ x: 0, y: 104, width, height: Math.max(0, height - 104) });
+  const sidebar = width <= 900 ? 200 : 232;
+  view.setBounds({ x: sidebar, y: 104, width: Math.max(0, width - sidebar), height: Math.max(0, height - 104) });
 }
 async function openExternal(value) {
   if (!isExternal(value)) return;
@@ -135,7 +137,7 @@ function createWindow() {
   const template = [
     ...(process.platform === 'darwin' ? [{ role: 'appMenu' }] : []),
     { label: '工具', submenu: [
-      ...config.services.map((item, index) => ({ label: item.name, accelerator: `${command}+${index + 1}`, click: () => navigate(item.id) })),
+      ...config.services.map((item, index) => ({ label: item.name, ...(index < 9 ? { accelerator: `${command}+${index + 1}` } : {}), click: () => navigate(item.id) })),
       { type: 'separator' }, { label: '刷新', accelerator: `${command}+R`, click: () => view?.webContents.reload() },
       { label: '返回', accelerator: 'Alt+Left', click: () => { if (view?.webContents.navigationHistory.canGoBack()) view.webContents.navigationHistory.goBack(); } },
       { role: 'close' }
@@ -148,8 +150,9 @@ ipcMain.handle('toolbox:action', async (event, action, value) => {
   if (event.sender !== main?.webContents || event.senderFrame?.url !== shellURL) throw new Error('访问来源无效');
   try {
     switch (action) {
-      case 'state': sendState(); return { ok: true, services: config.services };
+      case 'state': sendState(); return { ok: true, services: config.services, groups: config.groups };
       case 'service': navigate(value); break;
+      case 'home': pages.delete(activeService); navigate(activeService, serviceURL(activeService)); break;
       case 'invite': navigate('mobile', invitationURL(value)); break;
       case 'back': if (view.webContents.navigationHistory.canGoBack()) view.webContents.navigationHistory.goBack(); break;
       case 'forward': if (view.webContents.navigationHistory.canGoForward()) view.webContents.navigationHistory.goForward(); break;
