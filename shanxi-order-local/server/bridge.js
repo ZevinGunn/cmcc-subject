@@ -94,7 +94,7 @@ export class OfficialBridge {
  }
  async status(){
   if(!this.page||this.page.isClosed())return {open:false,stage:'closed'};
-  return {open:true,stage:'session',transport:'signed-browser',lastRequest:this.lastRequest};
+  return {open:true,stage:'session',transport:'signed-browser',lastRequest:this.lastRequest,officialResult:this.protocol.lastResult};
  }
  async visible(){await this.open();await this.page.bringToFront();return {opened:true};}
 }

@@ -1,5 +1,5 @@
 import {randomBytes,randomInt,createCipheriv,createDecipheriv,createPublicKey,publicEncrypt,constants,createHmac} from 'node:crypto';
-import {AppError} from './domain.js';
+import {AppError,safeMessage} from './domain.js';
 
 // oHCY in the supplied market bundle: AES-128-CBC, IV prepended as hex,
 // RSA PKCS#1 v1.5 wrapping, HMAC-SHA256(timestamp + ciphertext, AES key).
@@ -34,7 +34,7 @@ const routes=Object.freeze({
  qqt5gaSubmitPrcOrder:['act','qqt5ga/submitPrcOrder','全球通5GA加速权益']
 });
 export class Protocol {
- constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();}
+ constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();this.lastResult=null;}
  async call(method,payload={},proof){
   if(!Object.hasOwn(routes,method))throw new AppError('UNSUPPORTED','不支持的业务操作');
   const route=routes[method];
@@ -62,7 +62,8 @@ export class Protocol {
   const response=await this.transport(`/h/${scope}/rest/v1/${endpoint}`,encrypted.body,encrypted.headers);
   const result=unseal(response,encrypted.key);
   if(!result||typeof result!=='object'||result.retCode===undefined)throw new AppError('INVALID_RESPONSE','官方未返回有效结果，请稍后核查',502);
+  this.lastResult={operation:method,code:String(result.retCode),message:safeMessage(result.retMsg||''),detailCode:result.data&&typeof result.data==='object'&&result.data.retCode!==undefined?String(result.data.retCode):null,detailMessage:safeMessage(result.data?.retMsg||''),dataFields:result.data&&typeof result.data==='object'?Object.keys(result.data).filter(k=>!/(cookie|token|secret|password|uuid|sms|phone)/i.test(k)):[],at:new Date().toISOString()};
   return result;
  }
- clear(){this.keys.clear();this.scopes.clear();}
+ clear(){this.keys.clear();this.scopes.clear();this.lastResult=null;}
 }
