@@ -1,6 +1,6 @@
 import {randomBytes,randomInt,createCipheriv,createDecipheriv,createPublicKey,publicEncrypt,constants,createHmac} from 'node:crypto';
 import {AppError,safeMessage} from './domain.js';
-import {validateConfig} from './catalog.js';
+import {validateConfig,assertConfigReady} from './catalog.js';
 
 // oHCY in the supplied market bundle: AES-128-CBC, IV prepended as hex,
 // RSA PKCS#1 v1.5 wrapping, HMAC-SHA256(timestamp + ciphertext, AES key).
@@ -42,7 +42,7 @@ export class Protocol {
   let c;
   if(config){
    if(['sendSmsCode','wapLogin','checkLoginNew'].includes(method))throw new AppError('UNSUPPORTED','登录接口不能使用业务配置');
-   c=validateConfig(config);preferred=c.scope;title=c.couponsBusiName;
+   c=validateConfig(config);assertConfigReady(c);preferred=c.scope;title=c.couponsBusiName;
    if(method==='qqt5gaQryUserQualification')endpoint=c.queryPath;
    if(method==='qqt5gaSubmitPrcOrder')endpoint=c.orderPath;
   }

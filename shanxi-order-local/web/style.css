@@ -248,6 +248,7 @@ select:focus-visible,textarea:focus-visible,.config-form input:focus-visible{out
 .config-form{background:#fff;border:1px solid #dae5eb;border-radius:8px;padding:24px}
 .config-form fieldset{padding:0 0 24px;margin:0 0 24px;min-width:0;border:0;border-bottom:1px solid #e5edf1}
 .config-form legend{font-size:16px;font-weight:650;margin-bottom:16px}.config-form fieldset>.subtle{margin:0 0 16px;line-height:1.7}
+.config-form .consent{align-items:center;min-height:40px}.config-form .consent input{min-height:0;padding:0;margin:0;width:16px;height:16px;flex:0 0 16px}
 .form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 24px}
 .form-grid label{display:flex;flex-direction:column;gap:7px;font-size:13px;min-width:0}.form-grid .wide{grid-column:1/-1}.form-grid textarea{resize:vertical}.json-input{font-family:ui-monospace,monospace;font-size:13px}
 .config-save{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.config-save .actions{margin-left:auto}.config-form .query-details{margin-top:16px}.config-form .form-grid+.subtle{margin:16px 0 0}.danger{color:#ad3e35}

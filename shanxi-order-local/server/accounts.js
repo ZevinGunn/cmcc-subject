@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {Service} from './service.js';
-import {Catalog} from './catalog.js';
+import {Catalog,assertConfigReady} from './catalog.js';
 import {AccountStore} from './account-store.js';
 import {AppError,maskPhone} from './domain.js';
 
@@ -65,6 +65,7 @@ export class Accounts {
  async sync(){return this.exclusive(async()=>{const d=await this.newDraft();await d.sync();return this.acceptDraft();});}
  async logout(){return this.exclusive(async()=>{if(this.selectedId){const item=this.item(),s=this.current();this.expire(item,s,'signed_out');await s.bridge.close();}return this.snapshot();});}
  async act(method,...args){return this.exclusive(async()=>{
+  if(['queryQualification','sendSms','verifySms','submit'].includes(method))assertConfigReady(this.catalog.get());
   const item=this.selectedId?this.item():null;if(!item?.session&& !this.current().account)throw new AppError('LOGIN_REQUIRED','请先登录或恢复账号缓存',401);const s=this.current();
   // Business operations re-check identity inside Service; a cold cache first
   // validates against its saved phone before any SMS or order can be sent.

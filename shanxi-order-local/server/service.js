@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {AppError,success,requireSuccess,qualification,sensitiveChallenge,composeCode,maskPhone,publicData,safeMessage} from './domain.js';
-import {Catalog,defaultConfig,viewProduct,productKey} from './catalog.js';
+import {Catalog,defaultConfig,viewProduct,productKey,assertConfigReady} from './catalog.js';
 export class Service {
  constructor(bridge,ledger,now=Date.now,catalog=new Catalog(ledger.directory)){Object.assign(this,{bridge,ledger,now,catalog});this.account=null;this.qual=null;this.business=null;this.content=null;this.challenge=null;this.loginAttempt=null;this.lastLoginSmsAt=-Infinity;this.loginSmsWindow=0;this.loginSmsCount=0;this.busy=false;this.lastSmsAt=-Infinity;this.smsCount=0;this.smsWindow=0;}
  snapshot(){
@@ -54,8 +54,9 @@ export class Service {
  async saveConfig(input){return this.exclusive(async()=>{this.catalog.save(input);this.resetProduct();return this.snapshot();});}
  async selectConfig(id){return this.exclusive(async()=>{this.catalog.select(id);this.resetProduct();return this.snapshot();});}
  async deleteConfig(id,revision){return this.exclusive(async()=>{if(this.catalog.get(id).revision!==revision)throw new AppError('CONFIG_CHANGED','业务配置已更新，请刷新后重试',409);const selected=this.catalog.selectedId;this.catalog.remove(id);if(id===selected)this.resetProduct();return this.snapshot();});}
- async queryQualification(){return this.exclusive(async()=>{await this.auth();await this.refreshQualification();return this.snapshot();});}
+ async queryQualification(){return this.exclusive(async()=>{assertConfigReady(this.catalog.get());await this.auth();await this.refreshQualification();return this.snapshot();});}
  async readQualification(config){
+  assertConfigReady(config);
   if(config.queryMode==='none')return {q:{state:'unverified',label:'未核实资格',message:'此业务未配置资格查询，尝试办理的受理结果以官方为准。',code:''},response:null};
   const response=await this.bridge.call('qqt5gaQryUserQualification',config.queryParams,null,config);
   if(config.queryMode==='qqt5ga')return {q:qualification(response),response};
@@ -72,6 +73,7 @@ export class Service {
  assertQualification(q,attemptAnyway){if(q.state!=='eligible'&&!(attemptAnyway===true&&['included','ordered','unverified'].includes(q.state)))throw new AppError('NOT_ELIGIBLE',q.message);}
  async sendSms(attemptAnyway=false,expected){return this.exclusive(async()=>{
   const current=this.catalog.get();if(expected&&(expected.id!==current.id||expected.revision!==current.revision))throw new AppError('CONFIG_CHANGED','当前业务配置已改变，请核对后重新获取验证码',409);
+  assertConfigReady(current);
   await this.auth();this.assertNoOrder();const config=this.catalog.get();
   if(this.now()-this.lastSmsAt<60000)throw new AppError('SMS_COOLDOWN','请等待 60 秒后再发送验证码',429);
   const q=await this.refreshQualification();this.assertQualification(q,attemptAnyway);
@@ -91,6 +93,7 @@ export class Service {
  });}
  getChallenge(id){const c=this.challenge,config=this.catalog.get();if(!c||c.id!==id||c.account!==this.account?.hash||c.configId!==config.id||c.revision!==config.revision)throw new AppError('CHALLENGE_INVALID','验证码流程已改变，请重新获取');if(c.expiresAt<=this.now()){this.challenge=null;throw new AppError('CHALLENGE_EXPIRED','本地确认流程已超时，请重新获取验证码');}return c;}
  async verifySms(id,input){return this.exclusive(async()=>{
+  assertConfigReady(this.catalog.get());
   await this.auth();const c=this.getChallenge(id),config=this.catalog.get();const smsCode=composeCode(input,c);
   c.verified=false;
   requireSuccess(await this.bridge.call('chkSmsCodeSmsver',{uuid:c.uuid,busiType:config.sms.busiType,smsCode,...(c.sensitive?{isSensitive:'Y'}:{})},null,config));
@@ -98,6 +101,7 @@ export class Service {
  });}
  async submit(id,confirmed){return this.exclusive(async()=>{
   if(confirmed!==true)throw new AppError('CONFIRM_REQUIRED','请确认业务、资费及办理号码');
+  assertConfigReady(this.catalog.get());
   await this.auth();
   const existing=this.ledger.rows.find(r=>r.intent===id&&r.account===this.account.hash);
   if(existing)return this.snapshot();

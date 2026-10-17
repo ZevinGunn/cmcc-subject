@@ -6,10 +6,10 @@ import path from 'node:path';
 import {Catalog,defaultConfig,productKey,validateConfig} from '../server/catalog.js';
 const temp=t=>{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sx-catalog-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return dir;};
 test('业务新增、修改、选择、删除持久化；乐观锁拒绝覆盖新版本',t=>{
- const dir=temp(t),c=new Catalog(dir);assert.equal(c.get().id,'qqt5ga');const added=c.save({...defaultConfig(),id:'',name:'新增业务'});assert.notEqual(added.id,'qqt5ga');assert.equal(c.list().length,2);
- c.save({...added,price:'10 元/月'});assert.throws(()=>c.save(added),{code:'CONFIG_CHANGED'});assert.equal(new Catalog(dir).get().price,'10 元/月');c.select('qqt5ga');assert.equal(new Catalog(dir).get().id,'qqt5ga');c.remove(added.id);assert.equal(new Catalog(dir).list().length,1);assert.throws(()=>c.remove('qqt5ga'),{code:'CONFIG_REQUIRED'});assert.equal(fs.statSync(c.file).mode&0o777,0o600);
+ const dir=temp(t),c=new Catalog(dir);assert.equal(c.get().id,'qqt5ga');const base=c.list().length;const added=c.save({...defaultConfig(),id:'',name:'新增业务'});assert.notEqual(added.id,'qqt5ga');assert.equal(c.list().length,base+1);
+ c.save({...added,price:'10 元/月'});assert.throws(()=>c.save(added),{code:'CONFIG_CHANGED'});assert.equal(new Catalog(dir).get().price,'10 元/月');c.select('qqt5ga');assert.equal(new Catalog(dir).get().id,'qqt5ga');c.remove(added.id);assert.equal(new Catalog(dir).list().length,base);for(const row of c.list().filter(c=>c.id!=='qqt5ga'))c.remove(row.id);assert.throws(()=>c.remove('qqt5ga'),{code:'CONFIG_REQUIRED'});assert.equal(fs.statSync(c.file).mode&0o777,0o600);
 });
-test('保存失败回滚内存配置，原文件保持可恢复',t=>{const c=new Catalog(temp(t));c.persist=()=>{throw Error('disk full');};assert.throws(()=>c.save({...defaultConfig(),id:'',name:'未保存'}));assert.equal(c.list().length,1);assert.equal(c.selectedId,'qqt5ga');});
+test('保存失败回滚内存配置，原文件保持可恢复',t=>{const c=new Catalog(temp(t)),before=c.list();c.persist=()=>{throw Error('disk full');};assert.throws(()=>c.save({...defaultConfig(),id:'',name:'未保存'}));assert.deepEqual(c.list(),before);assert.equal(c.selectedId,'qqt5ga');});
 test('拒绝越界接口、凭据、动态字段和错误的 5G-A 资格解释',()=>{
  for(const orderPath of ['https://evil.example/order','../order','qqt5ga/order?x=1','wapLogin/login','rsakey/getRsaPubKey','moss/config'])assert.throws(()=>validateConfig({...defaultConfig(),orderPath}),{code:'INVALID_CONFIG'});
  for(const orderParams of [{uuid:'static'},{smsCode:'123456'},{phoneNo:'13800000000'},{a:{token:'bad'}},{busiType:'other'},JSON.parse('{"__proto__":{"polluted":true}}')])assert.throws(()=>validateConfig({...defaultConfig(),orderParams}),{code:'INVALID_CONFIG'});

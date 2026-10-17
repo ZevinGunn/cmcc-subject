@@ -102,16 +102,17 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
      </section>
      <CryptoTools v-show="tab==='crypto'"/>
      <template v-if="tab==='home'">
-      <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
-      <div class="business-picker"><label for="selected-business">当前业务</label><select id="selected-business" :value="state.selectedId" :disabled="busy" @change="selectConfig($event.target.value)"><option v-for="c in state.configs" :key="c.id" :value="c.id">{{c.name}}</option></select><button class="text-button" :disabled="busy" @click="editCurrent"><Settings2 :size="14"/>修改配置</button></div>
+      <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account||product.status==='draft'"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
+      <div class="business-picker"><label for="selected-business">当前业务</label><select id="selected-business" :value="state.selectedId" :disabled="busy" @change="selectConfig($event.target.value)"><option v-for="c in state.configs" :key="c.id" :value="c.id">{{c.name}}{{c.status==='draft'?' · 待补全':''}}</option></select><button class="text-button" :disabled="busy" @click="editCurrent"><Settings2 :size="14"/>修改配置</button></div>
       <div class="service-layout">
        <article class="product-panel">
         <div class="product-top"><span class="product-symbol"><Zap :size="18"/>{{product.queryMode==='qqt5ga'?'5G-A 权益':'自定义业务'}}</span><span class="tag">山西移动</span></div>
         <h2>{{product.name}}</h2><p class="product-description">{{product.description}}</p>
         <div class="price-row"><strong>{{product.price}}</strong><span>配置资费，以官方受理为准</span></div>
         <dl class="terms"><div><dt>权益期限</dt><dd>{{product.term}}</dd></div><div><dt>生效时间</dt><dd>以开通成功短信为准</dd></div></dl>
-        <div class="eligibility" :class="q?.state==='eligible'?'eligible':''"><span class="status-dot"/><div><strong>{{q?.label||(account?'待查询办理资格':'登录后查询资格')}}</strong><p>{{q?.message||(account?'查询后可查看官方业务响应。':'登录不会自动订购任何业务。')}}</p></div></div>
-        <button v-if="!account" class="button primary full" :disabled="busy" @click="login">登录后查询资格<ChevronRight :size="16"/></button>
+        <div class="eligibility" :class="q?.state==='eligible'?'eligible':''"><span class="status-dot"/><div><strong>{{product.status==='draft'?'配置待补全':q?.label||(account?'待查询办理资格':'登录后查询资格')}}</strong><p>{{product.status==='draft'?'当前请求示例缺少完整参数，请补齐配置后再启用查询和办理。':q?.message||(account?'查询后可查看官方业务响应。':'登录不会自动订购任何业务。')}}</p></div></div>
+        <button v-if="product.status==='draft'" class="button secondary full" :disabled="busy" @click="editCurrent">补全业务配置<ChevronRight :size="16"/></button>
+        <button v-else-if="!account" class="button primary full" :disabled="busy" @click="login">登录后查询资格<ChevronRight :size="16"/></button>
         <button v-else-if="q?.state==='eligible'&&!blocked" class="button primary full" :disabled="busy" @click="openDialog(false)">办理此权益<ChevronRight :size="16"/></button>
         <button v-else-if="!q" class="button secondary full" :disabled="busy||!account" @click="query('content')">{{account?'查询办理资格':'请先登录'}}</button>
         <button v-else-if="blocked" class="button secondary full" @click="tab='history'">查看办理记录<ChevronRight :size="16"/></button>
