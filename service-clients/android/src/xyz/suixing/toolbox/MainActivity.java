@@ -245,10 +245,22 @@ public final class MainActivity extends Activity {
     private void showTools() {
         LinearLayout panel = new LinearLayout(this); panel.setOrientation(LinearLayout.VERTICAL); panel.setPadding(dp(12), 0, dp(12), 0);
         EditText search = new EditText(this); search.setSingleLine(true); search.setHint("搜索工具"); search.setContentDescription("搜索工具");
+        search.setImeOptions(android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI | android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN | android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+        search.setOnEditorActionListener((view, action, event) -> {
+            if (action != android.view.inputmethod.EditorInfo.IME_ACTION_DONE) return false;
+            ((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(search.getWindowToken(), 0);
+            return true;
+        });
         panel.addView(search, new LinearLayout.LayoutParams(-1, dp(52)));
         ScrollView scroll = new ScrollView(this); LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(list); panel.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("全部工具 · " + services.size()).setView(panel).setNegativeButton("关闭", null).create();
+        // 关闭操作放在顶部，横屏输入法占据下半屏时依然可以退出选择器。
+        LinearLayout heading = new LinearLayout(this); heading.setGravity(Gravity.CENTER_VERTICAL); heading.setPadding(dp(20), dp(4), dp(8), 0);
+        TextView caption = new TextView(this); caption.setText("全部工具 · " + services.size()); caption.setTextSize(18); caption.setTextColor(Color.rgb(28,39,51));
+        heading.addView(caption, new LinearLayout.LayoutParams(0, dp(48), 1));
+        Button close = button("关闭", "关闭"); heading.addView(close, new LinearLayout.LayoutParams(-2, dp(48)));
+        AlertDialog dialog = new AlertDialog.Builder(this).setCustomTitle(heading).setView(panel).create();
+        close.setOnClickListener(v -> dialog.dismiss());
         Runnable render = () -> {
             list.removeAllViews(); String query = search.getText().toString().trim().toLowerCase(java.util.Locale.ROOT); String previousGroup = "";
             for (int i = 0; i < services.size(); i++) {
@@ -307,6 +319,7 @@ public final class MainActivity extends Activity {
     private void invitation() {
         EditText input = new EditText(this); input.setSingleLine(true); input.setHint("粘贴专属链接或输入邀请码");
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        input.setImeOptions(android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI | android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN | android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
         input.setPadding(dp(20), dp(12), dp(20), dp(12));
         AlertDialog dialog = new AlertDialog.Builder(this).setTitle("使用专属链接").setView(input).setNegativeButton("取消", null).setPositiveButton("打开并登录", null).create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {

@@ -67,6 +67,7 @@ npm run build:android
 - `npm run test:desktop-security`：使用隔离测试页面验证外链、异步空白弹窗、危险协议拦截与远程页面权限。
 - Android 构建：编译、DEX、对齐、签名及签名校验；真机/模拟器验证结果另见交付记录。
 - `npm run test:android`：在已启动的专用 Android 模拟器执行工具切换、弹窗与横竖屏测试。默认序列号 `emulator-5554`，可通过 `CLIENT_DEVICE` 指定；仅对测试设备运行。
+- `CLIENT_LAYOUT_ONLY=1 npm run test:android`：已完成全目录切换验证后，仅复验输入法、弹窗关闭与横竖屏布局，避免重复运行无关检查。
 - `artifacts/` 为本机生成物，不提交到 Git。发布前校验 SHA-256 与实际版本，保留签名备份。
 - 本工程不修改既有公网服务运行代码，因此仅新增客户端时无需重启现有 PM2 服务。
 

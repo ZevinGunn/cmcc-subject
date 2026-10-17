@@ -23,10 +23,12 @@ function tap(name) {
 }
 function screenshot(name) { fs.writeFileSync(path.join(__dirname, '../artifacts', name), run('exec-out', 'screencap', '-p')); }
 (async () => {
+  run('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0');
+  run('shell', 'settings', 'put', 'system', 'user_rotation', '0'); await wait(1000);
   run('shell', 'am', 'force-stop', 'xyz.suixing.toolbox');
   run('shell', 'am', 'start', '-n', 'xyz.suixing.toolbox/.MainActivity'); await wait(2500);
   const catalog = require('../shared/services.json');
-  for (const service of catalog.services) {
+  for (const service of process.env.CLIENT_LAYOUT_ONLY === '1' ? [] : catalog.services) {
     tap('全部工具');
     tap('搜索工具');
     // UIAutomator 无法直接用 shell input 输入中文，使用每个工具唯一的 ASCII 域名或路径。
@@ -46,10 +48,13 @@ function screenshot(name) { fs.writeFileSync(path.join(__dirname, '../artifacts'
   assert.ok(nodes().some(node => node['content-desc'] === '全部工具'));
   tap('全部工具'); tap('搜索工具'); run('shell', 'input', 'text', 'no_such_tool_fixture'); await wait(200);
   assert.ok(nodes().some(node => node.text === '未找到匹配的工具'));
-  tap('关闭');
+  // 等待输入法与窗口布局稳定，避免用动画过程中的旧坐标点击。
+  await wait(600); tap('关闭'); await wait(600);
+  assert.ok(!nodes().some(node => node.text === `全部工具 · ${catalog.services.length}`), '全部工具弹窗未关闭');
   screenshot('android-landscape.png');
   run('shell', 'settings', 'put', 'system', 'user_rotation', '0');
+  await wait(1000);
   const errors = run('logcat', '-d', '-s', 'AndroidRuntime:E').toString();
   assert.ok(!errors.includes('xyz.suixing.toolbox'), '应用出现未处理崩溃');
-  console.log('安卓模拟器测试通过：安装启动、全部工具搜索切换、空结果、弹窗关闭、横竖屏、安全区域，无应用崩溃');
+  console.log(process.env.CLIENT_LAYOUT_ONLY === '1' ? '安卓布局复验通过：空结果、弹窗关闭、横竖屏、安全区域，无应用崩溃' : '安卓模拟器测试通过：安装启动、全部工具搜索切换、空结果、弹窗关闭、横竖屏、安全区域，无应用崩溃');
 })().catch(error => { console.error(error.message); process.exitCode = 1; });
