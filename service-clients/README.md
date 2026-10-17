@@ -11,6 +11,7 @@
 ```sh
 npm ci
 npm run icons
+npm run tools:cache
 npm run check
 npm start
 npm run test:desktop
@@ -18,7 +19,7 @@ npm run build:mac
 npm run build:win
 ```
 
-产物位于 `artifacts/desktop/`。macOS 分别构建 Apple Silicon 和 Intel 包；Windows 构建 x64 NSIS 安装版、便携版。Windows 最终运行验证应在 Windows 环境进行，仓库提供手动 CI 工作流。
+产物位于 `artifacts/desktop/`。macOS 分别构建 Apple Silicon 和 Intel 包；Windows 构建 x64 NSIS 安装版、便携版。Windows 最终运行验证应在 Windows 环境进行，仓库提供手动 CI 工作流。若 Electron 自带下载器无法连接，可运行 `node scripts/install-electron.cjs`，或通过 `CLIENT_ELECTRON_ARCHIVE` 指定已下载的压缩包；脚本始终使用官方 npm 包内的 SHA-256 校验。`tools:cache` 对构建工具同样执行固定校验。
 
 桌面壳仅加载本地 UI，IPC 仅接受该本地页面。远程页面位于独立 WebContentsView，开启 sandbox、contextIsolation、webSecurity，禁用 Node.js 与任意网页 native bridge。站点 Cookie 使用专用持久化分区；仅工具编号写入偏好设置，不把完整专属链接或临时 SSO URL 写入设置。
 
@@ -63,6 +64,10 @@ npm run build:android
 
 - `npm run check`：导航域名边界、专属链接清洗、认证 Cookie 处理、HTML 错误处理和 JS 语法验证。
 - `npm run test:desktop`：实际启动 Electron，验证工具切换、弹窗关闭、错误链接拦截、远程隔离和两种桌面窗口截图，不调用真实业务操作。
+- `npm run test:desktop-security`：使用隔离测试页面验证外链、异步空白弹窗、危险协议拦截与远程页面权限。
 - Android 构建：编译、DEX、对齐、签名及签名校验；真机/模拟器验证结果另见交付记录。
+- `npm run test:android`：在已启动的专用 Android 模拟器执行工具切换、弹窗与横竖屏测试。默认序列号 `emulator-5554`，可通过 `CLIENT_DEVICE` 指定；仅对测试设备运行。
 - `artifacts/` 为本机生成物，不提交到 Git。发布前校验 SHA-256 与实际版本，保留签名备份。
 - 本工程不修改既有公网服务运行代码，因此仅新增客户端时无需重启现有 PM2 服务。
+
+首版实际构建与验证情况见 [交付记录](DELIVERY.md)。

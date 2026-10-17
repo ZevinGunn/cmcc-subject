@@ -30,7 +30,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public final class MainActivity extends Activity {
     private static final String ORIGIN = "https://home.1008086.xyz";
@@ -38,6 +40,7 @@ public final class MainActivity extends Activity {
     private static final String[] NAMES = {"移动账号", "周三拼图", "星巴克卡券"};
     private static final int FILE_REQUEST = 21;
     private final Map<Integer, String> pages = new HashMap<>();
+    private final Set<WebView> pendingPopups = new HashSet<>();
     private final Button[] tabs = new Button[3];
     private WebView web;
     private ProgressBar progress;
@@ -67,6 +70,10 @@ public final class MainActivity extends Activity {
         button.setMinWidth(dp(48)); button.setMinimumWidth(dp(48));
         button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48));
         button.setPadding(dp(8), 0, dp(8), 0); button.setContentDescription(description);
+        button.setBackground(new android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(Color.rgb(220,234,243)),
+            new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT), null));
+        button.setStateListAnimator(null); button.setElevation(0);
         return button;
     }
     @Override public void onCreate(Bundle saved) {
@@ -162,8 +169,9 @@ public final class MainActivity extends Activity {
                 return true;
             }
             @Override public boolean onCreateWindow(WebView view, boolean isDialog, boolean userGesture, android.os.Message result) {
-                if (!internal(view.getUrl())) return false;
+                if (!internal(view.getUrl()) || pendingPopups.size() >= 4) return false;
                 WebView popup = new WebView(MainActivity.this);
+                pendingPopups.add(popup);
                 popup.getSettings().setJavaScriptEnabled(true);
                 popup.getSettings().setAllowFileAccess(false); popup.getSettings().setAllowContentAccess(false);
                 popup.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -174,11 +182,14 @@ public final class MainActivity extends Activity {
                         if (handled) return true;
                         handled = true;
                         if (internal(url)) web.loadUrl(url); else external(url);
-                        popup.post(popup::destroy); return true;
+                        popup.post(() -> closePopup(popup)); return true;
                     }
                     @Override public boolean shouldOverrideUrlLoading(WebView child, WebResourceRequest request) { return handle(request.getUrl().toString()); }
                     @Override public void onPageStarted(WebView child, String url, android.graphics.Bitmap icon) { handle(url); }
                     @Override public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) { handler.cancel(); }
+                });
+                popup.setWebChromeClient(new WebChromeClient() {
+                    @Override public void onCloseWindow(WebView window) { window.post(() -> closePopup(window)); }
                 });
                 ((WebView.WebViewTransport)result.obj).setWebView(popup); result.sendToTarget(); return true;
             }
@@ -187,6 +198,9 @@ public final class MainActivity extends Activity {
         target.setDownloadListener((url, agent, disposition, mime, length) -> {
             if (https(url)) external(url); else message("此文件请使用右上角菜单在浏览器中下载");
         });
+    }
+    private void closePopup(WebView popup) {
+        if (pendingPopups.remove(popup)) { popup.stopLoading(); popup.destroy(); }
     }
     private void resetError() { loadFailed = false; if (errorPanel != null) errorPanel.setVisibility(View.GONE); }
     private void navigate(int index, String url) {
@@ -252,6 +266,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() { super.onResume(); if (web != null) web.onResume(); }
     @Override protected void onDestroy() {
         if (fileCallback != null) { fileCallback.onReceiveValue(null); fileCallback = null; }
+        for (WebView popup : pendingPopups.toArray(new WebView[0])) closePopup(popup);
         if (web != null) { web.stopLoading(); web.destroy(); }
         super.onDestroy();
     }

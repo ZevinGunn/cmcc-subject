@@ -10,6 +10,9 @@
     "start": "electron .",
     "test": "node --test tests/*.test.cjs",
     "test:desktop": "node tests/desktop-smoke.cjs",
+    "test:desktop-security": "node tests/desktop-security.cjs",
+    "test:android": "node tests/android-smoke.cjs",
+    "tools:cache": "node scripts/cache-build-tools.cjs",
     "icons": "node scripts/icons.cjs",
     "build:mac": "npm run icons && electron-builder --mac dmg zip --arm64 --x64",
     "build:win": "npm run icons && electron-builder --win nsis portable --x64",
@@ -39,6 +42,7 @@
       "package.json"
     ],
     "asar": true,
+    "toolsets": { "nsis": "1.2.1" },
     "artifactName": "Suixing-Toolbox-${version}-${os}-${arch}.${ext}",
     "mac": {
       "category": "public.app-category.utilities",
@@ -56,7 +60,7 @@
     },
     "win": {
       "icon": "assets/icon.ico",
-      "signAndEditExecutable": false
+      "signExecutable": false
     },
     "nsis": {
       "artifactName": "Suixing-Toolbox-${version}-windows-${arch}-Setup.exe",

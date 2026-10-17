@@ -1,12 +1,14 @@
 const ORIGIN = 'https://home.1008086.xyz';
 const SESSION_KEY = 'suixing.session.v1';
 let redirecting = false;
+let generation = 0;
 function session() {
   const value = wx.getStorageSync(SESSION_KEY);
-  if (!value || !value.cookie || value.expiresAt <= Date.now()) { clearSession(); return ''; }
+  if (!value) return '';
+  if (!value.cookie || value.expiresAt <= Date.now()) { clearSession(); return ''; }
   return value.cookie;
 }
-function clearSession() { wx.removeStorageSync(SESSION_KEY); if (typeof getApp === 'function') getApp().globalData.user = null; }
+function clearSession() { generation++; wx.removeStorageSync(SESSION_KEY); if (typeof getApp === 'function') getApp().globalData.user = null; }
 function captureSession(response) {
   const cookies = Array.isArray(response.cookies) ? response.cookies : [];
   const raw = response.header && (response.header['Set-Cookie'] || response.header['set-cookie']);
@@ -16,6 +18,7 @@ function captureSession(response) {
     if (match) {
       if (!match[1]) { clearSession(); return; }
       wx.setStorageSync(SESSION_KEY, { cookie: `user_session=${match[1]}`, expiresAt: Date.now() + 30 * 86400000 });
+      generation++;
       return;
     }
   }
@@ -23,11 +26,14 @@ function captureSession(response) {
 function request(route, options) {
   const config = options || {};
   if (!/^\/api\/[a-zA-Z0-9/_?=&%-]+$/.test(route) || route.indexOf('..') !== -1) return Promise.reject(new Error('接口地址无效'));
+  const cookie = session(), requestGeneration = generation;
   return new Promise((resolve, reject) => {
     wx.request({ url: ORIGIN + route, method: config.method || 'GET', data: config.data,
       timeout: 25000,
-      header: { 'Content-Type': 'application/json', 'Cookie': session(), 'x-starbucks-client': '1' },
+      header: { 'Content-Type': 'application/json', 'Cookie': cookie, 'x-starbucks-client': '1' },
       success(response) {
+        try {
+        if (requestGeneration !== generation) { reject(new Error('登录状态已变更，请重新查询')); return; }
         const body = response.data;
         if (response.statusCode === 401) clearSession();
         if (!body || typeof body !== 'object' || typeof body.ok !== 'boolean') {
@@ -38,6 +44,7 @@ function request(route, options) {
           const failure = new Error(message); failure.status = response.statusCode; reject(failure); return;
         }
         captureSession(response); resolve(body.data);
+        } catch { reject(new Error('无法保存登录状态，请检查本机存储后重试')); }
       },
       fail() { reject(new Error('无法连接服务，请检查网络或小程序合法域名配置')); }
     });
