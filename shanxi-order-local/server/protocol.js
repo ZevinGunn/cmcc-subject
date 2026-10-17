@@ -1,6 +1,7 @@
 import {randomBytes,randomInt,createCipheriv,createDecipheriv,createPublicKey,publicEncrypt,constants,createHmac} from 'node:crypto';
 import {AppError,safeMessage} from './domain.js';
 import {validateConfig,assertConfigReady} from './catalog.js';
+import {productCode} from './subscriptions.js';
 
 // oHCY in the supplied market bundle: AES-128-CBC, IV prepended as hex,
 // RSA PKCS#1 v1.5 wrapping, HMAC-SHA256(timestamp + ciphertext, AES key).
@@ -32,32 +33,46 @@ const routes=Object.freeze({
  qrySensitiveTag:['act','sensitive/qryTag','全球通5GA加速权益'],
  getSmsCodeSmsver:['act','smsver/sendSmsCodeNew','全球通5GA加速权益'],
  chkSmsCodeSmsver:['act','smsver/chkSmsCodeNew','全球通5GA加速权益'],
- qqt5gaSubmitPrcOrder:['act','qqt5ga/submitPrcOrder','全球通5GA加速权益']
+ qqt5gaSubmitPrcOrder:['act','qqt5ga/submitPrcOrder','全球通5GA加速权益'],
+ qryUserOrderInfo:['act','userorderinfo/qryUserOrderInfo','已订业务'],
+ getActRecordInfo:['act','batch3/getActRecordInfo','已订业务']
 });
 export class Protocol {
  constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();this.lastResult=null;}
  async call(method,payload={},proof,config){
+  if(['unSubScribeOrder','qryUserOrderDetail'].includes(method)){
+   if(config)throw new AppError('UNSUPPORTED','已订业务接口不能由业务配置覆盖');
+   const data=method==='unSubScribeOrder'?{prod_prcid:productCode(payload.prod_prcid)}:{useProd:payload.useProd};
+   if(method==='qryUserOrderDetail'&&!['Y','N'].includes(data.useProd))throw new AppError('INVALID_PRODUCT','套餐状态无效');
+   // These two wrappers have no desRest flag in the supplied source. They
+   // send plain JSON and receive plain JSON, with no RSA discovery or retry.
+   const endpoint=method==='unSubScribeOrder'?'prod/unSubScribeOrder':'userorderinfo/qryUserOrderDetail';
+   const result=await this.transport(`/h/act/rest/v1/${endpoint}`,{...data,couponsBusiName:'已订业务'},{});
+   if(!result||!['string','number'].includes(typeof result.retCode)||!String(result.retCode))throw new AppError('INVALID_RESPONSE','官方未返回确定业务结果，请核查后再操作',502);
+   this.lastResult={operation:method,code:String(result.retCode),message:safeMessage(result.retMsg||''),at:new Date().toISOString()};return result;
+  }
   if(!Object.hasOwn(routes,method))throw new AppError('UNSUPPORTED','不支持的业务操作');
   let [preferred,endpoint,title]=routes[method];
   let c;
   if(config){
-   if(['sendSmsCode','wapLogin','checkLoginNew'].includes(method))throw new AppError('UNSUPPORTED','登录接口不能使用业务配置');
+   if(['sendSmsCode','wapLogin','checkLoginNew','qryUserOrderInfo','getActRecordInfo'].includes(method))throw new AppError('UNSUPPORTED','此接口不能使用业务配置');
    c=validateConfig(config);assertConfigReady(c);preferred=c.scope;title=c.couponsBusiName;
    if(method==='qqt5gaQryUserQualification')endpoint=c.queryPath;
    if(method==='qqt5gaSubmitPrcOrder')endpoint=c.orderPath;
   }
-  let scope=this.scopes.get(preferred)||preferred,key=this.keys.get(scope);
+  const fixedScope=['qryUserOrderInfo','getActRecordInfo'].includes(method);
+  let scope=fixedScope?preferred:this.scopes.get(preferred)||preferred,key=this.keys.get(scope);
   if(!key){
    let result;
    try{result=await this.transport(`/h/${scope}/rest/v1/rsakey/getRsaPubKey`,{},{});}
    catch(e){
     // Only the side-effect-free key discovery may fall back. A business
     // request is sent exactly once to the scope selected BEFORE encryption.
-    if(scope!=='act'||e.code!=='UPSTREAM_UNAVAILABLE')throw e;
+    if(fixedScope||scope!=='act'||e.code!=='UPSTREAM_UNAVAILABLE')throw e;
     scope='market';result=await this.transport('/h/market/rest/v1/rsakey/getRsaPubKey',{},{});
    }
    if(!['0000','0'].includes(String(result?.retCode))||typeof result?.data!=='string')throw new AppError('KEY_UNAVAILABLE','官方加密公钥暂不可用，请稍后重试',502);
-   key=result.data;this.keys.set(scope,key);this.scopes.set(preferred,scope);
+   key=result.data;this.keys.set(scope,key);if(!fixedScope)this.scopes.set(preferred,scope);
   }
   const data={...payload,couponsBusiName:title};
   if(method==='qqt5gaSubmitPrcOrder'){

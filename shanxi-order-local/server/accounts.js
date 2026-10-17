@@ -75,5 +75,6 @@ export class Accounts {
  async config(method,...args){return this.exclusive(async()=>{await this.current()[method](...args);for(const s of this.sessions.values())s.resetProduct();return this.snapshot();});}
  saveConfig(...args){return this.config('saveConfig',...args);}selectConfig(...args){return this.config('selectConfig',...args);}deleteConfig(...args){return this.config('deleteConfig',...args);}
  queryQualification(...args){return this.act('queryQualification',...args);}queryBusiness(...args){return this.act('queryBusiness',...args);}sendSms(...args){return this.act('sendSms',...args);}verifySms(...args){return this.act('verifySms',...args);}submit(...args){return this.act('submit',...args);}reconcile(...args){return this.act('reconcile',...args);}resolve(...args){return this.act('resolve',...args);}
+ queryBusinessDetail(...args){return this.act('queryBusinessDetail',...args);}prepareUnsubscribe(...args){return this.act('prepareUnsubscribe',...args);}unsubscribe(...args){return this.act('unsubscribe',...args);}resolveUnsubscribe(...args){return this.act('resolveUnsubscribe',...args);}
  async close(){for(const [id,s] of this.sessions){await this.capture(this.item(id),s);await s.bridge.close();}await this.draft?.bridge.close();await this.empty.bridge.close();}
 }

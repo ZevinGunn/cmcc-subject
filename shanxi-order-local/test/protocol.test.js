@@ -61,3 +61,11 @@ test('自定义业务路径、名称、额外参数和当次 uuid 在实际加�
  await p.call('qqt5gaQryUserQualification',{offerId:'SYNTHETIC'},null,c);assert.equal(requests[1].url,'/h/market/rest/v1/traffic/query');assert.equal(requests[1].data.uuid,undefined);await assert.rejects(p.call('wapLogin',{},null,c),{code:'UNSUPPORTED'});
  await assert.rejects(p.call('qqt5gaSubmitPrcOrder',{}, {uuid:'dynamic-proof'},{...c,orderPath:'https://other.example/order'}),{code:'INVALID_CONFIG'});
 });
+
+test('已订业务与活动固定 act 入口加密；退订和套餐详情按源码明文发送且不重试',async()=>{
+ const requests=[];const p=new Protocol(async(url,body,headers)=>{requests.push({url,body,headers});if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};if(body.encryptInStr){const {key,data}=open(body,headers);assert.deepEqual(data,{couponsBusiName:'已订业务'});return response({retCode:'0000',data:{}},key);}return {retCode:'0000',data:{}};});
+ p.scopes.set('act','market');await p.call('qryUserOrderInfo');await p.call('getActRecordInfo');assert.equal(p.scopes.get('act'),'market');assert(requests.some(r=>r.url==='/h/act/rest/v1/userorderinfo/qryUserOrderInfo'));assert(requests.some(r=>r.url==='/h/act/rest/v1/batch3/getActRecordInfo'));
+ await p.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC',uuid:'ignored',couponsBusiName:'ignored'});assert.deepEqual(requests.at(-1),{url:'/h/act/rest/v1/prod/unSubScribeOrder',body:{prod_prcid:'SYNTHETIC',couponsBusiName:'已订业务'},headers:{}});await p.call('qryUserOrderDetail',{useProd:'N'});assert.deepEqual(requests.at(-1).body,{useProd:'N',couponsBusiName:'已订业务'});await assert.rejects(p.call('unSubScribeOrder',{prod_prcid:'../bad'}),{code:'INVALID_PRODUCT'});
+ let count=0;const failing=new Protocol(async url=>{count++;assert.equal(url,'/h/act/rest/v1/prod/unSubScribeOrder');throw Error('timeout');});await assert.rejects(failing.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}));assert.equal(count,1);
+ for(const result of [{secretOutId:'0',encryptOutStr:'invalid'},{retCode:null},{retCode:''}]){const invalid=new Protocol(async()=>result);await assert.rejects(invalid.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}),{code:'INVALID_RESPONSE'});}
+});

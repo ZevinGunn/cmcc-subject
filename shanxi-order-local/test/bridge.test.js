@@ -27,3 +27,5 @@ test('环境头缺失、失败或收集期间离开官方源时不发送敏感�
  window.YWKJ={getHeader:async()=>{throw Error('sdk error');}};assert.equal((await invoke()).environmentUnavailable,true);
  window.YWKJ.getHeader=async()=>{location.origin='https://other.example';return {url:location.href,uuid:'a'.repeat(32)};};assert.equal((await invoke()).foreign,true);assert.equal(calls,0);
 });
+
+test('已订业务查询直接调用签名协议，不依赖 Vue 或官网路由加载',async()=>{const bridge=new OfficialBridge();const calls=[];bridge.call=async(...args)=>{calls.push(args);return {retCode:'0000',data:{mainList:[]}};};bridge.open=async()=>{throw Error('business must not navigate');};assert.equal((await bridge.business()).retCode,'0000');assert.deepEqual(calls,[['qryUserOrderInfo']]);});

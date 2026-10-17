@@ -1,14 +1,16 @@
 import {randomUUID} from 'node:crypto';
 import {AppError,success,requireSuccess,qualification,sensitiveChallenge,composeCode,maskPhone,publicData,safeMessage} from './domain.js';
 import {Catalog,defaultConfig,viewProduct,productKey,assertConfigReady} from './catalog.js';
+import {subscriptions,activities} from './subscriptions.js';
 export class Service {
  constructor(bridge,ledger,now=Date.now,catalog=new Catalog(ledger.directory)){Object.assign(this,{bridge,ledger,now,catalog});this.account=null;this.qual=null;this.business=null;this.content=null;this.challenge=null;this.loginAttempt=null;this.lastLoginSmsAt=-Infinity;this.loginSmsWindow=0;this.loginSmsCount=0;this.busy=false;this.lastSmsAt=-Infinity;this.smsCount=0;this.smsWindow=0;}
  snapshot(){
-  return {product:viewProduct(this.catalog.get()),configs:this.catalog.list(),selectedId:this.catalog.selectedId,configTemplate:defaultConfig(),account:this.account?{phone:maskPhone(this.account.phone),syncedAt:this.account.syncedAt}:null,qualification:this.qual,content:this.content,business:this.business,orders:this.account?this.ledger.list(this.account.hash):[],busy:this.busy,challenge:this.publicChallenge(),cooldown:Math.max(0,Math.ceil((this.lastSmsAt+60000-this.now())/1000)),login:this.loginAttempt?{id:this.loginAttempt.id,phone:maskPhone(this.loginAttempt.phone),expiresAt:this.loginAttempt.expiresAt}:null,loginCooldown:Math.max(0,Math.ceil((this.lastLoginSmsAt+60000-this.now())/1000))};
+  const rows=this.account?this.ledger.list(this.account.hash):[];
+  return {product:viewProduct(this.catalog.get()),configs:this.catalog.list(),selectedId:this.catalog.selectedId,configTemplate:defaultConfig(),account:this.account?{phone:maskPhone(this.account.phone),syncedAt:this.account.syncedAt}:null,qualification:this.qual,content:this.content,business:this.business,businessDetail:this.businessDetail||null,unsubscribeIntent:this.unsubscribeIntent?{id:this.unsubscribeIntent.id,name:this.unsubscribeIntent.name,code:this.unsubscribeIntent.code,price:this.unsubscribeIntent.price,expiresAt:this.unsubscribeIntent.expiresAt}:null,unsubscriptions:rows.filter(r=>r.type==='unsubscribe'),orders:rows.filter(r=>r.type!=='unsubscribe'),busy:this.busy,challenge:this.publicChallenge(),cooldown:Math.max(0,Math.ceil((this.lastSmsAt+60000-this.now())/1000)),login:this.loginAttempt?{id:this.loginAttempt.id,phone:maskPhone(this.loginAttempt.phone),expiresAt:this.loginAttempt.expiresAt}:null,loginCooldown:Math.max(0,Math.ceil((this.lastLoginSmsAt+60000-this.now())/1000))};
  }
  publicChallenge(){const c=this.challenge;return c?{id:c.id,sensitive:c.sensitive,fixed:c.fixed,verified:c.verified,attemptAnyway:c.attemptAnyway===true,configId:c.configId,revision:c.revision,expiresAt:c.expiresAt}:null;}
  async exclusive(fn){if(this.busy)throw new AppError('BUSY','上一项操作仍在处理中，请稍候',409);this.busy=true;try{const result=await fn();if(result&&Object.hasOwn(result,'busy'))result.busy=false;return result;}catch(e){if(e.status===401)this.clear();throw e;}finally{this.busy=false;}}
- clear(){this.account=null;this.qual=null;this.content=null;this.business=null;this.challenge=null;}
+ clear(){this.account=null;this.qual=null;this.content=null;this.business=null;this.challenge=null;this.unsubscribeIntent=null;this.businessDetail=null;}
  async sendLoginSms(phone,agreed){return this.exclusive(async()=>{
   if(this.account)throw new AppError('LOGOUT_REQUIRED','请先退出当前账号再登录其他号码',409);
   if(typeof phone!=='string'||!/^1[3-9]\d{9}$/.test(phone))throw new AppError('INVALID_PHONE','请输入正确的 11 位手机号码');
@@ -50,7 +52,7 @@ export class Service {
  }
  async sync(){return this.exclusive(async()=>{await this.auth();this.loginAttempt=null;return this.snapshot();});}
  async logout(){return this.exclusive(async()=>{this.clear();this.loginAttempt=null;await this.bridge.close();return this.snapshot();});}
- resetProduct(){this.challenge=null;this.qual=null;this.content=null;}
+ resetProduct(){this.challenge=null;this.qual=null;this.content=null;this.unsubscribeIntent=null;}
  async saveConfig(input){return this.exclusive(async()=>{this.catalog.save(input);this.resetProduct();return this.snapshot();});}
  async selectConfig(id){return this.exclusive(async()=>{this.catalog.select(id);this.resetProduct();return this.snapshot();});}
  async deleteConfig(id,revision){return this.exclusive(async()=>{if(this.catalog.get(id).revision!==revision)throw new AppError('CONFIG_CHANGED','业务配置已更新，请刷新后重试',409);const selected=this.catalog.selectedId;this.catalog.remove(id);if(id===selected)this.resetProduct();return this.snapshot();});}
@@ -68,7 +70,59 @@ export class Service {
   const config=this.catalog.get();const {q,response}=await this.readQualification(config);
   this.qual=q;this.content={product:viewProduct(config),data:publicData(response),queriedAt:new Date(this.now()).toISOString()};return q;
  }
- async queryBusiness(){return this.exclusive(async()=>{await this.auth();const r=requireSuccess(await this.bridge.business());this.business={data:publicData(r.data??r),queriedAt:new Date(this.now()).toISOString(),message:safeMessage(r.retMsg||'查询成功')};return this.snapshot();});}
+ async loadBusiness(){
+  const r=requireSuccess(await this.bridge.business());const items=subscriptions(Array.isArray(r.data)?{list:r.data}:r.data);
+  this.business={data:publicData(r.data),items,queryId:randomUUID(),queriedAt:new Date(this.now()).toISOString(),message:safeMessage(r.retMsg||'查询成功'),activities:this.business?.activities||null,activitiesAt:this.business?.activitiesAt||null,activityError:this.business?.activityError||''};
+  this.unsubscribeIntent=null;this.businessDetail=null;return items;
+ }
+ async queryBusiness(){return this.exclusive(async()=>{
+  await this.auth();await this.loadBusiness();
+  try{const r=requireSuccess(await this.bridge.call('getActRecordInfo'));this.business.activities=activities(r.data);this.business.activityError='';this.business.activitiesAt=new Date(this.now()).toISOString();}
+  catch(e){if(e.status===401)throw e;this.business.activityError='活动记录未更新，其他业务查询已保留。'+safeMessage(e instanceof AppError?e.message:'请稍后重试');}
+  return this.snapshot();
+ });}
+ businessItem(id,queryId){
+  if(!this.business||this.business.queryId!==queryId)throw new AppError('BUSINESS_CHANGED','业务列表已更新，请重新选择业务',409);
+  const row=this.business.items.find(r=>r.id===id);if(!row)throw new AppError('NOT_FOUND','当前业务条目不存在',404);return row;
+ }
+ async queryBusinessDetail(id,queryId){return this.exclusive(async()=>{
+  await this.auth();const row=this.businessItem(id,queryId);if(!['plan','scheduled'].includes(row.category)||!row.useProd)throw new AppError('DETAIL_UNAVAILABLE','此业务未提供套餐详情接口');
+  const r=requireSuccess(await this.bridge.call('qryUserOrderDetail',{useProd:row.useProd}));this.businessDetail={name:safeMessage(r.data?.prodName||row.name),description:safeMessage(r.data?.prodPrcDesc||''),data:publicData(r.data)};return this.snapshot();
+ });}
+ assertUnsubscribe(row){
+  if(!row?.canUnsubscribe)throw new AppError('UNSUBSCRIBE_UNAVAILABLE',row?.reason||'官方未开放此业务的在线退订',409);
+  const previous=this.ledger.rows.find(r=>r.account===this.account.hash&&r.type==='unsubscribe'&&((r.productCode===row.code&&['submitting','unknown'].includes(r.status))||(r.fingerprint===row.id&&['success','held'].includes(r.status))));
+  if(previous)throw new AppError('UNSUBSCRIBE_EXISTS',previous.status==='unknown'?'此业务退订结果待核查，请勿重复提交':'此业务已有退订记录，请核对官方当前状态',409);
+ }
+ async prepareUnsubscribe(id,queryId){return this.exclusive(async()=>{
+  await this.auth();const old=this.businessItem(id,queryId);this.assertUnsubscribe(old);
+  const items=await this.loadBusiness(),row=items.find(r=>r.id===old.id);this.assertUnsubscribe(row);
+  this.unsubscribeIntent={id:randomUUID(),account:this.account.hash,fingerprint:row.id,code:row.code,name:row.name,price:row.price,expiresAt:this.now()+300000};return this.snapshot();
+ });}
+ async unsubscribe(id,confirmed){return this.exclusive(async()=>{
+  if(confirmed!==true)throw new AppError('CONFIRM_REQUIRED','请确认号码及需要退订的业务');await this.auth();
+  if(this.ledger.rows.some(r=>r.type==='unsubscribe'&&r.intent===id&&r.account===this.account.hash))return this.snapshot();
+  const intent=this.unsubscribeIntent;
+  if(!intent||intent.id!==id||intent.account!==this.account.hash)throw new AppError('UNSUBSCRIBE_INTENT_INVALID','退订确认已失效，请重新选择业务',409);
+  if(intent.expiresAt<=this.now()){this.unsubscribeIntent=null;throw new AppError('UNSUBSCRIBE_INTENT_EXPIRED','退订确认已超时，请重新核对',409);}
+  const items=await this.loadBusiness(),row=items.find(r=>r.id===intent.fingerprint);this.assertUnsubscribe(row);
+  const record=this.ledger.add({id:randomUUID(),intent:id,type:'unsubscribe',account:this.account.hash,phone:maskPhone(this.account.phone),product:'unsubscribe:'+row.id,fingerprint:row.id,productCode:row.code,name:row.name,price:row.price,status:'submitting',createdAt:new Date(this.now()).toISOString(),message:'退订请求正在等待官方结果'});
+  let result;
+  try{result=await this.bridge.call('unSubScribeOrder',{prod_prcid:row.code});}
+  catch{this.ledger.update(record.id,{status:'unknown',message:'未收到确定的退订结果，请通过官方业务列表、短信或 10086 核实，勿重复退订。'});return this.snapshot();}
+  const valid=result&&['string','number'].includes(typeof result.retCode)&&String(result.retCode).length>0;
+  this.ledger.update(record.id,{status:!valid?'unknown':success(result)?'success':'failed',code:valid?String(result.retCode):'',message:valid?safeMessage(result.retMsg||(success(result)?'官方确认退订成功，生效时间以官方为准':'官方未受理退订')):'官方未返回确定结果，请核查后再操作'});
+  if(['777777','999999'].includes(String(result?.retCode))){this.clear();return this.snapshot();}
+  if(success(result)){
+   try{await this.loadBusiness();}catch(e){if(e.status===401)throw e;this.business={...this.business,refreshError:'退订结果已保存，业务列表刷新失败，请稍后手动刷新。'};}
+  }
+  return this.snapshot();
+ });}
+ async resolveUnsubscribe(id,confirmed){return this.exclusive(async()=>{
+  await this.auth();const row=this.ledger.rows.find(r=>r.type==='unsubscribe'&&r.id===id&&r.account===this.account.hash);
+  if(!row||row.status!=='unknown'||confirmed!==true)throw new AppError('INVALID_RESOLUTION','仅待核查的退订记录可以在官方核实未生效后解除');
+  this.ledger.update(id,{status:'released',message:'用户确认已向官方核实退订未生效，已解除重复提交拦截',checkedAt:new Date(this.now()).toISOString()});return this.snapshot();
+ });}
  assertNoOrder(){const blocking=this.ledger.blocking(this.account.hash,productKey(this.catalog.get()));if(blocking)throw new AppError('ORDER_EXISTS',blocking.status==='unknown'?'已有结果待核查的办理，请先在办理记录中核查':'该权益已有办理记录，请查询当前权益状态',409);}
  assertQualification(q,attemptAnyway){if(q.state!=='eligible'&&!(attemptAnyway===true&&['included','ordered','unverified'].includes(q.state)))throw new AppError('NOT_ELIGIBLE',q.message);}
  async sendSms(attemptAnyway=false,expected){return this.exclusive(async()=>{

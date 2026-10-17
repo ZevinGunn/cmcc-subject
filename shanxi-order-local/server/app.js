@@ -25,7 +25,7 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  const route=(fn)=>(req,res,next)=>Promise.resolve().then(()=>fn(req)).then(data=>res.json(data)).catch(next);
  // Account context is checked immediately before invoking the operation lock.
  const guarded=(fn)=>route(req=>{service.assertContext?.(req.headers['x-account-context']);return fn(req);});
- app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.6.0'}));
+ app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.7.0'}));
  app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf,publicMode}));
  app.post('/api/tools/crypto',route(req=>transformCrypto(req.body)));
  if(publicMode)app.post(['/api/login/open','/api/login/sync','/api/official/open'],(_req,res)=>res.status(409).json({error:{code:'REMOTE_WINDOW_UNAVAILABLE',message:'公网版请使用手机验证码登录；官方人工验证需在本机版完成'}}));
@@ -39,6 +39,10 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  app.post('/api/query/qualification',guarded(()=>service.queryQualification()));
  app.post('/api/query/content',guarded(()=>service.queryQualification()));
  app.post('/api/query/business',guarded(()=>service.queryBusiness()));
+ app.post('/api/query/business/detail',guarded(req=>service.queryBusinessDetail(req.body?.id,req.body?.queryId)));
+ app.post('/api/unsubscribe/prepare',guarded(req=>service.prepareUnsubscribe(req.body?.id,req.body?.queryId)));
+ app.post('/api/unsubscribe/submit',guarded(req=>service.unsubscribe(req.body?.id,req.body?.confirmed)));
+ app.post('/api/unsubscribe/resolve',guarded(req=>service.resolveUnsubscribe(req.body?.id,req.body?.confirmed)));
  app.post('/api/accounts/restore',route(()=>service.restore()));
  app.post('/api/accounts/select',route(req=>service.selectAccount(req.body?.id)));
  app.post('/api/accounts/rename',route(req=>service.renameAccount(req.body?.id,req.body?.label)));

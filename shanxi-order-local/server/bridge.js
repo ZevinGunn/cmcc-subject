@@ -111,21 +111,7 @@ export class OfficialBridge {
  async authenticate(){return this.call('checkLoginNew',{pubInfo:{busiType:'SSO_LOGIN'},busiInfo:{}});}
  async sendLoginSms(phone){return this.call('sendSmsCode',{pubInfo:{busiType:'SSO_LOGIN',phoneNo:phone},busiInfo:{}});}
  async login(phone,code){return this.call('wapLogin',{pubInfo:{busiType:'SSO_LOGIN',loginSourceCode:'BROWSER',loginType:'sms',phoneNo:phone,smsCode:code},busiInfo:{}});}
- async business(){
-  await this.open();
-  if(!new URL(this.page.url()).pathname.startsWith('/h/act/'))await this.page.goto(ACT,{waitUntil:'domcontentloaded',timeout:15000}).catch(()=>{});
-  try{
-   await this.page.waitForFunction(installBridge,null,{timeout:12000});
-   return await this.page.evaluate(async()=>{
-    const b=window.__sxLocalBridge;b.business=null;
-    if(window.vm.$route.path==='/commserver/userBuss')await window.vm.$router.push('/qqt5ga').catch(()=>{});
-    await window.vm.$router.push('/commserver/userBuss').catch(()=>{});
-    const deadline=Date.now()+20000;
-    while(Date.now()<deadline){if(b.business)return b.business.result;await new Promise(r=>setTimeout(r,100));}
-    throw Error('BUSINESS_TIMEOUT');
-   });
-  }catch{throw new AppError('BUSINESS_UNAVAILABLE','官方已订业务页面暂不可用；可继续查询 5G-A 资格，或稍后重新查询',502);}
- }
+ async business(){return this.call('qryUserOrderInfo');}
  async status(){
   if(!this.page||this.page.isClosed())return {open:false,stage:'closed'};
   return {open:true,stage:'session',transport:'signed-browser',lastRequest:this.lastRequest,officialResult:this.protocol.lastResult};

@@ -5,6 +5,7 @@ import {api} from './api';
 import ConfigManager from './ConfigManager.vue';
 import AccountManager from './AccountManager.vue';
 import CryptoTools from './CryptoTools.vue';
+import BusinessManager from './BusinessManager.vue';
 const publicMode=import.meta.env.SHANXI_PUBLIC===true;
 const logoUrl=import.meta.env.BASE_URL+'shanxi-mobile-logo.png';
 const activeSaved=computed(()=>state.value.accounts?.find(a=>a.id===state.value.activeAccountId));
@@ -52,18 +53,7 @@ async function submit(){await run('submit',async()=>{assign(await api('/order/su
 async function reconcile(order){await run('reconcile-'+order.id,async()=>{assign(await api('/orders/'+order.id+'/reconcile',{}));notice.value='已核查该订单绑定的业务配置，请查看记录中的核查结果。';});}
 async function openResolve(order){trigger=document.activeElement;resolution.value=order;resConsent.value=false;dialog.value='resolve';await nextTick();dialogRef.value.showModal();}
 async function resolve(){await run('resolve',async()=>{assign(await api('/orders/'+resolution.value.id+'/resolve',{confirmed:resConsent.value}));closeDialog();notice.value='已记录人工核查结果';});}
-const labels={prcName:'业务名称',prodName:'产品名称',productName:'产品名称',busiName:'业务名称',offerName:'套餐名称',name:'名称',prcId:'产品编码',prodId:'产品编码',price:'资费',fee:'费用',effDate:'生效时间',effectiveDate:'生效时间',expDate:'失效时间',expireDate:'失效时间',status:'状态',orderTime:'订购时间',startDate:'开始时间',endDate:'结束时间',phoneNo:'手机号码',phone_no:'手机号码'};
-function extractRows(data){
- const arrays=[];
- const walk=(v,depth=0)=>{if(depth>7||v==null)return;if(Array.isArray(v)){if(v.length&&v.some(x=>x&&typeof x==='object'&&!Array.isArray(x)))arrays.push(v);for(const x of v)walk(x,depth+1);}else if(typeof v==='object')Object.values(v).forEach(x=>walk(x,depth+1));};walk(data);
- const list=arrays.sort((a,b)=>b.length-a.length)[0];
- if(list)return list.map((item,index)=>({index,fields:Object.entries(item??{}).filter(([,v])=>v!==null&&typeof v!=='object').map(([key,value])=>({key,label:labels[key]||key,value:String(value)}))})).filter(x=>x.fields.length);
- if(data&&typeof data==='object'&&Object.keys(data).length)return [{index:0,fields:Object.entries(data).filter(([,v])=>v!==null&&typeof v!=='object').map(([key,value])=>({key,label:labels[key]||key,value:String(value)}))}].filter(x=>x.fields.length);
- return [];
-}
-const businessRows=computed(()=>extractRows(state.value.business?.data));
-const filtered=computed(()=>businessRows.value.filter(r=>r.fields.some(f=>f.value.toLowerCase().includes(search.value.trim().toLowerCase()))));
-function rowTitle(row){return row.fields.find(f=>['prcName','prodName','productName','busiName','offerName','name'].includes(f.key))?.value||'业务信息 '+(row.index+1);}
+async function businessAction(path,body,done){await run('business-action',async()=>{assign(await api(path,body));await nextTick();await done?.();});}
 function download(){const data=state.value.orders;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='晋速办办理记录.json';a.click();URL.revokeObjectURL(url);}
 onMounted(async()=>{await refresh();if(activeSaved.value?.status==='cached')await restoreAccount();timer=setInterval(()=>{if(countdown.value>0)countdown.value--;if(loginCountdown.value>0)loginCountdown.value--;},1000);poll=setInterval(()=>{if(!pending.value)refresh();},5000);});
 onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
@@ -123,15 +113,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
       </div>
       <section class="recent-section"><div class="section-bar"><h2>最近办理</h2><button class="text-button" @click="tab='history'">全部记录<ChevronRight :size="14"/></button></div><div v-if="!state.orders.length" class="inline-empty"><History :size="20"/><span>暂无办理记录</span><span class="subtle">完成办理后，结果会自动保存。</span></div><div v-else v-for="o in state.orders.slice(0,3)" :key="o.id" class="recent-row"><strong>{{o.name}}</strong><span>{{o.phone}}</span><span class="status" :class="statuses[o.status][1]">{{statuses[o.status][0]}}</span><time>{{date(o.createdAt)}}</time></div></section>
      </template>
-     <template v-else-if="tab==='business'">
-      <div class="page-heading"><div><div class="eyebrow">MY SERVICES</div><h1>已订业务</h1><p>查看当前号码的官方业务信息。</p></div><button class="button primary" @click="query('business')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='business'}"/>{{state.business?'刷新业务':'查询业务'}}</button></div>
-      <div class="list-toolbar"><div class="search-field"><Search :size="16"/><input v-model="search" placeholder="搜索业务名称、编码" aria-label="搜索业务"/></div><span class="subtle">{{state.business?'查询于 '+date(state.business.queriedAt):'尚未查询'}}</span></div>
-      <div v-if="pending==='business'" class="empty-state"><LoaderCircle class="spin" :size="26"/><h3>正在查询已订业务</h3><p>首次查询需要加载官方业务页面，请稍候。</p></div>
-      <div v-else-if="!state.business" class="empty-state"><PackageSearch :size="30"/><h3>{{account?'查询当前号码的已订业务':'登录后查看已订业务'}}</h3><p>{{account?'点击查询，获取官方返回的业务信息。':'请先使用手机验证码登录。'}}</p><button class="button secondary" :disabled="busy" @click="account?query('business'):login()">{{account?'开始查询':'验证码登录'}}</button></div>
-      <div v-else-if="!filtered.length" class="empty-state"><PackageSearch :size="30"/><h3>{{search?'没有匹配的业务':'未返回可展示的业务条目'}}</h3><p>{{search?'试试其他名称或编码。':'可展开下方查询详情，或通过中国移动官方渠道核对。'}}</p></div>
-      <div v-else class="business-list"><article v-for="row in filtered" :key="row.index"><div class="business-title"><span class="table-icon"><PackageSearch :size="17"/></span><h3>{{rowTitle(row)}}</h3></div><dl><div v-for="field in row.fields" :key="field.key"><dt>{{field.label}}</dt><dd>{{field.value}}</dd></div></dl></article></div>
-      <details v-if="state.business" class="raw-details"><summary>官方查询详情</summary><p class="subtle">保留官方字段与原始单位；部分字段名称可能未转换。</p><pre>{{JSON.stringify(state.business.data,null,2)}}</pre></details>
-     </template>
+     <template v-else-if="tab==='business'"><BusinessManager :state="state" :busy="busy" :pending="pending" :error="error" @query="query('business')" @login="login" @action="businessAction"/></template>
      <template v-else-if="tab==='accounts'"><AccountManager :accounts="state.accounts||[]" :active-id="state.activeAccountId" :busy="busy" @login="login" @select="switchAccount" @rename="renameAccount" @remove="removeAccount"/></template>
      <template v-else-if="tab==='config'"><ConfigManager ref="configManager" :configs="state.configs" :selected-id="state.selectedId" :template="state.configTemplate" :busy="busy" @save="saveConfig" @select="selectConfig" @delete="deleteConfig"/></template>
      <template v-else-if="tab!=='crypto'">

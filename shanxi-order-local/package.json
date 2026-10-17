@@ -1,6 +1,6 @@
 {
   "name": "shanxi-order-local",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,7 +13,7 @@
     "start": "node server/index.js",
     "test": "node --test test/*.test.js",
     "check": "npm run test && npm run build",
-    "test:ui": "node test/ui-acceptance.mjs && node test/ui-acceptance.mjs --attempt && node test/ui-acceptance.mjs --config && node test/ui-accounts.mjs && node test/ui-session-cache.mjs && node test/ui-crypto.mjs && node test/ui-business-presets.mjs"
+    "test:ui": "node test/ui-acceptance.mjs && node test/ui-acceptance.mjs --attempt && node test/ui-acceptance.mjs --config && node test/ui-accounts.mjs && node test/ui-session-cache.mjs && node test/ui-crypto.mjs && node test/ui-business-presets.mjs && node test/ui-subscriptions.mjs"
   },
   "dependencies": {
     "express": "^4.21.2",
