@@ -26,7 +26,7 @@ npm run build:public
 npm run test:ui
 node test/ui-acceptance.mjs --public
 node scripts/prepare-public.mjs
-pm2 start ecosystem.public.cjs --only shanxi-public
+pm2 start ecosystem.public.config.cjs --only shanxi-public
 ```
 
 已存在服务时用 `pm2 restart shanxi-public`；网关代码或项目目录变更时仅重启 `project-manager`。提交验证通过的源码后再切换服务。配置未改变时不需要重载 Nginx 或隧道。
