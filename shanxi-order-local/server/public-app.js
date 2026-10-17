@@ -14,7 +14,7 @@ export function createPublicApp({key,directory,dist,port=4319,origin='https://sh
   res.set({'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Strict-Transport-Security':'max-age=31536000'});
   if(![`127.0.0.1:${port}`,`localhost:${port}`].includes(req.headers.host))return res.status(403).end();
   if(req.headers['x-forwarded-proto']==='http')return res.redirect(308,origin+req.url);
-  if(req.method==='GET'&&req.path==='/api/health')return res.json({ok:true,app:'shanxi-public',version:'1.7.1'});
+  if(req.method==='GET'&&req.path==='/api/health')return res.json({ok:true,app:'shanxi-public',version:'1.8.0'});
   if(req.headers.origin&&req.headers.origin!==origin)return res.status(403).json({error:{code:'ORIGIN_REJECTED',message:'请求来源不受信任'}});
   if(!['GET','HEAD'].includes(req.method)&&req.headers.origin!==origin)return res.status(403).json({error:{code:'ORIGIN_REJECTED',message:'请从山西移动业务页面操作'}});
   const tenant=workspaceSession(key,req,res,now());

@@ -261,3 +261,30 @@ select:focus-visible,textarea:focus-visible,.config-form input:focus-visible{out
 @media(max-width:360px){.sidebar{column-gap:5px}.brand{gap:5px}.brand-mark{width:28px;height:28px}.brand strong{font-size:16px;white-space:nowrap}}
 .subscription-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}.subscription-tabs .button{gap:8px;min-height:40px}.subscription-tabs span{font-variant-numeric:tabular-nums;opacity:.8}.subscription-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px}.subscription-actions>.subtle{min-width:0;overflow-wrap:anywhere}.subscription-description{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:14px}.business-title h3{min-width:0;overflow-wrap:anywhere}.business-title>.subtle{margin-left:auto;flex-shrink:0}.business-list h3,.modal dd{overflow-wrap:anywhere}.modal .consent input{min-height:0;padding:0;flex:0 0 15px}
 @media(max-width:600px){.subscription-tabs{gap:6px}.subscription-tabs .button{padding:8px 10px}.subscription-actions{align-items:flex-start;flex-wrap:wrap}.business-title{flex-wrap:wrap}.business-title>.subtle{margin-left:0}.subscription-actions .actions{margin-left:auto}}
+
+/* Number workspaces keep identity beside the operations it controls. */
+.account-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border:0;background:transparent}
+.account-list .number-card{min-width:0;display:flex;align-content:flex-start;align-items:flex-start;gap:16px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.number-card .config-info{flex-basis:100%}.number-card .config-info h2{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;flex-wrap:wrap;font-size:17px}
+.number-card .actions{flex-wrap:wrap;align-items:center;gap:12px;width:100%}.number-card .actions .account-menu-trigger{margin-right:auto}
+.number-profile{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px;width:100%;margin:0;padding-top:16px;border-top:1px solid var(--line);font-size:12px}
+.number-profile dt{color:var(--muted)}.number-profile dd{margin:3px 0 0;overflow-wrap:anywhere}
+.heading-count{font-size:14px;font-weight:500;color:var(--muted);margin-left:5px}
+.account-context{display:flex;align-items:center;gap:14px;min-height:48px;margin:0 0 22px;padding-bottom:16px;border-bottom:1px solid #d5e3ec}
+.context-divider{height:22px;width:1px;background:#cddfe9}.context-identity{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;min-width:0;font-size:13px;font-variant-numeric:tabular-nums}.context-identity strong{overflow-wrap:anywhere}
+.account-context>.account-menu-trigger{margin-left:auto}.account-menu-trigger{min-height:40px}
+.account-menu-backdrop{position:fixed;inset:0;z-index:30}
+.account-action-menu{position:fixed;z-index:31;overflow-y:auto;overscroll-behavior:contain;padding:6px;border:1px solid #d6e2e9;border-radius:8px;background:#fff;box-shadow:0 12px 32px #17364c24}
+.menu-identity{padding:10px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.account-action-menu>button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:5px;min-height:42px;padding:10px;color:var(--text);text-align:left;font-size:13px}
+.account-action-menu>.menu-logout{color:#ad3e35;border-top:1px solid var(--line);border-radius:0;margin-top:5px}
+.account-action-menu>button:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;background:#edf5fa}
+.official-fields dt{display:flex;flex-direction:column;gap:2px}.official-fields dt code{font-family:ui-monospace,SFMono-Regular,monospace;font-size:10px;color:#78909f;overflow-wrap:anywhere;line-height:1.5}
+.business-list .official-fields{gap:16px 24px;margin-top:20px}.official-fields dd{white-space:pre-wrap;font-variant-numeric:tabular-nums;line-height:1.65}
+.unsubscribe-request{padding:16px 0;margin-bottom:18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.unsubscribe-request>p{margin-top:6px}.unsubscribe-request .official-fields{display:grid;gap:12px;margin:14px 0;font-size:12px}.unsubscribe-request dd{margin:3px 0 0;overflow-wrap:anywhere}
+.unsubscribe-request pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;font-size:12px;padding:12px;background:#f4f7fa;border-radius:6px;margin:0}
+.modal[open]{display:flex;flex-direction:column;overflow:hidden}.modal>.modal-body{overflow-y:auto;min-height:0;overscroll-behavior:contain}.modal>.modal-header,.modal>.modal-footer{flex-shrink:0}
+@media(hover:hover) and (pointer:fine){.account-action-menu>button:hover{background:#edf5fa}}
+@media(max-width:780px){.account-list{grid-template-columns:minmax(0,1fr)}.account-context{gap:10px;flex-wrap:wrap}.account-context>.account-menu-trigger{padding:8px 10px}.context-identity{flex:1}.context-divider{display:none}.account-context>.text-button{flex-basis:100%;justify-content:flex-start}.number-card .config-info{flex-basis:100%}.account-list .number-card{padding:18px}.business-list .official-fields{gap:14px 16px}}
+@media(max-width:360px){.number-profile{grid-template-columns:minmax(0,1fr)}.business-list .official-fields{grid-template-columns:minmax(0,1fr)}}

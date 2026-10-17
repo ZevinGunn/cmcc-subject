@@ -1,12 +1,13 @@
 import {randomUUID} from 'node:crypto';
 import {AppError,success,requireSuccess,qualification,sensitiveChallenge,composeCode,maskPhone,publicData,safeMessage} from './domain.js';
 import {Catalog,defaultConfig,viewProduct,productKey,assertConfigReady} from './catalog.js';
-import {subscriptions,activities} from './subscriptions.js';
+import {subscriptions,activities,unsubscribeParams} from './subscriptions.js';
+import {accountProfile} from './account-profile.js';
 export class Service {
  constructor(bridge,ledger,now=Date.now,catalog=new Catalog(ledger.directory)){Object.assign(this,{bridge,ledger,now,catalog});this.account=null;this.qual=null;this.business=null;this.content=null;this.challenge=null;this.loginAttempt=null;this.lastLoginSmsAt=-Infinity;this.loginSmsWindow=0;this.loginSmsCount=0;this.busy=false;this.lastSmsAt=-Infinity;this.smsCount=0;this.smsWindow=0;}
  snapshot(){
   const rows=this.account?this.ledger.list(this.account.hash):[];
-  return {product:viewProduct(this.catalog.get()),configs:this.catalog.list(),selectedId:this.catalog.selectedId,configTemplate:defaultConfig(),account:this.account?{phone:maskPhone(this.account.phone),syncedAt:this.account.syncedAt}:null,qualification:this.qual,content:this.content,business:this.business,businessDetail:this.businessDetail||null,unsubscribeIntent:this.unsubscribeIntent?{id:this.unsubscribeIntent.id,name:this.unsubscribeIntent.name,code:this.unsubscribeIntent.code,price:this.unsubscribeIntent.price,expiresAt:this.unsubscribeIntent.expiresAt}:null,unsubscriptions:rows.filter(r=>r.type==='unsubscribe'),orders:rows.filter(r=>r.type!=='unsubscribe'),busy:this.busy,challenge:this.publicChallenge(),cooldown:Math.max(0,Math.ceil((this.lastSmsAt+60000-this.now())/1000)),login:this.loginAttempt?{id:this.loginAttempt.id,phone:maskPhone(this.loginAttempt.phone),expiresAt:this.loginAttempt.expiresAt}:null,loginCooldown:Math.max(0,Math.ceil((this.lastLoginSmsAt+60000-this.now())/1000))};
+  return {product:viewProduct(this.catalog.get()),configs:this.catalog.list(),selectedId:this.catalog.selectedId,configTemplate:defaultConfig(),account:this.account?{phone:maskPhone(this.account.phone),profile:this.account.profile||{},syncedAt:this.account.syncedAt}:null,qualification:this.qual,content:this.content,business:this.business,businessDetail:this.businessDetail||null,unsubscribeIntent:this.unsubscribeIntent?{id:this.unsubscribeIntent.id,name:this.unsubscribeIntent.name,code:this.unsubscribeIntent.code,price:this.unsubscribeIntent.price,params:this.unsubscribeIntent.params,officialSupported:this.unsubscribeIntent.officialSupported,notice:this.unsubscribeIntent.notice,expiresAt:this.unsubscribeIntent.expiresAt}:null,unsubscriptions:rows.filter(r=>r.type==='unsubscribe'),orders:rows.filter(r=>r.type!=='unsubscribe'),busy:this.busy,challenge:this.publicChallenge(),cooldown:Math.max(0,Math.ceil((this.lastSmsAt+60000-this.now())/1000)),login:this.loginAttempt?{id:this.loginAttempt.id,phone:maskPhone(this.loginAttempt.phone),expiresAt:this.loginAttempt.expiresAt}:null,loginCooldown:Math.max(0,Math.ceil((this.lastLoginSmsAt+60000-this.now())/1000))};
  }
  publicChallenge(){const c=this.challenge;return c?{id:c.id,sensitive:c.sensitive,fixed:c.fixed,verified:c.verified,attemptAnyway:c.attemptAnyway===true,configId:c.configId,revision:c.revision,expiresAt:c.expiresAt}:null;}
  async exclusive(fn){if(this.busy)throw new AppError('BUSY','上一项操作仍在处理中，请稍候',409);this.busy=true;try{const result=await fn();if(result&&Object.hasOwn(result,'busy'))result.busy=false;return result;}catch(e){if(e.status===401)this.clear();throw e;}finally{this.busy=false;}}
@@ -43,11 +44,11 @@ export class Service {
  async auth(){
   let r;
   try{r=requireSuccess(await this.bridge.authenticate());}catch(e){if(e.status===401)this.clear();throw e;}
-  const phone=r.data?.phone_no || r.data?.phoneNo || r.data?.custInfo?.phoneNo;
+  const phone=r.data?.phone_no || r.data?.phoneNo || r.data?.custInfo?.phoneNo || r.data?.sinfo?.custInfo?.phoneNo;
   if(!/^1[3-9]\d{9}$/.test(phone||''))throw new AppError('IDENTITY_UNKNOWN','官方登录状态缺少有效号码，请重新登录',401);
   const changed=this.account&&this.account.phone!==phone;
   if(changed){this.clear();throw new AppError('ACCOUNT_CHANGED','官方窗口的号码已改变，请再次同步后重新操作',409);}
-  this.account={phone,hash:this.ledger.account(phone),syncedAt:new Date(this.now()).toISOString()};
+  this.account={phone,hash:this.ledger.account(phone),profile:accountProfile(r.data),syncedAt:new Date(this.now()).toISOString()};
   return this.account;
  }
  async sync(){return this.exclusive(async()=>{await this.auth();this.loginAttempt=null;return this.snapshot();});}
@@ -90,14 +91,15 @@ export class Service {
   const r=requireSuccess(await this.bridge.call('qryUserOrderDetail',{useProd:row.useProd}));this.businessDetail={name:safeMessage(r.data?.prodName||row.name),description:safeMessage(r.data?.prodPrcDesc||''),data:publicData(r.data)};return this.snapshot();
  });}
  assertUnsubscribe(row){
-  if(!row?.canUnsubscribe)throw new AppError('UNSUBSCRIBE_UNAVAILABLE',row?.reason||'官方未开放此业务的在线退订',409);
+  if(!row)throw new AppError('UNSUBSCRIBE_UNAVAILABLE','业务已变更，请刷新列表后重新选择',409);
+  unsubscribeParams(row.code);
   const previous=this.ledger.rows.find(r=>r.account===this.account.hash&&r.type==='unsubscribe'&&((r.productCode===row.code&&['submitting','unknown'].includes(r.status))||(r.fingerprint===row.id&&['success','held'].includes(r.status))));
   if(previous)throw new AppError('UNSUBSCRIBE_EXISTS',previous.status==='unknown'?'此业务退订结果待核查，请勿重复提交':'此业务已有退订记录，请核对官方当前状态',409);
  }
  async prepareUnsubscribe(id,queryId){return this.exclusive(async()=>{
   await this.auth();const old=this.businessItem(id,queryId);this.assertUnsubscribe(old);
   const items=await this.loadBusiness(),row=items.find(r=>r.id===old.id);this.assertUnsubscribe(row);
-  this.unsubscribeIntent={id:randomUUID(),account:this.account.hash,fingerprint:row.id,code:row.code,name:row.name,price:row.price,expiresAt:this.now()+300000};return this.snapshot();
+  this.unsubscribeIntent={id:randomUUID(),account:this.account.hash,fingerprint:row.id,code:row.code,name:row.name,price:row.price,params:unsubscribeParams(row.code),officialSupported:row.officialSupported,notice:row.reason,expiresAt:this.now()+300000};return this.snapshot();
  });}
  async unsubscribe(id,confirmed){return this.exclusive(async()=>{
   if(confirmed!==true)throw new AppError('CONFIRM_REQUIRED','请确认号码及需要退订的业务');await this.auth();
@@ -106,9 +108,10 @@ export class Service {
   if(!intent||intent.id!==id||intent.account!==this.account.hash)throw new AppError('UNSUBSCRIBE_INTENT_INVALID','退订确认已失效，请重新选择业务',409);
   if(intent.expiresAt<=this.now()){this.unsubscribeIntent=null;throw new AppError('UNSUBSCRIBE_INTENT_EXPIRED','退订确认已超时，请重新核对',409);}
   const items=await this.loadBusiness(),row=items.find(r=>r.id===intent.fingerprint);this.assertUnsubscribe(row);
-  const record=this.ledger.add({id:randomUUID(),intent:id,type:'unsubscribe',account:this.account.hash,phone:maskPhone(this.account.phone),product:'unsubscribe:'+row.id,fingerprint:row.id,productCode:row.code,name:row.name,price:row.price,status:'submitting',createdAt:new Date(this.now()).toISOString(),message:'退订请求正在等待官方结果'});
+  const params=unsubscribeParams(row.code);
+  const record=this.ledger.add({id:randomUUID(),intent:id,type:'unsubscribe',account:this.account.hash,phone:maskPhone(this.account.phone),product:'unsubscribe:'+row.id,fingerprint:row.id,productCode:row.code,name:row.name,price:row.price,params,attemptAnyway:!row.officialSupported,status:'submitting',createdAt:new Date(this.now()).toISOString(),message:'退订请求正在等待官方结果'});
   let result;
-  try{result=await this.bridge.call('unSubScribeOrder',{prod_prcid:row.code});}
+  try{result=await this.bridge.call('unSubScribeOrder',params);}
   catch{this.ledger.update(record.id,{status:'unknown',message:'未收到确定的退订结果，请通过官方业务列表、短信或 10086 核实，勿重复退订。'});return this.snapshot();}
   const valid=result&&['string','number'].includes(typeof result.retCode)&&String(result.retCode).length>0;
   this.ledger.update(record.id,{status:!valid?'unknown':success(result)?'success':'failed',code:valid?String(result.retCode):'',message:valid?safeMessage(result.retMsg||(success(result)?'官方确认退订成功，生效时间以官方为准':'官方未受理退订')):'官方未返回确定结果，请核查后再操作'});

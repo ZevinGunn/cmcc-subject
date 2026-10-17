@@ -17,7 +17,7 @@ export class Accounts {
  get bridge(){return this.current().bridge;}
  snapshot(){
   const service=this.current(),base=service.snapshot();const login=this.draft?.snapshot().login||null;
-  return {...base,busy:this.busy,account:base.account?{...base.account,id:this.selectedId}:null,accounts:this.items.map(({id,phone,label,status,checkedAt,savedAt})=>({id,phone:maskPhone(phone),label,status,checkedAt,savedAt})),activeAccountId:this.selectedId,accountEpoch:this.epoch,login,loginCooldown:Math.max(0,Math.ceil((this.loginRate.lastLoginSmsAt+60000-this.now())/1000)),cacheError:this.cacheError};
+  return {...base,busy:this.busy,account:base.account?{...base.account,id:this.selectedId}:null,accounts:this.items.map(({id,phone,label,status,checkedAt,savedAt,profile})=>({id,phone:maskPhone(phone),label,status,checkedAt,savedAt,profile:profile||{}})),activeAccountId:this.selectedId,accountEpoch:this.epoch,login,loginCooldown:Math.max(0,Math.ceil((this.loginRate.lastLoginSmsAt+60000-this.now())/1000)),cacheError:this.cacheError};
  }
  assertContext(context){if(context!==`${this.selectedId||''}:${this.epoch}`)throw new AppError('ACCOUNT_CHANGED','当前账号已切换，请核对号码后重新操作',409);}
  persist(){this.store.save({items:this.items,selectedId:this.selectedId});}
@@ -25,6 +25,7 @@ export class Accounts {
  async exclusive(fn){if(this.busy)throw new AppError('BUSY','上一项操作仍在处理中，请稍候',409);this.busy=true;try{const r=await fn();if(r&&Object.hasOwn(r,'busy'))r.busy=false;return r;}finally{this.busy=false;}}
  async capture(item,service){
   if(!service.account)return;
+  item.profile=structuredClone(service.account.profile||{});
   try{const session=await service.bridge.exportSession();if(!session)throw Error();item.session=session;item.status='valid';item.savedAt=new Date(this.now()).toISOString();this.persist();this.cacheError='';}
   catch{this.cacheError='登录仍可使用，但本次缓存未保存；请重试校验缓存后再关闭程序。';}
  }

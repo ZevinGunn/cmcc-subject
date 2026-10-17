@@ -10,9 +10,9 @@ function setup(t,multi=false){
  return {s,bridge,ledger,directory,tick:n=>now+=n};
 }
 async function prepare(s){let state=await s.queryBusiness();const row=state.business.items.find(r=>r.code==='VALUE');state=await s.prepareUnsubscribe(row.id,state.business.queryId);return state.unsubscribeIntent.id;}
-test('按官方四类嵌套结构提取全部条目，仅增值且明确 Y 可退订，日期和资费保持原值',()=>{
- const rows=subscriptions(businessFixture());assert.equal(rows.length,5);assert.deepEqual(rows.map(r=>r.category),['plan','scheduled','value','value','basic']);assert.deepEqual(rows.filter(r=>r.canUnsubscribe).map(r=>r.code),['VALUE']);assert.equal(rows[0].expiresAt,'20991231');assert.equal(rows[0].price,'10 元/月');
- const d=businessFixture();d.subList.push(d.subList[0]);assert.equal(subscriptions(d).some(r=>r.canUnsubscribe),false);d.subList=[entry('02',info('../invalid','invalid','Y'))];assert.equal(subscriptions(d).some(r=>r.canUnsubscribe),false);
+test('按官方四类嵌套结构提取全部条目，所有具有合法产品编码的业务均可尝试退订，日期和资费保持原值',()=>{
+ const rows=subscriptions(businessFixture());assert.equal(rows.length,5);assert.deepEqual(rows.map(r=>r.category),['plan','scheduled','value','value','basic']);assert.equal(rows.every(r=>r.canUnsubscribe),true);assert.deepEqual(rows.filter(r=>r.officialSupported).map(r=>r.code),['VALUE']);assert.equal(rows[0].expiresAt,'20991231');assert.equal(rows[0].price,'10 元/月');
+ const d=businessFixture();d.subList.push(d.subList[0]);assert.match(subscriptions(d).find(r=>r.code==='VALUE').reason,/相同编码/);d.subList=[entry('02',info('../invalid','invalid','Y'))];assert.equal(subscriptions(d).find(r=>r.code==='../invalid').canUnsubscribe,false);
  assert.equal(activities({RECORD_LIST:Array.from({length:501},(_,i)=>({MEANS_NAME:'测试'+i}))}).length,501);assert.throws(()=>subscriptions({subList:{}}),{code:'INVALID_RESPONSE'});assert.throws(()=>subscriptions({unexpected:[]}),{code:'INVALID_RESPONSE'});assert.equal(subscriptions({list:[{name:'legacy',UnSubScribe:'Y'}]})[0].canUnsubscribe,false);
 });
 test('查询套餐和活动、详情；活动部分失败保留已有活动和完整业务列表',async t=>{
@@ -21,11 +21,11 @@ test('查询套餐和活动、详情；活动部分失败保留已有活动和�
 });
 test('退订持久化在先，确认、复查和一次写请求；成功后刷新并与订购记录隔离',async t=>{
  const {s,bridge,directory}=setup(t);const id=await prepare(s);await assert.rejects(s.unsubscribe(id,false),{code:'CONFIRM_REQUIRED'});assert.equal(bridge.calls.some(c=>c.method==='unSubScribeOrder'),false);bridge.removeOnSuccess=true;const result=await s.unsubscribe(id,true);assert.equal(result.unsubscriptions[0].status,'success');assert.equal(result.orders.length,0);assert.equal(result.business.items.length,4);assert.equal(bridge.wroteBeforeRequest,true);assert.equal(result.unsubscriptions[0].productCode,'VALUE');
- await s.unsubscribe(id,true);assert.equal(bridge.calls.filter(c=>c.method==='unSubScribeOrder').length,1);assert.deepEqual(bridge.calls.find(c=>c.method==='unSubScribeOrder').payload,{prod_prcid:'VALUE'});assert.equal(fs.readFileSync(path.join(directory,'orders.json'),'utf8').includes('13800000000'),false);
+ await s.unsubscribe(id,true);assert.equal(bridge.calls.filter(c=>c.method==='unSubScribeOrder').length,1);assert.deepEqual(bridge.calls.find(c=>c.method==='unSubScribeOrder').payload,{prod_prcid:'VALUE',couponsBusiName:'已订业务'});assert.equal(fs.readFileSync(path.join(directory,'orders.json'),'utf8').includes('13800000000'),false);
 });
-test('禁止伪造产品、旧列表、官方权限变化、重复编码和过期确认',async t=>{
- const {s,bridge,tick}=setup(t);let state=await s.queryBusiness();await assert.rejects(s.prepareUnsubscribe('VALUE',state.business.queryId),{code:'NOT_FOUND'});await assert.rejects(s.prepareUnsubscribe(state.business.items[2].id,'old'),{code:'BUSINESS_CHANGED'});await assert.rejects(s.prepareUnsubscribe(state.business.items[0].id,state.business.queryId),{code:'UNSUBSCRIBE_UNAVAILABLE'});
- const id=await prepare(s);bridge.data.subList[0].ORDER_INFO.PROD_INFO.UnSubScribe='N';await assert.rejects(s.unsubscribe(id,true),{code:'UNSUBSCRIBE_UNAVAILABLE'});assert.equal(bridge.calls.filter(c=>c.method==='unSubScribeOrder').length,0);
+test('禁止伪造产品、旧列表、失效产品与过期确认，标记变化不阻止用户尝试',async t=>{
+ const {s,bridge,tick}=setup(t);let state=await s.queryBusiness();await assert.rejects(s.prepareUnsubscribe('VALUE',state.business.queryId),{code:'NOT_FOUND'});await assert.rejects(s.prepareUnsubscribe(state.business.items[2].id,'old'),{code:'BUSINESS_CHANGED'});
+ const id=await prepare(s);bridge.data.subList[0].ORDER_INFO.PROD_INFO.UnSubScribe='N';const result=await s.unsubscribe(id,true);assert.equal(result.unsubscriptions[0].status,'success');assert.equal(bridge.calls.filter(c=>c.method==='unSubScribeOrder').length,1);s.ledger.rows=[];
  bridge.data=businessFixture();const next=await prepare(s);tick(300001);await assert.rejects(s.unsubscribe(next,true),{code:'UNSUBSCRIBE_INTENT_EXPIRED'});assert.equal(s.unsubscribeIntent,null);
  const last=await prepare(s);bridge.data.subList[0].ORDER_INFO.PROD_INFO.PRC_PRICE='20 元/月';await assert.rejects(s.unsubscribe(last,true),{code:'UNSUBSCRIBE_UNAVAILABLE'});
 });
@@ -48,4 +48,20 @@ test('业务详情与退订 API 要求 CSRF、Origin、账号上下文，不接�
  for(const route of ['/unsubscribe/prepare','/unsubscribe/submit','/unsubscribe/resolve','/query/business/detail']){assert.equal((await post(route,{}, {'x-local-csrf':'bad'})).status,403);assert.equal((await post(route,{}, {origin:'https://evil.example'})).status,403);assert.equal((await post(route,{}, {'x-account-context':'old'})).status,409);}
  assert.equal((await post('/unsubscribe/submit',{prod_prcid:'VALUE',confirmed:true})).status,409);assert.equal(bridge.calls.some(c=>c.method==='unSubScribeOrder'),false);
  const queried=await post('/query/business',{}).then(r=>r.json()),row=queried.business.items.find(r=>r.code==='VALUE');const prepared=await post('/unsubscribe/prepare',{id:row.id,queryId:queried.business.queryId}).then(r=>r.json());assert.equal((await post('/unsubscribe/submit',{id:prepared.unsubscribeIntent.id,confirmed:true})).status,200);
+});
+
+test('套餐、待生效、基础功能与未标记业务可确认尝试，预览参数与实际提交及记录相同',async t=>{
+ for(const code of ['PLAN','NEXT','BASIC','LOCKED']){
+  const {s,bridge}=setup(t);const queried=await s.queryBusiness(),row=queried.business.items.find(r=>r.code===code);assert.equal(row.officialSupported,false);
+  const prepared=await s.prepareUnsubscribe(row.id,queried.business.queryId),params={prod_prcid:code,couponsBusiName:'已订业务'};
+  assert.deepEqual(prepared.unsubscribeIntent.params,params);assert.equal(bridge.calls.some(c=>c.method==='unSubScribeOrder'),false);
+  const result=await s.unsubscribe(prepared.unsubscribeIntent.id,true);assert.deepEqual(bridge.calls.find(c=>c.method==='unSubScribeOrder').payload,params);assert.deepEqual(result.unsubscriptions[0].params,params);assert.equal(result.unsubscriptions[0].attemptAnyway,true);
+ }
+});
+test('完整展示字段包含外层元数据、零值、布尔值、长说明与数组，仍过滤凭据',()=>{
+ const d=businessFixture(),e=d.mainList[0];e.EXTRA={zero:0,enabled:false,description:'完整业务说明'.repeat(100),list:Array.from({length:501},(_,i)=>i),token:'private'};e.ORDER_INFO.PROD_INFO.uuid='private';
+ const row=subscriptions(d)[0];assert.equal(row.sourceFields.EXTRA.zero,0);assert.equal(row.sourceFields.EXTRA.enabled,false);assert.equal(row.sourceFields.EXTRA.description.length,600);assert.equal(row.sourceFields.EXTRA.list.length,501);assert.equal(row.sourceFields.EXTRA.token,undefined);assert.equal(row.fields.uuid,undefined);
+});
+test('未知业务类型保留所有条目与原始字段，不因类型未识别而静默丢弃',()=>{
+ const d=businessFixture();d.subList.push(entry('99',info('OTHER','其他已订产品')));const row=subscriptions(d).find(r=>r.code==='OTHER');assert.equal(row.category,'other');assert.equal(row.sourceFields.ORDER_INFO.PROD_CODE,'99');assert.equal(row.canUnsubscribe,true);
 });

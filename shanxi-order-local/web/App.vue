@@ -6,6 +6,8 @@ import ConfigManager from './ConfigManager.vue';
 import AccountManager from './AccountManager.vue';
 import CryptoTools from './CryptoTools.vue';
 import BusinessManager from './BusinessManager.vue';
+import AccountActionMenu from './AccountActionMenu.vue';
+import UnsubscribeHistory from './UnsubscribeHistory.vue';
 const publicMode=import.meta.env.SHANXI_PUBLIC===true;
 const logoUrl=import.meta.env.BASE_URL+'shanxi-mobile-logo.png';
 const activeSaved=computed(()=>state.value.accounts?.find(a=>a.id===state.value.activeAccountId));
@@ -20,7 +22,7 @@ async function deleteConfig(id,revision){await run('config-delete',async()=>{ass
 async function saveConfig(config,attempt,done){await run('config-save',async()=>{assign(await api('/config/save',config));done();notice.value='业务配置已保存。';if(attempt){tab.value='home';if(account.value)await openDialog(true);else{notice.value='业务已保存，请先登录后尝试订购。';await login();}}});}
 async function editCurrent(){tab.value='config';await nextTick();configManager.value?.edit(state.value.configs.find(c=>c.id===state.value.selectedId));}
 const state=ref({account:null,product:{requirements:[]},orders:[],challenge:null});
-const tab=ref('home'),pending=ref(''),error=ref(''),notice=ref(''),search=ref(''),loaded=ref(false),loginOpened=ref(false);
+const tab=ref('accounts'),pending=ref(''),error=ref(''),notice=ref(''),search=ref(''),loaded=ref(false),loginOpened=ref(false);
 const dialog=ref(null),code=ref(''),consent=ref(false),countdown=ref(0),resolution=ref(null),resConsent=ref(false);
 const attemptAnyway=ref(false);
 const orderChallenge=computed(()=>state.value.challenge?.attemptAnyway===attemptAnyway.value?state.value.challenge:null);
@@ -32,6 +34,9 @@ const account=computed(()=>state.value.account);
 const busy=computed(()=>!!pending.value||state.value.busy);
 const blocked=computed(()=>state.value.orders.some(o=>o.product===product.value.orderKey&&['submitting','unknown','success','held'].includes(o.status)));
 const unknown=computed(()=>state.value.orders.filter(o=>o.status==='unknown').length);
+const accountRows=computed(()=>state.value.accounts|| (account.value?[{id:'current',phone:account.value.phone,status:'valid',profile:account.value.profile,checkedAt:account.value.syncedAt}]:[]));
+const currentId=computed(()=>state.value.activeAccountId||accountRows.value[0]?.id);
+async function accountNavigate(id,destination){await run('account-navigate',async()=>{if(state.value.accounts?.length&&(id!==state.value.activeAccountId||!account.value))assign(await api('/accounts/select',{id}));tab.value=destination;await nextTick();document.querySelector('main h1')?.focus();});}
 const date=v=>v?new Date(v).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const statuses={success:['办理成功','success'],failed:['未办理成功','danger'],unknown:['结果待核查','warning'],submitting:['办理中','warning'],held:['已确认享有','success'],released:['已人工核实','muted']};
 function assign(data){if('account' in data){if(dialog.value==='order'&&state.value.accountEpoch&&state.value.accountEpoch!==data.accountEpoch)closeDialog();if(dialog.value==='order'&&state.value.configs&&JSON.stringify(configContext())!==JSON.stringify({id:data.product.id,revision:data.configs?.find(c=>c.id===data.selectedId)?.revision}))closeDialog();if(state.value.challenge?.id!==data.challenge?.id){code.value='';consent.value=false;}state.value=data;countdown.value=data.cooldown||0;loginCountdown.value=data.loginCooldown||0;if(!data.account&&dialog.value&&dialog.value!=='login')closeDialog();}}
@@ -44,7 +49,7 @@ async function verifyLogin(){await run('login-verify',async()=>{assign(await api
 async function sync(){await run('sync',async()=>{assign(await api('/login/sync',{}));loginOpened.value=false;closeDialog();loginCode.value='';loginPhone.value='';notice.value='登录已同步，可以查询业务。';});}
 async function query(kind){await run(kind,async()=>{assign(await api('/query/'+kind,{}));notice.value=kind==='business'?'已订业务已更新':'业务内容与资格已更新';});}
 async function showOfficial(){await run('official',async()=>{await api('/official/open',{});});}
-async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='home';notice.value='已退出当前账号并清除其登录缓存，其他账号不受影响';});}
+async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='accounts';notice.value='已退出当前账号并清除其登录缓存，其他账号不受影响';});}
 async function openDialog(attempt=false){trigger=document.activeElement;attemptAnyway.value=attempt===true;dialog.value='order';error.value='';code.value='';consent.value=false;await nextTick();dialogRef.value.showModal();}
 function closeDialog(){if(['submit','login-verify','login-sms'].includes(pending.value))return;dialogRef.value?.close();dialog.value=null;resolution.value=null;code.value='';loginCode.value='';trigger?.focus();}
 async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{attemptAnyway:attemptAnyway.value,config:configContext()}));code.value='';await nextTick();codeRef.value?.focus();notice.value='官方已受理业务短信请求，请以手机实际收到为准。';});}
@@ -53,29 +58,24 @@ async function submit(){await run('submit',async()=>{assign(await api('/order/su
 async function reconcile(order){await run('reconcile-'+order.id,async()=>{assign(await api('/orders/'+order.id+'/reconcile',{}));notice.value='已核查该订单绑定的业务配置，请查看记录中的核查结果。';});}
 async function openResolve(order){trigger=document.activeElement;resolution.value=order;resConsent.value=false;dialog.value='resolve';await nextTick();dialogRef.value.showModal();}
 async function resolve(){await run('resolve',async()=>{assign(await api('/orders/'+resolution.value.id+'/resolve',{confirmed:resConsent.value}));closeDialog();notice.value='已记录人工核查结果';});}
-async function businessAction(path,body,done){await run('business-action',async()=>{assign(await api(path,body));await nextTick();await done?.();});}
-function download(){const data=state.value.orders;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='晋速办办理记录.json';a.click();URL.revokeObjectURL(url);}
+async function businessAction(path,body,done){await run('business-action',async()=>{assign(await api(path,body));await nextTick();await done?.();if(path==='/unsubscribe/submit'){tab.value='history';notice.value='退订结果已记录，请查看官方受理结果。';}});}
+function download(){const data={orders:state.value.orders,unsubscriptions:state.value.unsubscriptions||[]};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='晋速办办理记录.json';a.click();URL.revokeObjectURL(url);}
 onMounted(async()=>{await refresh();if(activeSaved.value?.status==='cached')await restoreAccount();timer=setInterval(()=>{if(countdown.value>0)countdown.value--;if(loginCountdown.value>0)loginCountdown.value--;},1000);poll=setInterval(()=>{if(!pending.value)refresh();},5000);});
 onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
 </script>
 <template>
  <div class="shell">
   <header class="sidebar">
-   <a class="brand" href="#" @click.prevent="tab='home'" aria-label="晋速办首页"><img class="brand-mark" :src="logoUrl" alt="山西移动" width="52" height="52"/><div><strong>晋速办</strong><small>山西移动业务办理</small></div></a>
+   <a class="brand" href="#" @click.prevent="tab='accounts'" aria-label="晋速办首页"><img class="brand-mark" :src="logoUrl" alt="山西移动" width="52" height="52"/><div><strong>晋速办</strong><small>山西移动业务办理</small></div></a>
    <nav aria-label="主导航">
-    <button :class="{active:tab==='home'}" :aria-current="tab==='home'?'page':undefined" @click="tab='home'"><LayoutDashboard :size="17"/>快捷办理</button>
-    <button :class="{active:tab==='business'}" :aria-current="tab==='business'?'page':undefined" @click="tab='business'"><PackageSearch :size="18"/>已订业务</button>
-    <button :class="{active:tab==='history'}" :aria-current="tab==='history'?'page':undefined" @click="tab='history'"><History :size="18"/>办理记录<span v-if="unknown" class="nav-count">{{unknown}}</span></button>
+    <button :class="{active:['accounts','home','business','history'].includes(tab)}" :aria-current="tab==='accounts'?'page':undefined" @click="tab='accounts'" aria-label="账号管理"><Users :size="17"/>号码管理</button>
     <button :class="{active:tab==='config'}" :aria-current="tab==='config'?'page':undefined" @click="tab='config'"><Settings2 :size="17"/>业务配置</button>
     <button :class="{active:tab==='crypto'}" :aria-current="tab==='crypto'?'page':undefined" @click="tab='crypto'"><Braces :size="17"/>加解密工具</button>
    </nav>
    <div class="account-panel">
-    <select v-if="state.accounts?.length" class="account-switch" aria-label="切换登录账号" :value="state.activeAccountId" :disabled="busy" @change="switchAccount($event.target.value)"><option v-for="a in state.accounts" :key="a.id" :value="a.id">{{a.label?a.label+' · ':''}}{{a.phone}}</option></select><span v-else-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
-    <button class="icon-button" @click="tab='accounts'" :disabled="busy" aria-label="账号管理" title="账号管理"><Users :size="17"/></button>
     <a v-if="publicMode" class="icon-button" href="https://project.1008086.xyz/home" aria-label="项目维护" title="项目维护"><ArrowLeft :size="17"/></a>
     <button v-if="!publicMode" class="icon-button" @click="showOfficial" :disabled="busy" aria-label="官方窗口" title="打开官方窗口"><ExternalLink :size="17"/></button>
-    <button v-if="account" class="icon-button" @click="logout" :disabled="busy" aria-label="退出登录" title="退出登录"><LogOut :size="17"/></button>
-    <button v-else-if="!state.accounts?.length" class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>
+    <button v-if="!account&&!state.accounts?.length" class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>
    </div>
   </header>
   <div class="body">
@@ -90,9 +90,10 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
       <span class="strip-icon"><Smartphone :size="23"/></span><div><h2>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'恢复已缓存的登录':loginOpened?'在官方窗口完成登录':'登录山西移动账号'}}</h2><p>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'缓存已保留，请重试官方登录状态校验。':loginOpened?'完成官方登录后同步账号。':'查询号码资格，办理专属权益。'}}</p></div>
       <button v-if="activeSaved&&['cached','unavailable'].includes(activeSaved.status)" class="button primary" @click="restoreAccount" :disabled="busy"><RefreshCw :size="15"/>重试恢复</button><button v-else-if="loginOpened" class="button primary" @click="sync" :disabled="busy"><LoaderCircle v-if="pending==='sync'" class="spin" :size="15"/><RefreshCw v-else :size="15"/>同步登录</button><button v-else class="button primary" @click="login" :disabled="busy">验证码登录<ArrowUpRight :size="15"/></button>
      </section>
+     <div v-if="['home','business','history'].includes(tab)" class="account-context"><button class="text-button" @click="tab='accounts'"><ArrowLeft :size="15"/>号码列表</button><span class="context-divider"/><div class="context-identity"><strong>{{activeSaved?.label||account?.phone||activeSaved?.phone||'未登录号码'}}</strong><span v-if="activeSaved?.label" class="subtle">{{account?.phone||activeSaved.phone}}</span></div><AccountActionMenu :phone="account?.phone||activeSaved?.phone||'当前号码'" :busy="busy" :can-logout="!!account" @navigate="accountNavigate(currentId,$event)" @logout="logout"/></div>
      <CryptoTools v-show="tab==='crypto'"/>
      <template v-if="tab==='home'">
-      <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account||product.status==='draft'"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
+      <div class="page-heading"><div><h1 tabindex="-1">业务办理</h1><p>查询当前号码资格，选择业务并确认办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account||product.status==='draft'"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
       <div class="business-picker"><label for="selected-business">当前业务</label><select id="selected-business" :value="state.selectedId" :disabled="busy" @change="selectConfig($event.target.value)"><option v-for="c in state.configs" :key="c.id" :value="c.id">{{c.name}}{{c.status==='draft'?' · 待补全':''}}</option></select><button class="text-button" :disabled="busy" @click="editCurrent"><Settings2 :size="14"/>修改配置</button></div>
       <div class="service-layout">
        <article class="product-panel">
@@ -114,13 +115,14 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
       <section class="recent-section"><div class="section-bar"><h2>最近办理</h2><button class="text-button" @click="tab='history'">全部记录<ChevronRight :size="14"/></button></div><div v-if="!state.orders.length" class="inline-empty"><History :size="20"/><span>暂无办理记录</span><span class="subtle">完成办理后，结果会自动保存。</span></div><div v-else v-for="o in state.orders.slice(0,3)" :key="o.id" class="recent-row"><strong>{{o.name}}</strong><span>{{o.phone}}</span><span class="status" :class="statuses[o.status][1]">{{statuses[o.status][0]}}</span><time>{{date(o.createdAt)}}</time></div></section>
      </template>
      <template v-else-if="tab==='business'"><BusinessManager :state="state" :busy="busy" :pending="pending" :error="error" @query="query('business')" @login="login" @action="businessAction"/></template>
-     <template v-else-if="tab==='accounts'"><AccountManager :accounts="state.accounts||[]" :active-id="state.activeAccountId" :busy="busy" @login="login" @select="switchAccount" @rename="renameAccount" @remove="removeAccount"/></template>
+     <template v-else-if="tab==='accounts'"><AccountManager :accounts="accountRows" :active-id="currentId" :busy="busy" @login="login" @select="switchAccount" @rename="renameAccount" @remove="removeAccount" @navigate="accountNavigate" @logout="logout"/></template>
      <template v-else-if="tab==='config'"><ConfigManager ref="configManager" :configs="state.configs" :selected-id="state.selectedId" :template="state.configTemplate" :busy="busy" @save="saveConfig" @select="selectConfig" @delete="deleteConfig"/></template>
      <template v-else-if="tab!=='crypto'">
-      <div class="page-heading"><div><div class="eyebrow">ORDER HISTORY</div><h1>办理记录</h1><p>当前账号在此工作台发起的办理，不代表全部历史订单。</p></div><button class="button secondary" @click="download" :disabled="!state.orders.length"><Download :size="15"/>导出记录</button></div>
+      <div class="page-heading"><div><div class="eyebrow">ORDER HISTORY</div><h1>办理记录</h1><p>当前账号在此工作台发起的办理，不代表全部历史订单。</p></div><button class="button secondary" @click="download" :disabled="!state.orders.length&&!state.unsubscriptions?.length"><Download :size="15"/>导出记录</button></div>
       <div v-if="unknown" class="feedback warning"><AlertCircle :size="18"/><span>{{unknown}} 笔办理结果待核查。请先确认权益状态，避免重复办理。</span></div>
-      <div v-if="!state.orders.length" class="empty-state"><History :size="30"/><h3>暂无办理记录</h3><p>账号登录后，可在快捷办理中查询资格。</p><button class="button secondary" @click="tab='home'">前往快捷办理<ChevronRight :size="15"/></button></div>
+      <div v-if="!state.orders.length" class="empty-state"><History :size="30"/><h3>暂无办理记录</h3><p>当前号码在此工作台尚无订购记录。</p><button class="button secondary" @click="tab='home'">前往业务办理<ChevronRight :size="15"/></button></div>
       <div v-else class="history-list"><article v-for="o in state.orders" :key="o.id"><div class="order-heading"><h3>{{o.name}}</h3><span class="status" :class="statuses[o.status][1]">{{statuses[o.status][0]}}</span></div><div class="order-meta"><span>{{o.phone}}</span><span>{{o.price}}</span><time>{{date(o.createdAt)}}</time></div><p>{{o.message}}</p><p v-if="o.checkedAt" class="subtle">核查于 {{date(o.checkedAt)}} · {{o.checkMessage}}</p><div class="order-bottom"><span class="subtle">本地记录号 {{o.id.slice(0,8)}}</span><div v-if="['unknown','success','held'].includes(o.status)" class="actions"><button class="text-button" :disabled="busy" @click="reconcile(o)"><RefreshCw :size="13"/>核查权益</button><button v-if="o.status==='unknown'" class="text-button muted" :disabled="busy" @click="openResolve(o)">人工核实未生效</button></div></div></article></div>
+      <UnsubscribeHistory :state="state" :busy="busy" :error="error" @action="businessAction"/>
      </template>
      <footer><span><span class="live-dot"/>晋速办 · {{publicMode?'公网工作台':'仅在本机运行'}}</span><span>业务与资费以中国移动官方结果为准</span></footer>
     </template>

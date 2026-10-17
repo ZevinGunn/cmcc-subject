@@ -16,8 +16,8 @@ export function qualification(r) {
   if(code==='900004'||success(r)) return {...base,state:'ineligible',label:'暂无办理资格',message:'当前号码暂无可领取权益。'};
   throw new AppError('UPSTREAM_REJECTED',safeMessage(r?.retMsg || '资格查询失败，请稍后重试'));
 }
-export function safeMessage(value) {
- return String(value).slice(0,300).replace(/\b1[3-9]\d{9}\b/g, maskPhone).replace(/\b[A-Za-z0-9+/_=-]{40,}\b/g,'[已隐藏]');
+export function safeMessage(value,limit=300) {
+ return String(value).slice(0,limit).replace(/\b1[3-9]\d{9}\b/g, maskPhone).replace(/\b[A-Za-z0-9+/_=-]{40,}\b/g,'[已隐藏]');
 }
 export function requireSuccess(r) {
  if(['999999','777777'].includes(String(r?.retCode))) throw new AppError('AUTH_EXPIRED','登录已失效，请重新验证码登录',401);
@@ -41,9 +41,9 @@ export function composeCode(input, challenge) {
  let i=0; return Array.from({length:8},(_,j)=>challenge.fixed.find(x=>x.position===j+1)?.value??input[i++]).join('');
 }
 const PRIVATE=/cookie|token|secret|password|uuid|authorization|signature|^sign$|encrypt|session|smsCode|verifyCode/i;
-export function publicData(value,depth=0) {
- if(depth>8) return '[嵌套数据]';
- if(Array.isArray(value)) return value.slice(0,500).map(v=>publicData(v,depth+1));
- if(value&&typeof value==='object') return Object.fromEntries(Object.entries(value).filter(([k])=>!PRIVATE.test(k)).map(([k,v])=>[k,publicData(v,depth+1)]));
- return typeof value==='string'?safeMessage(value):value;
+export function publicData(value,depth=0,fullText=false) {
+ if(depth>(fullText?32:8)) return '[嵌套数据]';
+ if(Array.isArray(value)) return (fullText?value:value.slice(0,500)).map(v=>publicData(v,depth+1,fullText));
+ if(value&&typeof value==='object') return Object.fromEntries(Object.entries(value).filter(([k])=>!PRIVATE.test(k)).map(([k,v])=>[k,publicData(v,depth+1,fullText)]));
+ return typeof value==='string'?safeMessage(value,fullText?Infinity:300):value;
 }

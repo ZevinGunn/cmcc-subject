@@ -1,7 +1,7 @@
 import {randomBytes,randomInt,createCipheriv,createDecipheriv,createPublicKey,publicEncrypt,constants,createHmac} from 'node:crypto';
 import {AppError,safeMessage} from './domain.js';
 import {validateConfig,assertConfigReady} from './catalog.js';
-import {productCode} from './subscriptions.js';
+import {unsubscribeParams} from './subscriptions.js';
 
 // oHCY in the supplied market bundle: AES-128-CBC, IV prepended as hex,
 // RSA PKCS#1 v1.5 wrapping, HMAC-SHA256(timestamp + ciphertext, AES key).
@@ -61,7 +61,7 @@ export class Protocol {
  async call(method,payload={},proof,config){
   if(['unSubScribeOrder','qryUserOrderDetail'].includes(method)){
    if(config)throw new AppError('UNSUPPORTED','已订业务接口不能由业务配置覆盖');
-   const data=method==='unSubScribeOrder'?{prod_prcid:productCode(payload.prod_prcid)}:{useProd:payload.useProd};
+   const data=method==='unSubScribeOrder'?unsubscribeParams(payload.prod_prcid):{useProd:payload.useProd};
    if(method==='qryUserOrderDetail'&&!['Y','N'].includes(data.useProd))throw new AppError('INVALID_PRODUCT','套餐状态无效');
    // These wrappers have no desRest flag: only entry discovery uses a public
    // key request; the business request remains plain JSON without RSA headers.

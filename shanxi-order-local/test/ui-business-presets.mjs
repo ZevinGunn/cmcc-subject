@@ -1,3 +1,4 @@
+import {numberView,logoutNumber} from './ui-navigation.mjs';
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import http from 'node:http';
@@ -33,7 +34,7 @@ try{
   assert.equal(await page.locator('form').evaluate(el=>el.checkValidity()),true);assert.equal(await page.getByRole('button',{name:'保存并尝试订购',exact:true}).isEnabled(),true);
   await page.getByRole('button',{name:'保存配置',exact:true}).click();await page.getByRole('heading',{name:'业务配置',exact:true}).waitFor();const enabled=await page.request.get(url+'/api/state').then(r=>r.json());assert.equal(enabled.configs.find(c=>c.id==='har-migu-sports').status,'ready');
  }else await page.getByRole('button',{name:'返回配置列表',exact:true}).click();
- await page.getByRole('button',{name:'快捷办理',exact:true}).click();await page.locator('#selected-business').selectOption('har-tech-worker-day');await page.getByRole('button',{name:'补全业务配置',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'查询业务内容',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'仍尝试办理',exact:true}).count(),0);
+ await numberView(page,'业务办理');await page.locator('#selected-business').selectOption('har-tech-worker-day');await page.getByRole('button',{name:'补全业务配置',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'查询业务内容',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'仍尝试办理',exact:true}).count(),0);
  if(!live){
   const r=await page.evaluate(async()=>{const state=await fetch('/api/state').then(r=>r.json());const response=await fetch('/api/order/sms',{method:'POST',headers:{'content-type':'application/json','x-local-csrf':state.csrf},body:JSON.stringify({attemptAnyway:true,config:{id:state.selectedId,revision:state.configs.find(c=>c.id===state.selectedId).revision}})});return {status:response.status,body:await response.json()};});assert.equal(r.status,409);assert.equal(r.body.error.code,'CONFIG_INCOMPLETE');
  }

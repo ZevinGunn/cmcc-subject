@@ -25,7 +25,7 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  const route=(fn)=>(req,res,next)=>Promise.resolve().then(()=>fn(req)).then(data=>res.json(data)).catch(next);
  // Account context is checked immediately before invoking the operation lock.
  const guarded=(fn)=>route(req=>{service.assertContext?.(req.headers['x-account-context']);return fn(req);});
- app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.7.1'}));
+ app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.8.0'}));
  app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf,publicMode}));
  app.post('/api/tools/crypto',route(req=>transformCrypto(req.body)));
  if(publicMode)app.post(['/api/login/open','/api/login/sync','/api/official/open'],(_req,res)=>res.status(409).json({error:{code:'REMOTE_WINDOW_UNAVAILABLE',message:'公网版请使用手机验证码登录；官方人工验证需在本机版完成'}}));
