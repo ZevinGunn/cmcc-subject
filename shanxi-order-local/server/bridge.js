@@ -27,7 +27,7 @@ export function installBridge(){
 // The signed adapter uses the browser's ordinary fetch and cookie jar. It does
 // not require Vue, a specific webpack module ID, or the telemetry SDK to finish.
 export class OfficialBridge {
- constructor({headless=false}={}){this.browser=null;this.context=null;this.page=null;this.launching=null;this.headless=headless;this.protocol=new Protocol((...args)=>this.request(...args));}
+ constructor({headless=false}={}){this.browser=null;this.context=null;this.page=null;this.launching=null;this.headless=headless;this.lastRequest=null;this.protocol=new Protocol((...args)=>this.request(...args));}
  async open(){
   if(this.page&&!this.page.isClosed())return {opened:true,ready:true};
   if(this.launching)return this.launching;
@@ -39,6 +39,14 @@ export class OfficialBridge {
     this.browser.on('disconnected',()=>{this.page=null;this.context=null;this.browser=null;this.protocol.clear();});
     this.context=await this.browser.newContext({viewport:{width:480,height:820},locale:'zh-CN'});
     this.page=await this.context.newPage();
+    this.page.on('requestfailed',request=>{
+     if(!this.lastRequest)return;
+     try{const url=new URL(request.url());if(url.origin===ORIGIN&&url.pathname===this.lastRequest.path){const error=request.failure()?.errorText||'';this.lastRequest.networkError=/^net::ERR_[A-Z_]+$/.test(error)?error:'REQUEST_FAILED';}}catch{}
+    });
+    this.page.on('response',response=>{
+     if(!this.lastRequest)return;
+     try{const url=new URL(response.url());if(url.origin===ORIGIN&&url.pathname===this.lastRequest.path)this.lastRequest.httpStatus=response.status();}catch{}
+    });
     await this.page.goto(LOGIN,{waitUntil:'domcontentloaded',timeout:15000});
     return {opened:true,ready:true};
    }catch{await this.close();throw new AppError('BROWSER_UNAVAILABLE','官方会话未能打开，请检查网络与 Chrome 安装',503);}
@@ -48,6 +56,7 @@ export class OfficialBridge {
  async close(){const browser=this.browser;this.page=null;this.context=null;this.browser=null;this.protocol.clear();if(browser)await browser.close().catch(()=>{});}
  async request(endpoint,body,headers){
   await this.open();
+  this.lastRequest={path:endpoint,phase:'sending',at:new Date().toISOString()};
   try{
    if(new URL(this.page.url()).origin!==ORIGIN)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，请退出并重新登录',409);
    const result=await this.page.evaluate(async({endpoint,body,headers})=>{
@@ -57,11 +66,12 @@ export class OfficialBridge {
     if(!response.ok)return {status:response.status};
     try{return {status:response.status,data:await response.json()};}catch{return {status:response.status,invalid:true};}
    },{endpoint,body,headers});
+   this.lastRequest.phase='received';this.lastRequest.httpStatus=result.status;
    if(result.foreign)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，请退出并重新登录',409);
    if([412,403,429].includes(result.status))throw new AppError('OFFICIAL_VERIFICATION_REQUIRED',`官方返回 HTTP ${result.status}，请在官方窗口完成页面验证后重试`,503);
    if(result.status!==200||result.invalid)throw new AppError('UPSTREAM_UNAVAILABLE','官方服务暂不可用，请稍后重试或打开官方窗口检查',502);
    return result.data;
-  }catch(e){if(e instanceof AppError)throw e;throw new AppError('UPSTREAM_UNCERTAIN','官方请求未返回确定结果，请稍后核查；短信与订购不会自动重试',502);}
+  }catch(e){this.lastRequest.phase='failed';if(e instanceof AppError)throw e;throw new AppError('UPSTREAM_UNCERTAIN','官方请求未返回确定结果，请稍后核查；短信与订购不会自动重试',502);}
  }
  async call(method,payload={},proof=null){return this.protocol.call(method,payload,proof);}
  async authenticate(){return this.call('checkLoginNew',{pubInfo:{busiType:'SSO_LOGIN'},busiInfo:{}});}
@@ -84,7 +94,7 @@ export class OfficialBridge {
  }
  async status(){
   if(!this.page||this.page.isClosed())return {open:false,stage:'closed'};
-  return {open:true,stage:'session',transport:'signed-browser'};
+  return {open:true,stage:'session',transport:'signed-browser',lastRequest:this.lastRequest};
  }
  async visible(){await this.open();await this.page.bringToFront();return {opened:true};}
 }
