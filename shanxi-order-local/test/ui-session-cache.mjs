@@ -1,0 +1,15 @@
+// All browser traffic is intercepted, including the official-origin test page.
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {OfficialBridge} from '../server/bridge.js';
+const browserType={async launch(options){const browser=await chromium.launch(options),original=browser.newContext.bind(browser);browser.newContext=async options=>{const context=await original(options);await context.route('**/*',route=>route.fulfill({status:200,contentType:'text/html',body:'<html><script>window.YWKJ={getHeader:async()=>({})}</script><body>离线缓存测试</body></html>'}));return context;};return browser;}};
+const a=new OfficialBridge({headless:true,browserType}),b=new OfficialBridge({headless:true,browserType});
+try{
+ await a.open();await a.context.addCookies([{name:'SESSION',value:'synthetic-http-only',domain:'.10086.cn',path:'/',httpOnly:true,secure:true},{name:'unrelated',value:'discard',domain:'example.com',path:'/'}]);
+ await a.page.evaluate(async()=>{localStorage.setItem('authTicket','synthetic-local');localStorage.setItem('smsCode','001234');sessionStorage.setItem('authTicket','synthetic-session');sessionStorage.setItem('verifyCode','012345');await new Promise((resolve,reject)=>{const r=indexedDB.open('offline-auth',1);r.onupgradeneeded=()=>r.result.createObjectStore('tickets');r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result,tx=db.transaction('tickets','readwrite');tx.objectStore('tickets').put('synthetic-idb','ticket');tx.oncomplete=()=>{db.close();resolve();};};});});
+ const saved=await a.exportSession();assert.equal(saved.storage.cookies.length,1);assert.equal(saved.storage.cookies[0].httpOnly,true);assert.equal(saved.storage.origins[0].indexedDB.length,1);assert.equal(JSON.stringify(saved).includes('001234'),false);assert.equal(JSON.stringify(saved).includes('012345'),false);await a.close();b.restoreSession(saved);await b.open();
+ assert.equal((await b.context.cookies()).find(c=>c.name==='SESSION').value,'synthetic-http-only');assert.deepEqual(await b.page.evaluate(()=>[localStorage.getItem('authTicket'),sessionStorage.getItem('authTicket')]),['synthetic-local','synthetic-session']);
+ assert.equal(await b.page.evaluate(()=>new Promise(resolve=>{const r=indexedDB.open('offline-auth');r.onsuccess=()=>{const db=r.result,q=db.transaction('tickets').objectStore('tickets').get('ticket');q.onsuccess=()=>{resolve(q.result);db.close();};};})), 'synthetic-idb');
+ await b.page.evaluate(()=>sessionStorage.setItem('authTicket','rotated-session'));await b.page.goto('https://wap.sx.10086.cn/h/market/next.html');assert.equal(await b.page.evaluate(()=>sessionStorage.getItem('authTicket')),'rotated-session');assert.equal((await b.exportSession()).sessionStorage.__localSessionRestored,undefined);
+ await b.page.goto('https://example.com/');await assert.rejects(b.exportSession(),{code:'OFFICIAL_ORIGIN_CHANGED'});console.log(JSON.stringify({passed:true,scenarios:['http-only-cookie','localStorage','sessionStorage','indexedDB','token-rotation','omit-otp','foreign-origin-refused'],network:'fully-intercepted'}));
+}finally{await a.close();await b.close();}

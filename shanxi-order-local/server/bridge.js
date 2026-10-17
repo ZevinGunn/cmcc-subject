@@ -52,7 +52,7 @@ export function installBridge(){
 // The signed adapter uses the browser's ordinary fetch and cookie jar. It does
 // not require Vue, a specific webpack module ID, or the telemetry SDK to finish.
 export class OfficialBridge {
- constructor({headless=false}={}){this.browser=null;this.context=null;this.page=null;this.launching=null;this.headless=headless;this.lastRequest=null;this.protocol=new Protocol((...args)=>this.request(...args));}
+ constructor({headless=false,browserType=chromium}={}){this.browser=null;this.context=null;this.page=null;this.launching=null;this.headless=headless;this.browserType=browserType;this.lastRequest=null;this.savedSession=null;this.protocol=new Protocol((...args)=>this.request(...args));}
  async open(){
   if(this.page&&!this.page.isClosed())return {opened:true,ready:true};
   if(this.launching)return this.launching;
@@ -60,9 +60,10 @@ export class OfficialBridge {
    if(this.browser)await this.close();
    const chrome=process.platform==='darwin'?'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome':undefined;
    try{
-    this.browser=await chromium.launch({headless:this.headless,chromiumSandbox:true,...(chrome&&fs.existsSync(chrome)?{executablePath:chrome}:{})});
+    this.browser=await this.browserType.launch({headless:this.headless,chromiumSandbox:true,...(chrome&&fs.existsSync(chrome)?{executablePath:chrome}:{})});
     this.browser.on('disconnected',()=>{this.page=null;this.context=null;this.browser=null;this.protocol.clear();});
-    this.context=await this.browser.newContext({viewport:{width:480,height:820},locale:'zh-CN'});
+    this.context=await this.browser.newContext({...(this.savedSession?{storageState:this.savedSession.storage}:{}),viewport:{width:480,height:820},locale:'zh-CN'});
+    if(this.savedSession?.sessionStorage)await this.context.addInitScript(values=>{if(location.origin==='https://wap.sx.10086.cn'&&!sessionStorage.getItem('__localSessionRestored')){for(const [key,value] of Object.entries(values))sessionStorage.setItem(key,value);sessionStorage.setItem('__localSessionRestored','1');}},this.savedSession.sessionStorage);
     this.page=await this.context.newPage();
     this.page.on('requestfailed',request=>{
      if(!this.lastRequest)return;
@@ -79,6 +80,16 @@ export class OfficialBridge {
    }catch{await this.close();throw new AppError('BROWSER_UNAVAILABLE','官方会话未能打开，请检查网络与 Chrome 安装',503);}
   })().finally(()=>{this.launching=null;});
   return this.launching;
+ }
+ restoreSession(session){this.savedSession=session?structuredClone(session):null;}
+ async exportSession(){
+  if(!this.context||!this.page||this.page.isClosed())return this.savedSession;
+  if(new URL(this.page.url()).origin!==ORIGIN)throw new AppError('OFFICIAL_ORIGIN_CHANGED','官方窗口已离开山西移动站点，未缓存当前页面',409);
+  const storage=await this.context.storageState({indexedDB:true});
+  storage.cookies=storage.cookies.filter(c=>{const host=c.domain.replace(/^\./,'');return host==='10086.cn'||host==='sx.10086.cn'||host==='wap.sx.10086.cn';});
+  storage.origins=storage.origins.filter(o=>o.origin===ORIGIN);for(const o of storage.origins)o.localStorage=o.localStorage.filter(x=>!/(smsCode|verifyCode|password)/i.test(x.name));
+  const sessionStorage=await this.page.evaluate(()=>Object.fromEntries(Object.entries(window.sessionStorage).filter(([k])=>!/(smsCode|verifyCode|password|__localSessionRestored)/i.test(k))));
+  this.savedSession={storage,sessionStorage};return this.savedSession;
  }
  async close(){const browser=this.browser;this.page=null;this.context=null;this.browser=null;this.protocol.clear();if(browser)await browser.close().catch(()=>{});}
  async request(endpoint,body,headers){

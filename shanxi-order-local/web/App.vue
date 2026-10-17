@@ -1,8 +1,14 @@
 <script setup>
 import {computed,ref,onMounted,onUnmounted,nextTick} from 'vue';
-import {Zap,LayoutDashboard,PackageSearch,History,ArrowUpRight,RefreshCw,Check,ChevronRight,Smartphone,LogOut,ShieldCheck,LoaderCircle,X,Info,Search,CheckCircle2,AlertCircle,ExternalLink,Download,ArrowLeft,Monitor,Settings2} from 'lucide-vue-next';
+import {Zap,LayoutDashboard,PackageSearch,History,ArrowUpRight,RefreshCw,Check,ChevronRight,Smartphone,LogOut,ShieldCheck,LoaderCircle,X,Info,Search,CheckCircle2,AlertCircle,ExternalLink,Download,ArrowLeft,Monitor,Settings2,Users} from 'lucide-vue-next';
 import {api} from './api';
 import ConfigManager from './ConfigManager.vue';
+import AccountManager from './AccountManager.vue';
+const activeSaved=computed(()=>state.value.accounts?.find(a=>a.id===state.value.activeAccountId));
+async function switchAccount(id){await run('account-select',async()=>{assign(await api('/accounts/select',{id}));notice.value=account.value?'账号已切换，登录缓存已校验。':'此账号需重新登录。';});}
+async function restoreAccount(){await run('account-restore',async()=>{assign(await api('/accounts/restore',{}));notice.value=account.value?'已恢复登录，无需验证码。':'缓存已失效，请重新登录。';});}
+async function renameAccount(id,label){await run('account-rename',async()=>{assign(await api('/accounts/rename',{id,label}));notice.value='账号备注已保存。';});}
+async function removeAccount(id){await run('account-remove',async()=>{assign(await api('/accounts/remove',{id,confirmed:true}));notice.value='账号与本机登录缓存已移除，办理记录仍保留。';});}
 const configManager=ref(null);
 const configContext=()=>({id:state.value.product.id,revision:state.value.configs.find(c=>c.id===state.value.selectedId)?.revision});
 async function selectConfig(id){await run('config-select',async()=>{assign(await api('/config/select',{id}));notice.value='已切换业务，原验证码已失效。';});}
@@ -24,17 +30,17 @@ const blocked=computed(()=>state.value.orders.some(o=>o.product===product.value.
 const unknown=computed(()=>state.value.orders.filter(o=>o.status==='unknown').length);
 const date=v=>v?new Date(v).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
 const statuses={success:['办理成功','success'],failed:['未办理成功','danger'],unknown:['结果待核查','warning'],submitting:['办理中','warning'],held:['已确认享有','success'],released:['已人工核实','muted']};
-function assign(data){if('account' in data){if(dialog.value==='order'&&state.value.configs&&JSON.stringify(configContext())!==JSON.stringify({id:data.product.id,revision:data.configs?.find(c=>c.id===data.selectedId)?.revision}))closeDialog();if(state.value.challenge?.id!==data.challenge?.id){code.value='';consent.value=false;}state.value=data;countdown.value=data.cooldown||0;loginCountdown.value=data.loginCooldown||0;if(!data.account&&dialog.value&&dialog.value!=='login')closeDialog();}}
+function assign(data){if('account' in data){if(dialog.value==='order'&&state.value.accountEpoch&&state.value.accountEpoch!==data.accountEpoch)closeDialog();if(dialog.value==='order'&&state.value.configs&&JSON.stringify(configContext())!==JSON.stringify({id:data.product.id,revision:data.configs?.find(c=>c.id===data.selectedId)?.revision}))closeDialog();if(state.value.challenge?.id!==data.challenge?.id){code.value='';consent.value=false;}state.value=data;countdown.value=data.cooldown||0;loginCountdown.value=data.loginCooldown||0;if(!data.account&&dialog.value&&dialog.value!=='login')closeDialog();}}
 async function run(name,fn){if(pending.value)return;pending.value=name;error.value='';notice.value='';try{await fn();}catch(e){error.value=e.message;await refresh();if(['AUTH_EXPIRED','ACCOUNT_CHANGED','LOGIN_REQUIRED'].includes(e.code)){if(dialog.value)closeDialog();}}finally{pending.value='';if(name==='sms'){await nextTick();codeRef.value?.focus();}}}
 async function refresh(){try{assign(await api('/state'));loaded.value=true;}catch(e){error.value=e.message;loaded.value=true;}}
 async function login(){trigger=document.activeElement;dialog.value='login';error.value='';notice.value='';loginCode.value='';loginAgreed.value=false;await nextTick();dialogRef.value.showModal();}
 async function openOfficialLogin(){await run('official-login',async()=>{await api('/login/open',{});loginOpened.value=true;notice.value='官方窗口已打开，完成登录后可同步账号。';});}
-async function sendLoginSms(){await run('login-sms',async()=>{sentPhone.value=loginPhone.value;assign(await api('/login/sms',{phone:loginPhone.value,agreed:loginAgreed.value}));loginCode.value='';notice.value='官方已受理登录短信请求，请以手机实际收到为准。';});}
+async function sendLoginSms(){await run('login-sms',async()=>{sentPhone.value=loginPhone.value;const result=await api('/login/sms',{phone:loginPhone.value,agreed:loginAgreed.value});assign(result);loginCode.value='';if(result.loginRestored){dialogRef.value?.close();dialog.value=null;trigger?.focus();notice.value='账号缓存仍有效，已直接恢复登录，未发送验证码。';}else notice.value='官方已受理登录短信请求，请以手机实际收到为准。';});}
 async function verifyLogin(){await run('login-verify',async()=>{assign(await api('/login/verify',{id:state.value.login.id,code:loginCode.value,agreed:loginAgreed.value}));loginCode.value='';loginPhone.value='';sentPhone.value='';loginOpened.value=false;dialogRef.value?.close();dialog.value=null;trigger?.focus();notice.value='登录成功，可以查询业务。';});}
 async function sync(){await run('sync',async()=>{assign(await api('/login/sync',{}));loginOpened.value=false;closeDialog();loginCode.value='';loginPhone.value='';notice.value='登录已同步，可以查询业务。';});}
 async function query(kind){await run(kind,async()=>{assign(await api('/query/'+kind,{}));notice.value=kind==='business'?'已订业务已更新':'业务内容与资格已更新';});}
 async function showOfficial(){await run('official',async()=>{await api('/official/open',{});});}
-async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='home';notice.value='已退出，官方浏览器会话已清除';});}
+async function logout(){await run('logout',async()=>{assign(await api('/logout',{}));loginOpened.value=false;tab.value='home';notice.value='已退出当前账号并清除其登录缓存，其他账号不受影响';});}
 async function openDialog(attempt=false){trigger=document.activeElement;attemptAnyway.value=attempt===true;dialog.value='order';error.value='';code.value='';consent.value=false;await nextTick();dialogRef.value.showModal();}
 function closeDialog(){if(['submit','login-verify','login-sms'].includes(pending.value))return;dialogRef.value?.close();dialog.value=null;resolution.value=null;code.value='';loginCode.value='';trigger?.focus();}
 async function sendSms(){await run('sms',async()=>{assign(await api('/order/sms',{attemptAnyway:attemptAnyway.value,config:configContext()}));code.value='';await nextTick();codeRef.value?.focus();notice.value='官方已受理业务短信请求，请以手机实际收到为准。';});}
@@ -56,7 +62,7 @@ const businessRows=computed(()=>extractRows(state.value.business?.data));
 const filtered=computed(()=>businessRows.value.filter(r=>r.fields.some(f=>f.value.toLowerCase().includes(search.value.trim().toLowerCase()))));
 function rowTitle(row){return row.fields.find(f=>['prcName','prodName','productName','busiName','offerName','name'].includes(f.key))?.value||'业务信息 '+(row.index+1);}
 function download(){const data=state.value.orders;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='晋速办办理记录.json';a.click();URL.revokeObjectURL(url);}
-onMounted(async()=>{await refresh();timer=setInterval(()=>{if(countdown.value>0)countdown.value--;if(loginCountdown.value>0)loginCountdown.value--;},1000);poll=setInterval(()=>{if(!pending.value)refresh();},5000);});
+onMounted(async()=>{await refresh();if(activeSaved.value?.status==='cached')await restoreAccount();timer=setInterval(()=>{if(countdown.value>0)countdown.value--;if(loginCountdown.value>0)loginCountdown.value--;},1000);poll=setInterval(()=>{if(!pending.value)refresh();},5000);});
 onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
 </script>
 <template>
@@ -70,10 +76,11 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
     <button :class="{active:tab==='config'}" :aria-current="tab==='config'?'page':undefined" @click="tab='config'"><Settings2 :size="17"/>业务配置</button>
    </nav>
    <div class="account-panel">
-    <span v-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
+    <select v-if="state.accounts?.length" class="account-switch" aria-label="切换登录账号" :value="state.activeAccountId" :disabled="busy" @change="switchAccount($event.target.value)"><option v-for="a in state.accounts" :key="a.id" :value="a.id">{{a.label?a.label+' · ':''}}{{a.phone}}</option></select><span v-else-if="account" class="account-identity"><span class="live-dot"/>{{account.phone}}</span>
+    <button class="icon-button" @click="tab='accounts'" :disabled="busy" aria-label="账号管理" title="账号管理"><Users :size="17"/></button>
     <button class="icon-button" @click="showOfficial" :disabled="busy" aria-label="官方窗口" title="打开官方窗口"><ExternalLink :size="17"/></button>
     <button v-if="account" class="icon-button" @click="logout" :disabled="busy" aria-label="退出登录" title="退出登录"><LogOut :size="17"/></button>
-    <button v-else class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>
+    <button v-else-if="!state.accounts?.length" class="button secondary" @click="login" :disabled="busy"><Smartphone :size="15"/>验证码登录</button>
    </div>
   </header>
   <div class="body">
@@ -82,10 +89,11 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
     <template v-else>
      <div v-if="state.environment==='fixture'" class="feedback warning" role="status">离线验证环境 · 数据仅用于测试，不发送短信或办理真实业务。</div>
      <div v-if="error&&!dialog" class="feedback error" role="alert"><AlertCircle :size="17"/><span>{{error}}</span><button class="icon-button" aria-label="关闭错误提示" @click="error=''"><X :size="15"/></button></div>
+     <div v-if="state.cacheError" class="feedback warning" role="status">{{state.cacheError}}</div>
      <div v-if="notice&&!dialog" class="feedback" role="status"><Info :size="17"/><span>{{notice}}</span><button class="icon-button" aria-label="关闭提示" @click="notice=''"><X :size="15"/></button></div>
-     <section v-if="!account" class="login-strip">
-      <span class="strip-icon"><Smartphone :size="23"/></span><div><h2>{{loginOpened?'在官方窗口完成登录':'登录山西移动账号'}}</h2><p>{{loginOpened?'完成官方登录后同步账号。':'查询号码资格，办理专属权益。'}}</p></div>
-      <button v-if="loginOpened" class="button primary" @click="sync" :disabled="busy"><LoaderCircle v-if="pending==='sync'" class="spin" :size="15"/><RefreshCw v-else :size="15"/>同步登录</button><button v-else class="button primary" @click="login" :disabled="busy">验证码登录<ArrowUpRight :size="15"/></button>
+     <section v-if="!account&&tab!=='accounts'" class="login-strip">
+      <span class="strip-icon"><Smartphone :size="23"/></span><div><h2>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'恢复已缓存的登录':loginOpened?'在官方窗口完成登录':'登录山西移动账号'}}</h2><p>{{activeSaved&&['cached','unavailable'].includes(activeSaved.status)?'缓存已保留，请重试官方登录状态校验。':loginOpened?'完成官方登录后同步账号。':'查询号码资格，办理专属权益。'}}</p></div>
+      <button v-if="activeSaved&&['cached','unavailable'].includes(activeSaved.status)" class="button primary" @click="restoreAccount" :disabled="busy"><RefreshCw :size="15"/>重试恢复</button><button v-else-if="loginOpened" class="button primary" @click="sync" :disabled="busy"><LoaderCircle v-if="pending==='sync'" class="spin" :size="15"/><RefreshCw v-else :size="15"/>同步登录</button><button v-else class="button primary" @click="login" :disabled="busy">验证码登录<ArrowUpRight :size="15"/></button>
      </section>
      <template v-if="tab==='home'">
       <div class="page-heading"><div><h1>快捷办理</h1><p>你的移动权益，在这里查询与办理。</p></div><button class="button secondary" @click="query('content')" :disabled="busy||!account"><RefreshCw :size="15" :class="{spin:pending==='content'}"/>{{q?'刷新业务内容':'查询业务内容'}}</button></div>
@@ -117,6 +125,7 @@ onUnmounted(()=>{clearInterval(timer);clearInterval(poll);});
       <div v-else class="business-list"><article v-for="row in filtered" :key="row.index"><div class="business-title"><span class="table-icon"><PackageSearch :size="17"/></span><h3>{{rowTitle(row)}}</h3></div><dl><div v-for="field in row.fields" :key="field.key"><dt>{{field.label}}</dt><dd>{{field.value}}</dd></div></dl></article></div>
       <details v-if="state.business" class="raw-details"><summary>官方查询详情</summary><p class="subtle">保留官方字段与原始单位；部分字段名称可能未转换。</p><pre>{{JSON.stringify(state.business.data,null,2)}}</pre></details>
      </template>
+     <template v-else-if="tab==='accounts'"><AccountManager :accounts="state.accounts||[]" :active-id="state.activeAccountId" :busy="busy" @login="login" @select="switchAccount" @rename="renameAccount" @remove="removeAccount"/></template>
      <template v-else-if="tab==='config'"><ConfigManager ref="configManager" :configs="state.configs" :selected-id="state.selectedId" :template="state.configTemplate" :busy="busy" @save="saveConfig" @select="selectConfig" @delete="deleteConfig"/></template>
      <template v-else>
       <div class="page-heading"><div><div class="eyebrow">ORDER HISTORY</div><h1>办理记录</h1><p>当前账号在本机发起的办理，不代表全部历史订单。</p></div><button class="button secondary" @click="download" :disabled="!state.orders.length"><Download :size="15"/>导出记录</button></div>
