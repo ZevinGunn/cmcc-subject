@@ -25,7 +25,7 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  const route=(fn)=>(req,res,next)=>Promise.resolve().then(()=>fn(req)).then(data=>res.json(data)).catch(next);
  // Account context is checked immediately before invoking the operation lock.
  const guarded=(fn)=>route(req=>{service.assertContext?.(req.headers['x-account-context']);return fn(req);});
- app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.7.0'}));
+ app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.7.1'}));
  app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf,publicMode}));
  app.post('/api/tools/crypto',route(req=>transformCrypto(req.body)));
  if(publicMode)app.post(['/api/login/open','/api/login/sync','/api/official/open'],(_req,res)=>res.status(409).json({error:{code:'REMOTE_WINDOW_UNAVAILABLE',message:'公网版请使用手机验证码登录；官方人工验证需在本机版完成'}}));
@@ -59,7 +59,10 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  app.use(express.static(dist,{index:'index.html'}));
  app.get('*',(_req,res)=>res.sendFile(path.join(dist,'index.html')));
  app.use((err,_req,res,_next)=>{
-  const status=err instanceof AppError?err.status:err.type==='entity.parse.failed'?400:err.type==='entity.too.large'?413:500;
+  const originalStatus=err instanceof AppError?err.status:err.type==='entity.parse.failed'?400:err.type==='entity.too.large'?413:500;
+  // The public proxy replaces origin 502 bodies with an HTML gateway page.
+  // Preserve actionable JSON for a controlled upstream failure instead.
+  const status=publicMode&&err instanceof AppError&&originalStatus===502?503:originalStatus;
   res.status(status).json({error:{code:err instanceof AppError?err.code:'LOCAL_ERROR',message:err instanceof AppError?err.message:status===400?'请求内容格式错误':status===413?'请求内容超过 64 KiB，请缩小内容后重试':'本地服务发生异常，请保留办理记录并重新启动'}});
  });
  return app;

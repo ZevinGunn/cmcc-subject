@@ -26,3 +26,11 @@ test('业务配置 API 可保存修改切换删除，拒绝旧版本发码和无
  const config=saved.configs.find(c=>c.id===id);r=await post('/config/save',{...config,price:'10 元/月'});saved=await r.json();assert.equal(saved.product.price,'10 元/月');assert.equal((await post('/order/sms',{attemptAnyway:true,config:{id,revision:1}})).status,409);assert.equal((await post('/order/sms',{attemptAnyway:true})).status,409);assert.equal(officialCalls,0);
  assert.equal((await post('/config/select',{id:'qqt5ga'})).status,200);assert.equal((await post('/config/delete',{id,revision:1})).status,409);r=await post('/config/delete',{id,revision:2});assert.equal((await r.json()).configs.length,state.configs.length);for(const c of state.configs.filter(c=>c.id!=='qqt5ga'))assert.equal((await post('/config/delete',{id:c.id,revision:c.revision})).status,200);assert.equal((await post('/config/delete',{id:'qqt5ga',revision:1})).status,400);
 });
+
+test('公网受控上游失败保留 JSON 诊断，避免 502 被代理替换；本机状态码不变',async t=>{
+ const {AppError}=await import('../server/domain.js');
+ for(const publicMode of [false,true]){
+  const service={snapshot:()=>({account:null}),queryBusiness:async()=>{throw new AppError('KEY_UNAVAILABLE','官方已订业务通道暂不可用，请稍后重试',502);}};
+  const server=http.createServer().listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>server.close(r)));const port=server.address().port;server.on('request',createApp(service,{port,publicMode}));const url=`http://127.0.0.1:${port}`;const state=await fetch(url+'/api/state').then(r=>r.json());const r=await fetch(url+'/api/query/business',{method:'POST',headers:{'x-local-csrf':state.csrf,'content-type':'application/json'},body:'{}'});assert.equal(r.status,publicMode?503:502);assert.match(r.headers.get('content-type'),/application\/json/);assert.equal((await r.json()).error.code,'KEY_UNAVAILABLE');
+ }
+});

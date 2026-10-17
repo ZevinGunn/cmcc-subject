@@ -38,16 +38,36 @@ const routes=Object.freeze({
  getActRecordInfo:['act','batch3/getActRecordInfo','已订业务']
 });
 export class Protocol {
- constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();this.lastResult=null;}
+ constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();this.subscriptionScope=null;this.lastResult=null;}
+ async subscriptionEntry(){
+  if(this.subscriptionScope)return this.subscriptionScope;
+  let scope='act',key=this.keys.get(scope),result;
+  if(!key){
+   try{result=await this.transport('/h/act/rest/v1/rsakey/getRsaPubKey',{},{});}
+   catch(e){
+    // Resolve the entry using a read-only key request BEFORE any business
+    // request. Never switch paths after an unsubscribe has been sent.
+    if(e.code!=='UPSTREAM_UNAVAILABLE')throw e;
+    scope='market';key=this.keys.get(scope);
+    if(!key)result=await this.transport('/h/market/rest/v1/rsakey/getRsaPubKey',{},{});
+   }
+   if(!key){
+    if(!['0000','0'].includes(String(result?.retCode))||typeof result?.data!=='string')throw new AppError('KEY_UNAVAILABLE','官方已订业务通道暂不可用，请稍后重试',502);
+    key=result.data;this.keys.set(scope,key);
+   }
+  }
+  this.subscriptionScope=scope;return scope;
+ }
  async call(method,payload={},proof,config){
   if(['unSubScribeOrder','qryUserOrderDetail'].includes(method)){
    if(config)throw new AppError('UNSUPPORTED','已订业务接口不能由业务配置覆盖');
    const data=method==='unSubScribeOrder'?{prod_prcid:productCode(payload.prod_prcid)}:{useProd:payload.useProd};
    if(method==='qryUserOrderDetail'&&!['Y','N'].includes(data.useProd))throw new AppError('INVALID_PRODUCT','套餐状态无效');
-   // These two wrappers have no desRest flag in the supplied source. They
-   // send plain JSON and receive plain JSON, with no RSA discovery or retry.
+   // These wrappers have no desRest flag: only entry discovery uses a public
+   // key request; the business request remains plain JSON without RSA headers.
+   const scope=await this.subscriptionEntry();
    const endpoint=method==='unSubScribeOrder'?'prod/unSubScribeOrder':'userorderinfo/qryUserOrderDetail';
-   const result=await this.transport(`/h/act/rest/v1/${endpoint}`,{...data,couponsBusiName:'已订业务'},{});
+   const result=await this.transport(`/h/${scope}/rest/v1/${endpoint}`,{...data,couponsBusiName:'已订业务'},{});
    if(!result||!['string','number'].includes(typeof result.retCode)||!String(result.retCode))throw new AppError('INVALID_RESPONSE','官方未返回确定业务结果，请核查后再操作',502);
    this.lastResult={operation:method,code:String(result.retCode),message:safeMessage(result.retMsg||''),at:new Date().toISOString()};return result;
   }
@@ -61,7 +81,7 @@ export class Protocol {
    if(method==='qqt5gaSubmitPrcOrder')endpoint=c.orderPath;
   }
   const fixedScope=['qryUserOrderInfo','getActRecordInfo'].includes(method);
-  let scope=fixedScope?preferred:this.scopes.get(preferred)||preferred,key=this.keys.get(scope);
+  let scope=fixedScope?await this.subscriptionEntry():this.scopes.get(preferred)||preferred,key=this.keys.get(scope);
   if(!key){
    let result;
    try{result=await this.transport(`/h/${scope}/rest/v1/rsakey/getRsaPubKey`,{},{});}
@@ -90,5 +110,5 @@ export class Protocol {
   }));
   return result;
  }
- clear(){this.keys.clear();this.scopes.clear();this.lastResult=null;}
+ clear(){this.keys.clear();this.scopes.clear();this.subscriptionScope=null;this.lastResult=null;}
 }

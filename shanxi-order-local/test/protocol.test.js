@@ -66,6 +66,25 @@ test('已订业务与活动固定 act 入口加密；退订和套餐详情按源
  const requests=[];const p=new Protocol(async(url,body,headers)=>{requests.push({url,body,headers});if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};if(body.encryptInStr){const {key,data}=open(body,headers);assert.deepEqual(data,{couponsBusiName:'已订业务'});return response({retCode:'0000',data:{}},key);}return {retCode:'0000',data:{}};});
  p.scopes.set('act','market');await p.call('qryUserOrderInfo');await p.call('getActRecordInfo');assert.equal(p.scopes.get('act'),'market');assert(requests.some(r=>r.url==='/h/act/rest/v1/userorderinfo/qryUserOrderInfo'));assert(requests.some(r=>r.url==='/h/act/rest/v1/batch3/getActRecordInfo'));
  await p.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC',uuid:'ignored',couponsBusiName:'ignored'});assert.deepEqual(requests.at(-1),{url:'/h/act/rest/v1/prod/unSubScribeOrder',body:{prod_prcid:'SYNTHETIC',couponsBusiName:'已订业务'},headers:{}});await p.call('qryUserOrderDetail',{useProd:'N'});assert.deepEqual(requests.at(-1).body,{useProd:'N',couponsBusiName:'已订业务'});await assert.rejects(p.call('unSubScribeOrder',{prod_prcid:'../bad'}),{code:'INVALID_PRODUCT'});
- let count=0;const failing=new Protocol(async url=>{count++;assert.equal(url,'/h/act/rest/v1/prod/unSubScribeOrder');throw Error('timeout');});await assert.rejects(failing.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}));assert.equal(count,1);
- for(const result of [{secretOutId:'0',encryptOutStr:'invalid'},{retCode:null},{retCode:''}]){const invalid=new Protocol(async()=>result);await assert.rejects(invalid.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}),{code:'INVALID_RESPONSE'});}
+ let count=0;const failing=new Protocol(async url=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};count++;assert.equal(url,'/h/act/rest/v1/prod/unSubScribeOrder');throw Error('timeout');});await assert.rejects(failing.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}));assert.equal(count,1);
+ for(const result of [{secretOutId:'0',encryptOutStr:'invalid'},{retCode:null},{retCode:''}]){const invalid=new Protocol(async url=>url.endsWith('/getRsaPubKey')?{retCode:'0000',data:hex}:result);await assert.rejects(invalid.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}),{code:'INVALID_RESPONSE'});}
+});
+
+test('已订业务在只读公钥探测 400 后选择 market，查询、详情和退订保持同一入口且不重复写',async()=>{
+ const requests=[];let failWrite=false;
+ const p=new Protocol(async(url,body,headers)=>{
+  requests.push({url,body,headers});if(url==='/h/act/rest/v1/rsakey/getRsaPubKey'){const e=Error('HTTP 400');e.code='UPSTREAM_UNAVAILABLE';throw e;}
+  if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};
+  if(body.encryptInStr){const {key,data}=open(body,headers);assert.deepEqual(data,{couponsBusiName:'已订业务'});return response({retCode:'0000',data:{}},key);}
+  if(failWrite&&url.endsWith('/unSubScribeOrder'))throw Error('uncertain');return {retCode:'0',data:{}};
+ });
+ p.scopes.set('act','act');await p.call('qryUserOrderInfo');await p.call('getActRecordInfo');await p.call('qryUserOrderDetail',{useProd:'Y'});failWrite=true;await assert.rejects(p.call('unSubScribeOrder',{prod_prcid:'SYNTHETIC'}));
+ assert.equal(p.subscriptionScope,'market');assert.equal(p.scopes.get('act'),'act');assert.equal(requests.filter(r=>r.url==='/h/act/rest/v1/rsakey/getRsaPubKey').length,1);
+ for(const endpoint of ['userorderinfo/qryUserOrderInfo','batch3/getActRecordInfo','userorderinfo/qryUserOrderDetail','prod/unSubScribeOrder'])assert.equal(requests.filter(r=>r.url==='/h/market/rest/v1/'+endpoint).length,1);
+ const write=requests.at(-1);assert.deepEqual(write.body,{prod_prcid:'SYNTHETIC',couponsBusiName:'已订业务'});assert.deepEqual(write.headers,{});p.clear();assert.equal(p.subscriptionScope,null);
+});
+test('通道探测复用登录公钥，人工验证、业务请求错误不会触发切入口或写操作重试',async()=>{
+ let calls=[];const p=new Protocol(async(url,body,headers)=>{calls.push(url);if(url.endsWith('/getRsaPubKey')){const e=Error('HTTP 400');e.code='UPSTREAM_UNAVAILABLE';throw e;}if(body.encryptInStr){const {key}=open(body,headers);return response({retCode:'0'},key);}return {retCode:'0'};});p.keys.set('market',hex);await p.call('qryUserOrderInfo');assert.equal(calls.includes('/h/market/rest/v1/rsakey/getRsaPubKey'),false);
+ calls=[];const rejected=new Protocol(async url=>{calls.push(url);const e=Error('verification');e.code='OFFICIAL_VERIFICATION_REQUIRED';throw e;});await assert.rejects(rejected.call('qryUserOrderInfo'),{code:'OFFICIAL_VERIFICATION_REQUIRED'});assert.equal(calls.length,1);assert.equal(rejected.subscriptionScope,null);
+ calls=[];const businessFails=new Protocol(async url=>{calls.push(url);if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};const e=Error('business unavailable');e.code='UPSTREAM_UNAVAILABLE';throw e;});await assert.rejects(businessFails.call('qryUserOrderInfo'),{code:'UPSTREAM_UNAVAILABLE'});assert.equal(calls.some(u=>u.includes('/market/')),false);assert.equal(businessFails.subscriptionScope,'act');
 });
