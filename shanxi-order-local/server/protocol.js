@@ -1,5 +1,6 @@
 import {randomBytes,randomInt,createCipheriv,createDecipheriv,createPublicKey,publicEncrypt,constants,createHmac} from 'node:crypto';
 import {AppError,safeMessage} from './domain.js';
+import {validateConfig} from './catalog.js';
 
 // oHCY in the supplied market bundle: AES-128-CBC, IV prepended as hex,
 // RSA PKCS#1 v1.5 wrapping, HMAC-SHA256(timestamp + ciphertext, AES key).
@@ -35,10 +36,16 @@ const routes=Object.freeze({
 });
 export class Protocol {
  constructor(transport){this.transport=transport;this.keys=new Map();this.scopes=new Map();this.lastResult=null;}
- async call(method,payload={},proof){
+ async call(method,payload={},proof,config){
   if(!Object.hasOwn(routes,method))throw new AppError('UNSUPPORTED','不支持的业务操作');
-  const route=routes[method];
-  const [preferred,endpoint,title]=route;
+  let [preferred,endpoint,title]=routes[method];
+  let c;
+  if(config){
+   if(['sendSmsCode','wapLogin','checkLoginNew'].includes(method))throw new AppError('UNSUPPORTED','登录接口不能使用业务配置');
+   c=validateConfig(config);preferred=c.scope;title=c.couponsBusiName;
+   if(method==='qqt5gaQryUserQualification')endpoint=c.queryPath;
+   if(method==='qqt5gaSubmitPrcOrder')endpoint=c.orderPath;
+  }
   let scope=this.scopes.get(preferred)||preferred,key=this.keys.get(scope);
   if(!key){
    let result;
@@ -55,7 +62,7 @@ export class Protocol {
   const data={...payload,couponsBusiName:title};
   if(method==='qqt5gaSubmitPrcOrder'){
    if(!proof?.uuid)throw new AppError('VERIFY_REQUIRED','缺少业务验证码凭据');
-   data.uuid=proof.uuid;data.busiType='QQT5GA_SMS';
+   data.uuid=proof.uuid;data.busiType=c?.sms.busiType||'QQT5GA_SMS';
   }
   const encrypted=seal(data,key);
   // No retry: a lost SMS or order response must never duplicate a side effect.

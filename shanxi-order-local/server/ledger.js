@@ -19,5 +19,5 @@ export class Ledger {
  add(row){this.rows.unshift(row);this.save();return row;}
  update(id,patch){const row=this.rows.find(r=>r.id===id);if(!row)throw Error('办理记录不存在');Object.assign(row,patch);this.save();return row;}
  list(account){return this.rows.filter(r=>r.account===account).map(({account,...row})=>row);}
- blocking(account){return this.rows.find(r=>r.account===account&&r.product==='qqt5ga'&&['submitting','unknown','success','held'].includes(r.status));}
+ blocking(account,product='qqt5ga'){return this.rows.find(r=>r.account===account&&r.product===product&&['submitting','unknown','success','held'].includes(r.status));}
 }

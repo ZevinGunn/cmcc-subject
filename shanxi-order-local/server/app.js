@@ -20,9 +20,9 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
   }
   next();
  });
- app.use(express.json({limit:'8kb'}));
+ app.use(express.json({limit:'64kb'}));
  const route=(fn)=>(req,res,next)=>Promise.resolve().then(()=>fn(req)).then(data=>res.json(data)).catch(next);
- app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.1.0'}));
+ app.get('/api/health',(_req,res)=>res.json({ok:true,app:'shanxi-order-local',version:'1.2.0'}));
  app.get('/api/state',(_req,res)=>res.json({...service.snapshot(),csrf}));
  app.get('/api/connection',route(()=>service.bridge.status()));
  app.post('/api/login/open',route(()=>service.exclusive(()=>service.bridge.open())));
@@ -34,7 +34,10 @@ export function createApp(service,{port=4318,dist=path.resolve('dist'),devOrigin
  app.post('/api/query/qualification',route(()=>service.queryQualification()));
  app.post('/api/query/content',route(()=>service.queryQualification()));
  app.post('/api/query/business',route(()=>service.queryBusiness()));
- app.post('/api/order/sms',route(req=>service.sendSms(req.body?.attemptAnyway)));
+ app.post('/api/config/save',route(req=>service.saveConfig(req.body)));
+ app.post('/api/config/select',route(req=>service.selectConfig(req.body?.id)));
+ app.post('/api/config/delete',route(req=>service.deleteConfig(req.body?.id,req.body?.revision)));
+ app.post('/api/order/sms',route(req=>service.sendSms(req.body?.attemptAnyway,req.body?.config||{})));
  app.post('/api/order/verify',route(req=>service.verifySms(req.body.id,req.body.code)));
  app.post('/api/order/submit',route(req=>service.submit(req.body.id,req.body.confirmed)));
  app.post('/api/orders/:id/reconcile',route(req=>service.reconcile(req.params.id)));

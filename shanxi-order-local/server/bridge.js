@@ -96,7 +96,7 @@ export class OfficialBridge {
    return result.data;
   }catch(e){this.lastRequest.phase='failed';if(e instanceof AppError)throw e;throw new AppError('UPSTREAM_UNCERTAIN','官方请求未返回确定结果，请稍后核查；短信与订购不会自动重试',502);}
  }
- async call(method,payload={},proof=null){return this.protocol.call(method,payload,proof);}
+ async call(method,payload={},proof=null,config){return this.protocol.call(method,payload,proof,config);}
  async authenticate(){return this.call('checkLoginNew',{pubInfo:{busiType:'SSO_LOGIN'},busiInfo:{}});}
  async sendLoginSms(phone){return this.call('sendSmsCode',{pubInfo:{busiType:'SSO_LOGIN',phoneNo:phone},busiInfo:{}});}
  async login(phone,code){return this.call('wapLogin',{pubInfo:{busiType:'SSO_LOGIN',loginSourceCode:'BROWSER',loginType:'sms',phoneNo:phone,smsCode:code},busiInfo:{}});}

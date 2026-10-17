@@ -52,3 +52,12 @@ test('仅保留发码响应中有限的通道状态，不将其推断为送达�
  const p=new Protocol(async(url,body,headers)=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};const {key}=open(body,headers);return response({retCode:'0000',data:{NET_FLAG:'Y',SEND_TYPE:'2',NET_TYPE:'13800000000',unknown:'private'}},key);});
  await p.call('sendSmsCode');assert.deepEqual(p.lastResult.channelStatus,{NET_FLAG:'Y',SEND_TYPE:'2'});assert.equal(JSON.stringify(p.lastResult).includes('13800000000'),false);assert.equal(p.lastResult.delivered,undefined);
 });
+
+test('自定义业务路径、名称、额外参数和当次 uuid 在实际加密报文中保持一致',async()=>{
+ const {defaultConfig}=await import('../server/catalog.js');const requests=[];
+ const p=new Protocol(async(url,body,headers)=>{if(url.endsWith('/getRsaPubKey'))return {retCode:'0000',data:hex};const {key,data}=open(body,headers);requests.push({url,data});return response({retCode:'0000'},key);});
+ const c={...defaultConfig(),scope:'market',queryMode:'generic',couponsBusiName:'自定义流量包',queryPath:'traffic/query',orderPath:'traffic/submit',orderParams:{offerId:'SYNTHETIC'},sms:{...defaultConfig().sms,busiType:'TRAFFIC_SMS',prcId:'SYNTHETIC'}};
+ await p.call('qqt5gaSubmitPrcOrder',c.orderParams,{uuid:'dynamic-proof'},c);assert.deepEqual(requests[0],{url:'/h/market/rest/v1/traffic/submit',data:{offerId:'SYNTHETIC',couponsBusiName:'自定义流量包',uuid:'dynamic-proof',busiType:'TRAFFIC_SMS'}});
+ await p.call('qqt5gaQryUserQualification',{offerId:'SYNTHETIC'},null,c);assert.equal(requests[1].url,'/h/market/rest/v1/traffic/query');assert.equal(requests[1].data.uuid,undefined);await assert.rejects(p.call('wapLogin',{},null,c),{code:'UNSUPPORTED'});
+ await assert.rejects(p.call('qqt5gaSubmitPrcOrder',{}, {uuid:'dynamic-proof'},{...c,orderPath:'https://other.example/order'}),{code:'INVALID_CONFIG'});
+});

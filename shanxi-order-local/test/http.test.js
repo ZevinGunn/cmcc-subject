@@ -16,3 +16,13 @@ test('本地 API 拒绝恶意 Origin、Host 和无 CSRF 的操作',async t=>{
  assert.equal((await call('/api/login/sync',{method:'POST',headers:{'x-local-csrf':data.csrf,origin:url}})).status,200);assert.equal(calls,1);
  assert.equal((await call('/api/order/sms',{method:'POST',headers:{'x-local-csrf':data.csrf,'content-type':'application/json'},body:JSON.stringify({attemptAnyway:true})})).status,200);assert.equal(smsFlag,true);
 });
+
+test('业务配置 API 可保存修改切换删除，拒绝旧版本发码和无 CSRF 修改',async t=>{
+ const fs=await import('node:fs'),os=await import('node:os'),path=await import('node:path');const {Service}=await import('../server/service.js'),{Ledger}=await import('../server/ledger.js'),{defaultConfig}=await import('../server/catalog.js');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sx-config-http-'));let officialCalls=0;const service=new Service({authenticate:async()=>{officialCalls++;throw Error('must not contact official');}},new Ledger(dir));
+ const server=http.createServer().listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(async()=>{await new Promise(r=>server.close(r));fs.rmSync(dir,{recursive:true,force:true});});const port=server.address().port;server.on('request',createApp(service,{port}));const url=`http://127.0.0.1:${port}`;
+ const state=await (await fetch(url+'/api/state')).json();const post=(route,data,csrf=state.csrf)=>fetch(url+'/api'+route,{method:'POST',headers:{'content-type':'application/json','x-local-csrf':csrf},body:JSON.stringify(data)});
+ const input={...defaultConfig(),id:'',name:'离线 HTTP 配置'};assert.equal((await post('/config/save',input,'missing')).status,403);let r=await post('/config/save',input);assert.equal(r.status,200);let saved=await r.json();const id=saved.selectedId;assert.equal(saved.configs.length,2);
+ const config=saved.configs.find(c=>c.id===id);r=await post('/config/save',{...config,price:'10 元/月'});saved=await r.json();assert.equal(saved.product.price,'10 元/月');assert.equal((await post('/order/sms',{attemptAnyway:true,config:{id,revision:1}})).status,409);assert.equal((await post('/order/sms',{attemptAnyway:true})).status,409);assert.equal(officialCalls,0);
+ assert.equal((await post('/config/select',{id:'qqt5ga'})).status,200);assert.equal((await post('/config/delete',{id,revision:1})).status,409);r=await post('/config/delete',{id,revision:2});assert.equal((await r.json()).configs.length,1);assert.equal((await post('/config/delete',{id:'qqt5ga',revision:1})).status,400);
+});
