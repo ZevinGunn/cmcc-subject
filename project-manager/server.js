@@ -61,7 +61,9 @@ const serviceManifest = JSON.parse(await readFile(path.join(__dirname, "services
 const services = serviceManifest.services || [];
 const infrastructure = serviceManifest.infrastructure || [];
 const serviceById = new Map(services.map((service) => [service.id, service]));
-const legacyServices = services.filter((service) => service.kind === "application" && service.group === "business");
+const legacyServices = services.filter((service) =>
+  service.kind === "application" && service.group === "business" && service.legacyHome !== false,
+);
 const legacyProjects = legacyServices.map((service) => ({
   id: service.id,
   name: service.name,
@@ -2830,6 +2832,7 @@ export const testHelpers = {
   finalizeFrontend,
   finishOperationStages,
   loginRateStates,
+  legacyProjectIds: () => legacyProjects.map((project) => project.id),
   operationResultSteps,
   redact,
   recoverInterruptedFrontendActivation,

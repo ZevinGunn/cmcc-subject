@@ -22,6 +22,7 @@
       "allowedStatus": [200],
       "dependencies": ["pm2", "shanxi-tunnel"],
       "capabilities": ["restart", "check", "logs"],
+      "legacyHome": false,
       "build": null,
       "test": {
         "cwd": "shanxi-order-local",
