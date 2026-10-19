@@ -69,7 +69,31 @@ async function ensureOfficialPage(accountId) {
   if (!client.initialized || new URL(page.url()).origin !== config.officialOrigin) {
     try {
       // Analytics and long-lived official connections must not hold up login.
-      await page.goto(config.officialEntry, { waitUntil: "domcontentloaded" });
+      // A fresh profile first receives a 412 challenge that reloads itself.
+      // Its anonymous API can already succeed, but credentials issued from it
+      // race the reload. Observe navigation before goto so even an immediate
+      // reload is caught, without injecting polling code into the challenge.
+      let documentStatus = 0;
+      const onResponse = (response) => {
+        if (response.request().isNavigationRequest() && response.frame() === page.mainFrame()) {
+          documentStatus = response.status();
+        }
+      };
+      page.on("response", onResponse);
+      try {
+        const ready = page.waitForURL(
+          (url) => url.origin === config.officialOrigin && documentStatus > 0 && documentStatus !== 412,
+          { waitUntil: "domcontentloaded", timeout: config.requestTimeoutMs }
+        );
+        await Promise.all([
+          page.goto(config.officialEntry, { waitUntil: "domcontentloaded" }),
+          ready
+        ]);
+      } finally {
+        page.off("response", onResponse);
+      }
+      // The anonymous business-API handshake remains the readiness check;
+      // reaching a replacement document alone does not prove API availability.
       if (new URL(page.url()).origin !== config.officialOrigin) throw new Error("unexpected origin");
       client.initialized = true;
     } catch (error) {

@@ -43,7 +43,7 @@ test("local API logs in without opening an external page and clears a mismatched
     let mismatch = false;
     let submissions = 0;
     let entryLoads = 0;
-    let initializationQueries = 0;
+    let requestsOnChallenge = 0;
     // All requests are intercepted. This test cannot reach the official service.
     await client.context.route("**/*", async (route) => {
       const url = new URL(route.request().url());
@@ -53,15 +53,18 @@ test("local API logs in without opening an external page and clears a mismatched
           return route.fulfill({
             status: 412,
             contentType: "text/html",
-            body: "<!doctype html><script>setTimeout(() => location.reload(), 50)</script>",
+            body: "<!doctype html><script>setTimeout(() => location.reload(), 250)</script>",
           });
         }
         return route.fulfill({
+          // The real entry may be 400 after its challenge; business APIs work.
+          status: 400,
           contentType: "text/html",
           body: "<!doctype html><html><body><div id='app'>Local fixture</div></body></html>",
         });
       }
       assert.equal(url.hostname, "wapbj.189.cn");
+      if (entryLoads === 1) requestsOnChallenge++;
       if (url.pathname.endsWith("passwordCheck")) {
         submissions++;
         const body = route.request().postDataJSON();
@@ -70,8 +73,8 @@ test("local API logs in without opening an external page and clears a mismatched
         passwordSubmitted = true;
       } else {
         assert.ok(url.pathname.endsWith("qryLoginAccno"));
-        initializationQueries++;
-        if (initializationQueries === 1) return route.abort("failed");
+        // Even a successful anonymous response on the challenge document is
+        // insufficient: the upcoming reload can destroy the password request.
       }
       const response = {
         result: 0,
@@ -100,6 +103,7 @@ test("local API logs in without opening an external page and clears a mismatched
     assert.ok(!JSON.stringify(result.data).includes("001234"));
     assert.equal(submissions, 1);
     assert.equal(entryLoads, 2);
+    assert.equal(requestsOnChallenge, 0);
     const other = await request("/api/accounts", { phone: "18900000002" });
     otherId = other.data.account.id;
     const isolated = await getClient(otherId);
