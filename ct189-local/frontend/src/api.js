@@ -1,8 +1,10 @@
+let csrfToken = "";
 async function request(path, options = {}) {
   const response = await fetch(path, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
       ...(options.headers || {}),
     },
   });
@@ -10,6 +12,9 @@ async function request(path, options = {}) {
   if (!response.ok || data.ok === false) {
     const error = new Error(data.message || `请求失败：${response.status}`);
     error.account = data.account;
+    error.status = response.status;
+    if (data.accessRequired)
+      window.dispatchEvent(new Event("ct189-access-expired"));
     throw error;
   }
   return data;
@@ -17,6 +22,23 @@ async function request(path, options = {}) {
 
 export const api = {
   health: () => request("/api/health"),
+  accessSession: async () => {
+    const data = await request("/api/access/session");
+    csrfToken = data.csrfToken || "";
+    return data;
+  },
+  accessLogin: async (username, password) => {
+    const data = await request("/api/access/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+    csrfToken = data.csrfToken || "";
+    return data;
+  },
+  accessLogout: async () => {
+    await request("/api/access/logout", { method: "POST", body: "{}" });
+    csrfToken = "";
+  },
   accounts: () => request("/api/accounts"),
   task: (id) => request(`/api/tasks/${id}`),
   startTask: (action, accountIds) =>

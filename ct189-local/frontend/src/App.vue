@@ -21,6 +21,35 @@ const form = ref({ phone: "", label: "", group: "", enabled: true }),
   batchGroup = ref("");
 const batch = ref(null),
   batchError = ref("");
+const accessRequired = ref(false),
+  locked = ref(false),
+  accessLoading = ref(true),
+  accessUsername = ref("admin"),
+  accessPassword = ref("");
+function lockAccess() {
+  locked.value = true;
+  accounts.value = [];
+  selected.value = [];
+  batch.value = null;
+  password.value = "";
+  modal.value?.close();
+  mode.value = "";
+}
+async function enterSite() {
+  const secret = accessPassword.value;
+  accessPassword.value = "";
+  await perform(async () => {
+    await api.accessLogin(accessUsername.value, secret);
+    locked.value = false;
+    await reload(true);
+  });
+}
+async function leaveSite() {
+  await perform(async () => {
+    await api.accessLogout();
+    lockAccess();
+  });
+}
 let timer,
   pollInFlight = false;
 const active = computed(() =>
@@ -134,12 +163,20 @@ async function reload(initial = false) {
     selected.value = selected.value.filter((id) =>
       accounts.value.some((a) => a.id === id),
     );
-  } else feedback("账号读取失败，已保留当前列表。请检查本地服务后重试。", true);
+  } else if (results[0].reason.status === 401) lockAccess();
+  else feedback("账号读取失败，已保留当前列表。请检查服务后重试。", true);
   connected.value = results[1].status === "fulfilled";
   loading.value = false;
 }
 async function poll() {
-  if (pollInFlight || busy.value || document.hidden) return;
+  if (
+    pollInFlight ||
+    busy.value ||
+    document.hidden ||
+    locked.value ||
+    accessLoading.value
+  )
+    return;
   pollInFlight = true;
   try {
     if (pending.value) {
@@ -286,7 +323,7 @@ async function batchUpdate(patch) {
 async function remove(ids) {
   if (
     !window.confirm(
-      `删除 ${ids.length} 个账号、已保存密码及本地会话？此操作不可撤销。`,
+      `删除 ${ids.length} 个账号、已保存密码及登录会话？此操作不可撤销。`,
     )
   )
     return;
@@ -312,7 +349,22 @@ function onVisibility() {
   if (!document.hidden) poll();
 }
 onMounted(async () => {
-  await reload(true);
+  window.addEventListener("ct189-access-expired", lockAccess);
+  try {
+    const health = await api.health();
+    connected.value = true;
+    accessRequired.value = Boolean(health.accessRequired);
+    if (accessRequired.value) {
+      const session = await api.accessSession();
+      locked.value = !session.authenticated;
+    }
+    if (!locked.value) await reload(true);
+  } catch {
+    feedback("服务暂时不可用，请刷新后重试。", true);
+  } finally {
+    accessLoading.value = false;
+    loading.value = false;
+  }
   let ticks = 0;
   timer = setInterval(() => {
     ticks++;
@@ -321,6 +373,7 @@ onMounted(async () => {
   document.addEventListener("visibilitychange", onVisibility);
 });
 onUnmounted(() => {
+  window.removeEventListener("ct189-access-expired", lockAccess);
   clearInterval(timer);
   document.removeEventListener("visibilitychange", onVisibility);
 });
@@ -330,7 +383,7 @@ onUnmounted(() => {
   <div class="workspace">
     <header class="brand-header">
       <div class="header-content">
-        <a class="brand" href="/" aria-label="北京电信本地助手首页"
+        <a class="brand" href="/" aria-label="北京电信快捷服务首页"
           ><img
             src="/telecom-logo.png"
             alt="北京电信 5G"
@@ -338,15 +391,62 @@ onUnmounted(() => {
             height="38"
           />
           <div>
-            <strong>北京电信本地助手</strong><small>账号与登录会话管理</small>
+            <strong>北京电信快捷服务</strong><small>账号与登录会话管理</small>
           </div></a
         ><span class="connection"
           ><i class="dot" :class="connected ? 'good' : 'warning'"></i
-          >{{ connected ? "本地服务已连接" : "本地服务未连接" }}</span
+          >{{ connected ? "服务已连接" : "服务未连接" }}</span
         >
+        <button
+          v-if="accessRequired && !locked && !accessLoading"
+          class="access-logout"
+          :disabled="busy"
+          @click="leaveSite"
+        >
+          退出
+        </button>
       </div>
     </header>
-    <main>
+    <main v-if="accessLoading" class="access-loading" role="status">
+      正在连接服务…
+    </main>
+    <main v-else-if="locked" class="access-page">
+      <section class="access-panel">
+        <img src="/telecom-logo.png" alt="北京电信 5G" width="64" height="51" />
+        <h1>登录快捷服务</h1>
+        <p>使用站点访问账号，管理你的电信号码。</p>
+        <form @submit.prevent="enterSite">
+          <label
+            >访问账号<input
+              v-model.trim="accessUsername"
+              autocomplete="username"
+              maxlength="80"
+              :disabled="busy"
+              required
+          /></label>
+          <label
+            >访问密码<input
+              v-model="accessPassword"
+              type="password"
+              autocomplete="current-password"
+              maxlength="256"
+              :disabled="busy"
+              required
+          /></label>
+          <div v-if="error" role="alert" class="notice error">{{ error }}</div>
+          <button
+            class="primary"
+            :disabled="busy || !accessUsername || !accessPassword"
+          >
+            {{ busy ? "正在登录…" : "登录" }}
+          </button>
+        </form>
+        <p class="field-note">
+          此处填写站点访问密码，电信服务密码在账号登录时输入。
+        </p>
+      </section>
+    </main>
+    <main v-else>
       <div class="page-heading theme-heading">
         <div>
           <span class="eyebrow">北京电信 · 账号工作台</span>
@@ -554,7 +654,7 @@ onUnmounted(() => {
               {{
                 accounts.length
                   ? "试试其他关键词或筛选条件"
-                  : "添加号码后，使用服务密码在本地完成登录"
+                  : "添加号码后，使用服务密码直接完成登录"
               }}
             </p>
             <button
@@ -577,7 +677,7 @@ onUnmounted(() => {
         >
         <footer class="list-footer">
           <span>显示 {{ filtered.length }} / {{ accounts.length }} 个账号</span
-          ><span>服务密码加密保存在本机</span>
+          ><span>服务密码加密保存</span>
         </footer>
       </section>
       <section v-if="batch" class="batch-results" aria-label="本次操作结果">
@@ -717,7 +817,7 @@ onUnmounted(() => {
               :disabled="busy"
             />记住服务密码，过期自动补登</label
           >
-          <p class="field-note">密码加密保存在本机，不在账号列表中显示。</p>
+          <p class="field-note">密码加密保存在服务端，不在账号列表中显示。</p>
         </form>
         <form
           v-else-if="mode === 'import'"

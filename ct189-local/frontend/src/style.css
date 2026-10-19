@@ -1071,3 +1071,68 @@ main {
     line-height: 1.8;
   }
 }
+.access-loading {
+  padding: 64px 20px;
+  text-align: center;
+  color: var(--muted, #64748b);
+}
+.access-page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100svh - 90px);
+  padding: 32px 16px;
+}
+.access-panel {
+  width: min(100%, 400px);
+  padding: 28px;
+  border: 1px solid #dde5ef;
+  border-radius: 12px;
+  background: #fff;
+}
+.access-panel h1 {
+  margin: 20px 0 8px;
+  font-size: 25px;
+  letter-spacing: -0.6px;
+}
+.access-panel > p {
+  color: #64748b;
+  line-height: 1.6;
+}
+.access-panel form {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0 20px;
+}
+.access-panel form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.access-panel input {
+  width: 100%;
+  min-height: 44px;
+  font-size: 16px;
+}
+.access-panel form button {
+  min-height: 44px;
+}
+.access-panel .field-note {
+  margin-bottom: 0;
+  font-size: 12px;
+}
+.access-logout {
+  margin-left: 12px;
+  min-height: 36px;
+}
+@media (max-width: 480px) {
+  .access-panel {
+    padding: 24px 20px;
+  }
+  .header-content:has(.access-logout) .connection {
+    display: none;
+  }
+  .access-logout {
+    margin-left: auto;
+  }
+}

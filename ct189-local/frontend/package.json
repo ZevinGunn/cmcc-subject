@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5711",
     "build": "vite build",
-    "test:browser": "node test/login-browser.mjs",
+    "test:browser": "node test/login-browser.mjs && node test/access-browser.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 5712"
   },
   "dependencies": {

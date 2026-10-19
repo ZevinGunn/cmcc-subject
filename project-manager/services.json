@@ -7,6 +7,59 @@
   ],
   "services": [
     {
+      "id": "ct189",
+      "name": "北京电信快捷服务",
+      "description": "电信账号管理、服务密码快捷登录与过期自动补登",
+      "group": "business",
+      "kind": "application",
+      "directory": "ct189-local",
+      "runtime": "node",
+      "pm2Name": "ct189-service",
+      "port": 5710,
+      "domains": [
+        "ct189.1008086.xyz"
+      ],
+      "publicUrl": "https://ct189.1008086.xyz/",
+      "healthPath": "/api/health",
+      "allowedStatus": [
+        200
+      ],
+      "dependencies": [
+        "pm2",
+        "ct189-tunnel"
+      ],
+      "capabilities": [
+        "start",
+        "stop",
+        "restart",
+        "build",
+        "test",
+        "deploy",
+        "check",
+        "logs"
+      ],
+      "build": {
+        "cwd": "ct189-local/frontend",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "artifact": "ct189-local/frontend/dist/index.html"
+      },
+      "test": {
+        "cwd": "ct189-local",
+        "command": [
+          "/Users/ZevinGunn/.nvm/versions/node/v22.22.3/bin/node",
+          "scripts/test.mjs"
+        ],
+        "requiredForDeploy": true
+      },
+      "automaticOperations": false,
+      "protected": false,
+      "exposure": "public"
+    },
+    {
       "id": "shanxi",
       "name": "山西移动业务订购",
       "description": "晋速办 · 多账号登录、业务配置与验证码订购",
@@ -304,6 +357,32 @@
     }
   ],
   "infrastructure": [
+    {
+      "id": "ct189-tunnel",
+      "name": "北京电信独立隧道",
+      "description": "北京电信快捷服务独立公网入口",
+      "group": "platform",
+      "kind": "infrastructure",
+      "directory": "ct189-local",
+      "runtime": "pm2-cloudflared",
+      "pm2Name": "ct189-tunnel",
+      "port": null,
+      "domains": [
+        "ct189.1008086.xyz"
+      ],
+      "healthPath": null,
+      "allowedStatus": [],
+      "capabilities": [
+        "start",
+        "restart",
+        "check",
+        "logs"
+      ],
+      "build": null,
+      "test": null,
+      "protected": true,
+      "startWithServices": true
+    },
     {
       "id": "shanxi-tunnel",
       "name": "晋速办独立隧道",

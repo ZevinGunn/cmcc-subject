@@ -3,6 +3,7 @@
 // 把 /Users/ZevinGunn 改成真实家目录
 
 const apps = [
+    ...require("../ct189-local/ecosystem.public.cjs").apps,
     {
       name: "cookie-app",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app",
