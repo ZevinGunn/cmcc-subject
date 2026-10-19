@@ -21,11 +21,16 @@ accountsRouter.post("/", (req, res) => {
     res.status(400).json({ ok: false, message: "请输入 11 位手机号" });
     return;
   }
+  if (id && getAccount(id)?.phone !== String(phone)) {
+    res.status(400).json({ ok: false, message: "手机号不可修改，请添加新账号" });
+    return;
+  }
   res.json({ ok: true, account: upsertAccount({ id, phone, label }) });
 });
 
 accountsRouter.patch("/:id", (req, res) => {
-  const account = patchAccount(req.params.id, req.body || {});
+  // Account identifiers, credentials and login state are server-owned.
+  const account = patchAccount(req.params.id, { label: String(req.body?.label || "").slice(0, 80) });
   if (!account) {
     res.status(404).json({ ok: false, message: "账号不存在" });
     return;

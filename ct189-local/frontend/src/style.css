@@ -276,6 +276,36 @@ input:focus {
   max-width: 260px;
 }
 
+.password-field {
+  flex: 1 1 200px;
+  max-width: 260px;
+}
+
+.login-row {
+  align-items: flex-end;
+}
+
+.success-line {
+  margin: 12px 0 0;
+  color: #11733b;
+}
+
+.workspace,
+.panel,
+.metric {
+  min-width: 0;
+}
+
+.json-box,
+.logs pre {
+  overflow-wrap: anywhere;
+}
+
+button:focus-visible {
+  outline: 2px solid #0b63ce;
+  outline-offset: 3px;
+}
+
 .error-line {
   margin: 12px 0 0;
   color: #b42318;
@@ -384,7 +414,15 @@ input:focus {
     border-bottom: 1px solid #d9e0ea;
   }
 
-  .overview-grid,
+  .overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric strong {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+
   .content-grid {
     grid-template-columns: 1fr;
   }

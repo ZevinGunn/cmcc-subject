@@ -27,6 +27,7 @@
           :key="item.id"
           class="account-item"
           :class="{ active: activeId === item.id }"
+          :disabled="busy"
           @click="selectAccount(item.id)"
         >
           <strong>{{ item.label || item.maskedPhone }}</strong>
@@ -54,6 +55,38 @@
       </section>
 
       <template v-else>
+        <section class="panel login-panel">
+          <div class="panel-title">
+            <div>
+              <h2>账密快捷登录</h2>
+              <p>在本页登录，无需跳转官网。服务密码不保存。</p>
+            </div>
+            <span>{{ activeAccount.maskedPhone }}</span>
+          </div>
+          <form class="login-row" @submit.prevent="loginPassword" :aria-busy="loggingIn">
+            <label class="password-field" for="service-password">
+              <span>服务密码</span>
+              <input
+                id="service-password"
+                v-model="password"
+                type="password"
+                autocomplete="current-password"
+                inputmode="numeric"
+                maxlength="32"
+                pattern="[0-9]+"
+                required
+                :disabled="busy"
+                placeholder="服务密码"
+              />
+            </label>
+            <button class="primary" type="submit" :disabled="busy || !validPassword">{{ loggingIn ? "正在登录…" : "快捷登录" }}</button>
+            <button type="button" @click="checkLogin" :disabled="busy">确认登录</button>
+            <button type="button" @click="refreshAll" :disabled="busy">查询余额/权益</button>
+          </form>
+          <p v-if="loginFeedback" :class="loginSucceeded ? 'success-line' : 'error-line'" role="status" aria-live="polite">{{ loginFeedback }}</p>
+          <p v-else-if="activeAccount.lastError" class="error-line" role="alert">{{ activeAccount.lastError }}</p>
+        </section>
+
         <section class="overview-grid">
           <article class="metric">
             <span>登录号码</span>
@@ -71,29 +104,6 @@
             <span>最近刷新</span>
             <strong>{{ formatTime(activeAccount.lastRefreshAt) }}</strong>
           </article>
-        </section>
-
-        <section class="panel login-panel">
-          <div class="panel-title">
-            <div>
-              <h2>服务密码登录</h2>
-              <p>使用官方 WAP 页面上下文发起请求，自动复用浏览器 cookie。</p>
-            </div>
-            <span>{{ activeAccount.maskedPhone }}</span>
-          </div>
-          <div class="login-row">
-            <input
-              v-model="password"
-              type="password"
-              inputmode="numeric"
-              placeholder="服务密码"
-              @keyup.enter="loginPassword"
-            />
-            <button class="primary" @click="loginPassword" :disabled="busy || !password">登录</button>
-            <button @click="checkLogin" :disabled="busy">确认登录</button>
-            <button @click="refreshAll" :disabled="busy">查询余额/权益</button>
-          </div>
-          <p v-if="activeAccount.lastError" class="error-line">{{ activeAccount.lastError }}</p>
         </section>
 
         <section class="content-grid">
@@ -147,7 +157,7 @@
       </template>
     </section>
 
-    <div v-if="busy" class="busy-mask">
+    <div v-if="busy && !loggingIn" class="busy-mask">
       <div>处理中...</div>
     </div>
   </main>
@@ -163,6 +173,10 @@ const activeId = ref("");
 const logs = ref([]);
 const latestResult = ref(null);
 const password = ref("");
+const loggingIn = ref(false);
+const loginFeedback = ref("");
+const loginSucceeded = ref(false);
+const validPassword = computed(() => /^\d{1,32}$/.test(password.value));
 const health = ref(null);
 const resultTab = ref("latest");
 const accountForm = reactive({ phone: "", label: "" });
@@ -188,6 +202,7 @@ onMounted(async () => {
 });
 
 async function run(task) {
+  if (busy.value) return;
   busy.value = true;
   try {
     return await task();
@@ -205,12 +220,14 @@ async function loadHealth() {
 }
 
 async function loadAccounts() {
-  await run(async () => {
-    const data = await api.accounts();
-    accounts.value = data.accounts || [];
-    if (!activeId.value && accounts.value[0]) activeId.value = accounts.value[0].id;
-    if (activeId.value) await loadLogs();
-  });
+  await run(reloadAccounts);
+}
+
+async function reloadAccounts() {
+  const data = await api.accounts();
+  accounts.value = data.accounts || [];
+  if (!activeId.value && accounts.value[0]) activeId.value = accounts.value[0].id;
+  if (activeId.value) await loadLogs();
 }
 
 async function saveAccount() {
@@ -219,15 +236,19 @@ async function saveAccount() {
     latestResult.value = data;
     accountForm.phone = "";
     accountForm.label = "";
-    await loadAccounts();
     activeId.value = data.account.id;
+    password.value = "";
+    loginFeedback.value = "";
+    await reloadAccounts();
   });
 }
 
 async function selectAccount(id) {
+  if (busy.value) return;
   activeId.value = id;
   password.value = "";
   latestResult.value = null;
+  loginFeedback.value = "";
   await loadLogs();
 }
 
@@ -237,30 +258,51 @@ async function deleteActive() {
   await run(async () => {
     await api.deleteAccount(activeAccount.value.id);
     activeId.value = "";
-    await loadAccounts();
+    await reloadAccounts();
   });
 }
 
 async function loginPassword() {
+  if (busy.value || !activeAccount.value || !validPassword.value) return;
+  const id = activeAccount.value.id;
+  loggingIn.value = true;
+  loginFeedback.value = "";
+  loginSucceeded.value = false;
   await run(async () => {
-    const data = await api.loginPassword(activeAccount.value.id, password.value);
-    latestResult.value = data;
-    password.value = "";
-    await loadAccounts();
+    try {
+      const data = await api.loginPassword(id, password.value);
+      latestResult.value = data;
+      loginFeedback.value = data.message;
+      loginSucceeded.value = true;
+      updateAccount(data.account);
+    } catch (error) {
+      updateAccount(error.account || { ...activeAccount.value, loginStatus: "invalid", loginNumber: "", lastError: error.message });
+      loginFeedback.value = error.message;
+      latestResult.value = { ok: false, message: error.message };
+    } finally {
+      password.value = "";
+      await loadLogs().catch(() => {});
+    }
   });
+  loggingIn.value = false;
+}
+
+function updateAccount(account) {
+  if (!account) return;
+  accounts.value = accounts.value.map(item => item.id === account.id ? account : item);
 }
 
 async function checkLogin() {
   await run(async () => {
     latestResult.value = await api.checkLogin(activeAccount.value.id);
-    await loadAccounts();
+    await reloadAccounts();
   });
 }
 
 async function refreshAll() {
   await run(async () => {
     latestResult.value = await api.refresh(activeAccount.value.id);
-    await loadAccounts();
+    await reloadAccounts();
   });
 }
 
@@ -268,7 +310,7 @@ async function drawRights() {
   if (!window.confirm("确认现在为当前手机号发起权益领取/抽奖请求？")) return;
   await run(async () => {
     latestResult.value = await api.drawRights(activeAccount.value.id);
-    await loadAccounts();
+    await reloadAccounts();
   });
 }
 

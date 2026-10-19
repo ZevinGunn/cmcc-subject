@@ -8,7 +8,9 @@ async function request(path, options = {}) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
-    throw new Error(data.message || `请求失败：${response.status}`);
+    const error = new Error(data.message || `请求失败：${response.status}`);
+    error.account = data.account;
+    throw error;
   }
   return data;
 }

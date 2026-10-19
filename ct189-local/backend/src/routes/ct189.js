@@ -1,4 +1,5 @@
 import express from "express";
+import { isTelecomSuccess, loginSummary } from "../services/passwordLogin.js";
 import { appendLog, getAccount, patchAccount } from "../services/accountStore.js";
 import {
   closeClient,
@@ -27,41 +28,33 @@ ct189Router.post("/:id/login/password", async (req, res, next) => {
     const account = requireAccount(req, res);
     if (!account) return;
     const password = String(req.body?.password || "");
-    if (!/^\d+$/.test(password)) {
-      res.status(400).json({ ok: false, message: "服务密码必须是数字" });
+    if (!/^\d{1,32}$/.test(password)) {
+      res.status(400).json({ ok: false, message: "请输入数字服务密码（最多 32 位）" });
       return;
     }
-    const login = await loginByServicePassword(account.id, account.phone, password);
-    const loginAccount = await queryLoginAccount(account.id);
-    const ok = login.data?.result === 0 || login.data?.retCode === "000000";
-    const loginNumber = loginAccount.data?.object || "";
-    const emptyLogin = typeof login.data === "string" && !login.data.trim();
+    // Remove stale success immediately; a transport failure must not preserve it.
+    patchAccount(account.id, { loginStatus: "invalid", loginNumber: "", lastError: "登录尚未完成" });
+    const result = await loginByServicePassword(account.id, account.phone, password);
+    const { ok, message } = result;
     const updated = patchAccount(account.id, {
       loginStatus: ok ? "valid" : "invalid",
-      loginNumber,
-      lastLoginAt: new Date().toISOString(),
-      lastError: ok
-        ? ""
-        : emptyLogin
-          ? `电信接口返回空响应，可能未通过 WAP/WAF 初始化，HTTP ${login.diagnostic?.status || 0}`
-          : login.data?.retMsg || "登录失败"
+      loginNumber: ok ? account.phone : "",
+      ...(ok ? { lastLoginAt: new Date().toISOString() } : {}),
+      lastError: ok ? "" : message
     });
     appendLog(account.id, "password_login", {
-      login: login.data,
-      loginDiagnostic: login.diagnostic,
-      loginAccount: loginAccount.data,
-      loginAccountDiagnostic: loginAccount.diagnostic
-    });
-    res.json({
       ok,
-      account: updated,
-      login: login.data,
-      loginDiagnostic: login.diagnostic,
-      loginAccount: loginAccount.data,
-      loginAccountDiagnostic: loginAccount.diagnostic
+      login: loginSummary(result.login),
+      loginAccount: loginSummary(result.loginAccount)
     });
+    res.set("Cache-Control", "no-store").json({ ok, message, account: updated });
   } catch (error) {
-    next(error);
+    const message = "电信登录连接失败，请稍后重试";
+    let account = null;
+    if (getAccount(req.params.id)) {
+      account = patchAccount(req.params.id, { loginStatus: "invalid", loginNumber: "", lastError: message });
+    }
+    res.status(502).json({ ok: false, message, account });
   }
 });
 
@@ -70,7 +63,8 @@ ct189Router.post("/:id/check-login", async (req, res, next) => {
     const account = requireAccount(req, res);
     if (!account) return;
     const result = await queryLoginAccount(account.id);
-    const loginNumber = result.data?.object || "";
+    const valid = isTelecomSuccess(result) && result.data.object === account.phone;
+    const loginNumber = valid ? account.phone : "";
     const updated = patchAccount(account.id, {
       loginStatus: loginNumber ? "valid" : "invalid",
       loginNumber,

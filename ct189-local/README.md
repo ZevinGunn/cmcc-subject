@@ -12,13 +12,23 @@ pnpm run dev
 - 前端：http://127.0.0.1:5711
 - 后端：http://127.0.0.1:5710
 
-默认 Playwright 使用无头浏览器。如果电信 WAP 风控要求人工验证，可以用：
+首次运行需安装本地会话引擎：
 
 ```bash
-CT189_HEADLESS=false pnpm --filter ct189-local-backend run dev
+pnpm --filter ct189-local-backend exec playwright install chromium
 ```
 
-## 一期功能
+## 账密快捷登录
+
+添加手机号后，在「账密快捷登录」中输入数字服务密码，点击快捷登录或按 Enter。登录全程在本应用内完成，不打开浏览器窗口、不跳转官网。密码仅用于当次加密提交，不保存到账号文件、日志或会话缓存。
+
+北京电信仍需联网认证；本地后台使用独立的无头 Chromium 会话执行官网动态风控脚本，随后提交 3DES 加密后的服务密码。仅当提交成功且官网确认的登录号码与目标手机号完全一致时，才标记登录有效。初始化失败、空响应、密码错误、串号均显示失败并清除该次会话，不提供跳转官网的回退流程。
+
+会话按账号隔离，同一账号的登录和查询串行处理。失败后可在本页直接重试；官网要求额外人工验证时不能保证自动通过，也不会显示为登录成功。
+
+`CT189_HEADLESS=false` 不再启用可视窗口。默认后端只监听本机，凭据和 Cookie 不经第三方中转；登录所需认证请求发送至北京电信官方服务。
+
+## 功能
 
 - 多手机号本地管理
 - 服务密码登录
@@ -36,3 +46,5 @@ CT189_HEADLESS=false pnpm --filter ct189-local-backend run dev
 - `backend/data/browser/<accountId>/`
 
 这些目录包含本地 cookie/session，请勿提交到仓库或发给他人。
+
+测试可用 `CT189_DATA_DIR` 指向临时目录，避免污染账号数据。运行 `pnpm test` 验证登录与账号隔离，`pnpm build` 检查前端；前端启动后，运行 `pnpm --filter ct189-local-frontend test:browser` 检查桌面/手机的等待、成功、失败和无跳转流程。回归测试通过本地拦截响应运行，不提交真实账号密码、不触发权益领取。

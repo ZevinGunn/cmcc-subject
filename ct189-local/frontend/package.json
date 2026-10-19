@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5711",
+    "dev": "vite --host 127.0.0.1 --port 5711",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 5712"
+    "test:browser": "node test/login-browser.mjs",
+    "preview": "vite preview --host 127.0.0.1 --port 5712"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
