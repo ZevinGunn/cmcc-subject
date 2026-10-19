@@ -76,7 +76,9 @@ export function createSiteAccess({
       if (!required) return next();
       if (
         ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
-        (!trustedOrigin(req) || !req.is("application/json"))
+        (!trustedOrigin(req) ||
+          req.get("Content-Type")?.split(";")[0].trim().toLowerCase() !==
+            "application/json")
       )
         return res
           .status(403)
@@ -140,13 +142,11 @@ export function createSiteAccess({
         return res.json({ ok: true, csrfToken: csrf });
       }
       if (!current)
-        return res
-          .status(401)
-          .json({
-            ok: false,
-            message: "请先登录北京电信快捷服务",
-            accessRequired: true,
-          });
+        return res.status(401).json({
+          ok: false,
+          message: "请先登录北京电信快捷服务",
+          accessRequired: true,
+        });
       if (
         ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
         req.get("X-CSRF-Token") !== current.csrf

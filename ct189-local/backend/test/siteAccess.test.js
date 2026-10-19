@@ -128,6 +128,15 @@ test("public account access requires login, trusted Origin and CSRF; logout/expi
       200,
     );
     assert.equal(
+      (await request("/api/accounts", { method: "DELETE", cookie, csrf }))
+        .status,
+      200,
+    );
+    assert.equal(
+      (await request("/api/accounts", { method: "DELETE", cookie })).status,
+      403,
+    );
+    assert.equal(
       (await request("/api/access/session", { cookie })).headers.get(
         "cache-control",
       ),
