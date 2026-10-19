@@ -16,7 +16,7 @@ test("account migration, import validation, metadata protection and durable isol
         {
           id: "legacy",
           phone: "18900000001",
-          label: "旧账号",
+          label: "654321",
           loginStatus: "valid",
         },
       ],
@@ -44,6 +44,8 @@ test("account migration, import validation, metadata protection and durable isol
   try {
     assert.equal(store.listAccounts()[0].group, "未分组");
     assert.equal(store.listAccounts()[0].enabled, true);
+    assert.equal(store.listAccounts()[0].label, "189****0001");
+    assert.equal(store.getAccount("legacy").label, "");
     assert.equal((await request("", { phone: "18900000001" })).status, 409);
     const bad = await request("/import", {
       accounts: [{ phone: "18900000002" }, { phone: "wrong" }],

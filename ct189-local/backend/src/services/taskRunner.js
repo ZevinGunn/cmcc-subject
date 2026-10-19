@@ -6,13 +6,9 @@ import {
   patchAccount,
   saveTask,
 } from "./accountStore.js";
-import {
-  closeClient,
-  queryActivity,
-  queryBalance,
-  queryLoginAccount,
-} from "./telecomClient.js";
+import { queryActivity, queryBalance } from "./telecomClient.js";
 import { isTelecomSuccess } from "./passwordLogin.js";
+import { accountSessions } from "./accountSession.js";
 
 export const taskActions = {
   check: "检查登录",
@@ -46,20 +42,11 @@ export function accountHasPendingTask(id) {
 }
 async function execute(action, account) {
   if (action === "close") {
-    await closeClient(account.id);
-    patchAccount(account.id, { loginStatus: "closed", loginNumber: "" });
-    return "会话已关闭";
+    return (await accountSessions.closeSession(account.id)).message;
   }
-  const identity = await queryLoginAccount(account.id);
-  const valid =
-    isTelecomSuccess(identity) && identity.data.object === account.phone;
-  patchAccount(account.id, {
-    loginStatus: valid ? "valid" : "invalid",
-    loginNumber: valid ? account.phone : "",
-    lastError: valid ? "" : "登录已失效，请重新登录",
-  });
-  if (!valid) throw new TaskExecutionError("登录已失效，请重新登录");
-  if (action === "check") return "登录号码核验通过";
+  const session = await accountSessions.ensureSession(account.id);
+  if (!session.ok) throw new TaskExecutionError(session.message);
+  if (action === "check") return session.message;
   const activity = await queryActivity(account.id);
   const balance = await queryBalance(account.id);
   const responses = [activity.info, activity.chance, ...Object.values(balance)];

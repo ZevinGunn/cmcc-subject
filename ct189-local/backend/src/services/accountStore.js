@@ -24,12 +24,39 @@ function writeJson() {
   fs.chmodSync(filePath, 0o600);
 }
 const store = readJson();
+// Numeric remarks could contain service passwords; display the masked phone instead.
+const safeLabel = (value) =>
+  /^\d{1,32}$/.test(String(value || "").trim()) ? "" : value;
+let migrated = false;
+for (const account of store.accounts) {
+  if (account.label && !safeLabel(account.label)) {
+    account.label = "";
+    migrated = true;
+  }
+  if (account.autoLoginStatus === "running") {
+    Object.assign(account, {
+      autoLoginStatus: "manual_required",
+      loginStatus: "invalid",
+      loginNumber: "",
+      lastError: "上次自动补登未完成，请手动重新登录",
+    });
+    migrated = true;
+  }
+}
+if (migrated) writeJson();
 function publicAccount(account) {
   return {
     id: account.id,
     phone: account.phone,
     maskedPhone: maskPhone(account.phone),
-    label: account.label || maskPhone(account.phone),
+    label: safeLabel(account.label) || maskPhone(account.phone),
+    hasSavedPassword: Boolean(account.savedPassword),
+    autoLoginStatus:
+      account.autoLoginStatus ||
+      (account.savedPassword ? "enabled" : "not_saved"),
+    autoLoginRetryAt: account.autoLoginRetryAt || "",
+    lastSessionCheckAt: account.lastSessionCheckAt || "",
+    lastAutoLoginAt: account.lastAutoLoginAt || "",
     group: account.group || "未分组",
     enabled: account.enabled !== false,
     createdAt: account.createdAt || "",
@@ -57,7 +84,7 @@ export function upsertAccount({ id, phone, label, group, enabled }) {
     account = {
       id: uuidv4(),
       phone,
-      label: label || "",
+      label: safeLabel(label) || "",
       group: group || "未分组",
       enabled: enabled !== false,
       loginStatus: "new",
@@ -67,7 +94,7 @@ export function upsertAccount({ id, phone, label, group, enabled }) {
     store.accounts.unshift(account);
   } else {
     Object.assign(account, {
-      label: label ?? account.label,
+      label: safeLabel(label ?? account.label),
       group: group ?? account.group,
       enabled: enabled ?? account.enabled,
       updatedAt: now,
@@ -79,7 +106,14 @@ export function upsertAccount({ id, phone, label, group, enabled }) {
 export function patchAccount(id, patch) {
   const account = getAccount(id);
   if (!account) return null;
-  Object.assign(account, patch, { updatedAt: new Date().toISOString() });
+  Object.assign(
+    account,
+    patch,
+    ...(Object.hasOwn(patch, "label")
+      ? [{ label: safeLabel(patch.label) }]
+      : []),
+    { updatedAt: new Date().toISOString() },
+  );
   writeJson();
   return publicAccount(account);
 }

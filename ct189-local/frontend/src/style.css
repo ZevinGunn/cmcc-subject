@@ -122,33 +122,11 @@ small {
   display: flex;
   min-height: 100dvh;
 }
-.sidebar {
-  width: 204px;
-  flex-shrink: 0;
-  background: #f1f3f6;
-  border-right: 1px solid #e2e6eb;
-  position: fixed;
-  inset: 0 auto 0 0;
-  display: flex;
-  flex-direction: column;
-  padding: 26px 14px 18px;
-}
 .brand {
   display: flex;
   gap: 11px;
   align-items: center;
   padding: 0 8px 36px;
-}
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  background: #255bc5;
-  color: #fff;
-  border-radius: 7px;
-  font-size: 15px;
-  font-weight: 700;
 }
 .brand strong {
   display: block;
@@ -159,47 +137,6 @@ small {
   color: #7b8593;
   font-size: 11px;
   margin-top: 2px;
-}
-.nav-caption {
-  color: #87909d;
-  font-size: 11px;
-  padding: 0 12px 10px;
-}
-.sidebar nav {
-  display: grid;
-  gap: 5px;
-}
-.sidebar nav button {
-  border: 0;
-  background: transparent;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  color: #687383;
-  min-height: 42px;
-}
-.sidebar nav button.current {
-  background: #e3eafa;
-  color: #2257b4;
-  font-weight: 600;
-}
-.nav-count {
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-.sidebar-bottom {
-  margin-top: auto;
-  color: #687383;
-  font-size: 12px;
-  padding: 12px 8px 0;
-}
-.sidebar-bottom small {
-  display: block;
-  font-size: 11px;
-  color: #8a94a2;
-  padding: 6px 0 0 13px;
 }
 .live-dot,
 .dot {
@@ -215,34 +152,6 @@ small {
 }
 .live-dot.offline {
   background: #c78031;
-}
-.main-shell {
-  margin-left: 204px;
-  min-width: 0;
-  flex: 1;
-}
-.topbar {
-  height: 62px;
-  border-bottom: 1px solid #e5e8ee;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  font-size: 12px;
-  color: #667183;
-}
-.slash {
-  color: #c7ccd4;
-  margin: 0 12px;
-}
-.local-tag {
-  font-size: 11px;
-  background: #f1f4f8;
-  color: #6a788a;
-  border-radius: 4px;
-  padding: 3px 7px;
-  white-space: nowrap;
 }
 main {
   max-width: 1600px;
@@ -408,13 +317,6 @@ main {
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.phone {
-  display: block;
-  color: #8993a1;
-  font-size: 11px;
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
 .group-label {
   color: #6e7c8e;
   font-size: 11px;
@@ -485,14 +387,6 @@ main {
 .section-note > span {
   color: #657084;
 }
-.text-button {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: #4972ac;
-  min-height: 26px;
-  font-size: 12px;
-}
 .batch-bar {
   display: flex;
   align-items: center;
@@ -558,80 +452,6 @@ main {
 }
 .section-header .muted {
   font-size: 11px;
-}
-.task-row {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid #edf0f4;
-}
-.task-row:last-child {
-  border: 0;
-}
-.task-row > div:first-child {
-  flex: 1;
-}
-.task-row strong {
-  font-size: 13px;
-  font-weight: 500;
-}
-.task-row small {
-  display: block;
-  color: #8994a2;
-  margin-top: 4px;
-  font-size: 11px;
-}
-.task-progress {
-  display: grid;
-  gap: 4px;
-  color: #8a94a1;
-  font-size: 11px;
-  min-width: 100px;
-}
-progress {
-  width: 100px;
-  height: 4px;
-  accent-color: #4178d4;
-}
-.automation {
-  max-width: 880px;
-}
-.automation-content {
-  padding: 24px 26px;
-  line-height: 1.8;
-  font-size: 13px;
-  color: #6a7788;
-}
-.automation-content h3 {
-  color: #364357;
-  margin-bottom: 8px;
-}
-.automation-content h3:not(:first-child) {
-  margin-top: 24px;
-}
-.automation-content p {
-  margin: 8px 0;
-}
-.automation pre {
-  margin: 12px 0;
-}
-.feature-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 0;
-  border-top: 1px solid #e9edf2;
-  border-bottom: 1px solid #e9edf2;
-  margin-top: 24px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.feature-line strong {
-  font-weight: 500;
-  color: #526075;
-}
-.feature-line span {
-  font-size: 12px;
 }
 code,
 pre {
@@ -756,19 +576,6 @@ dialog::backdrop {
 .dialog-body h3 {
   margin-bottom: 12px;
 }
-.log-row {
-  display: grid;
-  grid-template-columns: 90px 1fr auto;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid #edf0f4;
-  font-size: 11px;
-  color: #718094;
-}
-.log-row time {
-  color: #969eab;
-  white-space: nowrap;
-}
 details {
   margin-top: 16px;
   border-top: 1px solid #edf0f4;
@@ -801,9 +608,6 @@ summary {
   button.primary:not(:disabled):hover {
     background: #1e56c5;
   }
-  .sidebar nav button:not(.current):hover {
-    background: #e8ecf1;
-  }
   .accounts-table tr:not(.selected):hover {
     background: #fafbfe;
   }
@@ -818,17 +622,8 @@ summary {
   }
 }
 @media (max-width: 1120px) {
-  .sidebar {
-    width: 174px;
-  }
-  .main-shell {
-    margin-left: 174px;
-  }
   main {
     padding: 26px 22px;
-  }
-  .topbar {
-    padding: 0 22px;
   }
   .time-column {
     display: none;
@@ -850,51 +645,17 @@ summary {
   }
 }
 @media (max-width: 760px) {
-  .sidebar {
-    position: static;
-    width: 100%;
-    padding: 14px 16px 10px;
-    border: 0;
-    border-bottom: 1px solid #e2e6eb;
-  }
   .workspace {
     display: block;
   }
   .brand {
     padding: 0 0 14px;
   }
-  .brand-mark {
-    width: 29px;
-    height: 29px;
-    font-size: 12px;
-  }
   .brand strong {
     font-size: 14px;
   }
   .brand small {
     font-size: 10px;
-  }
-  .nav-caption,
-  .sidebar-bottom {
-    display: none;
-  }
-  .sidebar nav {
-    display: flex;
-    gap: 6px;
-  }
-  .sidebar nav button {
-    flex: 1;
-    justify-content: center;
-    gap: 9px;
-    min-height: 36px;
-    padding: 6px;
-    font-size: 12px;
-  }
-  .main-shell {
-    margin-left: 0;
-  }
-  .topbar {
-    display: none;
   }
   main {
     padding: 22px 14px;
@@ -992,10 +753,6 @@ summary {
   .account-name {
     font-size: 12px;
   }
-  .phone {
-    font-size: 10px;
-    line-height: 1.5;
-  }
   .status-label {
     font-size: 10px;
     gap: 4px;
@@ -1014,9 +771,6 @@ summary {
     font-size: 11px;
     line-height: 1.7;
   }
-  .section-note .text-button {
-    font-size: 11px;
-  }
   .batch-bar {
     padding: 10px;
     gap: 5px;
@@ -1028,29 +782,8 @@ summary {
   .batch-bar .clear-selection {
     margin-left: 0;
   }
-  .task-row {
-    gap: 10px;
-    padding: 15px 12px;
-    flex-wrap: wrap;
-  }
-  .task-row > div:first-child {
-    min-width: 130px;
-  }
-  .task-progress {
-    display: none;
-  }
-  .task-row button {
-    font-size: 11px;
-  }
   .section-header {
     padding: 16px;
-  }
-  .automation-content {
-    padding: 18px 16px;
-    font-size: 12px;
-  }
-  .automation pre {
-    font-size: 11px;
   }
   .dialog-header,
   .dialog-body {
@@ -1058,13 +791,6 @@ summary {
   }
   .dialog-footer {
     padding: 14px 18px;
-  }
-  .log-row {
-    grid-template-columns: 75px 1fr;
-    gap: 6px;
-  }
-  .log-row time {
-    grid-column: 1/-1;
   }
   .empty {
     padding: 48px 16px;
@@ -1079,5 +805,269 @@ summary {
   }
   button:active {
     transform: none;
+  }
+}
+
+/* The supplied telecom mark appears in the header, theme banner and favicon. */
+.workspace {
+  display: block;
+  min-height: 100dvh;
+}
+.brand-header {
+  background: #fff;
+  border-bottom: 1px solid #e4eaf2;
+}
+.header-content {
+  max-width: 1360px;
+  margin: auto;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.brand-header .brand {
+  padding: 0;
+  gap: 13px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+.brand-header img {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.brand-header .brand strong {
+  font-size: 16px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.brand-header .brand small {
+  font-size: 11px;
+  color: #8793a3;
+}
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #7b8796;
+  font-size: 11px;
+  white-space: nowrap;
+}
+main {
+  max-width: 1360px;
+  padding-top: 26px;
+}
+.theme-heading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 24px;
+  border: 1px solid #e3ebf6;
+  border-radius: 8px;
+  background: linear-gradient(110deg, #edf5ff 0%, #f7faff 57%, #e9f2ff 100%);
+}
+.theme-heading:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 23% 0 0;
+  background: url("/telecom-logo.png") right center/140px auto no-repeat;
+  opacity: 0.1;
+  mask-image: linear-gradient(90deg, transparent 30%, #000 80%);
+  pointer-events: none;
+}
+.theme-heading h1 {
+  font-size: 24px;
+  margin-top: 4px;
+  color: #213952;
+}
+.theme-heading p {
+  color: #7b8ba1;
+  font-size: 12px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #7490b2;
+}
+.account-remark {
+  display: block;
+  color: #8591a1;
+  font-size: 11px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.saved-state {
+  display: block;
+  font-size: 10px;
+  color: #8c98a8;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.saved-state.attention {
+  color: #b36535;
+}
+.accounts-table td {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.accounts-table .actions-column {
+  width: 180px;
+}
+.account-name {
+  font-variant-numeric: tabular-nums;
+}
+.batch-results {
+  margin-top: 16px;
+  border: 1px solid #e0e5ec;
+  border-radius: 8px;
+  background: #fff;
+}
+.batch-results .result-row {
+  padding: 12px 20px;
+  grid-template-columns: 1fr auto;
+  gap: 4px 15px;
+}
+.batch-results .result-row:last-child {
+  border: 0;
+}
+.batch-results .section-header {
+  padding: 13px 20px;
+}
+.batch-results .section-header h2 {
+  font-size: 13px;
+}
+.batch-results .section-header .muted {
+  font-size: 11px;
+}
+.batch-results .notice {
+  margin: 12px;
+}
+.batch-results .notice button {
+  margin-left: 10px;
+}
+.batch-results .result-row small {
+  overflow-wrap: anywhere;
+}
+.dialog-body input[readonly] {
+  background: #f4f6f9;
+  color: #637187;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .header-content {
+    padding: 16px;
+  }
+  .brand-header .brand {
+    gap: 10px;
+  }
+  .brand-header .brand strong {
+    font-size: 14px;
+  }
+  .brand-header img {
+    width: 40px;
+    height: 32px;
+  }
+  .connection {
+    font-size: 0;
+    gap: 0;
+  }
+  .connection .dot {
+    width: 7px;
+    height: 7px;
+  }
+  main {
+    padding: 18px 12px;
+  }
+  .theme-heading {
+    padding: 18px;
+  }
+  .theme-heading:before {
+    right: 0;
+    background-size: 120px;
+    opacity: 0.08;
+  }
+  .theme-heading h1 {
+    font-size: 22px;
+  }
+  .theme-heading .heading-actions {
+    margin-top: 18px;
+    gap: 7px;
+  }
+  .heading-actions button {
+    min-height: 40px;
+  }
+  .account-remark {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .mobile-group {
+    display: block;
+    font-size: 10px;
+    color: #99a3b0;
+    margin-top: 3px;
+  }
+  .accounts-table th:nth-child(2) {
+    width: 36%;
+  }
+  .accounts-table .actions-column {
+    width: 82px;
+  }
+  .accounts-table td {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+  .account-name {
+    font-size: 12px;
+  }
+  .saved-state {
+    font-size: 10px;
+    max-width: 120px;
+    line-height: 1.4;
+  }
+  .row-actions button {
+    min-height: 36px;
+    padding: 4px 5px;
+  }
+  .row-error {
+    max-width: 120px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+  }
+  .filter-tabs button {
+    min-height: 34px;
+  }
+  .batch-bar button {
+    min-height: 36px;
+  }
+  .dialog-body input:not([type="checkbox"]),
+  .dialog-body textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .dialog-body .checkbox-label {
+    line-height: 1.6;
+    min-height: 36px;
+  }
+  .dialog-footer button {
+    min-height: 42px;
+  }
+  .dialog-header button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .batch-results .result-row {
+    padding: 12px 14px;
+  }
+  .batch-results .section-header {
+    padding: 12px 14px;
+  }
+  .list-footer {
+    flex-wrap: wrap;
+  }
+  .section-note {
+    line-height: 1.8;
   }
 }

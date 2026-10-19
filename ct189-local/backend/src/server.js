@@ -4,9 +4,17 @@ import { config } from "./config.js";
 import { accountsRouter } from "./routes/accounts.js";
 import { ct189Router } from "./routes/ct189.js";
 import { tasksRouter } from "./routes/tasks.js";
+import { startSessionMonitor } from "./services/accountSession.js";
+import { closeClient } from "./services/telecomClient.js";
+import { listAccounts } from "./services/accountStore.js";
 
 const app = express();
-const localOrigins = ["http://127.0.0.1:5711", "http://localhost:5711", "http://127.0.0.1:5712", "http://localhost:5712"];
+const localOrigins = [
+  "http://127.0.0.1:5711",
+  "http://localhost:5711",
+  "http://127.0.0.1:5712",
+  "http://localhost:5712",
+];
 
 app.use((req, res, next) => {
   const origin = req.get("Origin");
@@ -23,7 +31,12 @@ app.use("/api", (req, res, next) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, name: "ct189-local", uptime: process.uptime(), headless: config.headless });
+  res.json({
+    ok: true,
+    name: "ct189-local",
+    uptime: process.uptime(),
+    headless: config.headless,
+  });
 });
 
 app.use("/api/accounts", accountsRouter);
@@ -31,7 +44,12 @@ app.use("/api/ct189", ct189Router);
 app.use("/api/tasks", tasksRouter);
 
 app.use("/api", (req, res) => {
-  res.status(404).json({ ok: false, message: `接口不存在：${req.method} ${req.originalUrl}` });
+  res
+    .status(404)
+    .json({
+      ok: false,
+      message: `接口不存在：${req.method} ${req.originalUrl}`,
+    });
 });
 
 app.use((error, req, res, next) => {
@@ -43,10 +61,28 @@ app.use((error, req, res, next) => {
   const status = Number(error?.status || error?.statusCode || 500);
   res.status(status >= 400 && status < 600 ? status : 500).json({
     ok: false,
-    message: error?.message || "服务端异常"
+    message: error?.message || "服务端异常",
   });
 });
 
-app.listen(config.port, config.host, () => {
-  console.log(`CT189 local backend running at http://${config.host}:${config.port}`);
+const server = app.listen(config.port, config.host, () => {
+  console.log(
+    `CT189 local backend running at http://${config.host}:${config.port}`,
+  );
 });
+const stopMonitor = startSessionMonitor();
+let stopping = false;
+async function shutdown() {
+  if (stopping) return;
+  stopping = true;
+  stopMonitor();
+  server.close();
+  const deadline = setTimeout(() => process.exit(0), 10000);
+  deadline.unref();
+  await Promise.allSettled(
+    listAccounts().map((account) => closeClient(account.id)),
+  );
+  process.exit(0);
+}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

@@ -18,7 +18,7 @@ async function request(path, options = {}) {
 export const api = {
   health: () => request("/api/health"),
   accounts: () => request("/api/accounts"),
-  tasks: () => request("/api/tasks"),
+  task: (id) => request(`/api/tasks/${id}`),
   startTask: (action, accountIds) =>
     request("/api/tasks", {
       method: "POST",
@@ -38,10 +38,10 @@ export const api = {
     request("/api/accounts", { method: "POST", body: JSON.stringify(payload) }),
   deleteAccount: (id) => request(`/api/accounts/${id}`, { method: "DELETE" }),
   logs: (id) => request(`/api/accounts/${id}/logs`),
-  loginPassword: (id, password) =>
+  loginPassword: (id, password, rememberPassword = true) =>
     request(`/api/ct189/${id}/login/password`, {
       method: "POST",
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ password, rememberPassword }),
     }),
   checkLogin: (id) =>
     request(`/api/ct189/${id}/check-login`, { method: "POST", body: "{}" }),

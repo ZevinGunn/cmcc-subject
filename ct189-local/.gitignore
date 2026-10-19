@@ -9,3 +9,4 @@ backend/data/browser/
 __pycache__/
 qinglong/.ct189-cache/
 backend/data/*.tmp
+backend/data/credential.key
