@@ -78,7 +78,7 @@ run(cloudflared, ["tunnel", "route", "dns", tunnel.id, domain]);
 renameSync(candidate, config);
 run(pm2, [
   "startOrRestart",
-  "ecosystem.public.cjs",
+  "ecosystem.public.config.cjs",
   "--only",
   "ct189-service,ct189-tunnel",
   "--update-env",
