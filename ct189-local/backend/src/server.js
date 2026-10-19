@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "./config.js";
 import { accountsRouter } from "./routes/accounts.js";
 import { ct189Router } from "./routes/ct189.js";
+import { tasksRouter } from "./routes/tasks.js";
 
 const app = express();
 const localOrigins = ["http://127.0.0.1:5711", "http://localhost:5711", "http://127.0.0.1:5712", "http://localhost:5712"];
@@ -27,6 +28,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/accounts", accountsRouter);
 app.use("/api/ct189", ct189Router);
+app.use("/api/tasks", tasksRouter);
 
 app.use("/api", (req, res) => {
   res.status(404).json({ ok: false, message: `接口不存在：${req.method} ${req.originalUrl}` });

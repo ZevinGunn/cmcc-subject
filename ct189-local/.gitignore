@@ -6,3 +6,6 @@ backend/data/accounts.json
 backend/data/browser/
 *.log
 .DS_Store
+__pycache__/
+qinglong/.ct189-cache/
+backend/data/*.tmp

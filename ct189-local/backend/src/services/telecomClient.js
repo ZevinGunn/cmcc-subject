@@ -59,6 +59,10 @@ export async function closeClient(accountId) {
   return sessions.run(accountId, () => sessions.close(accountId));
 }
 
+export async function removeClient(accountId) {
+  return sessions.run(accountId, () => discardSession(accountId));
+}
+
 async function ensureOfficialPage(accountId) {
   const client = await getClient(accountId);
   const page = client.page;

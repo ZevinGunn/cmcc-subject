@@ -5,50 +5,92 @@ import {
   listAccounts,
   listLogs,
   patchAccount,
-  upsertAccount
+  upsertAccount,
 } from "../services/accountStore.js";
-import { closeClient } from "../services/telecomClient.js";
+import { removeClient } from "../services/telecomClient.js";
+import { accountHasPendingTask } from "../services/taskRunner.js";
 
 export const accountsRouter = express.Router();
-
-accountsRouter.get("/", (req, res) => {
-  res.json({ ok: true, accounts: listAccounts() });
+const metadata = (body) => ({
+  ...(body.label !== undefined
+    ? { label: String(body.label).trim().slice(0, 80) }
+    : {}),
+  ...(body.group !== undefined
+    ? { group: String(body.group).trim().slice(0, 40) || "未分组" }
+    : {}),
+  ...(typeof body.enabled === "boolean" ? { enabled: body.enabled } : {}),
 });
-
+accountsRouter.get("/", (req, res) =>
+  res.json({ ok: true, accounts: listAccounts() }),
+);
+accountsRouter.get("/logs", (req, res) =>
+  res.json({ ok: true, logs: listLogs() }),
+);
+accountsRouter.post("/import", (req, res) => {
+  const rows = req.body?.accounts;
+  if (
+    !Array.isArray(rows) ||
+    rows.length < 1 ||
+    rows.length > 200 ||
+    rows.some((row) => !row || !/^1\d{10}$/.test(String(row.phone)))
+  ) {
+    return res
+      .status(400)
+      .json({
+        ok: false,
+        message: "请导入 1–200 个有效手机号，整批验证通过后才会保存",
+      });
+  }
+  const known = new Set(listAccounts().map((item) => item.phone));
+  const added = [];
+  let skipped = 0;
+  for (const row of rows) {
+    const phone = String(row.phone);
+    if (known.has(phone)) {
+      skipped++;
+      continue;
+    }
+    known.add(phone);
+    added.push(upsertAccount({ phone, ...metadata(row) }));
+  }
+  res.json({ ok: true, added: added.length, skipped, accounts: added });
+});
 accountsRouter.post("/", (req, res) => {
-  const { id, phone, label } = req.body || {};
-  if (!phone || !/^1\d{10}$/.test(String(phone))) {
-    res.status(400).json({ ok: false, message: "请输入 11 位手机号" });
-    return;
-  }
-  if (id && getAccount(id)?.phone !== String(phone)) {
-    res.status(400).json({ ok: false, message: "手机号不可修改，请添加新账号" });
-    return;
-  }
-  res.json({ ok: true, account: upsertAccount({ id, phone, label }) });
+  const { id, phone } = req.body || {};
+  if (!/^1\d{10}$/.test(String(phone)))
+    return res.status(400).json({ ok: false, message: "请输入 11 位手机号" });
+  if (id && getAccount(id)?.phone !== String(phone))
+    return res
+      .status(400)
+      .json({ ok: false, message: "手机号不可修改，请添加新账号" });
+  if (!id && listAccounts().some((item) => item.phone === String(phone)))
+    return res.status(409).json({ ok: false, message: "该手机号已存在" });
+  res.json({
+    ok: true,
+    account: upsertAccount({ id, phone: String(phone), ...metadata(req.body) }),
+  });
 });
-
 accountsRouter.patch("/:id", (req, res) => {
-  // Account identifiers, credentials and login state are server-owned.
-  const account = patchAccount(req.params.id, { label: String(req.body?.label || "").slice(0, 80) });
-  if (!account) {
-    res.status(404).json({ ok: false, message: "账号不存在" });
-    return;
-  }
+  const account = patchAccount(req.params.id, metadata(req.body || {}));
+  if (!account)
+    return res.status(404).json({ ok: false, message: "账号不存在" });
   res.json({ ok: true, account });
 });
-
-accountsRouter.delete("/:id", async (req, res) => {
-  const existing = getAccount(req.params.id);
-  if (!existing) {
-    res.status(404).json({ ok: false, message: "账号不存在" });
-    return;
+accountsRouter.delete("/:id", async (req, res, next) => {
+  try {
+    if (!getAccount(req.params.id))
+      return res.status(404).json({ ok: false, message: "账号不存在" });
+    if (accountHasPendingTask(req.params.id))
+      return res
+        .status(409)
+        .json({ ok: false, message: "账号仍有任务排队或执行中，请完成后删除" });
+    await removeClient(req.params.id);
+    deleteAccount(req.params.id);
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
   }
-  await closeClient(req.params.id);
-  deleteAccount(req.params.id);
-  res.json({ ok: true });
 });
-
-accountsRouter.get("/:id/logs", (req, res) => {
-  res.json({ ok: true, logs: listLogs(req.params.id) });
-});
+accountsRouter.get("/:id/logs", (req, res) =>
+  res.json({ ok: true, logs: listLogs(req.params.id) }),
+);
