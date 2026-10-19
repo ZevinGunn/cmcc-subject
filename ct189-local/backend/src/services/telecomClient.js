@@ -68,8 +68,9 @@ async function ensureOfficialPage(accountId) {
       await page.goto(config.officialEntry, { waitUntil: "domcontentloaded" });
       if (new URL(page.url()).origin !== config.officialOrigin) throw new Error("unexpected origin");
       client.initialized = true;
-    } catch {
-      throw new Error("电信会话初始化失败，请稍后重试（无需打开官网）");
+    } catch (error) {
+      client.initialized = false;
+      throw error;
     }
   }
   return page;
@@ -80,6 +81,7 @@ export async function request189(accountId, endpoint, data = {}, options = {}) {
 }
 
 async function requestInSession(accountId, endpoint, data = {}, options = {}) {
+  if (options.reinitialize) (await getClient(accountId)).initialized = false;
   const page = await ensureOfficialPage(accountId);
   const result = await page.evaluate(
     async ({ endpoint, data, method, timeout }) => {
@@ -149,7 +151,7 @@ export async function loginByServicePassword(accountId, phone, password) {
   return sessions.run(accountId, async () => {
     try {
       const result = await performPasswordLogin(phone, password,
-        (endpoint, data) => requestInSession(accountId, endpoint, data));
+        (endpoint, data, options) => requestInSession(accountId, endpoint, data, options));
       // Failed or mismatched logins must not leave an old usable session behind.
       if (!result.ok) await discardSession(accountId);
       return result;
@@ -161,11 +163,9 @@ export async function loginByServicePassword(accountId, phone, password) {
 }
 
 async function discardSession(accountId) {
-  const pending = sessions.existing(accountId);
-  if (pending) {
-    try { await (await pending).context.clearCookies(); }
-    finally { await sessions.close(accountId); }
-  }
+  // Close first, then remove the profile. Cookie operations fail on a crashed
+  // context and must not prevent deletion or hide the original login error.
+  await sessions.close(accountId);
   fs.rmSync(profileDirectory(accountId), { recursive: true, force: true });
 }
 

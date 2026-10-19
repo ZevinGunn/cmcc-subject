@@ -34,11 +34,17 @@ test("local API logs in without opening an external page and clears a mismatched
     let passwordSubmitted = false;
     let mismatch = false;
     let submissions = 0;
+    let entryLoads = 0;
+    let initializationQueries = 0;
     // All requests are intercepted. This test cannot reach the official service.
     await client.context.route("**/*", async route => {
       const url = new URL(route.request().url());
       if (url.pathname === "/echnwap/scratchLogon") {
-        return route.fulfill({ contentType: "text/html", body: "<!doctype html><html><body>Local fixture</body></html>" });
+        entryLoads++;
+        if (entryLoads === 1) {
+          return route.fulfill({ status: 412, contentType: "text/html", body: "<!doctype html><script>setTimeout(() => location.reload(), 50)</script>" });
+        }
+        return route.fulfill({ contentType: "text/html", body: "<!doctype html><html><body><div id='app'>Local fixture</div></body></html>" });
       }
       assert.equal(url.hostname, "wapbj.189.cn");
       if (url.pathname.endsWith("passwordCheck")) {
@@ -47,7 +53,11 @@ test("local API logs in without opening an external page and clears a mismatched
         assert.equal(body.phoneNum, phone);
         assert.notEqual(body.password, "001234");
         passwordSubmitted = true;
-      } else assert.ok(url.pathname.endsWith("qryLoginAccno"));
+      } else {
+        assert.ok(url.pathname.endsWith("qryLoginAccno"));
+        initializationQueries++;
+        if (initializationQueries === 1) return route.abort("failed");
+      }
       const response = { result: 0, retCode: "000000", object: url.pathname.endsWith("qryLoginAccno") && passwordSubmitted ? (mismatch ? "18900000002" : phone) : null };
       await route.fulfill({ contentType: "application/json", body: Buffer.from(JSON.stringify(response)).toString("base64") });
     });
@@ -58,6 +68,7 @@ test("local API logs in without opening an external page and clears a mismatched
     assert.equal(client.context.pages().length, 1);
     assert.ok(!JSON.stringify(result.data).includes("001234"));
     assert.equal(submissions, 1);
+    assert.equal(entryLoads, 2);
     const other = await request("/api/accounts", { phone: "18900000002" });
     otherId = other.data.account.id;
     const isolated = await getClient(otherId);
@@ -79,6 +90,15 @@ test("local API logs in without opening an external page and clears a mismatched
     const logs = await request(`/api/accounts/${id}/logs`, null, "GET");
     assert.ok(!JSON.stringify(logs.data).includes("001234"));
     assert.ok(!fs.readFileSync(path.join(dir, "accounts.json"), "utf8").includes("001234"));
+    // A closed renderer previously escaped without any diagnostic log.
+    await isolated.context.close();
+    const disconnected = await request(`/api/ct189/${otherId}/login/password`, { password: "001234" });
+    assert.equal(disconnected.status, 502);
+    assert.equal(disconnected.data.account.loginStatus, "invalid");
+    assert.equal(fs.existsSync(path.join(dir, "browser", otherId)), false);
+    const failures = await request(`/api/accounts/${otherId}/logs`, null, "GET");
+    assert.deepEqual(failures.data.logs[0].payload.error, { stage: "initialization", category: "engine_closed" });
+    assert.ok(!JSON.stringify(failures.data).includes("001234"));
   } finally {
     if (id) await closeClient(id);
     if (otherId) await closeClient(otherId);

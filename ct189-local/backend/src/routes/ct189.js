@@ -1,5 +1,5 @@
 import express from "express";
-import { isTelecomSuccess, loginSummary } from "../services/passwordLogin.js";
+import { isTelecomSuccess, loginSummary, loginErrorDiagnostic } from "../services/passwordLogin.js";
 import { appendLog, getAccount, patchAccount } from "../services/accountStore.js";
 import {
   closeClient,
@@ -44,6 +44,8 @@ ct189Router.post("/:id/login/password", async (req, res, next) => {
     });
     appendLog(account.id, "password_login", {
       ok,
+      initialization: loginSummary(result.initialization),
+      initializationAttempts: result.initializationAttempts,
       login: loginSummary(result.login),
       loginAccount: loginSummary(result.loginAccount)
     });
@@ -53,6 +55,7 @@ ct189Router.post("/:id/login/password", async (req, res, next) => {
     let account = null;
     if (getAccount(req.params.id)) {
       account = patchAccount(req.params.id, { loginStatus: "invalid", loginNumber: "", lastError: message });
+      appendLog(req.params.id, "password_login", { ok: false, error: loginErrorDiagnostic(error) });
     }
     res.status(502).json({ ok: false, message, account });
   }

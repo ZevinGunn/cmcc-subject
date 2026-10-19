@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { performPasswordLogin, isTelecomSuccess, loginSummary } from "../src/services/passwordLogin.js";
+import { performPasswordLogin, isTelecomSuccess, loginSummary, loginErrorDiagnostic } from "../src/services/passwordLogin.js";
 import { encryptServicePassword } from "../src/services/crypto189.js";
 import { createSessionPool } from "../src/services/sessionPool.js";
 
@@ -25,9 +25,55 @@ test("WAF failure blocks credential submission", async () => {
     calls++;
     return { ok: false, status: 412, data: "<html>challenge</html>" };
   });
-  assert.equal(calls, 1);
+  assert.equal(calls, 2);
   assert.equal(result.ok, false);
   assert.match(result.message, /412/);
+});
+
+test("a challenge reload retries initialization without replaying a password", async () => {
+  let queries = 0;
+  let passwords = 0;
+  const result = await performPasswordLogin(phone, "123456", async (path, body, options) => {
+    if (path.endsWith("passwordCheck")) { passwords++; return success(); }
+    queries++;
+    if (queries === 1) throw new Error("Execution context was destroyed, most likely because of a navigation");
+    if (queries === 2) assert.equal(options.reinitialize, true);
+    return success(passwords ? phone : null);
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.initializationAttempts, 2);
+  assert.equal(queries, 3);
+  assert.equal(passwords, 1);
+});
+
+test("submission or confirmation errors never trigger another password attempt", async () => {
+  for (const failStage of ["password_submission", "account_confirmation"]) {
+    let passwords = 0;
+    const result = performPasswordLogin(phone, "123456", async (path, body, options) => {
+      if (path.endsWith("passwordCheck")) passwords++;
+      if (options.stage === failStage) throw new Error("Execution context was destroyed; sensitive details must not be logged");
+      return success();
+    });
+    await assert.rejects(result, error => {
+      assert.deepEqual(loginErrorDiagnostic(error), { stage: failStage, category: "page_reloaded" });
+      return true;
+    });
+    assert.equal(passwords, 1);
+  }
+});
+
+test("repeated initialization failures are bounded and classified without logging messages", async () => {
+  let attempts = 0;
+  await assert.rejects(performPasswordLogin(phone, "123456", async () => {
+    attempts++;
+    const error = new Error("page.goto: Timeout exceeded; private upstream URL");
+    error.name = "TimeoutError";
+    throw error;
+  }), error => {
+    assert.deepEqual(loginErrorDiagnostic(error), { stage: "initialization", category: "timeout" });
+    return true;
+  });
+  assert.equal(attempts, 2);
 });
 
 test("empty and contradictory success responses never count as a login", () => {
