@@ -26,15 +26,17 @@ export function responseDiagnostic(response, stage = "unknown") {
   const retMsg = typeof response?.data?.retMsg === "string"
     ? safeText(response.data.retMsg)
     : "";
-  let category = "business_rejected";
+  let category = "unknown";
   if (status === 412) category = "waf_challenge";
   else if ([502, 503, 504].includes(status)) category = "upstream_unavailable";
   else if (!response?.ok || status === 0) category = "network_error";
   else if (status >= 400) category = "http_error";
   else if (response?.data && typeof response.data === "object") {
     const code = String(response.data.retCode ?? response.data.result ?? "");
-    if (/密码|password|credential/i.test(retMsg)) category = "password_rejected";
+    if (isTelecomSuccess(response)) category = "success";
+    else if (/密码|password|credential/i.test(retMsg)) category = "password_rejected";
     else if (code && code !== "0" && code !== "000000") category = "business_rejected";
+    else category = "business_rejected";
   }
   return { stage, status, category, result: response?.data?.result, retCode: response?.data?.retCode, retMsg };
 }
