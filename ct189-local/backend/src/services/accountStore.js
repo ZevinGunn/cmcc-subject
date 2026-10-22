@@ -10,9 +10,9 @@ function readJson() {
     const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
     if (!Array.isArray(data.accounts) || !Array.isArray(data.logs))
       throw new Error("账号存储格式错误");
-    return { ...data, tasks: data.tasks || [] };
+    return { ...data, tasks: data.tasks || [], schedules: data.schedules || [] };
   } catch (error) {
-    if (error.code === "ENOENT") return { accounts: [], logs: [], tasks: [] };
+    if (error.code === "ENOENT") return { accounts: [], logs: [], tasks: [], schedules: [] };
     throw error; // Corrupt data must never be silently replaced by an empty store.
   }
 }
@@ -149,4 +149,21 @@ export function saveTask(task) {
   else store.tasks.unshift(structuredClone(task));
   store.tasks = store.tasks.slice(0, 100);
   writeJson();
+}
+export function listSchedules() {
+  return structuredClone(store.schedules || []);
+}
+export function saveSchedule(schedule) {
+  const index = (store.schedules || []).findIndex((item) => item.id === schedule.id);
+  if (index >= 0) store.schedules[index] = structuredClone(schedule);
+  else store.schedules.unshift(structuredClone(schedule));
+  store.schedules = store.schedules.slice(0, 100);
+  writeJson();
+  return structuredClone(schedule);
+}
+export function deleteSchedule(id) {
+  const before = (store.schedules || []).length;
+  store.schedules = (store.schedules || []).filter((item) => item.id !== id);
+  writeJson();
+  return store.schedules.length !== before;
 }

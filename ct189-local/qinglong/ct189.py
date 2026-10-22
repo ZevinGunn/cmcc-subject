@@ -16,6 +16,8 @@ import subprocess
 import sys
 import time
 from typing import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 ORIGIN = "https://wapbj.189.cn"
 IDENTITY = "/wap2017/re/activity/qryLoginAccno"
@@ -226,6 +228,9 @@ class TelecomClient:
             temporary.replace(self.state_file)
         finally:
             self.context.close()
+            worker = getattr(self, "worker_playwright", None)
+            if worker:
+                worker.stop()
 
 
 ACTIVITY_ENDPOINTS = {
@@ -410,36 +415,45 @@ def run_lock(cache: Path):
             fcntl.flock(handle, fcntl.LOCK_UN)
 
 
-def run_accounts(accounts, names, cache, factory, delay=2, emit=print):
+def run_accounts(accounts, names, cache, factory, delay=2, emit=print, concurrency=1):
+    if not isinstance(concurrency, int) or not 1 <= concurrency <= 8:
+        raise ConfigError("并发数必须是 1–8 的整数")
     counts = {"success": 0, "failed": 0, "skipped": 0}
-    for index, account in enumerate(accounts):
+    output_lock = threading.Lock()
+    def increment(key):
+        with output_lock:
+            counts[key] += 1
+    def log(message):
+        with output_lock:
+            emit(message)
+    def run_one(index, account):
         if not account.enabled:
-            counts["skipped"] += 1
-            emit(f"[{account.masked}] 已停用，跳过")
-            continue
+            increment("skipped")
+            log(f"[{account.masked}] 已停用，跳过")
+            return
         profile = cache / hashlib.sha256(account.phone.encode()).hexdigest()[:24]
         client, authenticated, failed = None, False, False
         try:
             client = factory(profile)
             message = authenticate(account, client.request)
             authenticated = True
-            emit(f"[{account.masked}] {message}")
+            log(f"[{account.masked}] {message}")
             for name in names:
                 try:
                     message = TASKS[name](client, account)
-                    emit(f"[{account.masked}] {name}: {message}")
+                    log(f"[{account.masked}] {name}: {message}")
                 except TaskError as error:
                     failed = True
-                    emit(f"[{account.masked}] {name}: {error}")
+                    log(f"[{account.masked}] {name}: {error}")
                 except Exception:
                     failed = True
-                    emit(f"[{account.masked}] {name}: 任务连接失败")
+                    log(f"[{account.masked}] {name}: 任务连接失败")
         except TaskError as error:
             failed = True
-            emit(f"[{account.masked}] {error}")
+            log(f"[{account.masked}] {error}")
         except Exception:
             failed = True
-            emit(f"[{account.masked}] 本地引擎或网络异常；请检查 Chromium 安装和网络")
+            log(f"[{account.masked}] 本地引擎或网络异常；请检查 Chromium 安装和网络")
         finally:
             closed = client is None
             if client:
@@ -448,13 +462,21 @@ def run_accounts(accounts, names, cache, factory, delay=2, emit=print):
                     closed = True
                 except Exception:
                     failed = True
-                    emit(f"[{account.masked}] 引擎关闭失败，请检查残留进程")
+                    log(f"[{account.masked}] 引擎关闭失败，请检查残留进程")
             if not authenticated and closed:
                 shutil.rmtree(profile, ignore_errors=True)
-        counts["failed" if failed else "success"] += 1
+        increment("failed" if failed else "success")
         if index < len(accounts) - 1 and delay:
             time.sleep(delay)
-    emit(f"执行完成：成功 {counts['success']}，失败 {counts['failed']}，跳过 {counts['skipped']}")
+    if concurrency == 1:
+        for index, account in enumerate(accounts):
+            run_one(index, account)
+    else:
+        with ThreadPoolExecutor(max_workers=concurrency, thread_name_prefix="ct189") as pool:
+            futures = [pool.submit(run_one, index, account) for index, account in enumerate(accounts)]
+            for future in as_completed(futures):
+                future.result()
+    log(f"执行完成：成功 {counts['success']}，失败 {counts['failed']}，跳过 {counts['skipped']}")
     return counts
 
 
@@ -463,6 +485,7 @@ def main(argv=None):
     parser.add_argument("--tasks", default=os.getenv("CT189_TASKS", "login"), help="login,activity；默认 login")
     parser.add_argument("--cache-dir", default=os.getenv("CT189_CACHE_DIR", str(Path(__file__).resolve().parent / ".ct189-cache")))
     parser.add_argument("--interval", type=float, default=2, help="账号间隔秒数，0–60，默认 2")
+    parser.add_argument("--concurrency", type=int, default=int(os.getenv("CT189_CONCURRENCY", "1")), help="账号并发数，1–8，默认 1")
     parser.add_argument("--validate", action="store_true", help="仅验证变量格式，不联网")
     parser.add_argument("--list-tasks", action="store_true")
     args = parser.parse_args(argv)
@@ -475,6 +498,8 @@ def main(argv=None):
         names = parse_tasks(args.tasks)
         if not 0 <= args.interval <= 60:
             raise ConfigError("账号间隔必须为 0–60 秒")
+        if not 1 <= args.concurrency <= 8:
+            raise ConfigError("并发数必须是 1–8 的整数")
         if args.validate:
             print(f"配置通过：{len(accounts)} 个账号，{sum(a.enabled for a in accounts)} 个启用；任务 {','.join(names)}")
             return 0
@@ -484,8 +509,18 @@ def main(argv=None):
         except ImportError:
             raise ConfigError("缺少依赖：pip3 install -r requirements.txt，并安装 Playwright Chromium") from None
         cache = Path(args.cache_dir).expanduser().resolve()
-        with run_lock(cache), sync_playwright() as playwright:
-            counts = run_accounts(accounts, names, cache, lambda profile: TelecomClient(playwright.chromium, profile), args.interval)
+        def factory(profile):
+            # Playwright 的同步 API 不跨线程共享；每个 worker 自己创建运行时。
+            worker_playwright = sync_playwright().start()
+            try:
+                client = TelecomClient(worker_playwright.chromium, profile)
+                client.worker_playwright = worker_playwright
+                return client
+            except Exception:
+                worker_playwright.stop()
+                raise
+        with run_lock(cache):
+            counts = run_accounts(accounts, names, cache, factory, args.interval, concurrency=args.concurrency)
         return 1 if counts["failed"] else 0
     except ConfigError as error:
         print(f"配置错误：{error}", file=sys.stderr)

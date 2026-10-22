@@ -20,7 +20,11 @@ const form = ref({ phone: "", label: "", group: "", enabled: true }),
   importText = ref(""),
   batchGroup = ref("");
 const batch = ref(null),
-  batchError = ref("");
+  batchError = ref(""),
+  batchConcurrency = ref(1);
+const schedules = ref([]),
+  operationLogs = ref([]),
+  scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5 });
 const accessRequired = ref(false),
   locked = ref(false),
   accessLoading = ref(true),
@@ -157,7 +161,7 @@ async function reload(initial = false) {
     loading.value = true;
     feedback("");
   }
-  const results = await Promise.allSettled([api.accounts(), api.health()]);
+  const results = await Promise.allSettled([api.accounts(), api.health(), api.schedules()]);
   if (results[0].status === "fulfilled") {
     accounts.value = results[0].value.accounts;
     selected.value = selected.value.filter((id) =>
@@ -166,6 +170,7 @@ async function reload(initial = false) {
   } else if (results[0].reason.status === 401) lockAccess();
   else feedback("账号读取失败，已保留当前列表。请检查服务后重试。", true);
   connected.value = results[1].status === "fulfilled";
+  if (results[2].status === "fulfilled") schedules.value = results[2].value.schedules;
   loading.value = false;
 }
 async function poll() {
@@ -229,6 +234,10 @@ async function open(which, account) {
   batchGroup.value = "";
   await nextTick();
   modal.value.showModal();
+  if (which === "detail" && account) {
+    try { operationLogs.value = (await api.logs(account.id)).logs; }
+    catch { operationLogs.value = []; }
+  } else operationLogs.value = [];
 }
 function close() {
   if (busy.value) return;
@@ -295,12 +304,35 @@ async function login() {
 }
 async function task(action, ids = selected.value) {
   await perform(async () => {
-    batch.value = (await api.startTask(action, ids)).task;
+    batch.value = (await api.startTask(action, ids, Number(batchConcurrency.value))).task;
     batchError.value = "";
     feedback("操作已开始，结果会在账号列表下方更新");
     await reload();
   });
 }
+async function createSchedule() {
+  await perform(async () => {
+    if (!selected.value.length) throw new Error("请先选择至少一个账号，再创建定时任务");
+    await api.createSchedule({ ...scheduleForm.value, accountIds: selected.value, concurrency: Number(scheduleForm.value.concurrency), warmupMinutes: Number(scheduleForm.value.warmupMinutes) });
+    schedules.value = (await api.schedules()).schedules;
+    feedback("定时任务已保存，将在执行前自动预热会话");
+  });
+}
+async function toggleSchedule(schedule) {
+  await perform(async () => {
+    const result = await api.patchSchedule(schedule.id, { enabled: !schedule.enabled });
+    schedules.value = schedules.value.map((item) => item.id === schedule.id ? result.schedule : item);
+  });
+}
+async function removeSchedule(schedule) {
+  if (!window.confirm(`删除“${schedule.title}”定时任务？`)) return;
+  await perform(async () => {
+    await api.deleteSchedule(schedule.id);
+    schedules.value = schedules.value.filter((item) => item.id !== schedule.id);
+  });
+}
+const scheduleActionLabel = (action) => action === "friday_wdmei" ? "周五狂欢日 · 味多美" : "权益福袋 · 10 元权益金";
+const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", schedule_run: "定时调度" }[action] || action);
 async function batchUpdate(patch) {
   await perform(async () => {
     let done = 0,
@@ -486,6 +518,28 @@ onUnmounted(() => {
           }}</strong>
         </div>
       </div>
+      <section class="schedule-panel" aria-label="定时权益任务">
+        <div class="section-header">
+          <div><h2>定时权益任务</h2><p class="section-note">执行前自动预热登录会话，服务重启后计划仍会继续。</p></div>
+          <span class="muted">已选账号 {{ selected.length }} 个</span>
+        </div>
+        <form class="schedule-form" @submit.prevent="createSchedule">
+          <label>活动<select v-model="scheduleForm.action"><option value="friday_wdmei">周五狂欢日 · 味多美</option><option value="rights_bag_cash">权益福袋 · 10 元权益金</option></select></label>
+          <label>执行时间（cron）<input v-model.trim="scheduleForm.cron" placeholder="0 10 * * 5" pattern="\S+\s+\S+\s+\S+\s+\S+\s+\S+" required /></label>
+          <label>并发数<input v-model.number="scheduleForm.concurrency" type="number" min="1" max="8" /></label>
+          <label>提前预热（分钟）<input v-model.number="scheduleForm.warmupMinutes" type="number" min="0" max="30" /></label>
+          <button class="primary" :disabled="busy || !selected.length">创建计划</button>
+        </form>
+        <div v-if="schedules.length" class="schedule-list">
+          <div v-for="schedule in schedules" :key="schedule.id" class="schedule-row">
+            <div><strong>{{ schedule.title }}</strong><small>{{ schedule.cron }} · 并发 {{ schedule.concurrency }} · 下次 {{ date(schedule.nextRunAt) }}</small></div>
+            <span class="status-label" :class="schedule.enabled ? 'good' : 'muted'"><i class="dot"></i>{{ schedule.enabled ? '已启用' : '已停用' }}</span>
+            <small v-if="schedule.lastError" class="row-error">{{ schedule.lastError }}</small>
+            <div class="row-actions"><button :disabled="busy" @click="toggleSchedule(schedule)">{{ schedule.enabled ? '停用' : '启用' }}</button><button class="danger-text" :disabled="busy" @click="removeSchedule(schedule)">删除</button></div>
+          </div>
+        </div>
+        <p v-else class="empty compact">还没有定时权益任务。先选择账号，再创建计划。</p>
+      </section>
       <section class="account-panel" aria-label="账号列表">
         <div class="filters">
           <div class="filter-tabs" aria-label="状态筛选">
@@ -518,6 +572,7 @@ onUnmounted(() => {
         </div>
         <div v-if="selected.length" class="batch-bar">
           <strong>已选 {{ selected.length }} 个</strong
+          ><label class="inline-control">并发 <input v-model.number="batchConcurrency" type="number" min="1" max="8" /></label
           ><button :disabled="busy || pending" @click="task('check')">
             检查登录</button
           ><button :disabled="busy || pending" @click="task('refresh')">
@@ -932,7 +987,17 @@ onUnmounted(() => {
               {{ title }} · {{ data ? "查看最近结果" : "尚未查询" }}
             </summary>
             <pre v-if="data">{{ JSON.stringify(data, null, 2) }}</pre>
-          </details></template
+          </details><section v-if="mode === 'detail'" class="operation-logs" aria-label="操作日志">
+            <div class="section-header"><h3>操作日志</h3><span class="muted">最近 {{ operationLogs.length }} 条</span></div>
+            <div v-if="operationLogs.length" class="log-list">
+              <details v-for="entry in operationLogs" :key="entry.id" class="log-entry">
+                <summary><span>{{ logActionLabel(entry.action) }}</span><time>{{ date(entry.createdAt) }}</time><b :class="entry.payload?.status === 'failed' || entry.payload?.ok === false ? 'bad' : 'good'">{{ entry.payload?.status === 'failed' || entry.payload?.ok === false ? '失败' : '已记录' }}</b></summary>
+                <p>{{ entry.payload?.message || (entry.payload?.failure?.retMsg || '后台响应已记录') }}</p>
+                <pre v-if="entry.payload?.response || entry.payload?.failure || entry.payload?.error">{{ JSON.stringify(entry.payload.response || entry.payload.failure || entry.payload.error, null, 2) }}</pre>
+              </details>
+            </div>
+            <p v-else class="empty compact">暂无操作日志</p>
+          </section></template
         >
       </div>
       <footer class="dialog-footer">

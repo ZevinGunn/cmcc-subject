@@ -14,6 +14,31 @@ export function responseMessage(response, fallback) {
   return typeof response.data.retMsg === "string" ? response.data.retMsg.slice(0, 200) : fallback;
 }
 
+function safeText(value, limit = 180) {
+  return String(value || "")
+    .replace(/(?:password|passwd|pwd|token|cookie|authorization)\s*[:=：]\s*[^,;\s]+/gi, "$1=[已隐藏]")
+    .replace(/1\d{10}/g, "手机号")
+    .slice(0, limit);
+}
+
+export function responseDiagnostic(response, stage = "unknown") {
+  const status = Number(response?.status || 0);
+  const retMsg = typeof response?.data?.retMsg === "string"
+    ? safeText(response.data.retMsg)
+    : "";
+  let category = "business_rejected";
+  if (status === 412) category = "waf_challenge";
+  else if ([502, 503, 504].includes(status)) category = "upstream_unavailable";
+  else if (!response?.ok || status === 0) category = "network_error";
+  else if (status >= 400) category = "http_error";
+  else if (response?.data && typeof response.data === "object") {
+    const code = String(response.data.retCode ?? response.data.result ?? "");
+    if (/密码|password|credential/i.test(retMsg)) category = "password_rejected";
+    else if (code && code !== "0" && code !== "000000") category = "business_rejected";
+  }
+  return { stage, status, category, result: response?.data?.result, retCode: response?.data?.retCode, retMsg };
+}
+
 async function requestAtStage(request, endpoint, data, stage, reinitialize = false) {
   try {
     return await request(endpoint, data, { stage, reinitialize });
@@ -32,7 +57,8 @@ export function loginErrorDiagnostic(error) {
   else if (/target.*closed|browser.*closed/i.test(message)) category = "engine_closed";
   else if (/net::|network/i.test(message)) category = "network_error";
   const stages = ["initialization", "password_submission", "account_confirmation"];
-  return { stage: stages.includes(error?.loginStage) ? error.loginStage : "initialization", category };
+  const status = Number(error?.status || 0);
+  return { stage: stages.includes(error?.loginStage) ? error.loginStage : "initialization", category, ...(status ? { status } : {}) };
 }
 
 export async function performPasswordLogin(phone, password, request) {
@@ -81,12 +107,14 @@ export async function performPasswordLogin(phone, password, request) {
 }
 
 // Login logs and responses must never echo passwords, cookies, or upstream tokens.
-export function loginSummary(response) {
+export function loginSummary(response, stage = "unknown") {
   if (!response) return null;
   return {
     status: response.status,
     result: response.data?.result,
     retCode: response.data?.retCode,
+    ...(typeof response.data?.retMsg === "string" ? { retMsg: safeText(response.data.retMsg) } : {}),
+    ...(stage !== "unknown" ? { stage, response: responseDiagnostic(response, stage) } : {}),
     diagnostic: response.diagnostic
   };
 }

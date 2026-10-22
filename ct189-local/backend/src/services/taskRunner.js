@@ -52,9 +52,22 @@ async function execute(action, account) {
   if (["friday_wdmei", "rights_bag_cash"].includes(action)) {
     try {
       const result = await claimClassicRight(account.id, action);
-      return { status: "success", message: result.message };
+      return {
+        status: "success",
+        message: result.message,
+        details: {
+          activityId: result.activityId,
+          offerCode: result.offerCode,
+          offerName: result.offerName,
+          ...(result.responses ? { responses: result.responses } : {}),
+        },
+      };
     } catch (error) {
-      if (error?.status === 409) throw new TaskExecutionError(error.message);
+      if (error?.status === 409) {
+        const wrapped = new TaskExecutionError(error.message);
+        wrapped.details = error.responseSummary ? { responses: error.responseSummary } : undefined;
+        throw wrapped;
+      }
       throw error;
     }
   }
@@ -76,8 +89,10 @@ async function execute(action, account) {
     message: failed ? `${failed} 项查询失败，已保存返回结果` : "资料已更新",
   };
 }
-let queue = Promise.resolve();
-export function enqueueTask(action, ids, executor = execute) {
+const DEFAULT_CONCURRENCY = 1;
+const MAX_CONCURRENCY = 8;
+const pendingRuns = new Set();
+export function enqueueTask(action, ids, executor = execute, options = {}) {
   if (!Object.hasOwn(taskActions, action))
     throw Object.assign(new Error("不支持的任务"), { status: 400 });
   const activeTasks = listTasks().filter((task) =>
@@ -95,6 +110,9 @@ export function enqueueTask(action, ids, executor = execute) {
   )
     throw Object.assign(new Error("请选择 1–200 个有效账号"), { status: 400 });
   const unique = [...new Set(ids)];
+  const concurrency = Number(options?.concurrency ?? DEFAULT_CONCURRENCY);
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > MAX_CONCURRENCY)
+    throw Object.assign(new Error(`并发数必须是 1–${MAX_CONCURRENCY} 的整数`), { status: 400 });
   const pendingAccounts = new Set(
     activeTasks.flatMap((task) =>
       task.items
@@ -110,6 +128,7 @@ export function enqueueTask(action, ids, executor = execute) {
     id: randomUUID(),
     action,
     title: taskActions[action],
+    concurrency,
     status: "queued",
     createdAt: new Date().toISOString(),
     items: unique.map((accountId) => ({
@@ -126,7 +145,10 @@ export function enqueueTask(action, ids, executor = execute) {
   const run = async () => {
     task.status = "running";
     saveTask(task);
-    for (const item of task.items) {
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < task.items.length) {
+        const item = task.items[cursor++];
       const account = getAccount(item.accountId);
       if (!account || (account.enabled === false && action !== "close")) {
         Object.assign(item, { status: "skipped", message: "账号已停用或删除" });
@@ -148,15 +170,21 @@ export function enqueueTask(action, ids, executor = execute) {
               error instanceof TaskExecutionError
                 ? error.message
                 : "连接失败，请检查登录或稍后重试",
+            ...(error?.details ? { details: error.details } : {}),
           });
         }
         appendLog(item.accountId, action, {
           status: item.status,
           message: item.message,
+          taskId: task.id,
+          activity: action === "friday_wdmei" ? "周五狂欢日 · 味多美" : action === "rights_bag_cash" ? "权益福袋 · 10 元权益金" : undefined,
+          ...(item.details ? { response: item.details } : {}),
         });
       }
       saveTask(task);
-    }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, task.items.length) }, () => worker()));
     const statuses = task.items.map((item) => item.status);
     task.status = statuses.every((status) => status === "success")
       ? "success"
@@ -166,13 +194,15 @@ export function enqueueTask(action, ids, executor = execute) {
     task.finishedAt = new Date().toISOString();
     saveTask(task);
   };
-  queue = queue.then(run).catch(() => {
+  const queue = Promise.resolve().then(run).catch(() => {
     task.status = "interrupted";
     task.finishedAt = new Date().toISOString();
     saveTask(task);
   });
+  pendingRuns.add(queue);
+  queue.finally(() => pendingRuns.delete(queue)).catch(() => {});
   return structuredClone(task);
 }
 export function waitForTasks() {
-  return queue;
+  return Promise.allSettled([...pendingRuns]);
 }

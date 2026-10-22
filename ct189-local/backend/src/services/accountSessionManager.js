@@ -2,6 +2,7 @@ import {
   isTelecomSuccess,
   loginSummary,
   loginErrorDiagnostic,
+  responseDiagnostic,
 } from "./passwordLogin.js";
 
 export function createAccountSessionManager(deps) {
@@ -76,11 +77,25 @@ export function createAccountSessionManager(deps) {
         String(result.login?.data?.retMsg || ""),
       );
     const submitted = Boolean(result.login);
-    const message = passwordWrong
+    const identityMismatch = Boolean(result.loginAccount) &&
+      (!isTelecomSuccess(result.loginAccount) || result.loginAccount.data?.object !== account.phone);
+    const diagnostic = responseDiagnostic(
+      result.login || result.initialization,
+      submitted ? "password_submission" : "initialization",
+    );
+    const message = identityMismatch
+      ? "登录成功但手机号核验不匹配，请重新登录"
+      : passwordWrong || diagnostic.category === "password_rejected"
       ? "服务密码错误，请手动重新登录并更新密码"
-      : submitted
-        ? "登录未完成，请手动重新登录"
-        : "电信连接暂不可用，请稍后重试";
+      : diagnostic.category === "waf_challenge"
+        ? "电信安全验证未完成，请稍后重试"
+        : [502, 503, 504].includes(diagnostic.status)
+          ? `电信上游暂不可用（HTTP ${diagnostic.status}），请稍后重试`
+          : diagnostic.category === "network_error"
+            ? "电信网络连接失败，请检查网络后重试"
+            : submitted
+              ? `登录未完成${diagnostic.retMsg ? `：${diagnostic.retMsg}` : "，请手动重新登录"}`
+              : "电信会话初始化失败，请稍后重试";
     return outcome(id, false, message, {
       loginStatus: "invalid",
       loginNumber: "",
@@ -107,12 +122,19 @@ export function createAccountSessionManager(deps) {
     try {
       const result = await loginByServicePassword(id, get(id).phone, password);
       const response = completed(id, automatic, result, password, remember);
+      const identityMismatch = Boolean(result.loginAccount) &&
+        (!isTelecomSuccess(result.loginAccount) || result.loginAccount.data?.object !== get(id).phone);
       appendLog(id, automatic ? "auto_login" : "password_login", {
         ok: response.ok,
-        initialization: loginSummary(result.initialization),
+        stage: response.ok ? "complete" : (result.login ? "password_submission" : "initialization"),
+        initialization: loginSummary(result.initialization, "initialization"),
         initializationAttempts: result.initializationAttempts,
-        login: loginSummary(result.login),
-        loginAccount: loginSummary(result.loginAccount),
+        login: loginSummary(result.login, "password_submission"),
+        loginAccount: loginSummary(result.loginAccount, "account_confirmation"),
+        failure: response.ok ? null : responseDiagnostic(
+          identityMismatch ? result.loginAccount : (result.login || result.initialization),
+          identityMismatch ? "account_confirmation" : (result.login ? "password_submission" : "initialization"),
+        ),
       });
       return response;
     } catch (error) {
@@ -121,7 +143,15 @@ export function createAccountSessionManager(deps) {
         "password_submission",
         "account_confirmation",
       ].includes(diagnostic.stage);
-      const message = "电信登录连接失败，请稍后手动重试";
+      const message = diagnostic.category === "timeout"
+        ? "电信请求超时，请稍后重试"
+        : diagnostic.category === "page_reloaded"
+          ? "电信验证页面刚刚刷新，请重新登录"
+          : diagnostic.category === "network_error"
+            ? "电信网络连接失败，请检查网络后重试"
+            : diagnostic.category === "engine_unavailable" || diagnostic.category === "engine_closed"
+              ? "本地登录引擎不可用，请联系管理员"
+              : "电信登录连接失败，请稍后手动重试";
       const response = outcome(id, false, message, {
         loginStatus: "invalid",
         loginNumber: "",

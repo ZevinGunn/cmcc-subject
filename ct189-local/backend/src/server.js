@@ -11,6 +11,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSiteAccess } from "./services/siteAccess.js";
+import { schedulesRouter } from "./routes/schedules.js";
+import { createScheduler } from "./services/scheduler.js";
 
 const app = express();
 const dist = fileURLToPath(new URL("../../frontend/dist/", import.meta.url));
@@ -86,6 +88,7 @@ app.use("/api", (req, res, next) =>
 app.use("/api/accounts", accountsRouter);
 app.use("/api/ct189", ct189Router);
 app.use("/api/tasks", tasksRouter);
+app.use("/api/schedules", schedulesRouter);
 
 app.use("/api", (req, res) => {
   res.status(404).json({
@@ -132,11 +135,14 @@ const server = app.listen(config.port, config.host, () => {
   );
 });
 const stopMonitor = startSessionMonitor();
+const scheduler = createScheduler();
+scheduler.start();
 let stopping = false;
 async function shutdown() {
   if (stopping) return;
   stopping = true;
   stopMonitor();
+  scheduler.stop();
   server.close();
   const deadline = setTimeout(() => process.exit(0), 10000);
   deadline.unref();

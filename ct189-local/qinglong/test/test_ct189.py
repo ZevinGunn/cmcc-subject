@@ -1,5 +1,6 @@
 import base64
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -119,6 +120,23 @@ class ScriptTests(unittest.TestCase):
             with app.run_lock(Path(directory)):
                 with self.assertRaises(app.ConfigError):
                     with app.run_lock(Path(directory)): pass
+
+    def test_controlled_concurrency_keeps_accounts_isolated(self):
+        lines = []
+        class Client:
+            def request(self, endpoint, data, **kwargs):
+                return response(self.phone)
+            def close(self):
+                pass
+        def factory(profile):
+            client = Client()
+            client.phone = phone_by_profile[profile.name]
+            return client
+        with tempfile.TemporaryDirectory() as directory:
+            accounts = [self.account, app.Account("18900000002", "005678")]
+            phone_by_profile = {hashlib.sha256(account.phone.encode()).hexdigest()[:24]: account.phone for account in accounts}
+            counts = app.run_accounts(accounts, ["login"], Path(directory), factory, delay=0, emit=lines.append, concurrency=2)
+        self.assertEqual(counts, {"success": 2, "failed": 0, "skipped": 0})
 
 
 if __name__ == "__main__":

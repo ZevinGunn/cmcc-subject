@@ -237,6 +237,24 @@ function parseClassicResponse(text) {
   }
 }
 
+function classicResponseSummary(value) {
+  const data = value?.data || value;
+  if (!data || typeof data !== "object") return null;
+  const object = data.object;
+  return {
+    ...(value?.status != null ? { status: value.status } : {}),
+    result: data.result,
+    retCode: data.retCode,
+    ...(typeof data.retMsg === "string" ? { retMsg: data.retMsg.replace(/1\d{10}/g, "手机号").slice(0, 180) } : {}),
+    ...(object && typeof object === "object" ? {
+      handle: object.handle,
+      receive: object.receive,
+      resultCode: object.resultCode,
+      ...(typeof object.resultMessage === "string" ? { resultMessage: object.resultMessage.slice(0, 180) } : {}),
+    } : {}),
+  };
+}
+
 function waitForClassicResponse(page, endpoint, timeout = config.requestTimeoutMs) {
   return new Promise((resolve, reject) => {
     let timer;
@@ -279,7 +297,7 @@ async function loadClassicActivity(page, activityId) {
   await page.evaluate((id) => window.rights_interests.interestsActivityDetaiList(Number(id)), activityId);
   const result = await response;
   if (result.status < 200 || result.status >= 300 || !result.data)
-    throw Object.assign(new Error("活动资格查询失败"), { status: result.status || 502 });
+    throw Object.assign(new Error("活动资格查询失败"), { status: result.status || 502, responseSummary: { activity: classicResponseSummary(result) } });
   return result.data;
 }
 
@@ -294,7 +312,7 @@ async function invokeClassicClaim(page, definition, activityId) {
       page.off("response", onResponse);
       clearTimeout(timer);
       if (check.status < 200 || check.status >= 300 || !check.data)
-        reject(Object.assign(new Error("活动预校验连接失败"), { status: check.status || 502 }));
+        reject(Object.assign(new Error("活动预校验连接失败"), { status: check.status || 502, responseSummary: { check: classicResponseSummary(check) } }));
       else resolve({ check: check.data, claim: claim?.data || null });
     };
     const onResponse = async (response) => {
@@ -359,22 +377,24 @@ export async function claimClassicRight(accountId, action) {
     const page = await ensureOfficialPage(accountId);
     const found = await classicActivityForDefinition(page, definition);
     const failure = explainClassicEligibility(found.activity, found.offer, definition);
-    if (failure) throw Object.assign(new Error(failure), { status: 409 });
+    if (failure) throw Object.assign(new Error(failure), { status: 409, responseSummary: { activity: classicResponseSummary(found.activity), offer: found.offer ? { offerCode: definition.offerCode, receiveMark: found.offer.receiveMark, realNumber: found.offer.realNumber } : null } });
     const result = await invokeClassicClaim(page, definition, found.activityId);
     const checkMessage = claimMessage(result.check);
     if (!result.claim)
-      throw Object.assign(new Error(checkMessage), { status: 409 });
+      throw Object.assign(new Error(checkMessage), { status: 409, responseSummary: { check: classicResponseSummary(result.check) } });
     const message = claimMessage(result.claim);
     const ok = result.claim?.object?.resultCode === "0";
-    if (!ok) throw Object.assign(new Error(message), { status: 409 });
+    if (!ok) throw Object.assign(new Error(message), { status: 409, responseSummary: { check: classicResponseSummary(result.check), claim: classicResponseSummary(result.claim) } });
     return {
       ok: true,
       activityId: found.activityId,
       offerCode: definition.offerCode,
       offerName: definition.offerName,
       message,
-      check: result.check,
-      claim: result.claim,
+      responses: {
+        check: classicResponseSummary(result.check),
+        claim: classicResponseSummary(result.claim),
+      },
     };
   });
 }

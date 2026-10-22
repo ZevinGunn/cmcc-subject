@@ -13,7 +13,9 @@ tasksRouter.post("/", (req, res, next) => {
   try {
     res.status(202).json({
       ok: true,
-      task: enqueueTask(req.body?.action, req.body?.accountIds),
+      task: enqueueTask(req.body?.action, req.body?.accountIds, undefined, {
+        concurrency: req.body?.concurrency,
+      }),
     });
   } catch (error) {
     next(error);

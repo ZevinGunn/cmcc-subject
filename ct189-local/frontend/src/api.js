@@ -40,11 +40,15 @@ export const api = {
     csrfToken = "";
   },
   accounts: () => request("/api/accounts"),
+  schedules: () => request("/api/schedules"),
+  createSchedule: (payload) => request("/api/schedules", { method: "POST", body: JSON.stringify(payload) }),
+  patchSchedule: (id, payload) => request(`/api/schedules/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteSchedule: (id) => request(`/api/schedules/${id}`, { method: "DELETE" }),
   task: (id) => request(`/api/tasks/${id}`),
-  startTask: (action, accountIds) =>
+  startTask: (action, accountIds, concurrency = 1) =>
     request("/api/tasks", {
       method: "POST",
-      body: JSON.stringify({ action, accountIds }),
+      body: JSON.stringify({ action, accountIds, concurrency }),
     }),
   patchAccount: (id, payload) =>
     request(`/api/accounts/${id}`, {
