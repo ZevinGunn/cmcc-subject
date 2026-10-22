@@ -136,35 +136,34 @@ async function requestInSession(accountId, endpoint, data = {}, options = {}) {
         xhr.withCredentials = true;
         xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
         if (method !== "GET") xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        let settled = false;
+        const snapshot = (failureType = "") => ({
+          ok: xhr.status >= 200 && xhr.status < 300,
+          status: xhr.status,
+          url: xhr.responseURL || endpoint,
+          text: xhr.responseText || "",
+          contentType: xhr.getResponseHeader("content-type") || "",
+          failureType,
+          pageUrl: window.location.href,
+          cookieNames: document.cookie
+            .split(";")
+            .map((item) => item.trim().split("=")[0])
+            .filter(Boolean)
+        });
         xhr.onreadystatechange = () => {
           if (xhr.readyState !== 4) return;
-          resolve({
-            ok: xhr.status >= 200 && xhr.status < 300,
-            status: xhr.status,
-            url: xhr.responseURL || endpoint,
-            text: xhr.responseText || "",
-            contentType: xhr.getResponseHeader("content-type") || "",
-            pageUrl: window.location.href,
-            cookieNames: document.cookie
-              .split(";")
-              .map((item) => item.trim().split("=")[0])
-              .filter(Boolean)
-          });
+          if (settled) return;
+          settled = true;
+          resolve(snapshot(xhr.status ? "" : "status_zero"));
         };
-        xhr.onerror = xhr.ontimeout = xhr.onabort = () => {
-          resolve({
-            ok: false,
-            status: xhr.status || 0,
-            url: xhr.responseURL || endpoint,
-            text: "",
-            contentType: "",
-            pageUrl: window.location.href,
-            cookieNames: document.cookie
-              .split(";")
-              .map((item) => item.trim().split("=")[0])
-              .filter(Boolean)
-          });
+        const fail = (failureType) => {
+          if (settled) return;
+          settled = true;
+          resolve({ ...snapshot(failureType), ok: false, status: xhr.status || 0, text: "" });
         };
+        xhr.onerror = () => fail("error");
+        xhr.ontimeout = () => fail("timeout");
+        xhr.onabort = () => fail("abort");
         xhr.send(payload);
       });
     },
@@ -185,7 +184,8 @@ async function requestInSession(accountId, endpoint, data = {}, options = {}) {
       pageUrl: safePath(result.pageUrl),
       contentType: result.contentType,
       textLength: result.text?.length || 0,
-      cookieNames: result.cookieNames || []
+      cookieNames: result.cookieNames || [],
+      ...(result.failureType ? { failureType: result.failureType } : {})
     }
   };
 }

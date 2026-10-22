@@ -142,7 +142,7 @@ export function createScheduler({ now = () => new Date(), ensure = (id) => accou
       const warmKey = `${schedule.id}:${runAt}`;
       if (diff > 0 && diff <= schedule.warmupMinutes * 60_000 && !warmed.has(warmKey)) {
         warmed.add(warmKey);
-        await Promise.all(schedule.accountIds.map(async (id) => {
+        for (const id of schedule.accountIds) {
           try {
             const result = await ensure(id);
             if (!result?.ok) appendLog(id, "schedule_warmup", { scheduleId: schedule.id, status: "failed", message: result?.message || "会话预热失败" });
@@ -150,7 +150,7 @@ export function createScheduler({ now = () => new Date(), ensure = (id) => accou
           } catch (error) {
             appendLog(id, "schedule_warmup", { scheduleId: schedule.id, status: "failed", message: "会话预热异常" });
           }
-        }));
+        }
       }
       if (diff <= 0 && schedule.lastRunAt !== new Date(runAt).toISOString()) {
         schedule.lastRunAt = new Date(runAt).toISOString();

@@ -17,6 +17,7 @@ export const taskActions = {
   friday_wdmei: "周五狂欢日 · 味多美 10 元兑换券",
   rights_bag_cash: "权益福袋 · 10 元翼支付通用权益金",
 };
+const RIGHTS_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash"]);
 class TaskExecutionError extends Error {}
 // An interrupted operation is never replayed after restart.
 for (const task of listTasks()) {
@@ -42,14 +43,17 @@ export function accountHasPendingTask(id) {
       ),
   );
 }
-async function execute(action, account) {
+async function execute(action, account, { sessionReady = false } = {}) {
   if (action === "close") {
     return (await accountSessions.closeSession(account.id)).message;
   }
-  const session = await accountSessions.ensureSession(account.id);
-  if (!session.ok) throw new TaskExecutionError(session.message);
-  if (action === "check") return session.message;
-  if (["friday_wdmei", "rights_bag_cash"].includes(action)) {
+  let session;
+  if (!sessionReady) {
+    session = await accountSessions.ensureSession(account.id);
+    if (!session.ok) throw new TaskExecutionError(session.message);
+  }
+  if (action === "check") return sessionReady ? "登录状态已核验" : session.message;
+  if (RIGHTS_ACTIONS.has(action)) {
     try {
       const result = await claimClassicRight(account.id, action);
       return {
@@ -145,10 +149,56 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
   const run = async () => {
     task.status = "running";
     saveTask(task);
+    if (RIGHTS_ACTIONS.has(action)) {
+      // Login/session initialization is deliberately serialized across all
+      // selected accounts. Only the claim phase below is allowed to fan out.
+      const ensure = options.ensureSession || ((id) => accountSessions.ensureSession(id));
+      for (const item of task.items) {
+        const account = getAccount(item.accountId);
+        if (!account || (account.enabled === false && action !== "close")) {
+          Object.assign(item, { status: "skipped", message: "账号已停用或删除" });
+          saveTask(task);
+          continue;
+        }
+        item.status = "running";
+        item.message = "登录中";
+        saveTask(task);
+        try {
+          const session = await ensure(item.accountId);
+          if (!session?.ok) {
+            Object.assign(item, {
+              status: "failed",
+              message: session?.message || "登录失败，未执行权益领取",
+            });
+          } else {
+            item.status = "queued";
+            item.message = "登录成功，等待领取";
+            item.sessionReady = true;
+          }
+        } catch (error) {
+          Object.assign(item, {
+            status: "failed",
+            message: error instanceof TaskExecutionError
+              ? error.message
+              : "登录连接失败，未执行权益领取",
+          });
+        }
+        appendLog(item.accountId, action, {
+          status: item.status,
+          message: item.message,
+          taskId: task.id,
+          stage: "session_prepare",
+        });
+        saveTask(task);
+      }
+    }
     let cursor = 0;
     const worker = async () => {
       while (cursor < task.items.length) {
         const item = task.items[cursor++];
+      if (item.status !== "queued") {
+        continue;
+      }
       const account = getAccount(item.accountId);
       if (!account || (account.enabled === false && action !== "close")) {
         Object.assign(item, { status: "skipped", message: "账号已停用或删除" });
@@ -156,7 +206,9 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
         item.status = "running";
         saveTask(task);
         try {
-          const result = await executor(action, account);
+          const result = await executor(action, account, {
+            sessionReady: Boolean(item.sessionReady),
+          });
           Object.assign(
             item,
             typeof result === "string"

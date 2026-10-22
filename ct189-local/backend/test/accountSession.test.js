@@ -263,3 +263,52 @@ test("disabling during a check prevents login; opting out also removes the secre
   await other.manager.manualLogin(other.account.id, "005678", false);
   assert.equal(other.account.savedPassword, null);
 });
+
+test("login checks are serialized across different accounts", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ct189-vault-serial-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const vault = createCredentialVault(directory);
+  const accounts = [
+    { id: "serial-a", phone: "18900000021", enabled: true, loginStatus: "valid", autoLoginStatus: "enabled" },
+    { id: "serial-b", phone: "18900000022", enabled: true, loginStatus: "valid", autoLoginStatus: "enabled" },
+  ];
+  for (const account of accounts) account.savedPassword = vault.seal(account.id, "001234");
+  const active = { count: 0, max: 0 };
+  const order = [];
+  const manager = createAccountSessionManager({
+    getAccount: (id) => accounts.find((account) => account.id === id) || null,
+    patchAccount: (id, patch) => {
+      const account = accounts.find((item) => item.id === id);
+      Object.assign(account, patch);
+      return { id, hasSavedPassword: Boolean(account.savedPassword) };
+    },
+    vault,
+    appendLog: () => {},
+    queryLoginAccount: async (id) => {
+      active.count += 1;
+      active.max = Math.max(active.max, active.count);
+      order.push(`query:${id}`);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      active.count -= 1;
+      return response(null);
+    },
+    loginByServicePassword: async (id, phoneNumber) => {
+      active.count += 1;
+      active.max = Math.max(active.max, active.count);
+      order.push(`login:${id}`);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      active.count -= 1;
+      return { ok: true, login: response(), loginAccount: response(phoneNumber) };
+    },
+    closeClient: async () => {},
+  });
+
+  await Promise.all(accounts.map((account) => manager.ensureSession(account.id)));
+  assert.equal(active.max, 1);
+  assert.deepEqual(order, [
+    "query:serial-a",
+    "login:serial-a",
+    "query:serial-b",
+    "login:serial-b",
+  ]);
+});

@@ -9,7 +9,12 @@ export function isTelecomSuccess(response) {
 }
 
 export function responseMessage(response, fallback) {
-  if (!response?.ok) return `电信接口暂不可用（HTTP ${response?.status || 0}），请稍后重试`;
+  if (!response?.ok) {
+    const failureType = response?.diagnostic?.failureType;
+    if (failureType === "timeout") return "电信接口请求超时，请稍后重试";
+    if (failureType === "abort") return "电信请求被页面刷新中止，请稍后重试";
+    return `电信接口暂不可用（HTTP ${response?.status || 0}），请稍后重试`;
+  }
   if (!response.data || typeof response.data !== "object") return "电信未返回有效登录结果，请稍后重试";
   return typeof response.data.retMsg === "string" ? response.data.retMsg.slice(0, 200) : fallback;
 }
@@ -23,11 +28,14 @@ function safeText(value, limit = 180) {
 
 export function responseDiagnostic(response, stage = "unknown") {
   const status = Number(response?.status || 0);
+  const failureType = response?.diagnostic?.failureType;
   const retMsg = typeof response?.data?.retMsg === "string"
     ? safeText(response.data.retMsg)
     : "";
   let category = "unknown";
-  if (status === 412) category = "waf_challenge";
+  if (failureType === "timeout") category = "timeout";
+  else if (failureType === "abort") category = "page_reloaded";
+  else if (status === 412) category = "waf_challenge";
   else if ([502, 503, 504].includes(status)) category = "upstream_unavailable";
   else if (!response?.ok || status === 0) category = "network_error";
   else if (status >= 400) category = "http_error";
@@ -38,7 +46,7 @@ export function responseDiagnostic(response, stage = "unknown") {
     else if (code && code !== "0" && code !== "000000") category = "business_rejected";
     else category = "business_rejected";
   }
-  return { stage, status, category, result: response?.data?.result, retCode: response?.data?.retCode, retMsg };
+  return { stage, status, category, ...(failureType ? { failureType } : {}), result: response?.data?.result, retCode: response?.data?.retCode, retMsg };
 }
 
 async function requestAtStage(request, endpoint, data, stage, reinitialize = false) {

@@ -18,6 +18,15 @@ export function createAccountSessionManager(deps) {
   const now = deps.now || Date.now;
   const queues = new Map(),
     checks = new Map();
+  // The telecom login flow is stateful at the browser/profile level and the
+  // upstream service can challenge concurrent handshakes. Serialize login
+  // attempts across accounts while retaining per-account operation queues.
+  let loginTail = Promise.resolve();
+  function withLoginSlot(action) {
+    const run = loginTail.catch(() => {}).then(action);
+    loginTail = run.catch(() => {});
+    return run;
+  }
   const timestamp = () => new Date(now()).toISOString();
   const get = (id) => {
     const account = getAccount(id);
@@ -89,6 +98,10 @@ export function createAccountSessionManager(deps) {
       ? "服务密码错误，请手动重新登录并更新密码"
       : diagnostic.category === "waf_challenge"
         ? "电信安全验证未完成，请稍后重试"
+        : diagnostic.category === "timeout"
+          ? "电信请求超时，请稍后重试"
+          : diagnostic.category === "page_reloaded"
+            ? "电信验证页面刚刚刷新，请重新登录"
         : [502, 503, 504].includes(diagnostic.status)
           ? `电信上游暂不可用（HTTP ${diagnostic.status}），请稍后重试`
           : diagnostic.category === "network_error"
@@ -187,43 +200,43 @@ export function createAccountSessionManager(deps) {
       });
     },
     manualLogin(id, password, remember = true) {
-      return exclusive(id, async () => {
-        const account = get(id);
-        if (account.enabled === false)
-          return { ok: false, message: "账号已停用，请先启用" };
-        if (!/^\d{1,32}$/.test(password))
-          throw Object.assign(new Error("请输入数字服务密码（最多 32 位）"), {
-            status: 400,
-          });
-        if (!remember)
-          patchAccount(id, {
-            savedPassword: null,
-            autoLoginStatus: "not_saved",
-          });
-        return submit(id, password, false, remember);
-      });
+      return withLoginSlot(() => exclusive(id, async () => {
+          const account = get(id);
+          if (account.enabled === false)
+            return { ok: false, message: "账号已停用，请先启用" };
+          if (!/^\d{1,32}$/.test(password))
+            throw Object.assign(new Error("请输入数字服务密码（最多 32 位）"), {
+              status: 400,
+            });
+          if (!remember)
+            patchAccount(id, {
+              savedPassword: null,
+              autoLoginStatus: "not_saved",
+            });
+          return submit(id, password, false, remember);
+        }));
     },
     reloginSaved(id) {
-      return exclusive(id, async () => {
-        const account = get(id);
-        if (account.enabled === false) return { ok: false, message: "账号已停用，请先启用" };
-        if (!account.savedPassword)
-          return { ok: false, message: "没有已保存的服务密码，请手动输入并记住密码" };
-        let password;
-        try {
-          password = vault.open(id, account.savedPassword);
-        } catch {
-          return outcome(id, false, "已保存的服务密码无法解密，请手动重新登录", {
-            autoLoginStatus: "manual_required",
-            lastError: "已保存的服务密码无法解密，请手动重新登录",
-          });
-        }
-        return submit(id, password, true);
-      });
+      return withLoginSlot(() => exclusive(id, async () => {
+          const account = get(id);
+          if (account.enabled === false) return { ok: false, message: "账号已停用，请先启用" };
+          if (!account.savedPassword)
+            return { ok: false, message: "没有已保存的服务密码，请手动输入并记住密码" };
+          let password;
+          try {
+            password = vault.open(id, account.savedPassword);
+          } catch {
+            return outcome(id, false, "已保存的服务密码无法解密，请手动重新登录", {
+              autoLoginStatus: "manual_required",
+              lastError: "已保存的服务密码无法解密，请手动重新登录",
+            });
+          }
+          return submit(id, password, true);
+        }));
     },
     ensureSession(id) {
       if (checks.has(id)) return checks.get(id);
-      const pending = exclusive(id, async () => {
+      const pending = withLoginSlot(() => exclusive(id, async () => {
         let account = get(id);
         if (account.enabled === false || account.loginStatus === "closed")
           return {
@@ -289,7 +302,7 @@ export function createAccountSessionManager(deps) {
           });
         }
         return submit(id, password, true);
-      });
+      }));
       checks.set(id, pending);
       pending
         .finally(() => {

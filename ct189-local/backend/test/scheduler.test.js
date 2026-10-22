@@ -16,4 +16,12 @@ test("login response diagnostics distinguish WAF, upstream and password rejectio
   const rejected = responseDiagnostic({ ok: true, status: 200, data: { result: 1, retCode: "1001", retMsg: "服务密码错误" } }, "password_submission");
   assert.equal(rejected.category, "password_rejected");
   assert.equal(rejected.retMsg, "服务密码错误");
+  const timeout = responseDiagnostic({
+    ok: false,
+    status: 0,
+    data: null,
+    diagnostic: { failureType: "timeout" },
+  }, "password_submission");
+  assert.equal(timeout.category, "timeout");
+  assert.equal(timeout.failureType, "timeout");
 });
