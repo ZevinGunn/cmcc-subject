@@ -16,7 +16,7 @@ export function responseMessage(response, fallback) {
 
 function safeText(value, limit = 180) {
   return String(value || "")
-    .replace(/(?:password|passwd|pwd|token|cookie|authorization)\s*[:=：]\s*[^,;\s]+/gi, "$1=[已隐藏]")
+    .replace(/(?:password|passwd|pwd|token|cookie|authorization)\s*[:=：]\s*[^,;\s]+/gi, "敏感字段=[已隐藏]")
     .replace(/1\d{10}/g, "手机号")
     .slice(0, limit);
 }
