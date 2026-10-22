@@ -97,6 +97,14 @@ test("manual login remembers only verified passwords, never returns credentials 
   assert.ok(!JSON.stringify(result).includes("005678"));
   assert.ok(!JSON.stringify(s.logs).includes("005678"));
 });
+test("saved-password relogin decrypts only on the server", async (t) => {
+  const s = setup(t);
+  const result = await s.manager.reloginSaved("account-one");
+  assert.equal(result.ok, true);
+  assert.deepEqual(s.calls.passwords, ["001234"]);
+  assert.ok(!JSON.stringify(result).includes("001234"));
+  assert.ok(!JSON.stringify(s.logs).includes("001234"));
+});
 test("concurrent expiry checks deduplicate automatic password submission", async (t) => {
   const s = setup(t);
   const results = await Promise.all([

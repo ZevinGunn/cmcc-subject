@@ -203,6 +203,24 @@ export function createAccountSessionManager(deps) {
         return submit(id, password, false, remember);
       });
     },
+    reloginSaved(id) {
+      return exclusive(id, async () => {
+        const account = get(id);
+        if (account.enabled === false) return { ok: false, message: "账号已停用，请先启用" };
+        if (!account.savedPassword)
+          return { ok: false, message: "没有已保存的服务密码，请手动输入并记住密码" };
+        let password;
+        try {
+          password = vault.open(id, account.savedPassword);
+        } catch {
+          return outcome(id, false, "已保存的服务密码无法解密，请手动重新登录", {
+            autoLoginStatus: "manual_required",
+            lastError: "已保存的服务密码无法解密，请手动重新登录",
+          });
+        }
+        return submit(id, password, true);
+      });
+    },
     ensureSession(id) {
       if (checks.has(id)) return checks.get(id);
       const pending = exclusive(id, async () => {

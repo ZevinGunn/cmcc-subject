@@ -302,6 +302,15 @@ async function login() {
     );
   });
 }
+async function reloginSaved() {
+  await perform(async () => {
+    const result = await api.reloginSaved(activeId.value);
+    replace(result.account);
+    if (!result.ok) throw Object.assign(new Error(result.message), { account: result.account });
+    modal.value.close();
+    feedback("已使用服务端保存的密码重新登录");
+  });
+}
 async function task(action, ids = selected.value) {
   await perform(async () => {
     batch.value = (await api.startTask(action, ids, Number(batchConcurrency.value))).task;
@@ -877,6 +886,15 @@ onUnmounted(() => {
             />记住服务密码，过期自动补登</label
           >
           <p class="field-note">密码加密保存在服务端，不在账号列表中显示。</p>
+          <button
+            v-if="active?.hasSavedPassword"
+            type="button"
+            class="saved-login-button"
+            :disabled="busy"
+            @click="reloginSaved"
+          >
+            使用已保存密码重新登录
+          </button>
         </form>
         <form
           v-else-if="mode === 'import'"

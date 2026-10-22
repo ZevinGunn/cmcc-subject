@@ -71,6 +71,8 @@ export const api = {
     }),
   checkLogin: (id) =>
     request(`/api/ct189/${id}/check-login`, { method: "POST", body: "{}" }),
+  reloginSaved: (id) =>
+    request(`/api/ct189/${id}/relogin-saved`, { method: "POST", body: "{}" }),
   refresh: (id) =>
     request(`/api/ct189/${id}/refresh`, { method: "POST", body: "{}" }),
   drawRights: (id) =>

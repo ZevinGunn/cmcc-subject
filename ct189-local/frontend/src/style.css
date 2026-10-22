@@ -544,6 +544,13 @@ dialog::backdrop {
   font-size: 12px;
   margin-top: 10px;
 }
+.saved-login-button {
+  width: 100%;
+  margin-top: 10px;
+  color: #2456b8;
+  border-color: #cbd8f6;
+  background: #f5f8ff;
+}
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

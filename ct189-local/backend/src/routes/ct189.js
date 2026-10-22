@@ -52,6 +52,15 @@ ct189Router.post("/:id/check-login", async (req, res, next) => {
   }
 });
 
+ct189Router.post("/:id/relogin-saved", async (req, res, next) => {
+  try {
+    if (!requireAccount(req, res)) return;
+    res.json(await accountSessions.reloginSaved(req.params.id));
+  } catch (error) {
+    next(error);
+  }
+});
+
 ct189Router.post("/:id/refresh", async (req, res, next) => {
   try {
     const account = requireAccount(req, res);
