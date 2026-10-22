@@ -137,19 +137,27 @@ async function requestInSession(accountId, endpoint, data = {}, options = {}) {
         xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
         if (method !== "GET") xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         let settled = false;
-        const snapshot = (failureType = "") => ({
-          ok: xhr.status >= 200 && xhr.status < 300,
-          status: xhr.status,
-          url: xhr.responseURL || endpoint,
-          text: xhr.responseText || "",
-          contentType: xhr.getResponseHeader("content-type") || "",
-          failureType,
-          pageUrl: window.location.href,
-          cookieNames: document.cookie
-            .split(";")
-            .map((item) => item.trim().split("=")[0])
-            .filter(Boolean)
-        });
+        const snapshot = (failureType = "") => {
+          let contentType = "";
+          try {
+            contentType = xhr.getResponseHeader("content-type") || "";
+          } catch {
+            // Aborted and timed-out XHRs may no longer expose response headers.
+          }
+          return {
+            ok: xhr.status >= 200 && xhr.status < 300,
+            status: xhr.status,
+            url: xhr.responseURL || endpoint,
+            text: xhr.responseText || "",
+            contentType,
+            failureType,
+            pageUrl: window.location.href,
+            cookieNames: document.cookie
+              .split(";")
+              .map((item) => item.trim().split("=")[0])
+              .filter(Boolean)
+          };
+        };
         xhr.onreadystatechange = () => {
           if (xhr.readyState !== 4) return;
           if (settled) return;
