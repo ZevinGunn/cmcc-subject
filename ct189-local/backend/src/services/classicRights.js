@@ -11,7 +11,7 @@ export const CLASSIC_RIGHTS = Object.freeze({
     title: "权益福袋 · 10 元翼支付通用权益金",
     // The bag activity number changes independently of the Friday activity.
     // Keep the known range here and discover the live activity by offer code.
-    activityId: "",
+    activityId: process.env.CT189_RIGHTS_BAG_ACTIVITY_ID || "",
     activityIdCandidates: Object.freeze([
       ...Array.from({ length: 31 }, (_, index) => String(300 + index)),
     ]),

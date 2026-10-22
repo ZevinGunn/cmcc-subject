@@ -244,7 +244,14 @@ CLASSIC_RIGHTS = {
         "title": "权益福袋 · 10 元翼支付通用权益金",
         # The live bag activity number can change independently. Discover it
         # from the detail response instead of baking in a stale number.
-        "activity_ids": [str(i) for i in range(300, 331)],
+        "activity_ids": [
+            value
+            for value in list(dict.fromkeys(
+                [os.getenv("CT189_RIGHTS_BAG_ACTIVITY_ID", "")]
+                + [str(i) for i in range(300, 331)]
+            ))
+            if value
+        ],
         "offer_code": "202408071136574",
         "offer_name": "10元翼支付通用权益金(福袋)",
     },
