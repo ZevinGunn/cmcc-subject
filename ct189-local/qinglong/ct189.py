@@ -233,6 +233,27 @@ ACTIVITY_ENDPOINTS = {
     "/wap2017/re/wapFree/rightsInterestsAct/activityCheckV3": {"activeId": "310"},
 }
 
+CLASSIC_RIGHTS = {
+    "friday_wdmei": {
+        "title": "周五狂欢日 · 味多美 10 元兑换券",
+        "activity_id": "315",
+        "offer_code": "2025091810194425",
+        "offer_name": "味多美10元服务兑换券(周五狂欢日专属)",
+    },
+    "rights_bag_cash": {
+        "title": "权益福袋 · 10 元翼支付通用权益金",
+        # The live bag activity number can change independently. Discover it
+        # from the detail response instead of baking in a stale number.
+        "activity_ids": [str(i) for i in range(300, 331)],
+        "offer_code": "202408071136574",
+        "offer_name": "10元翼支付通用权益金(福袋)",
+    },
+}
+CLASSIC_ACTIVITY_PAGE = "/wap2017/index_highcvip/highMember_cvip_qy_activity.html"
+CLASSIC_ACTIVITY_DETAIL = "/wap2017/re/wapFree/rightsInterests/interestsActivityDetaiList"
+CLASSIC_PRECHECK = "/wap2017/re/wapFree/rightsInterests/doCheckRightsInterests"
+CLASSIC_CLAIM = "/wap2017/re/wapFree/rightsInterests/doRightsInterests"
+
 
 def login_task(client, account):
     return "登录会话已就绪"
@@ -247,15 +268,122 @@ def activity_task(client, account):
     return "活动资格查询完成（未领取）"
 
 
+def classic_success(data):
+    return (
+        isinstance(data, dict)
+        and ("result" in data or "retCode" in data)
+        and (data.get("result") is None or str(data.get("result")) == "0")
+        and (data.get("retCode") is None or str(data.get("retCode")) == "000000")
+    )
+
+
+def classic_offer(activity, definition):
+    if not classic_success(activity):
+        return None
+    for column in (activity.get("object") or {}).get("columnList") or []:
+        for offer in column.get("offerList") or []:
+            if str(offer.get("offercode")) == definition["offer_code"]:
+                result = dict(offer)
+                result["realNumber"] = column.get("realNumber")
+                return result
+    return None
+
+
+def classic_detail(client, activity_id):
+    client.page.goto(
+        f"{ORIGIN}{CLASSIC_ACTIVITY_PAGE}?activityId={activity_id}&level=1",
+        wait_until="domcontentloaded",
+    )
+    client.page.wait_for_function(
+        "() => typeof window.rights_interests?.interestsActivityDetaiList === 'function'"
+    )
+    with client.page.expect_response(
+        lambda response: response.url.split("?", 1)[0] == ORIGIN + CLASSIC_ACTIVITY_DETAIL,
+        timeout=30000,
+    ) as event:
+        client.page.evaluate(
+            "activityId => window.rights_interests.interestsActivityDetaiList(Number(activityId))",
+            activity_id,
+        )
+    return decode_payload(event.value.text())
+
+
+def classic_exchange(client, definition, activity_id):
+    responses = []
+
+    def on_response(response):
+        path = response.url.split("?", 1)[0]
+        if path in (ORIGIN + CLASSIC_PRECHECK, ORIGIN + CLASSIC_CLAIM):
+            try:
+                responses.append((path, decode_payload(response.text())))
+            except Exception:
+                responses.append((path, None))
+
+    client.page.on("response", on_response)
+    try:
+        client.page.evaluate(
+            "args => window.rights_interests.doCheckRightsInterests(...args)",
+            [definition["offer_code"], definition["offer_name"], activity_id, "1", "2"],
+        )
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            client.page.wait_for_timeout(100)
+            check = next((item[1] for item in responses if item[0].endswith(CLASSIC_PRECHECK)), None)
+            if check is not None and check.get("object", {}).get("resultCode") != "0":
+                return check, None
+            claim = next((item[1] for item in responses if item[0].endswith(CLASSIC_CLAIM)), None)
+            if check is not None and claim is not None:
+                return check, claim
+        raise TaskError("经典权益领取接口响应超时")
+    finally:
+        client.page.off("response", on_response)
+
+
+def classic_rights_task(client, account, task_name):
+    definition = CLASSIC_RIGHTS[task_name]
+    activity_ids = [definition["activity_id"]] if "activity_id" in definition else definition["activity_ids"]
+    activity = None
+    offer = None
+    activity_id = None
+    for candidate in activity_ids:
+        activity = classic_detail(client, candidate)
+        offer = classic_offer(activity, definition)
+        if offer:
+            activity_id = candidate
+            break
+    if not classic_success(activity):
+        raise TaskError((activity or {}).get("retMsg", "活动资格查询失败"))
+    obj = activity.get("object") or {}
+    if obj.get("handle") == "2" or obj.get("receive") not in (None, "0", 0):
+        raise TaskError("当前号码暂不具备该活动资格")
+    if not offer:
+        raise TaskError("活动未提供默认权益")
+    if obj.get("handle") == "3" or str(offer.get("realNumber")) == "0":
+        raise TaskError("本周期已达到领取上限或权益已领取")
+    if offer.get("receiveMark") != "P":
+        raise TaskError("默认权益当前不可领取，可能已领取或库存不足")
+    check, claim = classic_exchange(client, definition, activity_id)
+    if not check or check.get("object", {}).get("resultCode") != "0":
+        raise TaskError((check or {}).get("object", {}).get("resultMessage", "活动预校验失败"))
+    if not claim or claim.get("object", {}).get("resultCode") != "0":
+        raise TaskError((claim or {}).get("object", {}).get("resultMessage", "权益领取失败"))
+    return "领取请求已提交，请以电信权益列表最终状态为准"
+
+
 # Future tasks receive an authenticated client and the exact verified account.
 # Register only verified official endpoints and add them to the request allowlist.
-TASKS = {"login": login_task, "activity": activity_task}
+TASKS = {
+    "login": login_task,
+    "activity": activity_task,
+    "friday_wdmei": lambda client, account: classic_rights_task(client, account, "friday_wdmei"),
+    "rights_bag_cash": lambda client, account: classic_rights_task(client, account, "rights_bag_cash"),
+}
 
 
 def parse_tasks(raw):
     names = list(dict.fromkeys(name.strip() for name in raw.split(",") if name.strip()))
     if not names or any(name not in TASKS for name in names):
-        raise ConfigError("未知任务；当前仅支持 login、activity，签到和领取尚未接入")
+        raise ConfigError("未知任务；支持 login、activity、friday_wdmei、rights_bag_cash")
     return names
 
 
@@ -334,7 +462,7 @@ def main(argv=None):
     os.umask(0o077)
     try:
         if args.list_tasks:
-            print("login: 登录并核验号码\nactivity: 查询活动 310 资格（只读）")
+            print("login: 登录并核验号码\nactivity: 查询活动 310 资格（只读）\nfriday_wdmei: 领取味多美 10 元兑换券\nrights_bag_cash: 领取 10 元翼支付通用权益金")
             return 0
         accounts = parse_accounts(os.getenv("CT189_ACCOUNTS", ""))
         names = parse_tasks(args.tasks)

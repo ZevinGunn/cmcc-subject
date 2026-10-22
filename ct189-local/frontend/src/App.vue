@@ -522,6 +522,10 @@ onUnmounted(() => {
             检查登录</button
           ><button :disabled="busy || pending" @click="task('refresh')">
             更新资料</button
+          ><button :disabled="busy || pending" @click="task('friday_wdmei')">
+            领味多美</button
+          ><button :disabled="busy || pending" @click="task('rights_bag_cash')">
+            领权益福袋</button
           ><button :disabled="busy" @click="open('group')">移动分组</button
           ><button :disabled="busy" @click="batchUpdate({ enabled: true })">
             启用</button
@@ -898,6 +902,16 @@ onUnmounted(() => {
               @click="task('refresh', [active.id])"
             >
               更新资料</button
+            ><button
+              :disabled="busy || pending || active.enabled === false"
+              @click="task('friday_wdmei', [active.id])"
+            >
+              领味多美</button
+            ><button
+              :disabled="busy || pending || active.enabled === false"
+              @click="task('rights_bag_cash', [active.id])"
+            >
+              领权益福袋</button
             ><button
               :disabled="busy || pending"
               @click="task('close', [active.id])"

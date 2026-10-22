@@ -6,7 +6,7 @@ import {
   patchAccount,
   saveTask,
 } from "./accountStore.js";
-import { queryActivity, queryBalance } from "./telecomClient.js";
+import { claimClassicRight, queryActivity, queryBalance } from "./telecomClient.js";
 import { isTelecomSuccess } from "./passwordLogin.js";
 import { accountSessions } from "./accountSession.js";
 
@@ -14,6 +14,8 @@ export const taskActions = {
   check: "检查登录",
   refresh: "更新资料",
   close: "关闭会话",
+  friday_wdmei: "周五狂欢日 · 味多美 10 元兑换券",
+  rights_bag_cash: "权益福袋 · 10 元翼支付通用权益金",
 };
 class TaskExecutionError extends Error {}
 // An interrupted operation is never replayed after restart.
@@ -47,6 +49,15 @@ async function execute(action, account) {
   const session = await accountSessions.ensureSession(account.id);
   if (!session.ok) throw new TaskExecutionError(session.message);
   if (action === "check") return session.message;
+  if (["friday_wdmei", "rights_bag_cash"].includes(action)) {
+    try {
+      const result = await claimClassicRight(account.id, action);
+      return { status: "success", message: result.message };
+    } catch (error) {
+      if (error?.status === 409) throw new TaskExecutionError(error.message);
+      throw error;
+    }
+  }
   const activity = await queryActivity(account.id);
   const balance = await queryBalance(account.id);
   const responses = [activity.info, activity.chance, ...Object.values(balance)];
