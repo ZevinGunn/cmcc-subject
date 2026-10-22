@@ -1,13 +1,18 @@
 let csrfToken = "";
 async function request(path, options = {}) {
-  const response = await fetch(path, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
-      ...(options.headers || {}),
-    },
-  });
+  let response;
+  try {
+    response = await fetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+        ...(options.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error("服务连接中断，请刷新页面后重试");
+  }
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
     const error = new Error(data.message || `请求失败：${response.status}`);

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { appendLog, getAccount, listSchedules, saveSchedule } from "./accountStore.js";
+import { appendLog, getAccount, listSchedules, listTasks, saveSchedule } from "./accountStore.js";
 import { accountSessions } from "./accountSession.js";
-import { enqueueTask } from "./taskRunner.js";
+import { enqueueTask, waitForTasks } from "./taskRunner.js";
 
 export const SCHEDULE_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash"]);
 export const MAX_SCHEDULE_CONCURRENCY = 8;
@@ -63,23 +63,75 @@ export function validateScheduleInput(input) {
   const warmupMinutes = Number(input?.warmupMinutes ?? 5);
   if (!Number.isInteger(warmupMinutes) || warmupMinutes < 0 || warmupMinutes > 30)
     throw Object.assign(new Error("预热时间必须是 0–30 分钟"), { status: 400 });
+  const intervalSeconds = Number(input?.intervalSeconds ?? 0);
+  const maxAttempts = Number(input?.maxAttempts ?? 1);
+  if (!Number.isInteger(intervalSeconds) || intervalSeconds < 0 || intervalSeconds > 3600)
+    throw Object.assign(new Error("重试间隔必须是 0–3600 秒的整数"), { status: 400 });
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 50)
+    throw Object.assign(new Error("执行次数必须是 1–50 的整数"), { status: 400 });
+  if (maxAttempts > 1 && intervalSeconds < 1)
+    throw Object.assign(new Error("多次执行时，重试间隔至少为 1 秒"), { status: 400 });
   const cron = String(input?.cron || "").trim();
   fields(cron);
   nextRunAt(cron, new Date(), input?.timezone || "Asia/Shanghai");
-  return { action, accountIds, concurrency, warmupMinutes, cron, timezone: "Asia/Shanghai" };
-}
-
-function mask(id) {
-  const phone = getAccount(id)?.phone || "未知号码";
-  return phone.replace(/^(\d{3})\d{4}/, "$1****");
+  return { action, accountIds, concurrency, warmupMinutes, intervalSeconds, maxAttempts, cron, timezone: "Asia/Shanghai" };
 }
 export function createScheduler({ now = () => new Date(), ensure = (id) => accountSessions.ensureSession(id), enqueue = enqueueTask } = {}) {
   const warmed = new Set();
+  const activeRuns = new Map();
   let timer;
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  async function runScheduledBatch(schedule) {
+    if (activeRuns.has(schedule.id)) return;
+    activeRuns.set(schedule.id, true);
+    try {
+      const state = schedule.runState || {
+        status: "running",
+        attempt: 0,
+        activeAccountIds: [...schedule.accountIds],
+        startedAt: new Date().toISOString(),
+      };
+      state.status = "running";
+      while (state.activeAccountIds.length && state.attempt < schedule.maxAttempts) {
+        state.attempt += 1;
+        schedule.runState = state;
+        saveSchedule(schedule);
+        let task;
+        try {
+          task = enqueue(schedule.action, state.activeAccountIds, undefined, { concurrency: schedule.concurrency });
+          schedule.lastTaskId = task.id;
+          saveSchedule(schedule);
+          await waitForTasks();
+          const finished = listTasks().find((item) => item.id === task.id);
+          const succeeded = new Set((finished?.items || []).filter((item) => item.status === "success").map((item) => item.accountId));
+          state.activeAccountIds = state.activeAccountIds.filter((id) => !succeeded.has(id));
+          state.lastTaskStatus = finished?.status || "unknown";
+        } catch (error) {
+          state.lastTaskStatus = "failed";
+          state.lastError = "本轮任务未创建成功，将按计划继续";
+        }
+        schedule.runState = state;
+        saveSchedule(schedule);
+        if (state.activeAccountIds.length && state.attempt < schedule.maxAttempts && schedule.intervalSeconds)
+          await sleep(schedule.intervalSeconds * 1000);
+      }
+      state.status = state.activeAccountIds.length ? "exhausted" : "success";
+      state.finishedAt = new Date().toISOString();
+      schedule.runState = state;
+      schedule.lastError = state.activeAccountIds.length ? `已执行 ${state.attempt} 次，仍有 ${state.activeAccountIds.length} 个账号未成功` : "";
+      saveSchedule(schedule);
+    } finally {
+      activeRuns.delete(schedule.id);
+    }
+  }
   async function tick() {
     const current = new Date(now());
     for (const schedule of listSchedules()) {
       if (!schedule.enabled) continue;
+      if (schedule.runState?.status === "running" && !activeRuns.has(schedule.id)) {
+        runScheduledBatch(schedule).catch(() => {});
+        continue;
+      }
       const runAt = Date.parse(schedule.nextRunAt || "");
       if (!Number.isFinite(runAt)) {
         schedule.nextRunAt = nextRunAt(schedule.cron, current, schedule.timezone);
@@ -103,14 +155,9 @@ export function createScheduler({ now = () => new Date(), ensure = (id) => accou
       if (diff <= 0 && schedule.lastRunAt !== new Date(runAt).toISOString()) {
         schedule.lastRunAt = new Date(runAt).toISOString();
         schedule.nextRunAt = nextRunAt(schedule.cron, new Date(runAt), schedule.timezone);
-        try {
-          const task = enqueue(schedule.action, schedule.accountIds, undefined, { concurrency: schedule.concurrency });
-          schedule.lastTaskId = task.id;
-        } catch (error) {
-          schedule.lastError = error.message === "选中账号已有任务，请等待完成" ? "账号已有任务，已跳过本次执行" : "定时任务创建失败";
-          for (const id of schedule.accountIds) appendLog(id, "schedule_run", { scheduleId: schedule.id, status: "failed", message: schedule.lastError });
-        }
+        schedule.runState = { status: "running", attempt: 0, activeAccountIds: [...schedule.accountIds], startedAt: new Date().toISOString() };
         saveSchedule(schedule);
+        runScheduledBatch(schedule).catch(() => {});
       }
     }
   }

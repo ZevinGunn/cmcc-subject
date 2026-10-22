@@ -24,7 +24,7 @@ const batch = ref(null),
   batchConcurrency = ref(1);
 const schedules = ref([]),
   operationLogs = ref([]),
-  scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5 });
+  scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5, intervalSeconds: 2, maxAttempts: 1 });
 const accessRequired = ref(false),
   locked = ref(false),
   accessLoading = ref(true),
@@ -537,11 +537,13 @@ onUnmounted(() => {
           <label>执行时间（cron）<input v-model.trim="scheduleForm.cron" placeholder="0 10 * * 5" pattern="\S+\s+\S+\s+\S+\s+\S+\s+\S+" required /></label>
           <label>并发数<input v-model.number="scheduleForm.concurrency" type="number" min="1" max="8" /></label>
           <label>提前预热（分钟）<input v-model.number="scheduleForm.warmupMinutes" type="number" min="0" max="30" /></label>
+          <label>重试间隔（秒）<input v-model.number="scheduleForm.intervalSeconds" type="number" min="0" max="3600" /></label>
+          <label>最多执行次数<input v-model.number="scheduleForm.maxAttempts" type="number" min="1" max="50" /></label>
           <button class="primary" :disabled="busy || !selected.length">创建计划</button>
         </form>
         <div v-if="schedules.length" class="schedule-list">
           <div v-for="schedule in schedules" :key="schedule.id" class="schedule-row">
-            <div><strong>{{ schedule.title }}</strong><small>{{ schedule.cron }} · 并发 {{ schedule.concurrency }} · 下次 {{ date(schedule.nextRunAt) }}</small></div>
+            <div><strong>{{ schedule.title }}</strong><small>{{ schedule.cron }} · 并发 {{ schedule.concurrency }} · 间隔 {{ schedule.intervalSeconds }} 秒 · 最多 {{ schedule.maxAttempts }} 次 · 下次 {{ date(schedule.nextRunAt) }}</small></div>
             <span class="status-label" :class="schedule.enabled ? 'good' : 'muted'"><i class="dot"></i>{{ schedule.enabled ? '已启用' : '已停用' }}</span>
             <small v-if="schedule.lastError" class="row-error">{{ schedule.lastError }}</small>
             <div class="row-actions"><button :disabled="busy" @click="toggleSchedule(schedule)">{{ schedule.enabled ? '停用' : '启用' }}</button><button class="danger-text" :disabled="busy" @click="removeSchedule(schedule)">删除</button></div>
