@@ -19,6 +19,8 @@ const specs = {
 const pending = new Map();
 const WORKER_TTL_MS = 2 * 60_000;
 const MAX_OUTPUT = 64 * 1024;
+let executorCache;
+let executorCacheAt = 0;
 
 function runtimeAvailable(id, command) {
   const args = id === "go" ? ["version"] : ["--version"];
@@ -33,7 +35,9 @@ function cleanup() {
 
 export function listExecutors() {
   cleanup();
-  return [
+  if (executorCache && Date.now() - executorCacheAt < 30_000)
+    return executorCache.map((item) => ({ ...item }));
+  executorCache = [
     { id: "native", label: "Node 内置", available: true, description: "服务端内置执行，默认方式" },
     ...Object.entries(specs).map(([id, spec]) => {
       const available = runtimeAvailable(id, spec.command);
@@ -47,6 +51,8 @@ export function listExecutors() {
       };
     }),
   ];
+  executorCacheAt = Date.now();
+  return executorCache.map((item) => ({ ...item }));
 }
 
 export function normalizeExecutor(value) {
