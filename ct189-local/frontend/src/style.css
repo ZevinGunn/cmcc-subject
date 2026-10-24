@@ -1153,10 +1153,24 @@ main {
   font-size: 14px;
   font-weight: 500;
 }
-.access-panel input {
+.access-panel input:not([type="checkbox"]) {
   width: 100%;
   min-height: 44px;
   font-size: 16px;
+}
+.access-panel form > .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.access-panel .checkbox-label input[type="checkbox"] {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  flex: 0 0 16px;
 }
 .access-panel form button {
   min-height: 44px;

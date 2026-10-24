@@ -16,6 +16,7 @@ export function createAccountSessionManager(deps) {
     appendLog,
   } = deps;
   const now = deps.now || Date.now;
+  const SESSION_LEASE_MS = 30 * 60_000;
   const queues = new Map(),
     checks = new Map();
   // The telecom login flow is stateful at the browser/profile level and the
@@ -39,6 +40,17 @@ export function createAccountSessionManager(deps) {
       response.data?.object &&
       response.data.object !== phone,
   );
+  const sessionLeaseActive = (account) => {
+    if (account.loginStatus !== "valid") return false;
+    const timestamps = [account.lastLoginAt, account.lastSessionCheckAt]
+      .map((value) => Date.parse(value || ""))
+      .filter(Number.isFinite);
+    return timestamps.length > 0 && now() - Math.max(...timestamps) < SESSION_LEASE_MS;
+  };
+  const transientIdentityFailure = (response) =>
+    !response ||
+    [0, 400, 408, 412, 429, 500, 502, 503, 504].includes(Number(response.status || 0)) ||
+    ["timeout", "error", "abort", "status_zero"].includes(response.diagnostic?.failureType);
   async function exclusive(id, action) {
     const current = (queues.get(id) || Promise.resolve())
       .catch(() => {})
@@ -54,7 +66,7 @@ export function createAccountSessionManager(deps) {
     const account = patchAccount(id, patch);
     return { ok, message, account };
   }
-  function completed(id, automatic, result, password, remember) {
+  function completed(id, automatic, result, password, remember, preserveValid) {
     const account = get(id);
     if (result.ok) {
       // Persist a replacement only after both password submission and identity verification.
@@ -122,22 +134,33 @@ export function createAccountSessionManager(deps) {
             : submitted
               ? `登录未完成${diagnostic.retMsg ? `：${diagnostic.retMsg}` : "，请手动重新登录"}`
               : "电信会话初始化失败，请稍后重试";
+    const transientFailure = [
+      "network_error",
+      "timeout",
+      "waf_challenge",
+      "upstream_unavailable",
+      "page_reloaded",
+    ].includes(diagnostic.category);
+    const keepValid = preserveValid && transientFailure;
     return outcome(id, false, message, {
-      loginStatus: "invalid",
-      loginNumber: "",
-      lastError: message,
+      loginStatus: keepValid ? "valid" : "invalid",
+      loginNumber: keepValid ? account.phone : "",
+      lastError: keepValid ? "" : message,
       autoLoginStatus: !account.savedPassword
         ? "not_saved"
-        : submitted || !automatic
+        : keepValid
+          ? "retry_wait"
+          : submitted || !automatic
           ? "manual_required"
           : "retry_wait",
       autoLoginRetryAt:
-        automatic && !submitted
+        automatic && (keepValid || !submitted)
           ? new Date(now() + 15 * 60_000).toISOString()
           : "",
     });
   }
   async function submit(id, password, automatic, remember = true) {
+    const preserveValid = automatic && sessionLeaseActive(get(id));
     get(id);
     patchAccount(id, {
       loginStatus: "invalid",
@@ -147,7 +170,7 @@ export function createAccountSessionManager(deps) {
     });
     try {
       const result = await loginByServicePassword(id, get(id).phone, password);
-      const response = completed(id, automatic, result, password, remember);
+      const response = completed(id, automatic, result, password, remember, preserveValid);
       const mismatchedIdentity = identityMismatch(result.loginAccount, get(id).phone);
       const failedIdentity = result.loginAccount && !isTelecomSuccess(result.loginAccount);
       const failureResponse = failedIdentity
@@ -282,12 +305,19 @@ export function createAccountSessionManager(deps) {
         account = get(id);
         if (account.enabled === false || account.loginStatus === "closed")
           return { ok: false, message: "账号已停用或会话已关闭" };
-        if (!isTelecomSuccess(identity))
+        if (!isTelecomSuccess(identity)) {
+          if (sessionLeaseActive(account) && transientIdentityFailure(identity))
+            return outcome(id, true, "登录会话仍在有效期内，暂跳过本次核验", {
+              loginStatus: "valid",
+              loginNumber: account.phone,
+              lastError: "",
+            });
           return outcome(id, false, "暂时无法核验登录状态，请稍后重试", {
             loginStatus: "unknown",
             loginNumber: "",
             lastError: "暂时无法核验登录状态，请稍后重试",
           });
+        }
         if (identity.data.object === account.phone)
           return outcome(id, true, "登录号码核验通过", {
             loginStatus: "valid",

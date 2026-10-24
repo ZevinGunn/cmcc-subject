@@ -355,3 +355,14 @@ test("account confirmation network failure is not mislabeled as a phone mismatch
   assert.match(result.message, /网络连接失败/);
   assert.doesNotMatch(result.message, /手机号核验不匹配/);
 });
+
+test("a transient check failure within the 30-minute session lease preserves login state", async (t) => {
+  const s = setup(t, { query: () => ({ ok: false, status: 0, data: null }) });
+  s.account.lastLoginAt = new Date(s.clock.now - 5 * 60_000).toISOString();
+  const result = await s.manager.ensureSession(s.account.id);
+  assert.equal(result.ok, true);
+  assert.match(result.message, /有效期内/);
+  assert.equal(result.account.loginStatus, "valid");
+  assert.equal(s.account.loginStatus, "valid");
+  assert.equal(s.calls.passwords.length, 0);
+});
