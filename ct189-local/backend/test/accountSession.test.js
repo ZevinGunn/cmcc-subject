@@ -326,3 +326,18 @@ test("retryable session responses reinitialize before automatic login", async (t
   assert.equal(queries, 2);
   assert.deepEqual(s.calls.passwords, ["001234"]);
 });
+
+test("transient network failures do not permanently block saved-password relogin", async (t) => {
+  const s = setup(t, {
+    login: () => ({
+      ok: false,
+      login: null,
+      initialization: { ok: false, status: 0, data: null },
+    }),
+  });
+  s.account.autoLoginStatus = "manual_required";
+  s.account.lastError = "电信网络连接失败，请检查网络后重试";
+  const result = await s.manager.ensureSession(s.account.id);
+  assert.equal(result.ok, false);
+  assert.deepEqual(s.calls.passwords, ["001234"]);
+});

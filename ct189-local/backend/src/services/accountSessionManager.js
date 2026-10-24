@@ -288,7 +288,10 @@ export function createAccountSessionManager(deps) {
           return outcome(id, false, "会话已过期，请登录并记住服务密码", {
             lastError: "会话已过期，请登录并记住服务密码",
           });
-        if (account.autoLoginStatus === "manual_required")
+        const transientFailure = /网络连接失败|请求超时|上游暂不可用|安全验证未完成|验证页面刚刚刷新/.test(
+          String(account.lastError || ""),
+        );
+        if (account.autoLoginStatus === "manual_required" && !transientFailure)
           return {
             ok: false,
             message: account.lastError || "请手动重新登录并更新服务密码",

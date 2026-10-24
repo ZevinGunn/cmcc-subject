@@ -39,6 +39,8 @@ const API = {
 
 const CLASSIC_ACTIVITY_PAGE =
   "/wap2017/index_highcvip/highMember_cvip_qy_activity.html";
+const CLASSIC_ACTIVITY_APP_PAGE =
+  "/wap2017/apps/serviceapps/highMember_cvip_qy_activity/index.html";
 const CLASSIC_ACTIVITY_DETAIL =
   "/wap2017/re/wapFree/rightsInterests/interestsActivityDetaiList";
 const CLASSIC_PRECHECK =
@@ -336,27 +338,39 @@ async function navigateOfficialDocument(page, url) {
   } finally {
     page.off("response", onResponse);
   }
-  return { status: documentStatus, pageUrl: new URL(page.url()).pathname };
+  const result = { status: documentStatus, pageUrl: new URL(page.url()).pathname };
+  if (result.status >= 400)
+    throw Object.assign(new Error(`活动页面返回 HTTP ${result.status}`), result);
+  return result;
 }
 
 async function prepareClassicPage(page, activityId, accountId) {
-  const url = `${config.officialOrigin}${CLASSIC_ACTIVITY_PAGE}?activityId=${encodeURIComponent(activityId)}&level=1`;
-  try {
-    const navigation = await navigateOfficialDocument(page, url);
-    await page.waitForFunction(
-      () => typeof window.rights_interests?.interestsActivityDetaiList === "function",
-      { timeout: config.requestTimeoutMs },
-    );
+  const urls = [CLASSIC_ACTIVITY_PAGE, CLASSIC_ACTIVITY_APP_PAGE];
+  let lastError;
+  for (const endpoint of urls) {
+    const url = `${config.officialOrigin}${endpoint}?activityId=${encodeURIComponent(activityId)}&level=1`;
     try {
-      appendLog(accountId, "api_request", {
-        stage: "rights_activity_page",
-        endpoint: CLASSIC_ACTIVITY_PAGE,
-        method: "GET",
-        request: { activityId },
-        response: { ok: true, status: navigation.status, pageUrl: navigation.pageUrl },
-      });
-    } catch {}
-  } catch (error) {
+      const navigation = await navigateOfficialDocument(page, url);
+      await page.waitForFunction(
+        () => typeof window.rights_interests?.interestsActivityDetaiList === "function",
+        { timeout: Math.min(config.requestTimeoutMs, 8000) },
+      );
+      try {
+        appendLog(accountId, "api_request", {
+          stage: "rights_activity_page",
+          endpoint,
+          method: "GET",
+          request: { activityId },
+          response: { ok: true, status: navigation.status, pageUrl: navigation.pageUrl },
+        });
+      } catch {}
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  {
+    const error = lastError || new Error("活动页面未加载权益脚本");
     let pageInfo = {};
     try {
       pageInfo = {
@@ -368,7 +382,7 @@ async function prepareClassicPage(page, activityId, accountId) {
     try {
       appendLog(accountId, "api_request", {
         stage: "rights_activity_page",
-        endpoint: CLASSIC_ACTIVITY_PAGE,
+        endpoint: urls.join(","),
         method: "GET",
         request: { activityId },
         response: null,
