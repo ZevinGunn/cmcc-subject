@@ -33,6 +33,12 @@ export function createAccountSessionManager(deps) {
     if (!account) throw Object.assign(new Error("账号不存在"), { status: 404 });
     return account;
   };
+  const identityMismatch = (response, phone) => Boolean(
+    response?.ok &&
+      isTelecomSuccess(response) &&
+      response.data?.object &&
+      response.data.object !== phone,
+  );
   async function exclusive(id, action) {
     const current = (queues.get(id) || Promise.resolve())
       .catch(() => {})
@@ -86,14 +92,21 @@ export function createAccountSessionManager(deps) {
         String(result.login?.data?.retMsg || ""),
       );
     const submitted = Boolean(result.login);
-    const identityMismatch = Boolean(result.loginAccount) &&
-      (!isTelecomSuccess(result.loginAccount) || result.loginAccount.data?.object !== account.phone);
-    const diagnostic = responseDiagnostic(
-      result.login || result.initialization,
-      submitted ? "password_submission" : "initialization",
+    const mismatchedIdentity = identityMismatch(result.loginAccount, account.phone);
+    const failedIdentity = result.loginAccount && !isTelecomSuccess(result.loginAccount);
+    const missingIdentity = Boolean(
+      result.loginAccount &&
+        isTelecomSuccess(result.loginAccount) &&
+        !result.loginAccount.data?.object,
     );
-    const message = identityMismatch
+    const diagnostic = responseDiagnostic(
+      failedIdentity ? result.loginAccount : result.login || result.initialization,
+      failedIdentity ? "account_confirmation" : submitted ? "password_submission" : "initialization",
+    );
+    const message = mismatchedIdentity
       ? "登录成功但手机号核验不匹配，请重新登录"
+      : missingIdentity
+        ? "登录成功但未返回手机号，请稍后重试"
       : passwordWrong || diagnostic.category === "password_rejected"
       ? "服务密码错误，请手动重新登录并更新密码"
       : diagnostic.category === "waf_challenge"
@@ -135,18 +148,29 @@ export function createAccountSessionManager(deps) {
     try {
       const result = await loginByServicePassword(id, get(id).phone, password);
       const response = completed(id, automatic, result, password, remember);
-      const identityMismatch = Boolean(result.loginAccount) &&
-        (!isTelecomSuccess(result.loginAccount) || result.loginAccount.data?.object !== get(id).phone);
+      const mismatchedIdentity = identityMismatch(result.loginAccount, get(id).phone);
+      const failedIdentity = result.loginAccount && !isTelecomSuccess(result.loginAccount);
+      const failureResponse = failedIdentity
+        ? result.loginAccount
+        : result.login || result.initialization;
       appendLog(id, automatic ? "auto_login" : "password_login", {
         ok: response.ok,
-        stage: response.ok ? "complete" : (result.login ? "password_submission" : "initialization"),
+        stage: response.ok
+          ? "complete"
+          : mismatchedIdentity || failedIdentity
+            ? "account_confirmation"
+            : result.login
+              ? "password_submission"
+              : "initialization",
         initialization: loginSummary(result.initialization, "initialization"),
         initializationAttempts: result.initializationAttempts,
         login: loginSummary(result.login, "password_submission"),
         loginAccount: loginSummary(result.loginAccount, "account_confirmation"),
         failure: response.ok ? null : responseDiagnostic(
-          identityMismatch ? result.loginAccount : (result.login || result.initialization),
-          identityMismatch ? "account_confirmation" : (result.login ? "password_submission" : "initialization"),
+          mismatchedIdentity || failedIdentity ? result.loginAccount : failureResponse,
+          mismatchedIdentity || failedIdentity
+            ? "account_confirmation"
+            : (result.login ? "password_submission" : "initialization"),
         ),
       });
       return response;

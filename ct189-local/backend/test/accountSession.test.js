@@ -341,3 +341,17 @@ test("transient network failures do not permanently block saved-password relogin
   assert.equal(result.ok, false);
   assert.deepEqual(s.calls.passwords, ["001234"]);
 });
+
+test("account confirmation network failure is not mislabeled as a phone mismatch", async (t) => {
+  const s = setup(t, {
+    login: () => ({
+      ok: false,
+      login: response(),
+      loginAccount: { ok: false, status: 0, data: null, diagnostic: { failureType: "status_zero" } },
+    }),
+  });
+  const result = await s.manager.ensureSession(s.account.id);
+  assert.equal(result.ok, false);
+  assert.match(result.message, /网络连接失败/);
+  assert.doesNotMatch(result.message, /手机号核验不匹配/);
+});
