@@ -317,17 +317,71 @@ function waitForClassicResponse(page, endpoint, timeout = config.requestTimeoutM
   return pending;
 }
 
-async function prepareClassicPage(page, activityId) {
+async function navigateOfficialDocument(page, url) {
+  let documentStatus = 0;
+  const onResponse = (response) => {
+    if (response.request().isNavigationRequest() && response.frame() === page.mainFrame())
+      documentStatus = response.status();
+  };
+  page.on("response", onResponse);
+  try {
+    const ready = page.waitForURL(
+      (current) => current.origin === config.officialOrigin && documentStatus > 0 && documentStatus !== 412,
+      { waitUntil: "domcontentloaded", timeout: config.requestTimeoutMs },
+    );
+    await Promise.all([
+      page.goto(url, { waitUntil: "domcontentloaded", timeout: config.requestTimeoutMs }),
+      ready,
+    ]);
+  } finally {
+    page.off("response", onResponse);
+  }
+  return { status: documentStatus, pageUrl: new URL(page.url()).pathname };
+}
+
+async function prepareClassicPage(page, activityId, accountId) {
   const url = `${config.officialOrigin}${CLASSIC_ACTIVITY_PAGE}?activityId=${encodeURIComponent(activityId)}&level=1`;
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: config.requestTimeoutMs });
-  await page.waitForFunction(
-    () => typeof window.rights_interests?.interestsActivityDetaiList === "function",
-    { timeout: config.requestTimeoutMs },
-  );
+  try {
+    const navigation = await navigateOfficialDocument(page, url);
+    await page.waitForFunction(
+      () => typeof window.rights_interests?.interestsActivityDetaiList === "function",
+      { timeout: config.requestTimeoutMs },
+    );
+    try {
+      appendLog(accountId, "api_request", {
+        stage: "rights_activity_page",
+        endpoint: CLASSIC_ACTIVITY_PAGE,
+        method: "GET",
+        request: { activityId },
+        response: { ok: true, status: navigation.status, pageUrl: navigation.pageUrl },
+      });
+    } catch {}
+  } catch (error) {
+    let pageInfo = {};
+    try {
+      pageInfo = {
+        pageUrl: new URL(page.url()).pathname,
+        title: await page.title(),
+        textLength: await page.locator("body").innerText({ timeout: 1000 }).then((text) => text.length).catch(() => 0),
+      };
+    } catch {}
+    try {
+      appendLog(accountId, "api_request", {
+        stage: "rights_activity_page",
+        endpoint: CLASSIC_ACTIVITY_PAGE,
+        method: "GET",
+        request: { activityId },
+        response: null,
+        diagnostic: pageInfo,
+        error: { name: error?.name, message: error?.message, status: error?.status },
+      });
+    } catch {}
+    throw error;
+  }
 }
 
 async function loadClassicActivity(page, activityId, accountId) {
-  await prepareClassicPage(page, activityId);
+  await prepareClassicPage(page, activityId, accountId);
   const response = waitForClassicResponse(page, CLASSIC_ACTIVITY_DETAIL);
   let result;
   try {
@@ -461,16 +515,6 @@ async function classicActivityForDefinition(page, definition, accountId) {
       if (offer) return { activityId, activity, offer };
       last = activity;
     } catch (error) {
-      try {
-        appendLog(accountId, "api_request", {
-          stage: "rights_activity_page",
-          endpoint: CLASSIC_ACTIVITY_PAGE,
-          method: "GET",
-          request: { activityId },
-          response: null,
-          error: { name: error?.name, message: error?.message, status: error?.status },
-        });
-      } catch {}
       last = error;
     }
   }
