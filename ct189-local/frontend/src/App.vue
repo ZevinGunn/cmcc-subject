@@ -357,7 +357,7 @@ async function removeSchedule(schedule) {
   });
 }
 const scheduleActionLabel = (action) => action === "friday_wdmei" ? "周五狂欢日 · 味多美" : "权益福袋 · 10 元权益金";
-const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", api_request: "接口调用", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", schedule_run: "定时调度" }[action] || action);
+const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", api_request: "接口调用", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", relogin_saved: "批量重新登录", schedule_run: "定时调度" }[action] || action);
 const logStageLabel = (stage) => ({ login: "登录", session: "会话", activity: "活动", claim: "领取", warmup: "预热", schedule: "调度" }[stage] || stage || "未标记阶段");
 const logEndpoint = (payload) => payload?.endpoint || payload?.url || "未记录接口路径";
 const logMethod = (payload) => String(payload?.method || "—").toUpperCase();
@@ -622,6 +622,8 @@ onUnmounted(() => {
           ><label class="inline-control">并发 <input v-model.number="batchConcurrency" type="number" min="1" max="8" /></label
           ><button :disabled="busy || pending" @click="task('check')">
             检查登录</button
+          ><button :disabled="busy || pending" @click="task('relogin_saved')" title="逐个账号串行使用已保存的服务密码重新登录">
+            批量重新登录</button
           ><button :disabled="busy || pending" @click="task('refresh')">
             更新资料</button
           ><button :disabled="busy || pending" @click="task('friday_wdmei')">

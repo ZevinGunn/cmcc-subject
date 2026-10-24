@@ -13,12 +13,14 @@ import { accountSessions } from "./accountSession.js";
 
 export const taskActions = {
   check: "检查登录",
+  relogin_saved: "批量重新登录",
   refresh: "更新资料",
   close: "关闭会话",
   friday_wdmei: "周五狂欢日 · 味多美 10 元兑换券",
   rights_bag_cash: "权益福袋 · 10 元翼支付通用权益金",
 };
 const RIGHTS_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash"]);
+const SERIAL_LOGIN_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash", "relogin_saved"]);
 class TaskExecutionError extends Error {}
 function safeErrorMessage(error) {
   const message = String(error?.message || "").replace(/\s+/g, " ").trim();
@@ -68,6 +70,11 @@ export function accountHasPendingTask(id) {
 async function execute(action, account, { sessionReady = false } = {}) {
   if (action === "close") {
     return (await accountSessions.closeSession(account.id)).message;
+  }
+  if (action === "relogin_saved") {
+    const result = await accountSessions.reloginSaved(account.id);
+    if (!result?.ok) throw new TaskExecutionError(result?.message || "重新登录失败");
+    return result.message || "已重新登录";
   }
   let session;
   if (!sessionReady) {
@@ -171,10 +178,11 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
   const run = async () => {
     task.status = "running";
     saveTask(task);
-    if (RIGHTS_ACTIONS.has(action)) {
+    if (SERIAL_LOGIN_ACTIONS.has(action)) {
       // Login/session initialization is deliberately serialized across all
-      // selected accounts. Only the claim phase below is allowed to fan out.
+      // selected accounts. Rights claims may fan out only after this phase.
       const ensure = options.ensureSession || ((id) => accountSessions.ensureSession(id));
+      const reloginSaved = options.reloginSaved || ((id) => accountSessions.reloginSaved(id));
       for (const item of task.items) {
         const account = getAccount(item.accountId);
         if (!account || (account.enabled === false && action !== "close")) {
@@ -186,11 +194,18 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
         item.message = "登录中";
         saveTask(task);
         try {
-          const session = await ensure(item.accountId);
+          const session = action === "relogin_saved"
+            ? await reloginSaved(item.accountId)
+            : await ensure(item.accountId);
           if (!session?.ok) {
             Object.assign(item, {
               status: "failed",
-              message: session?.message || "登录失败，未执行权益领取",
+              message: session?.message || (action === "relogin_saved" ? "重新登录失败" : "登录失败，未执行权益领取"),
+            });
+          } else if (action === "relogin_saved") {
+            Object.assign(item, {
+              status: "success",
+              message: session.message || "已重新登录",
             });
           } else {
             item.status = "queued";
