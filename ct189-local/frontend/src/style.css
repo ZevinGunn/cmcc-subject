@@ -573,7 +573,28 @@ dialog::backdrop {
   border-radius: 18px;
   background: var(--surface, #fff);
 }
-.schedule-form { display: grid; grid-template-columns: 1.1fr 1.3fr repeat(4, minmax(88px, .7fr)) auto; gap: 12px; align-items: end; }
+.rights-strategy-panel .section-header {
+  align-items: flex-start;
+}
+.strategy-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid #e4eaf4;
+  border-radius: 10px;
+  background: #f7faff;
+}
+.strategy-actions button {
+  min-height: 34px;
+}
+.strategy-hint {
+  color: var(--muted, #748091);
+  font-size: 12px;
+}
+.schedule-form { display: grid; grid-template-columns: 1.1fr 1fr 1.3fr repeat(4, minmax(88px, .7fr)) auto; gap: 12px; align-items: end; }
 .schedule-form label { display: grid; gap: 6px; font-size: 12px; color: var(--muted, #6b7280); }
 .schedule-form input, .schedule-form select { min-width: 0; }
 .schedule-list { display: grid; gap: 8px; margin-top: 16px; }
@@ -582,6 +603,7 @@ dialog::backdrop {
 .schedule-row small { color: var(--muted, #6b7280); margin-top: 3px; }
 .inline-control { display: inline-flex; gap: 6px; align-items: center; margin-left: auto; color: var(--muted, #6b7280); font-size: 12px; }
 .inline-control input { width: 56px; }
+.inline-control select { max-width: 128px; padding: 5px 7px; font-size: 11px; }
 .operation-logs { margin-top: 20px; border-top: 1px solid var(--line, #e5e7eb); padding-top: 16px; }
 .operation-logs h3 { margin: 0; }
 .log-help { margin: 5px 0 0; color: var(--muted, #6b7280); font-size: 12px; }

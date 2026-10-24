@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { appendLog, getAccount, listSchedules, listTasks, saveSchedule } from "./accountStore.js";
 import { accountSessions } from "./accountSession.js";
 import { enqueueTask, waitForTasks } from "./taskRunner.js";
+import { normalizeExecutor } from "./externalExecutor.js";
 
 export const SCHEDULE_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash"]);
 export const MAX_SCHEDULE_CONCURRENCY = 8;
@@ -58,6 +59,7 @@ export function validateScheduleInput(input) {
   if (accountIds.length < 1 || accountIds.length > 200 || accountIds.some((id) => typeof id !== "string" || !getAccount(id)))
     throw Object.assign(new Error("请选择 1–200 个有效账号"), { status: 400 });
   const concurrency = Number(input?.concurrency ?? 1);
+  const executor = normalizeExecutor(input?.executor);
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > MAX_SCHEDULE_CONCURRENCY)
     throw Object.assign(new Error(`并发数必须是 1–${MAX_SCHEDULE_CONCURRENCY} 的整数`), { status: 400 });
   const warmupMinutes = Number(input?.warmupMinutes ?? 5);
@@ -74,7 +76,7 @@ export function validateScheduleInput(input) {
   const cron = String(input?.cron || "").trim();
   fields(cron);
   nextRunAt(cron, new Date(), input?.timezone || "Asia/Shanghai");
-  return { action, accountIds, concurrency, warmupMinutes, intervalSeconds, maxAttempts, cron, timezone: "Asia/Shanghai" };
+  return { action, accountIds, concurrency, executor, warmupMinutes, intervalSeconds, maxAttempts, cron, timezone: "Asia/Shanghai" };
 }
 export function createScheduler({ now = () => new Date(), ensure = (id) => accountSessions.ensureSession(id), enqueue = enqueueTask } = {}) {
   const warmed = new Set();
@@ -98,7 +100,7 @@ export function createScheduler({ now = () => new Date(), ensure = (id) => accou
         saveSchedule(schedule);
         let task;
         try {
-          task = enqueue(schedule.action, state.activeAccountIds, undefined, { concurrency: schedule.concurrency });
+          task = enqueue(schedule.action, state.activeAccountIds, undefined, { concurrency: schedule.concurrency, executor: schedule.executor });
           schedule.lastTaskId = task.id;
           saveSchedule(schedule);
           await waitForTasks();

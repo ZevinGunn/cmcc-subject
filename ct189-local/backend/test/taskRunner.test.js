@@ -16,6 +16,10 @@ test("权益任务先串行登录，再按并发数领取且跳过登录失败�
   const accounts = ["18900000011", "18900000012", "18900000013"].map((phone) =>
     upsertAccount({ phone }),
   );
+  assert.throws(
+    () => enqueueTask("check", [accounts[0].id], undefined, { executor: "ruby" }),
+    /执行器必须是/,
+  );
   const loginOrder = [];
   let activeLogins = 0;
   let maxActiveLogins = 0;
@@ -33,6 +37,7 @@ test("权益任务先串行登录，再按并发数领取且跳过登录失败�
   const executor = async (action, account, options) => {
     assert.equal(action, "friday_wdmei");
     assert.equal(options.sessionReady, true);
+    assert.equal(options.executor, "python");
     claimOrder.push(account.id);
     activeClaims += 1;
     maxActiveClaims = Math.max(maxActiveClaims, activeClaims);
@@ -45,7 +50,7 @@ test("权益任务先串行登录，再按并发数领取且跳过登录失败�
     "friday_wdmei",
     accounts.map((account) => account.id),
     executor,
-    { concurrency: 2, ensureSession },
+    { concurrency: 2, ensureSession, executor: "python" },
   );
   await waitForTasks();
 
@@ -55,6 +60,7 @@ test("权益任务先串行登录，再按并发数领取且跳过登录失败�
   assert.deepEqual(claimOrder.sort(), [accounts[0].id, accounts[2].id].sort());
   const finished = listTasks().find((item) => item.id === task.id);
   assert.equal(finished.status, "partial");
+  assert.equal(finished.executor, "python");
   assert.deepEqual(
     finished.items.map((item) => item.status),
     ["success", "failed", "success"],

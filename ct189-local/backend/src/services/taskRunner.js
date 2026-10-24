@@ -10,6 +10,7 @@ import {
 import { claimClassicRight, queryActivity, queryBalance } from "./telecomClient.js";
 import { isTelecomSuccess } from "./passwordLogin.js";
 import { accountSessions } from "./accountSession.js";
+import { normalizeExecutor, runExternalExecutor } from "./externalExecutor.js";
 
 export const taskActions = {
   check: "检查登录",
@@ -24,7 +25,7 @@ const SERIAL_LOGIN_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash", "relogi
 class TaskExecutionError extends Error {}
 function safeErrorMessage(error) {
   const message = String(error?.message || "").replace(/\s+/g, " ").trim();
-  return /net::|ERR_[A-Z_]+|timeout|超时|活动|接口|页面|响应|WAF|HTTP\s*\d{3}/i.test(message)
+  return /net::|ERR_[A-Z_]+|timeout|超时|活动|接口|页面|响应|执行器|脚本|runtime|WAF|HTTP\s*\d{3}/i.test(message)
     ? message.slice(0, 180)
     : "";
 }
@@ -67,7 +68,7 @@ export function accountHasPendingTask(id) {
       ),
   );
 }
-async function execute(action, account, { sessionReady = false } = {}) {
+async function execute(action, account, { sessionReady = false, executor = "native", taskId = "" } = {}) {
   if (action === "close") {
     return (await accountSessions.closeSession(account.id)).message;
   }
@@ -84,16 +85,19 @@ async function execute(action, account, { sessionReady = false } = {}) {
   if (action === "check") return sessionReady ? "登录状态已核验" : session.message;
   if (RIGHTS_ACTIONS.has(action)) {
     try {
-      const result = await claimClassicRight(account.id, action);
+      const result = executor === "native"
+        ? await claimClassicRight(account.id, action)
+        : await runExternalExecutor({ executor, action, accountId: account.id, taskId });
+      if (result?.ok === false) throw new Error(result.message || "权益领取失败");
       return {
         status: "success",
         message: result.message,
-        details: {
+        details: executor === "native" ? {
           activityId: result.activityId,
           offerCode: result.offerCode,
           offerName: result.offerName,
           ...(result.responses ? { responses: result.responses } : {}),
-        },
+        } : result.details,
       };
     } catch (error) {
       if (error?.status === 409) {
@@ -144,6 +148,7 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
     throw Object.assign(new Error("请选择 1–200 个有效账号"), { status: 400 });
   const unique = [...new Set(ids)];
   const concurrency = Number(options?.concurrency ?? DEFAULT_CONCURRENCY);
+  const executorName = normalizeExecutor(options?.executor);
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > MAX_CONCURRENCY)
     throw Object.assign(new Error(`并发数必须是 1–${MAX_CONCURRENCY} 的整数`), { status: 400 });
   const pendingAccounts = new Set(
@@ -161,6 +166,7 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
     id: randomUUID(),
     action,
     title: taskActions[action],
+    executor: executorName,
     concurrency,
     status: "queued",
     createdAt: new Date().toISOString(),
@@ -248,6 +254,8 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
         try {
           const result = await executor(action, account, {
             sessionReady: Boolean(item.sessionReady),
+            executor: task.executor,
+            taskId: task.id,
           });
           Object.assign(
             item,

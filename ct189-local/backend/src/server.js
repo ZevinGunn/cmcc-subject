@@ -13,6 +13,8 @@ import { fileURLToPath } from "node:url";
 import { createSiteAccess } from "./services/siteAccess.js";
 import { schedulesRouter } from "./routes/schedules.js";
 import { createScheduler } from "./services/scheduler.js";
+import { internalExecutorRouter } from "./routes/internalExecutor.js";
+import { listExecutors } from "./services/externalExecutor.js";
 
 const app = express();
 const dist = fileURLToPath(new URL("../../frontend/dist/", import.meta.url));
@@ -61,6 +63,7 @@ app.use("/api", (req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
+app.use("/api/internal/executor", internalExecutorRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -89,6 +92,7 @@ app.use("/api/accounts", accountsRouter);
 app.use("/api/ct189", ct189Router);
 app.use("/api/tasks", tasksRouter);
 app.use("/api/schedules", schedulesRouter);
+app.get("/api/executors", (req, res) => res.json({ ok: true, executors: listExecutors() }));
 
 app.use("/api", (req, res) => {
   res.status(404).json({

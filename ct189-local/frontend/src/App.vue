@@ -21,12 +21,20 @@ const form = ref({ phone: "", label: "", group: "", enabled: true }),
   batchGroup = ref("");
 const batch = ref(null),
   batchError = ref(""),
-  batchConcurrency = ref(1);
+  batchConcurrency = ref(1),
+  batchExecutor = ref("native");
 const schedules = ref([]),
   operationLogs = ref([]),
   logsLoading = ref(false),
   logsError = ref(""),
-  scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5, intervalSeconds: 2, maxAttempts: 1 });
+  scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", executor: "native", concurrency: 1, warmupMinutes: 5, intervalSeconds: 2, maxAttempts: 1 });
+const executors = ref([
+  { id: "native", label: "Node 内置", description: "服务端内置执行，默认方式" },
+  { id: "python", label: "Python", description: "本机 Python 脚本适配器" },
+  { id: "javascript", label: "JavaScript", description: "本机 Node.js 脚本适配器" },
+  { id: "go", label: "Go", description: "本机 Go 脚本适配器" },
+  { id: "java", label: "Java", description: "本机 Java 脚本适配器" },
+]);
 const accessRequired = ref(false),
   locked = ref(false),
   accessLoading = ref(true),
@@ -164,7 +172,7 @@ async function reload(initial = false) {
     loading.value = true;
     feedback("");
   }
-  const results = await Promise.allSettled([api.accounts(), api.health(), api.schedules()]);
+  const results = await Promise.allSettled([api.accounts(), api.health(), api.schedules(), api.executors()]);
   if (results[0].status === "fulfilled") {
     accounts.value = results[0].value.accounts;
     selected.value = selected.value.filter((id) =>
@@ -174,6 +182,8 @@ async function reload(initial = false) {
   else feedback("账号读取失败，已保留当前列表。请检查服务后重试。", true);
   connected.value = results[1].status === "fulfilled";
   if (results[2].status === "fulfilled") schedules.value = results[2].value.schedules;
+  if (results[3].status === "fulfilled" && Array.isArray(results[3].value.executors) && results[3].value.executors.length)
+    executors.value = results[3].value.executors;
   loading.value = false;
 }
 async function poll() {
@@ -329,7 +339,7 @@ async function reloginSaved() {
 }
 async function task(action, ids = selected.value) {
   await perform(async () => {
-    batch.value = (await api.startTask(action, ids, Number(batchConcurrency.value))).task;
+    batch.value = (await api.startTask(action, ids, Number(batchConcurrency.value), batchExecutor.value)).task;
     batchError.value = "";
     feedback("操作已开始，结果会在账号列表下方更新");
     await reload();
@@ -357,6 +367,7 @@ async function removeSchedule(schedule) {
   });
 }
 const scheduleActionLabel = (action) => action === "friday_wdmei" ? "周五狂欢日 · 味多美" : "权益福袋 · 10 元权益金";
+const executorLabel = (id) => executors.value.find((item) => item.id === id)?.label || id || "Node 内置";
 const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", api_request: "接口调用", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", relogin_saved: "批量重新登录", schedule_run: "定时调度" }[action] || action);
 const logStageLabel = (stage) => ({ login: "登录", session: "会话", activity: "活动", claim: "领取", warmup: "预热", schedule: "调度" }[stage] || stage || "未标记阶段");
 const logEndpoint = (payload) => payload?.endpoint || payload?.url || "未记录接口路径";
@@ -563,13 +574,20 @@ onUnmounted(() => {
           }}</strong>
         </div>
       </div>
-      <section class="schedule-panel" aria-label="定时权益任务">
+      <section class="schedule-panel rights-strategy-panel" aria-label="权益领取策略">
         <div class="section-header">
-          <div><h2>定时权益任务</h2><p class="section-note">执行前自动预热登录会话，服务重启后计划仍会继续。</p></div>
+          <div><h2>权益领取策略</h2><p class="section-note">参考抢购控制台：登录始终串行，权益领取按并发数执行；外部脚本只接收一次性任务令牌。</p></div>
           <span class="muted">已选账号 {{ selected.length }} 个</span>
+        </div>
+        <div class="strategy-actions">
+          <button class="primary" :disabled="busy || pending || !selected.length" @click="task('friday_wdmei')">立即领味多美</button>
+          <button class="primary" :disabled="busy || pending || !selected.length" @click="task('rights_bag_cash')">立即领权益福袋</button>
+          <button :disabled="busy || pending || !selected.length" @click="task(scheduleForm.action)">一键测试</button>
+          <span class="strategy-hint">{{ pending ? '任务执行中…' : '当前选择将用于立即执行和测试' }}</span>
         </div>
         <form class="schedule-form" @submit.prevent="createSchedule">
           <label>活动<select v-model="scheduleForm.action"><option value="friday_wdmei">周五狂欢日 · 味多美</option><option value="rights_bag_cash">权益福袋 · 10 元权益金</option></select></label>
+          <label>执行器<select v-model="scheduleForm.executor"><option v-for="item in executors" :key="item.id" :value="item.id" :disabled="item.available === false">{{ item.label }}{{ item.available === false ? '（不可用）' : '' }}</option></select></label>
           <label>执行时间（cron）<input v-model.trim="scheduleForm.cron" placeholder="0 10 * * 5" pattern="\S+\s+\S+\s+\S+\s+\S+\s+\S+" required /></label>
           <label>并发数<input v-model.number="scheduleForm.concurrency" type="number" min="1" max="8" /></label>
           <label>提前预热（分钟）<input v-model.number="scheduleForm.warmupMinutes" type="number" min="0" max="30" /></label>
@@ -579,7 +597,7 @@ onUnmounted(() => {
         </form>
         <div v-if="schedules.length" class="schedule-list">
           <div v-for="schedule in schedules" :key="schedule.id" class="schedule-row">
-            <div><strong>{{ schedule.title }}</strong><small>{{ schedule.cron }} · 并发 {{ schedule.concurrency }} · 间隔 {{ schedule.intervalSeconds }} 秒 · 最多 {{ schedule.maxAttempts }} 次 · 下次 {{ date(schedule.nextRunAt) }}</small></div>
+            <div><strong>{{ schedule.title }}</strong><small>{{ schedule.cron }} · {{ executorLabel(schedule.executor) }} · 并发 {{ schedule.concurrency }} · 间隔 {{ schedule.intervalSeconds }} 秒 · 最多 {{ schedule.maxAttempts }} 次 · 下次 {{ date(schedule.nextRunAt) }}</small></div>
             <span class="status-label" :class="schedule.enabled ? 'good' : 'muted'"><i class="dot"></i>{{ schedule.enabled ? '已启用' : '已停用' }}</span>
             <small v-if="schedule.lastError" class="row-error">{{ schedule.lastError }}</small>
             <div class="row-actions"><button :disabled="busy" @click="toggleSchedule(schedule)">{{ schedule.enabled ? '停用' : '启用' }}</button><button class="danger-text" :disabled="busy" @click="removeSchedule(schedule)">删除</button></div>
@@ -620,6 +638,7 @@ onUnmounted(() => {
         <div v-if="selected.length" class="batch-bar">
           <strong>已选 {{ selected.length }} 个</strong
           ><label class="inline-control">并发 <input v-model.number="batchConcurrency" type="number" min="1" max="8" /></label
+          ><label class="inline-control">执行器 <select v-model="batchExecutor"><option v-for="item in executors" :key="item.id" :value="item.id" :disabled="item.available === false">{{ item.label }}{{ item.available === false ? '（不可用）' : '' }}</option></select></label
           ><button :disabled="busy || pending" @click="task('check')">
             检查登录</button
           ><button :disabled="busy || pending" @click="task('relogin_saved')" title="逐个账号串行使用已保存的服务密码重新登录">

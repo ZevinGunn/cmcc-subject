@@ -15,6 +15,7 @@ tasksRouter.post("/", (req, res, next) => {
       ok: true,
       task: enqueueTask(req.body?.action, req.body?.accountIds, undefined, {
         concurrency: req.body?.concurrency,
+        executor: req.body?.executor,
       }),
     });
   } catch (error) {

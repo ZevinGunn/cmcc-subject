@@ -27,6 +27,7 @@ async function request(path, options = {}) {
 
 export const api = {
   health: () => request("/api/health"),
+  executors: () => request("/api/executors"),
   accessSession: async () => {
     const data = await request("/api/access/session");
     csrfToken = data.csrfToken || "";
@@ -50,10 +51,10 @@ export const api = {
   patchSchedule: (id, payload) => request(`/api/schedules/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   deleteSchedule: (id) => request(`/api/schedules/${id}`, { method: "DELETE" }),
   task: (id) => request(`/api/tasks/${id}`),
-  startTask: (action, accountIds, concurrency = 1) =>
+  startTask: (action, accountIds, concurrency = 1, executor = "native") =>
     request("/api/tasks", {
       method: "POST",
-      body: JSON.stringify({ action, accountIds, concurrency }),
+      body: JSON.stringify({ action, accountIds, concurrency, executor }),
     }),
   patchAccount: (id, payload) =>
     request(`/api/accounts/${id}`, {
