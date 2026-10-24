@@ -24,6 +24,7 @@ const batch = ref(null),
   batchConcurrency = ref(1);
 const schedules = ref([]),
   operationLogs = ref([]),
+  logsLoading = ref(false),
   scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5, intervalSeconds: 2, maxAttempts: 1 });
 const accessRequired = ref(false),
   locked = ref(false),
@@ -233,12 +234,23 @@ async function open(which, account) {
     : { phone: "", label: "", group: "", enabled: true };
   importText.value = "";
   batchGroup.value = "";
+  operationLogs.value = [];
+  logsLoading.value = which === "detail" && Boolean(account);
   await nextTick();
   modal.value.showModal();
   if (which === "detail" && account) {
-    try { operationLogs.value = (await api.logs(account.id)).logs; }
-    catch { operationLogs.value = []; }
-  } else operationLogs.value = [];
+    try {
+      operationLogs.value = (await api.logs(account.id)).logs;
+    } catch {
+      operationLogs.value = [];
+    } finally {
+      logsLoading.value = false;
+    }
+  }
+}
+async function showAccountLogs(accountId) {
+  const account = accounts.value.find((item) => item.id === accountId);
+  if (account) await open("detail", account);
 }
 function close() {
   if (busy.value) return;
@@ -343,7 +355,15 @@ async function removeSchedule(schedule) {
 }
 const scheduleActionLabel = (action) => action === "friday_wdmei" ? "周五狂欢日 · 味多美" : "权益福袋 · 10 元权益金";
 const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", api_request: "接口调用", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", schedule_run: "定时调度" }[action] || action);
-const logJson = (value) => JSON.stringify(value, null, 2);
+const logStageLabel = (stage) => ({ login: "登录", session: "会话", activity: "活动", claim: "领取", warmup: "预热", schedule: "调度" }[stage] || stage || "未标记阶段");
+const logEndpoint = (payload) => payload?.endpoint || payload?.url || "未记录接口路径";
+const logMethod = (payload) => String(payload?.method || "—").toUpperCase();
+const logHttpStatus = (payload) => {
+  const value = payload?.response?.status ?? payload?.httpStatus ?? payload?.statusCode;
+  return Number.isFinite(Number(value)) ? String(value) : "未收到";
+};
+const logJson = (value) => JSON.stringify(value ?? {}, null, 2);
+const isApiLog = (entry) => Boolean(entry.action === "api_request" || entry.payload?.endpoint || entry.payload?.method);
 const logFailed = (entry) => Boolean(
   entry.payload?.status === "failed" ||
   entry.payload?.ok === false ||
@@ -787,7 +807,14 @@ onUnmounted(() => {
         >
           <strong>{{ item.maskedPhone }}</strong
           ><span>{{ resultLabel(item.status) }}</span
-          ><small>{{ item.message }}</small>
+          ><small>{{ item.message }}</small
+          ><button
+            type="button"
+            class="log-link"
+            @click="showAccountLogs(item.accountId)"
+          >
+            查看接口调用日志
+          </button>
         </div>
       </section>
       <p class="section-note">
@@ -1021,17 +1048,19 @@ onUnmounted(() => {
             </summary>
             <pre v-if="data">{{ JSON.stringify(data, null, 2) }}</pre>
           </details><section v-if="mode === 'detail'" class="operation-logs" aria-label="接口调用日志">
-            <div class="section-header"><h3>接口调用日志</h3><span class="muted">最近 {{ operationLogs.length }} 条</span></div>
+            <div class="section-header"><div><h3>接口调用日志</h3><p class="log-help">展开记录可查看完整请求入参、实际响应值、HTTP 状态和连接诊断。</p></div><span class="muted">{{ logsLoading ? "正在读取…" : `最近 ${operationLogs.length} 条` }}</span></div>
             <div v-if="operationLogs.length" class="log-list">
-              <details v-for="entry in operationLogs" :key="entry.id" class="log-entry">
-                <summary><span>{{ logActionLabel(entry.action) }}<small v-if="entry.payload?.endpoint"> · {{ entry.payload.endpoint }}</small></span><time>{{ date(entry.createdAt) }}</time><b :class="logFailed(entry) ? 'bad' : 'good'">{{ logFailed(entry) ? '失败' : '已记录' }}</b></summary>
+              <details v-for="(entry, index) in operationLogs" :key="entry.id" class="log-entry" :open="logFailed(entry) && index === 0">
+                <summary><span class="log-title">{{ logActionLabel(entry.action) }}<small v-if="entry.payload?.stage"> · {{ logStageLabel(entry.payload.stage) }}</small></span><time>{{ date(entry.createdAt) }}</time><b :class="logFailed(entry) ? 'bad' : 'good'">{{ logFailed(entry) ? '失败' : '已记录' }}</b></summary>
+                <div v-if="isApiLog(entry)" class="log-meta"><span>{{ logMethod(entry.payload) }}</span><code>{{ logEndpoint(entry.payload) }}</code><span>HTTP {{ logHttpStatus(entry.payload) }}</span></div>
                 <p>{{ entry.payload?.message || entry.payload?.error?.message || (entry.payload?.failure?.retMsg || '后台响应已记录') }}</p>
-                <div v-if="entry.payload?.request" class="log-data"><strong>请求入参</strong><pre>{{ logJson(entry.payload.request) }}</pre></div>
-                <div v-if="entry.payload?.response" class="log-data"><strong>接口响应</strong><pre>{{ logJson(entry.payload.response) }}</pre></div>
+                <div v-if="isApiLog(entry)" class="log-data"><strong>请求入参</strong><pre>{{ logJson(entry.payload?.request) }}</pre></div>
+                <div v-if="isApiLog(entry)" class="log-data"><strong>接口响应 <em v-if="entry.payload?.response == null">（未收到响应体）</em></strong><pre>{{ entry.payload?.response == null ? '未收到响应体' : logJson(entry.payload.response) }}</pre></div>
                 <div v-if="entry.payload?.diagnostic" class="log-data"><strong>连接诊断</strong><pre>{{ logJson(entry.payload.diagnostic) }}</pre></div>
                 <div v-if="entry.payload?.failure || entry.payload?.error || entry.payload?.details" class="log-data"><strong>失败详情</strong><pre>{{ logJson(entry.payload.failure || entry.payload.error || entry.payload.details) }}</pre></div>
               </details>
             </div>
+            <p v-else-if="logsLoading" class="empty compact">正在读取接口调用日志…</p>
             <p v-else class="empty compact">暂无操作日志</p>
           </section></template
         >
