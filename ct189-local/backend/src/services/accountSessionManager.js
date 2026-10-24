@@ -249,6 +249,9 @@ export function createAccountSessionManager(deps) {
         let identity;
         try {
           identity = await queryLoginAccount(id);
+          const retryableStatus = [0, 400, 408, 412, 502, 503, 504];
+          if (!isTelecomSuccess(identity) && retryableStatus.includes(Number(identity?.status || 0)))
+            identity = await queryLoginAccount(id, { reinitialize: true });
         } catch {
           /* A network failure is not proof of expiry. */
         }

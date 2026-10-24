@@ -235,8 +235,8 @@ async function discardSession(accountId) {
   fs.rmSync(profileDirectory(accountId), { recursive: true, force: true });
 }
 
-export async function queryLoginAccount(accountId) {
-  return request189(accountId, API.qryLoginAccno, {});
+export async function queryLoginAccount(accountId, options = {}) {
+  return request189(accountId, API.qryLoginAccno, {}, options);
 }
 
 export async function queryActivity(accountId) {

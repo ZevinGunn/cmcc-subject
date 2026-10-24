@@ -312,3 +312,17 @@ test("login checks are serialized across different accounts", async (t) => {
     "login:serial-b",
   ]);
 });
+
+test("retryable session responses reinitialize before automatic login", async (t) => {
+  let queries = 0;
+  const s = setup(t, {
+    query: () => {
+      queries += 1;
+      return queries === 1 ? { ok: false, status: 400, data: null } : response(null);
+    },
+  });
+  const result = await s.manager.ensureSession(s.account.id);
+  assert.equal(result.ok, true);
+  assert.equal(queries, 2);
+  assert.deepEqual(s.calls.passwords, ["001234"]);
+});
