@@ -16,6 +16,7 @@ export function createSiteAccess({
   origins,
   now = Date.now,
   ttlMs = 8 * 60 * 60_000,
+  rememberTtlMs = 30 * 24 * 60 * 60_000,
 }) {
   let credentials;
   if (required) {
@@ -135,11 +136,13 @@ export function createSiteAccess({
         if (current) sessions.delete(current.key);
         while (sessions.size >= 256)
           sessions.delete(sessions.keys().next().value);
+        const remember = req.body?.remember === true;
+        const sessionTtl = remember ? rememberTtlMs : ttlMs;
         const token = crypto.randomBytes(32).toString("hex"),
           csrf = crypto.randomBytes(24).toString("hex");
-        sessions.set(sessionKey(token), { csrf, expires: at + ttlMs });
-        res.set("Set-Cookie", cookie(token, Math.floor(ttlMs / 1000)));
-        return res.json({ ok: true, csrfToken: csrf });
+        sessions.set(sessionKey(token), { csrf, expires: at + sessionTtl });
+        res.set("Set-Cookie", cookie(token, Math.floor(sessionTtl / 1000)));
+        return res.json({ ok: true, csrfToken: csrf, remember, expiresAt: new Date(at + sessionTtl).toISOString() });
       }
       if (!current)
         return res.status(401).json({

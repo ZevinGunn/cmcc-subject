@@ -5,6 +5,7 @@ import {
   listTasks,
   patchAccount,
   saveTask,
+  sanitizeLogValue,
 } from "./accountStore.js";
 import { claimClassicRight, queryActivity, queryBalance } from "./telecomClient.js";
 import { isTelecomSuccess } from "./passwordLogin.js";
@@ -19,6 +20,27 @@ export const taskActions = {
 };
 const RIGHTS_ACTIONS = new Set(["friday_wdmei", "rights_bag_cash"]);
 class TaskExecutionError extends Error {}
+function safeErrorMessage(error) {
+  const message = String(error?.message || "").replace(/\s+/g, " ").trim();
+  return /net::|ERR_[A-Z_]+|timeout|超时|活动|接口|页面|响应|WAF|HTTP\s*\d{3}/i.test(message)
+    ? message.slice(0, 180)
+    : "";
+}
+function describeTaskError(error, fallback = "连接失败，请检查登录或稍后重试") {
+  const status = Number(error?.status || 0);
+  if (status === 504 || /timeout|超时/i.test(String(error?.message || "")))
+    return "活动接口响应超时，请查看接口日志后重试";
+  const message = safeErrorMessage(error);
+  return message ? `活动领取失败：${message.slice(0, 180)}` : fallback;
+}
+function errorDetails(error) {
+  return sanitizeLogValue({
+    status: error?.status,
+    name: error?.name,
+    ...(safeErrorMessage(error) ? { message: safeErrorMessage(error) } : {}),
+    ...(error?.responseSummary ? { responses: error.responseSummary } : {}),
+  });
+}
 // An interrupted operation is never replayed after restart.
 for (const task of listTasks()) {
   if (["queued", "running"].includes(task.status)) {
@@ -180,7 +202,10 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
             status: "failed",
             message: error instanceof TaskExecutionError
               ? error.message
-              : "登录连接失败，未执行权益领取",
+              : describeTaskError(error, "登录连接失败，未执行权益领取"),
+            ...(error instanceof TaskExecutionError && error.details
+              ? { details: error.details }
+              : { details: { error: errorDetails(error) } }),
           });
         }
         appendLog(item.accountId, action, {
@@ -218,11 +243,10 @@ export function enqueueTask(action, ids, executor = execute, options = {}) {
         } catch (error) {
           Object.assign(item, {
             status: "failed",
-            message:
-              error instanceof TaskExecutionError
-                ? error.message
-                : "连接失败，请检查登录或稍后重试",
-            ...(error?.details ? { details: error.details } : {}),
+            message: error instanceof TaskExecutionError
+              ? error.message
+              : describeTaskError(error),
+            ...(error?.details ? { details: error.details } : { details: { error: errorDetails(error) } }),
           });
         }
         appendLog(item.accountId, action, {

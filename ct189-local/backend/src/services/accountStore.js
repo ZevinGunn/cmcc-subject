@@ -5,6 +5,31 @@ import { config } from "../config.js";
 import { maskPhone } from "./crypto189.js";
 
 const filePath = path.join(config.dataDir, "accounts.json");
+export function sanitizeLogValue(value, key = "", depth = 0) {
+  const normalizedKey = String(key).toLowerCase();
+  if (
+    /password|passwd|pwd|token|cookie|authorization|secret|credential|ciphertext/.test(normalizedKey) ||
+    normalizedKey === "iv" ||
+    normalizedKey === "tag"
+  ) return "[已隐藏]";
+  if (value == null || typeof value === "number" || typeof value === "boolean") return value;
+  if (depth > 8) return "[嵌套过深]";
+  if (typeof value === "string") {
+    return value
+      .replace(/1\d{10}/g, "手机号")
+      .slice(0, 4000);
+  }
+  if (Array.isArray(value)) return value.slice(0, 100).map((item) => sanitizeLogValue(item, key, depth + 1));
+  if (typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).slice(0, 200).map(([entryKey, entryValue]) => [
+        entryKey,
+        sanitizeLogValue(entryValue, entryKey, depth + 1),
+      ]),
+    );
+  }
+  return String(value).slice(0, 4000);
+}
 function readJson() {
   try {
     const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -129,16 +154,16 @@ export function appendLog(accountId, action, payload = {}) {
     id: uuidv4(),
     accountId,
     action,
-    payload,
+    payload: sanitizeLogValue(payload),
     createdAt: new Date().toISOString(),
   });
-  store.logs = store.logs.slice(0, 300);
+  store.logs = store.logs.slice(0, 2000);
   writeJson();
 }
 export function listLogs(accountId) {
   return store.logs
     .filter((item) => !accountId || item.accountId === accountId)
-    .slice(0, 80);
+    .slice(0, 200);
 }
 export function listTasks() {
   return structuredClone(store.tasks);

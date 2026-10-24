@@ -98,6 +98,19 @@ test("public account access requires login, trusted Origin and CSRF; logout/expi
       assert.ok(header.includes(flag));
     assert.equal(header.includes("Domain="), false);
     const { csrfToken: csrf } = await login.json();
+    const rememberedLogin = await request("/api/access/login", {
+      method: "POST",
+      body: { username: "admin", password, remember: true },
+    });
+    assert.equal(rememberedLogin.status, 200);
+    const rememberedHeader = rememberedLogin.headers.get("set-cookie");
+    assert.ok(rememberedHeader.includes("Max-Age=2592000"));
+    const rememberedBody = await rememberedLogin.json();
+    assert.equal(rememberedBody.remember, true);
+    assert.equal(
+      (await request("/api/accounts", { cookie: rememberedHeader.split(";")[0] })).status,
+      200,
+    );
     assert.equal((await request("/api/accounts", { cookie })).status, 200);
     assert.equal(
       (await request("/api/accounts", { method: "POST", cookie, body: {} }))

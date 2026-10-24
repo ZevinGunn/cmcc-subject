@@ -104,6 +104,14 @@ test("local API logs in without opening an external page and clears a mismatched
     assert.equal(submissions, 1);
     assert.equal(entryLoads, 2);
     assert.equal(requestsOnChallenge, 0);
+    const apiLogs = await request(`/api/accounts/${id}/logs`, null, "GET");
+    const passwordRequestLog = apiLogs.data.logs.find(
+      (entry) => entry.action === "api_request" && entry.payload.endpoint.endsWith("passwordCheck"),
+    );
+    assert.ok(passwordRequestLog);
+    assert.equal(passwordRequestLog.payload.request.password, "[已隐藏]");
+    assert.equal(passwordRequestLog.payload.response.status, 200);
+    assert.equal(passwordRequestLog.payload.response.data.retCode, "000000");
     const other = await request("/api/accounts", { phone: "18900000002" });
     otherId = other.data.account.id;
     const isolated = await getClient(otherId);

@@ -593,6 +593,9 @@ dialog::backdrop {
 .log-entry .good { color: #027a48; }
 .log-entry p { margin: 8px 0 0; color: var(--muted, #6b7280); }
 .log-entry pre { max-height: 180px; overflow: auto; margin: 8px 0 0; }
+.log-data { margin-top: 10px; }
+.log-data strong { display: block; color: var(--text, #1f2937); font-size: 12px; }
+.log-data pre { margin-top: 4px; }
 .detail-grid dt {
   font-size: 11px;
   color: #8b95a3;

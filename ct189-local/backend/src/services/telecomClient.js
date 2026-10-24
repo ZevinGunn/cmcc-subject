@@ -6,6 +6,7 @@ import { config } from "../config.js";
 import { decodeTelecomPayload } from "./crypto189.js";
 import { performPasswordLogin } from "./passwordLogin.js";
 import { createSessionPool } from "./sessionPool.js";
+import { appendLog } from "./accountStore.js";
 import {
   CLASSIC_RIGHTS,
   claimMessage,
@@ -182,19 +183,33 @@ async function requestInSession(accountId, endpoint, data = {}, options = {}) {
     try { return new URL(url, config.officialOrigin).pathname; } catch { return ""; }
   };
   if (!result.ok) (await getClient(accountId)).initialized = false;
+  const decoded = decodeTelecomPayload(result.text);
+  const diagnostic = {
+    status: result.status,
+    url: safePath(result.url),
+    pageUrl: safePath(result.pageUrl),
+    contentType: result.contentType,
+    textLength: result.text?.length || 0,
+    cookieNames: result.cookieNames || [],
+    ...(result.failureType ? { failureType: result.failureType } : {})
+  };
+  try {
+    appendLog(accountId, "api_request", {
+      stage: options.stage || "business_api",
+      endpoint,
+      method: options.method || "POST",
+      request: data,
+      response: { ok: result.ok, status: result.status, data: decoded },
+      diagnostic,
+    });
+  } catch {
+    // Logging must never change the upstream request result.
+  }
   return {
     ok: result.ok,
     status: result.status,
-    data: decodeTelecomPayload(result.text),
-    diagnostic: {
-      status: result.status,
-      url: safePath(result.url),
-      pageUrl: safePath(result.pageUrl),
-      contentType: result.contentType,
-      textLength: result.text?.length || 0,
-      cookieNames: result.cookieNames || [],
-      ...(result.failureType ? { failureType: result.failureType } : {})
-    }
+    data: decoded,
+    diagnostic,
   };
 }
 
@@ -264,8 +279,10 @@ function classicResponseSummary(value) {
 }
 
 function waitForClassicResponse(page, endpoint, timeout = config.requestTimeoutMs) {
-  return new Promise((resolve, reject) => {
+  let cancel;
+  const pending = new Promise((resolve, reject) => {
     let timer;
+    let settled = false;
     const onResponse = async (response) => {
       let url;
       try {
@@ -274,6 +291,7 @@ function waitForClassicResponse(page, endpoint, timeout = config.requestTimeoutM
         return;
       }
       if (url.origin !== config.officialOrigin || url.pathname !== endpoint) return;
+      settled = true;
       page.off("response", onResponse);
       clearTimeout(timer);
       try {
@@ -284,10 +302,19 @@ function waitForClassicResponse(page, endpoint, timeout = config.requestTimeoutM
     };
     page.on("response", onResponse);
     timer = setTimeout(() => {
+      settled = true;
       page.off("response", onResponse);
       reject(Object.assign(new Error("经典权益接口响应超时"), { status: 504 }));
     }, timeout);
+    cancel = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      page.off("response", onResponse);
+    };
   });
+  pending.cancel = () => cancel?.();
+  return pending;
 }
 
 async function prepareClassicPage(page, activityId) {
@@ -299,18 +326,50 @@ async function prepareClassicPage(page, activityId) {
   );
 }
 
-async function loadClassicActivity(page, activityId) {
+async function loadClassicActivity(page, activityId, accountId) {
   await prepareClassicPage(page, activityId);
   const response = waitForClassicResponse(page, CLASSIC_ACTIVITY_DETAIL);
-  await page.evaluate((id) => window.rights_interests.interestsActivityDetaiList(Number(id)), activityId);
-  const result = await response;
+  let result;
+  try {
+    await page.evaluate((id) => window.rights_interests.interestsActivityDetaiList(Number(id)), activityId);
+    result = await response;
+  } catch (error) {
+    response.cancel?.();
+    try {
+      appendLog(accountId, "api_request", {
+        stage: "rights_activity",
+        endpoint: CLASSIC_ACTIVITY_DETAIL,
+        method: "POST",
+        request: { activityId },
+        response: null,
+        error: { name: error?.name, message: error?.message, status: error?.status },
+      });
+    } catch {}
+    throw error;
+  }
+  try {
+    appendLog(accountId, "api_request", {
+      stage: "rights_activity",
+      endpoint: CLASSIC_ACTIVITY_DETAIL,
+      method: "POST",
+      request: { activityId },
+      response: { ok: result.status >= 200 && result.status < 300, status: result.status, data: result.data },
+    });
+  } catch {}
   if (result.status < 200 || result.status >= 300 || !result.data)
     throw Object.assign(new Error("活动资格查询失败"), { status: result.status || 502, responseSummary: { activity: classicResponseSummary(result) } });
   return result.data;
 }
 
-async function invokeClassicClaim(page, definition, activityId) {
+async function invokeClassicClaim(page, definition, activityId, accountId) {
   const args = [definition.offerCode, definition.offerName, activityId, "1", "2"];
+  const request = {
+    offerCode: definition.offerCode,
+    offerName: definition.offerName,
+    activityId,
+    level: "1",
+    busType: "2",
+  };
   return new Promise(async (resolve, reject) => {
     let timer;
     let check;
@@ -333,6 +392,17 @@ async function invokeClassicClaim(page, definition, activityId) {
       if (url.origin !== config.officialOrigin) return;
       if (url.pathname !== CLASSIC_PRECHECK && url.pathname !== CLASSIC_CLAIM) return;
       const value = { status: response.status(), data: parseClassicResponse(await response.text()) };
+      try {
+        appendLog(accountId, "api_request", {
+          stage: url.pathname === CLASSIC_PRECHECK ? "rights_precheck" : "rights_claim",
+          endpoint: url.pathname,
+          method: "POST",
+          request: {
+            ...request,
+          },
+          response: { ok: value.status >= 200 && value.status < 300, status: value.status, data: value.data },
+        });
+      } catch {}
       if (url.pathname === CLASSIC_PRECHECK) check = value;
       else claim = value;
       finish();
@@ -340,6 +410,16 @@ async function invokeClassicClaim(page, definition, activityId) {
     page.on("response", onResponse);
     timer = setTimeout(() => {
       page.off("response", onResponse);
+      try {
+        appendLog(accountId, "api_request", {
+          stage: "rights_claim",
+          endpoint: `${CLASSIC_PRECHECK},${CLASSIC_CLAIM}`,
+          method: "POST",
+          request,
+          response: null,
+          error: { name: "TimeoutError", message: "经典权益接口响应超时", status: 504 },
+        });
+      } catch {}
       reject(Object.assign(new Error("经典权益领取接口响应超时"), { status: 504 }));
     }, config.requestTimeoutMs);
     try {
@@ -354,23 +434,43 @@ async function invokeClassicClaim(page, definition, activityId) {
     } catch (error) {
       page.off("response", onResponse);
       clearTimeout(timer);
+      try {
+        appendLog(accountId, "api_request", {
+          stage: "rights_claim",
+          endpoint: `${CLASSIC_PRECHECK},${CLASSIC_CLAIM}`,
+          method: "POST",
+          request,
+          response: null,
+          error: { name: error?.name, message: error?.message, status: error?.status },
+        });
+      } catch {}
       reject(error);
     }
   });
 }
 
-async function classicActivityForDefinition(page, definition) {
+async function classicActivityForDefinition(page, definition, accountId) {
   const ids = definition.activityId
     ? [definition.activityId]
     : definition.activityIdCandidates;
   let last = null;
   for (const activityId of ids) {
     try {
-      const activity = await loadClassicActivity(page, activityId);
+      const activity = await loadClassicActivity(page, activityId, accountId);
       const offer = findClassicOffer(activity, definition);
       if (offer) return { activityId, activity, offer };
       last = activity;
     } catch (error) {
+      try {
+        appendLog(accountId, "api_request", {
+          stage: "rights_activity_page",
+          endpoint: CLASSIC_ACTIVITY_PAGE,
+          method: "GET",
+          request: { activityId },
+          response: null,
+          error: { name: error?.name, message: error?.message, status: error?.status },
+        });
+      } catch {}
       last = error;
     }
   }
@@ -383,10 +483,10 @@ export async function claimClassicRight(accountId, action) {
   if (!definition) throw Object.assign(new Error("不支持的经典权益活动"), { status: 400 });
   return sessions.run(accountId, async () => {
     const page = await ensureOfficialPage(accountId);
-    const found = await classicActivityForDefinition(page, definition);
+    const found = await classicActivityForDefinition(page, definition, accountId);
     const failure = explainClassicEligibility(found.activity, found.offer, definition);
     if (failure) throw Object.assign(new Error(failure), { status: 409, responseSummary: { activity: classicResponseSummary(found.activity), offer: found.offer ? { offerCode: definition.offerCode, receiveMark: found.offer.receiveMark, realNumber: found.offer.realNumber } : null } });
-    const result = await invokeClassicClaim(page, definition, found.activityId);
+    const result = await invokeClassicClaim(page, definition, found.activityId, accountId);
     const checkMessage = claimMessage(result.check);
     if (!result.claim)
       throw Object.assign(new Error(checkMessage), { status: 409, responseSummary: { check: classicResponseSummary(result.check) } });

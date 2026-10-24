@@ -29,7 +29,8 @@ const accessRequired = ref(false),
   locked = ref(false),
   accessLoading = ref(true),
   accessUsername = ref("admin"),
-  accessPassword = ref("");
+  accessPassword = ref(""),
+  accessRemember = ref(true);
 function lockAccess() {
   locked.value = true;
   accounts.value = [];
@@ -43,7 +44,7 @@ async function enterSite() {
   const secret = accessPassword.value;
   accessPassword.value = "";
   await perform(async () => {
-    await api.accessLogin(accessUsername.value, secret);
+    await api.accessLogin(accessUsername.value, secret, accessRemember.value);
     locked.value = false;
     await reload(true);
   });
@@ -341,7 +342,15 @@ async function removeSchedule(schedule) {
   });
 }
 const scheduleActionLabel = (action) => action === "friday_wdmei" ? "周五狂欢日 · 味多美" : "权益福袋 · 10 元权益金";
-const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", schedule_run: "定时调度" }[action] || action);
+const logActionLabel = (action) => ({ password_login: "手动登录", auto_login: "自动补登", api_request: "接口调用", schedule_warmup: "任务预热", friday_wdmei: "领取味多美", rights_bag_cash: "领取权益福袋", schedule_run: "定时调度" }[action] || action);
+const logJson = (value) => JSON.stringify(value, null, 2);
+const logFailed = (entry) => Boolean(
+  entry.payload?.status === "failed" ||
+  entry.payload?.ok === false ||
+  entry.payload?.response?.ok === false ||
+  Number(entry.payload?.response?.status) >= 400 ||
+  entry.payload?.error,
+);
 async function batchUpdate(patch) {
   await perform(async () => {
     let done = 0,
@@ -474,6 +483,10 @@ onUnmounted(() => {
               :disabled="busy"
               required
           /></label>
+          <label class="checkbox-label"
+            ><input v-model="accessRemember" type="checkbox" :disabled="busy" />
+            30 天内保持登录</label
+          >
           <div v-if="error" role="alert" class="notice error">{{ error }}</div>
           <button
             class="primary"
@@ -1007,13 +1020,16 @@ onUnmounted(() => {
               {{ title }} · {{ data ? "查看最近结果" : "尚未查询" }}
             </summary>
             <pre v-if="data">{{ JSON.stringify(data, null, 2) }}</pre>
-          </details><section v-if="mode === 'detail'" class="operation-logs" aria-label="操作日志">
-            <div class="section-header"><h3>操作日志</h3><span class="muted">最近 {{ operationLogs.length }} 条</span></div>
+          </details><section v-if="mode === 'detail'" class="operation-logs" aria-label="接口调用日志">
+            <div class="section-header"><h3>接口调用日志</h3><span class="muted">最近 {{ operationLogs.length }} 条</span></div>
             <div v-if="operationLogs.length" class="log-list">
               <details v-for="entry in operationLogs" :key="entry.id" class="log-entry">
-                <summary><span>{{ logActionLabel(entry.action) }}</span><time>{{ date(entry.createdAt) }}</time><b :class="entry.payload?.status === 'failed' || entry.payload?.ok === false ? 'bad' : 'good'">{{ entry.payload?.status === 'failed' || entry.payload?.ok === false ? '失败' : '已记录' }}</b></summary>
-                <p>{{ entry.payload?.message || (entry.payload?.failure?.retMsg || '后台响应已记录') }}</p>
-                <pre v-if="entry.payload?.response || entry.payload?.failure || entry.payload?.error">{{ JSON.stringify(entry.payload.response || entry.payload.failure || entry.payload.error, null, 2) }}</pre>
+                <summary><span>{{ logActionLabel(entry.action) }}<small v-if="entry.payload?.endpoint"> · {{ entry.payload.endpoint }}</small></span><time>{{ date(entry.createdAt) }}</time><b :class="logFailed(entry) ? 'bad' : 'good'">{{ logFailed(entry) ? '失败' : '已记录' }}</b></summary>
+                <p>{{ entry.payload?.message || entry.payload?.error?.message || (entry.payload?.failure?.retMsg || '后台响应已记录') }}</p>
+                <div v-if="entry.payload?.request" class="log-data"><strong>请求入参</strong><pre>{{ logJson(entry.payload.request) }}</pre></div>
+                <div v-if="entry.payload?.response" class="log-data"><strong>接口响应</strong><pre>{{ logJson(entry.payload.response) }}</pre></div>
+                <div v-if="entry.payload?.diagnostic" class="log-data"><strong>连接诊断</strong><pre>{{ logJson(entry.payload.diagnostic) }}</pre></div>
+                <div v-if="entry.payload?.failure || entry.payload?.error || entry.payload?.details" class="log-data"><strong>失败详情</strong><pre>{{ logJson(entry.payload.failure || entry.payload.error || entry.payload.details) }}</pre></div>
               </details>
             </div>
             <p v-else class="empty compact">暂无操作日志</p>

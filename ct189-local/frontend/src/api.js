@@ -32,10 +32,10 @@ export const api = {
     csrfToken = data.csrfToken || "";
     return data;
   },
-  accessLogin: async (username, password) => {
+  accessLogin: async (username, password, remember = false) => {
     const data = await request("/api/access/login", {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, remember }),
     });
     csrfToken = data.csrfToken || "";
     return data;
