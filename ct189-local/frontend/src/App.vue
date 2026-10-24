@@ -25,6 +25,7 @@ const batch = ref(null),
 const schedules = ref([]),
   operationLogs = ref([]),
   logsLoading = ref(false),
+  logsError = ref(""),
   scheduleForm = ref({ action: "friday_wdmei", cron: "0 10 * * 5", concurrency: 1, warmupMinutes: 5, intervalSeconds: 2, maxAttempts: 1 });
 const accessRequired = ref(false),
   locked = ref(false),
@@ -236,6 +237,7 @@ async function open(which, account) {
   batchGroup.value = "";
   operationLogs.value = [];
   logsLoading.value = which === "detail" && Boolean(account);
+  logsError.value = "";
   await nextTick();
   modal.value.showModal();
   if (which === "detail" && account) {
@@ -243,6 +245,7 @@ async function open(which, account) {
       operationLogs.value = (await api.logs(account.id)).logs;
     } catch {
       operationLogs.value = [];
+      logsError.value = "接口日志读取失败，请刷新后重试";
     } finally {
       logsLoading.value = false;
     }
@@ -1061,6 +1064,7 @@ onUnmounted(() => {
               </details>
             </div>
             <p v-else-if="logsLoading" class="empty compact">正在读取接口调用日志…</p>
+            <p v-else-if="logsError" class="empty compact">{{ logsError }}</p>
             <p v-else class="empty compact">暂无操作日志</p>
           </section></template
         >
