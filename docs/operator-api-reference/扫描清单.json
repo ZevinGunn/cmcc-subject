@@ -1,0 +1,2313 @@
+{
+  "date": "2026-10-28",
+  "root": "/Users/ZevinGunn/CMCC-PROJECT",
+  "sourceFiles": [
+    {
+      "path": "cmcc-notice/server.js",
+      "sha256": "51b442f995407b2bff1eee764eab392daa3b985c7f862bd9f2d79166edebf3c9",
+      "lines": 125
+    },
+    {
+      "path": "cmcc-notice/src/apiClient.js",
+      "sha256": "ea38c6e2c93e833ffc786bc9070366f6ce15df03a4e7cf937badf2a7eed1c634",
+      "lines": 144
+    },
+    {
+      "path": "cmcc-notice/src/config.js",
+      "sha256": "5f1ffc68e3951eef2ab2c6df90c24b02effa59afb5393e353673a2c2af98a92e",
+      "lines": 53
+    },
+    {
+      "path": "cmcc-notice/src/utils.js",
+      "sha256": "1095ddbe3aa130a1ef9ce483ef23d1a50fb3fdc32da5de607e6006df8e043301",
+      "lines": 110
+    },
+    {
+      "path": "cmcc-notice/src/crypto.js",
+      "sha256": "8a0fe2670f4babc1e911cd55b3021240af2db1dd232c4420404c954d3113e479",
+      "lines": 33
+    },
+    {
+      "path": "tools-workbench/src/utils.js",
+      "sha256": "f4c5ea5da60ef79bdb14f5b4298d78f06a6b9248e14c8eefbdf1b595dd8d6770",
+      "lines": 72
+    },
+    {
+      "path": "contract3-query/server.js",
+      "sha256": "0e65eaf0b0c4b7e949f99489a758d584ee47f4c345a0400ed13c84135164d8fe",
+      "lines": 306
+    },
+    {
+      "path": "contract3-query/public/app.js",
+      "sha256": "38dfab0f29e351177a7faa5850a0125599cce2c6b2e3e62d44b595c56dd09626",
+      "lines": 361
+    },
+    {
+      "path": "project-manager/server.js",
+      "sha256": "4ff6feb5d7534d83764e37bb68f0787e6804a054f9df230c5ef650299d975804",
+      "lines": 2921
+    },
+    {
+      "path": "ct189-local/frontend/src/App.vue",
+      "sha256": "c87d6ea3b39b8eb845a2dae1cc8f5bcc6afcef0c429022ba4feb1e1376558dc8",
+      "lines": 1131
+    },
+    {
+      "path": "ct189-local/frontend/src/main.js",
+      "sha256": "41a79ccb7d440dcb55dd3a28c6a62056c59b4e877d9fcbe17c9cd5d7fbbe2c14",
+      "lines": 5
+    },
+    {
+      "path": "ct189-local/frontend/src/api.js",
+      "sha256": "a99df5e13c7a11a953969fe0eb45143391403c5e47bc9d3c0d5cc7e7ff6f1232",
+      "lines": 98
+    },
+    {
+      "path": "ct189-local/backend/src/server.js",
+      "sha256": "6ad6437a6c5bb5f8c5ad74f5569d3b9b9c6d0485fcb6c59ac72283d05b5e5a15",
+      "lines": 159
+    },
+    {
+      "path": "ct189-local/backend/src/config.js",
+      "sha256": "a78da96152c130d957a66c23d46c6dff7e31fb257560133644f1c51a82b1830e",
+      "lines": 19
+    },
+    {
+      "path": "ct189-local/backend/src/routes/ct189.js",
+      "sha256": "01bdc2bda3b065584dfe8efc19426bdc2315a45f4b9e9b75b2f861356bd1a17d",
+      "lines": 135
+    },
+    {
+      "path": "ct189-local/backend/src/routes/accounts.js",
+      "sha256": "8d0e335d67d0622193722f7d3b4d4920bad0cd2fcceb66a9c86c9bbf8c582baf",
+      "lines": 96
+    },
+    {
+      "path": "ct189-local/backend/src/routes/tasks.js",
+      "sha256": "2cc75aae88a7c8b308cae5431aa0f698e561a9c4694ab0d9587c222bd1cc4d82",
+      "lines": 24
+    },
+    {
+      "path": "ct189-local/backend/src/routes/schedules.js",
+      "sha256": "04c7a47ce83ec4d66a061414fb0b55ecf75dfa9217bd2fdd44470feaadd72e63",
+      "lines": 28
+    },
+    {
+      "path": "ct189-local/backend/src/routes/internalExecutor.js",
+      "sha256": "aa8495637a22a747ce2042790efeb5539d71edab3ee9c417587528b54bc6f5c2",
+      "lines": 20
+    },
+    {
+      "path": "ct189-local/backend/src/services/taskRunner.js",
+      "sha256": "4a841cf3da71571cb206ce8fef4d19b602ae5e5c0ed8bd756fd768e53247e036",
+      "lines": 307
+    },
+    {
+      "path": "ct189-local/backend/src/services/classicRights.js",
+      "sha256": "5df7721f8e7c5dec7a4b122202e70b1952a7d613e199b0624978ae37c7d9583e",
+      "lines": 72
+    },
+    {
+      "path": "ct189-local/backend/src/services/siteAccess.js",
+      "sha256": "1ae1766eea6a97369897a58ec19e6a7cf09f373da658eb6429bd3830163d7a74",
+      "lines": 168
+    },
+    {
+      "path": "ct189-local/backend/src/services/accountStore.js",
+      "sha256": "d2363091e03b2b2f3522a58a2eba6a064b90f5ab79561bc9b35273d00a7602f8",
+      "lines": 194
+    },
+    {
+      "path": "ct189-local/backend/src/services/credentialVault.js",
+      "sha256": "63193080f498dc03d406bdb8fe09f512a8f60abd92e4e246d3f2ce2024acb17a",
+      "lines": 58
+    },
+    {
+      "path": "ct189-local/backend/src/services/telecomClient.js",
+      "sha256": "54c2c6ebc17eedcd8330cbda05e6a1e26fbae8cb8b94d47d242dfc7a87239269",
+      "lines": 608
+    },
+    {
+      "path": "ct189-local/backend/src/services/accountSession.js",
+      "sha256": "2319f2dccc5ab2d002c6c4ab7d6e6960aa9a46c2eb2b38d8c3d050b3ff5a93f9",
+      "lines": 55
+    },
+    {
+      "path": "ct189-local/backend/src/services/crypto189.js",
+      "sha256": "7993c717ffea4e10e2a2bac62f36c0e2310012e6cf4ab90571e259a4fe504334",
+      "lines": 35
+    },
+    {
+      "path": "ct189-local/backend/src/services/scheduler.js",
+      "sha256": "fe23f46b8004f9acd05863334c83047cae56cb639758afcc9b44f44afa55832b",
+      "lines": 185
+    },
+    {
+      "path": "ct189-local/backend/src/services/externalExecutor.js",
+      "sha256": "0a18fee10335121d23fbc2d98c764fd02343a675f5ecf134e4ed24cd4c1e96a7",
+      "lines": 157
+    },
+    {
+      "path": "ct189-local/backend/src/services/accountSessionManager.js",
+      "sha256": "45d9b41bffcd7346b086b87a0dcddc65ed0b3a97a24525faea51e663deea4cdc",
+      "lines": 375
+    },
+    {
+      "path": "ct189-local/backend/src/services/sessionPool.js",
+      "sha256": "799a0573774ef8fbd8bbae21a6b0dd15239237dee11e3b753a376bb8598b6f52",
+      "lines": 29
+    },
+    {
+      "path": "ct189-local/backend/src/services/passwordLogin.js",
+      "sha256": "118067c274df730b8d984ff53b10a42088391f59b17356f3b2313cd3e1a8d0c9",
+      "lines": 130
+    },
+    {
+      "path": "ct189-local/qinglong/ct189.py",
+      "sha256": "a45c0c0ca728c8c8d683d9ef840bf3eb1dbe83e95798e21b2e6446fd8f4a93ff",
+      "lines": 537
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/App.vue",
+      "sha256": "d875a2dc775297e5b70f6596bdbf648d2aac2a671702702e4b0aed638b0d3760",
+      "lines": 138
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/main.js",
+      "sha256": "20dd1873f50cf6ecec5d32e99c7e0415a26e0011612b0dddca3328e09f76b28d",
+      "lines": 5
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/stores/session.js",
+      "sha256": "ad4a50d17789b6d23caa95ebfb50ebab1493eb4a2e822fb4c7543e39fbd4436e",
+      "lines": 155
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/ConfirmDialog.vue",
+      "sha256": "eb2a4dcb1dacfc45e6a1bc71c6905445f8239bdf8216c2cf3cc8a29baaf435ec",
+      "lines": 83
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/CustomOrderPanel.vue",
+      "sha256": "9835cc561d09d1cff5a7ba6ffd65350207620eba5afdb82c3b4ae421cadff421",
+      "lines": 331
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/BusinessTabs.vue",
+      "sha256": "fe7cd4330c3c671a14771dc238bd2d8c8e0f182c2120f6b62bd1e022ab228a82",
+      "lines": 31
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/TopBar.vue",
+      "sha256": "eda18881fa5d0f9a384a974beb99ed53933e22756f79894985bd011cad0b7d5c",
+      "lines": 24
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/MessageDialog.vue",
+      "sha256": "50fcbb7853a018e7ffed069788d288406d657d726f3c7be9c7c97a469840fa12",
+      "lines": 42
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/BusinessItem.vue",
+      "sha256": "cd15146105e3ca7c919b58b619787631690921d098d41b8080b305078df11e8b",
+      "lines": 44
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/BusinessDetailDrawer.vue",
+      "sha256": "f4df95465b135b5ded768d02552db9755a6076d46d6431f8cba505715f9d4372",
+      "lines": 64
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/components/CustomUnsubscribeDialog.vue",
+      "sha256": "76ca97ca05e2cdd91c2e26b526917b4a280b698ee03a6145389d4f166ca6e648",
+      "lines": 70
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/api/client.js",
+      "sha256": "fc16183c7f65141ae76dc778bd954da006fb8cfc8e34f6b8336f1f81ea0641ea",
+      "lines": 210
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/LoginPage.vue",
+      "sha256": "b789e9d86f6d2f38300e2f7692e1a8b6f9e3711bcbef2d45edac78c8fa0e34d5",
+      "lines": 201
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/ActivityPage.vue",
+      "sha256": "9dc6e9481bf4849ad2cd1148f8663e98621fdf44a35487d84a477542859d225c",
+      "lines": 245
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/CryptoDebugPage.vue",
+      "sha256": "5002eaa275ab1668c472750d36ceff089a236415e67276567f5f515b61629da7",
+      "lines": 404
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/ShopBusinessPage.vue",
+      "sha256": "00f496f9fccd600467c2e2f07e3a8d608388e764bb8e0a3ecf7014f63b419040",
+      "lines": 228
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/QuickOrderPage.vue",
+      "sha256": "7ac18b6ef8a381bd8d0acf60e3ac02ad1b35f819bae1633cb3b45509309f7e98",
+      "lines": 221
+    },
+    {
+      "path": "bj-mobile-business-local/frontend/src/pages/BusinessPage.vue",
+      "sha256": "63f80e33f48d1b7b90e12a3684c5a0ea2b22fa0ec596d39bc932e42ab7bdee4b",
+      "lines": 312
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/server.js",
+      "sha256": "91b85ce682a528939c9821b41b461981bbdc14c1f0fef5b823299e1a3d88a04a",
+      "lines": 154
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/config.js",
+      "sha256": "9afcc3e7d14dd779ed83892557adfc5a9e5f781a3c9890f1c23f8f9b7715600f",
+      "lines": 16
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/utils/logger.js",
+      "sha256": "a71868001ab3a4a44d964b248bf25d33100d4fdd982ab56f0256af837ed619d2",
+      "lines": 71
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/utils/response.js",
+      "sha256": "98e8764607a49d1dad15a3285caf1854ef22bf25b7e9f54d86004b68281dd2c0",
+      "lines": 14
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/utils/cookieJar.js",
+      "sha256": "79310e271012eb9d44348eda30b34b95afb84e8afadb89862a972b9ad1af6a50",
+      "lines": 42
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/utils/http.js",
+      "sha256": "8b76667bc30bd31da8e322562740eadaff26407c90986d7724569c60e431f4ac",
+      "lines": 195
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/auth.js",
+      "sha256": "9601cb70082429c8909448c769c9b174ec6fc694d285fdc1d5003dc44e34277a",
+      "lines": 228
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/shopBusiness.js",
+      "sha256": "289a2e289807cd85fbaa9b7c6fbc29632523ed265481fa9665f6deb9c340e6ab",
+      "lines": 49
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/activities.js",
+      "sha256": "6dc73147026690cc7db6af06f41150527956059b6c0cb6e16db4a53e9fc35e1c",
+      "lines": 75
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/quickOrders.js",
+      "sha256": "f7b599811ac12efa30c802a92477f879656eb0a766ba014e22ad00d43503ad49",
+      "lines": 91
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/customOrders.js",
+      "sha256": "a822a531d993818e10fdedb05e167ab41faefa88b49942f0ce4d9a1d033c5be7",
+      "lines": 155
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/business.js",
+      "sha256": "3fad604863047545b9c48e91ef0e8cc38b1eb3a12fb96a9ffc1ceb9130f58973",
+      "lines": 80
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/routes/debug.js",
+      "sha256": "ecb96b6400df56cc0bc272e48081e69a7340f4549af80f187c8487fca92caac2",
+      "lines": 148
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/shopBusinessClient.js",
+      "sha256": "dc4d20fff92b73b38533cbc9a09bc5dea749f8b8326edeb20fc39a2409629fd4",
+      "lines": 235
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/sessionStore.js",
+      "sha256": "84f6b96262775a913bcc992ed8acd281c5442cf62f6253bc1c99096ecbda75ad",
+      "lines": 132
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/cryptoService.js",
+      "sha256": "55361d25c8a27b0e9add44da26655c686abd17c9036f5506bdde29d11e7dc39c",
+      "lines": 217
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/templateService.js",
+      "sha256": "bff97a1ea294fa200a4675d4d1396529be694f9df802cc9a935110e8a1fcbf4d",
+      "lines": 23
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/wafClient.js",
+      "sha256": "a8212c3daff562ec83a33d03d8c8d444911b91d09bc3e938b059f2e207de63e7",
+      "lines": 210
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/activityConfigService.js",
+      "sha256": "f4a987c40ca5a9cdce895f82348dd27a0dd83e679003afb17a0f8c7f3f7b0ae4",
+      "lines": 79
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/activityService.js",
+      "sha256": "d771a06874de01f8fca2992d4fca000101284510dc5277db0b9db4641de61490",
+      "lines": 234
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/customOrderService.js",
+      "sha256": "f72904e8a9e4461016b51f3eecb55c224eaea6d16479a2adb58596ef65efb194",
+      "lines": 632
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/premiumBroadbandService.js",
+      "sha256": "4fa0404b6168c893a6c7b38c93c6e70694628758af5cfa9eaf4ee3bd2fd93604",
+      "lines": 143
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/loginClient.js",
+      "sha256": "ca3534dfa41743df70bd1c6133f35e9a8595be3cef5aa7f18d286b90d7c9df0b",
+      "lines": 623
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/portalClient.js",
+      "sha256": "b9d939ecf8a5d816b063f7a9b9625622a85289fc637bcc31a43b5545adaec4a8",
+      "lines": 559
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/sessionStore.js",
+      "sha256": "2e40d64a9f6edc73fca0e289a7f10b0df8e76e4b673a03ce84c4b798596477dc",
+      "lines": 78
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/service.js",
+      "sha256": "fdb29806b05072c9fd0ed0b6770dff39d66a9b08eb61e3d010cd52dd32b2fcc9",
+      "lines": 231
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/catalog.js",
+      "sha256": "c76a7f05e6d28122c2638571e5fad88815194670af4c006325b8c591526f0cc9",
+      "lines": 63
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/errors.js",
+      "sha256": "b61b6d5579d7d1a9a605c82f75ffbbb0a3be7d0e2ab22d74e289979693279365",
+      "lines": 19
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/grid.js",
+      "sha256": "de8fe7ef620edad0c093dd2ab000e0e8c21cb7a71d8d4f9e86cd46afe60cc6d8",
+      "lines": 150
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/xywBrowser.js",
+      "sha256": "68c71631998fba3a6bd16671f1dac81df7aa7b6e471b0ff5e312ee212dfd7e63",
+      "lines": 70
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/cloudComputer.js",
+      "sha256": "3e83573ffb5d272d8a3b8691581189dc49d8c642d865f4b210ad630094450fd3",
+      "lines": 230
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/retail.js",
+      "sha256": "7dda3c1328a7ef192336be715a80460930171b81565682f800298e18d72948d1",
+      "lines": 226
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/north.js",
+      "sha256": "b14491172053e2fc3e976d6b814aad00594c743a7e327b822209c71fb2fbc50c",
+      "lines": 128
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/xyw.js",
+      "sha256": "adcf882b55ff6fcd83e4ea9f6b4d4a7a8a927ed6382200328ddaa725e4204351",
+      "lines": 269
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/common.js",
+      "sha256": "2d39ecd04efcddcea9e1811c666894377a74949d46f1e8425195b883d745f226",
+      "lines": 43
+    },
+    {
+      "path": "bj-mobile-business-local/backend/src/services/quickOrders/adapters/retailCrypto.js",
+      "sha256": "01a41878f5bedecb6f45c123ccd40d05c32e0e38114f5958f2f169478559d4c8",
+      "lines": 28
+    },
+    {
+      "path": "wed-puzzle-toolbox/ecosystem.config.cjs",
+      "sha256": "996c5e3903bf919a242b98b7d83927c84f7371752576a995a5cc49ec3392e682",
+      "lines": 11
+    },
+    {
+      "path": "wed-puzzle-toolbox/vite.config.ts",
+      "sha256": "bcd51283d9a4433c5aac4c935f2e5615cbd1816fde231275af84f5ac197e03ce",
+      "lines": 3
+    },
+    {
+      "path": "wed-puzzle-toolbox/shared/relay.ts",
+      "sha256": "30d4a41a59fb1deaac961ad09430964806f5b80dd7aa30937ce913eecad585e3",
+      "lines": 64
+    },
+    {
+      "path": "wed-puzzle-toolbox/shared/puzzle.ts",
+      "sha256": "431f3fa60b1097c3cd3df1382ea70e5ebb97ab65f02e20abddb0481b75e58c32",
+      "lines": 52
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/cookieAppImport.ts",
+      "sha256": "cafccadadc71ee181be2242c43fad0244b06a675124b584a4926664ed2cefd14",
+      "lines": 89
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/contexts.ts",
+      "sha256": "5e0646c1f014c84f3842481698a733f5e63c67f0fb9b8caf834337a48b6eb4d6",
+      "lines": 31
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/engine.ts",
+      "sha256": "c2e550b168bb5be98f9b9d29fc89646c7f129a4c9444108bb7b5192939f03afa",
+      "lines": 328
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/access.ts",
+      "sha256": "a1269b87b2a89be39e77acc5cb35473c778694df4bb6e5e09c8e8abb3cf2b467",
+      "lines": 35
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/client.ts",
+      "sha256": "998c194ce55aad58c49c7ef3f8b1a37e50bf2de46c9f362776b92a1fe964561c",
+      "lines": 106
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/server.ts",
+      "sha256": "dd7d7c228bd01662d62af1689207bae90528035d9ce450027ea1c44f51cddd95",
+      "lines": 175
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/store.ts",
+      "sha256": "7c9ffbda6de06e62420b1a8333c15cf18caaedc06c14dc775fde9896b1fc064b",
+      "lines": 50
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmccLoginParams.ts",
+      "sha256": "45b42b8197aa0eeb11e6200b9a4e875af5c8cc22f76917466222de527070d258",
+      "lines": 93
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmccSessionBridge.ts",
+      "sha256": "8424f0c423012bf5987e456010f7fa6ebdf831ba3b12f756aa4c8ff4cfc46a68",
+      "lines": 605
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmccCrypto.ts",
+      "sha256": "85dfdaf589e417a4886c9143df99d50bf5a5040779d7daac1da3dc5e2e2fbc12",
+      "lines": 59
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmccRiskToken.ts",
+      "sha256": "fcd7c66e5ade433451e54b2a215a7a8900e1c83e66fc29b94dcfb986b83e8fc9",
+      "lines": 55
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmccHttp.ts",
+      "sha256": "166ac03ffee069c3ee66ea2ed221f79c48d7ab76f2a25640c701359a2cbc252c",
+      "lines": 34
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cookieUtils.ts",
+      "sha256": "5f98322d18ec174a2d83f3276de7f6a522d3c135ac0f9138331441ecf947929c",
+      "lines": 68
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/wedRecharge.ts",
+      "sha256": "b3e72208576ad627dc0a32eb87b4333b5fb5c69c86c2def85b1731d0f3fb6d0c",
+      "lines": 770
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/protocol/cmcc10086.ts",
+      "sha256": "f5ae4538b198e9533cac423612b452ece4971de3293bd5833f478539324f4725",
+      "lines": 537
+    },
+    {
+      "path": "wed-puzzle-toolbox/api/assets/crypto20251103.js",
+      "sha256": "5d41b87b6456254e82fd2f750a55dbf39ec30c1e471376b428733211df046407",
+      "lines": 5262
+    },
+    {
+      "path": "service-clients/android/src/xyz/suixing/toolbox/MainActivity.java",
+      "sha256": "f0878dff291005a1aa8b6a27ca14acd8daf6690a8ca7ae463fe7f88615ed71df",
+      "lines": 350
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_sign.py",
+      "sha256": "609400df7b1d7bf6fe89d09859886135263c5747b35673532884e515dd728ed7",
+      "lines": 614
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_seckill.py",
+      "sha256": "6f7567d2fc48a813c57ec282f2cbadb6810b52a8d8b3f428c891ea770a950344",
+      "lines": 364
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_fee.py",
+      "sha256": "f53c75afada33666606d04aa9eee15af611fc6f418cd852227027346d63b8728",
+      "lines": 157
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_seed.py",
+      "sha256": "a2a55ea34602ef99b351e1607fccb8adb78fd955a18a2380df6d403cfbce1a44",
+      "lines": 554
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_gold.py",
+      "sha256": "96a81c07316f481958e07dda5be140afdca06e71c51de9604b2cabe8a908ef17",
+      "lines": 180
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_extra.py",
+      "sha256": "17fd24184a01fe302e3407f500cbfbcb73b04bda941880d4ea2e47ad962d9c7f",
+      "lines": 625
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_rate.py",
+      "sha256": "c0b0454a3e3eac85af046b86afb9a34734f5dd3b6891e2ffeec4f499deddb7af",
+      "lines": 210
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/cmcc_wed.py",
+      "sha256": "3a1f001b27d0812413c3efd606290cd54e80f25ee5dab0a4f9f1ec260d8ee712",
+      "lines": 612
+    },
+    {
+      "path": "参考工具/cmcc-auto-checkin/liaoning/liaoning.py",
+      "sha256": "b026435fd49a166e2dc68b1010e24f66b51273efcee9d68f8f921723e3dcfebd",
+      "lines": 216
+    },
+    {
+      "path": "wangka-order-local/server.py",
+      "sha256": "c86e59653e70f1f529f54d9544eb6d1e8852925d3e22717f35cbd8e68aaa8004",
+      "lines": 95
+    },
+    {
+      "path": "wangka-order-local/app/__init__.py",
+      "sha256": "49071f75e1b94d4db7682e75236414e0ea37336ca6f9640a604de9555e20d904",
+      "lines": 1
+    },
+    {
+      "path": "wangka-order-local/app/utils.py",
+      "sha256": "bba643f6173c728d5b02d4b5cc6661cac125c9d21621ecb6dc31889b4014c070",
+      "lines": 67
+    },
+    {
+      "path": "wangka-order-local/app/har_store.py",
+      "sha256": "103da700d877873833b9514b9977d3844eeaa46498f216cf9c5ffd02249c22ed",
+      "lines": 80
+    },
+    {
+      "path": "wangka-order-local/app/upstream.py",
+      "sha256": "72beb9d76ba4ad6edc0888a9a3f90fb3ec296be7f7efde401f6d9d9ae2862b41",
+      "lines": 248
+    },
+    {
+      "path": "starbucks-price-monitor/service.py",
+      "sha256": "8a1eae7ad36fe688f4dadb956b378f88be3bda067ffceb80e5d3106e3cd7e388",
+      "lines": 92
+    },
+    {
+      "path": "starbucks-price-monitor/monitor.py",
+      "sha256": "23f1c36803a12c8f4c2e428af5d6eb1b08046090344dc7b84b72df0dbc117899",
+      "lines": 528
+    },
+    {
+      "path": "好礼多多本地版查询/proxy-server.js",
+      "sha256": "31d18d66e03984c1f1b5daf67a4636969d3faefd081c2dda193ee4464afb3a6c",
+      "lines": 292
+    },
+    {
+      "path": "好礼多多本地版查询/proxy-server2.js",
+      "sha256": "64241712990f4816a4408009a33336e32e23fb3180bf79f22418f98fea155332",
+      "lines": 270
+    },
+    {
+      "path": "migu-quick-order/server.py",
+      "sha256": "39df1dda01f73530795d81e3d3bc45fb070610f63de2f6a41258eb41538b17ad",
+      "lines": 387
+    },
+    {
+      "path": "migu-quick-order/public/app.js",
+      "sha256": "554f13063d7d5a98341651bff9b3117e19a77c12879751c95c3bbc22521f5149",
+      "lines": 424
+    },
+    {
+      "path": "shanxi-order-local/server/subscriptions.js",
+      "sha256": "76ebb37dfe98d882690f863450ca10adca9562cc51c109f2d847d7bf6bf45dc9",
+      "lines": 40
+    },
+    {
+      "path": "shanxi-order-local/server/account-store.js",
+      "sha256": "a7d57f7072547e470364edafac785873eb8f89d862a855ead05186046712329f",
+      "lines": 21
+    },
+    {
+      "path": "shanxi-order-local/server/protocol.js",
+      "sha256": "cd7ddb1165969b01ffef42bfacb91b9edadfafcfc08420f1b2932052ac5b281f",
+      "lines": 114
+    },
+    {
+      "path": "shanxi-order-local/server/public-session.js",
+      "sha256": "e6133c77dad6c970f64ccb5cb4b59fa73e27d1236886785c46b26d1f5c7a612f",
+      "lines": 32
+    },
+    {
+      "path": "shanxi-order-local/server/ledger.js",
+      "sha256": "68cddcf3f7771b95a84f0a5e748d691b8e4c00424f97b33ad00495e9ed076fd1",
+      "lines": 23
+    },
+    {
+      "path": "shanxi-order-local/server/bridge.js",
+      "sha256": "9f207065ebded8fb33e3253e27fd65ae061df380fe6019e2d5b2ea046c5930be",
+      "lines": 120
+    },
+    {
+      "path": "shanxi-order-local/server/service.js",
+      "sha256": "a8457d3ad17cda595fea9d1721e9db6e6db63ad29933111e06b78a800b8c8d55",
+      "lines": 195
+    },
+    {
+      "path": "shanxi-order-local/server/public.js",
+      "sha256": "445a50151b9e1f2d45cd7ce22382c8b3f0265fc916cb16f37f12accd7cce1aa2",
+      "lines": 17
+    },
+    {
+      "path": "shanxi-order-local/server/catalog.js",
+      "sha256": "0f65d9537d17d0a7099389ed5379af3e5221059f6875ef639a7e38b10e5f58c3",
+      "lines": 61
+    },
+    {
+      "path": "shanxi-order-local/server/accounts.js",
+      "sha256": "5f43c551600765b2d31aa0711fb6e0db210e973238e72c039e73bf928f9501a0",
+      "lines": 81
+    },
+    {
+      "path": "shanxi-order-local/server/index.js",
+      "sha256": "b4af521584ac4d0df65ad76a055d88d446ca15036f591debb8bfdea3624b7ddf",
+      "lines": 14
+    },
+    {
+      "path": "shanxi-order-local/server/domain.js",
+      "sha256": "e19427db0c4d342b80848b51b6d3c0fb75786012f1ad63703018a18f51018efb",
+      "lines": 49
+    },
+    {
+      "path": "shanxi-order-local/server/account-profile.js",
+      "sha256": "fee97b805425f1c92a1e576434fb32a59e32dc0d4094000c3bdaa71d072b8c78",
+      "lines": 9
+    },
+    {
+      "path": "shanxi-order-local/server/business-presets.js",
+      "sha256": "d1e50138ff3638a7658cafed7e4c81a24d267fd3e0f8ae4e219470e5bd14b6da",
+      "lines": 9
+    },
+    {
+      "path": "shanxi-order-local/server/public-app.js",
+      "sha256": "a77b3475499a5dc74caed471f058bc36e878b431f425ee115489e210ef4de6f5",
+      "lines": 47
+    },
+    {
+      "path": "shanxi-order-local/server/crypto-tools.js",
+      "sha256": "b432cb380d9ffa96c5c11bf092e814f2919ae44641522134c972e376f260a26b",
+      "lines": 79
+    },
+    {
+      "path": "shanxi-order-local/server/app.js",
+      "sha256": "da2dc4e1e70c9ca8ba700f4c2ff4956aaf0a13495e35b288237d72b917c26ed6",
+      "lines": 69
+    },
+    {
+      "path": "coc-rights-order-local/frontend/src/App.vue",
+      "sha256": "df83a8e545f31cb38dad0f6291d9fda1af6564b40961a6ad6ef4f17afa003783",
+      "lines": 451
+    },
+    {
+      "path": "coc-rights-order-local/frontend/src/main.js",
+      "sha256": "5d2f4c0f5d289c2624f3569aea0b5a48e48cb0d22ef5f57a5ba47d64a0ec7969",
+      "lines": 5
+    },
+    {
+      "path": "coc-rights-order-local/frontend/src/api.js",
+      "sha256": "96c6c0b8abe08c1c127b7e1ce19911ee23391d694556d0970f7ea32ee3f48754",
+      "lines": 55
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/layoutResolver.js",
+      "sha256": "4da6ae22aa533dd590a824d7460005b0ea08bf60f7aadc5cc485033d7ca94c1e",
+      "lines": 189
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/validators.js",
+      "sha256": "08d572f8031578ff584c0b4f64d11d2fc18f789d41ddddcbb5e88c7430feccb0",
+      "lines": 29
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/productStore.js",
+      "sha256": "f43012001a4901fa9fe4868e8415cb6051c7264225f0b0c6534f013459708598",
+      "lines": 17
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/orderBuilder.js",
+      "sha256": "91172beaebaa29c77d46130574c1e4f31ffff57058a4cdecfd52b22120d36c3c",
+      "lines": 42
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/cocClient.js",
+      "sha256": "e6d5c1e90e093b6e390283e7738585623b1724cf3e783d16206aaeb030144937",
+      "lines": 156
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/server.js",
+      "sha256": "13628ed5d9a112155fcc0f5728c26d41612dbb985a6ca2e31f03b6df7667576a",
+      "lines": 199
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/config.js",
+      "sha256": "bb31331d1a0bdf2cb0642c2c3e108a8277df55e53e4a7e2ebf32fb09b5f86010",
+      "lines": 28
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/packageCrypto.js",
+      "sha256": "c185747025f63cdd209ae6185874dc2645770759070ca10a1c1ce8e0d7bb90cc",
+      "lines": 40
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/packageOrderBuilder.js",
+      "sha256": "9d51832b6345b8e4d2892f1a7cf0cb58b925d2f706fdbb36875e126e3c06b872",
+      "lines": 61
+    },
+    {
+      "path": "coc-rights-order-local/backend/src/crypto.js",
+      "sha256": "b60db9cf48484f2e076b0bf1a2e7805acf19438ed5ff4a26def116ef87f9077a",
+      "lines": 101
+    },
+    {
+      "path": "cloudapp-flow-simulator/src/cli.js",
+      "sha256": "70fe96d5ab6b9df85ddcf28facbe0268a356bc5222168a7cf929f67f767ddd69",
+      "lines": 108
+    },
+    {
+      "path": "cloudapp-flow-simulator/src/simulator.js",
+      "sha256": "920b2da1b4d4bb491b6cfe3e35c2bc794aa62aaa3c20098b60f703f8adf6fa9d",
+      "lines": 319
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/diagnosticLogger.js",
+      "sha256": "99bb7d93fb1524d0d63b69908b451aa15688d4fae74cee72d98ba12305ab6765",
+      "lines": 111
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/globalTelecom.js",
+      "sha256": "f71b005cc7822dbc97d5d35f63dbe289bd2421eef77f437b406dedb913895109",
+      "lines": 176
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/businessJumps.js",
+      "sha256": "93b9c68db338d5eff0d276d21145f5ba532615d3f6e14d63051a8bb81dc6fce8",
+      "lines": 75
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/yunpanClient.js",
+      "sha256": "720437442e3c4503223a5967c518222d86f906c5239c530ea5d21cfa5c781bb2",
+      "lines": 753
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/restartService.js",
+      "sha256": "4afe8f47eefe21b89246a72d98d941c5f79d7d765a89a9ee0e642983cbe8fe53",
+      "lines": 32
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/cloudPhone.js",
+      "sha256": "25f26489050a7f18a3dabf4b4e3c2daa648145fd577da9689b2d71c8e12f8d43",
+      "lines": 68
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/sessionStore.js",
+      "sha256": "c28221b00b6210c6993d987ffb5b3878197e5483442caea04ac308fa9b30e26e",
+      "lines": 162
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/cryptoBox.js",
+      "sha256": "5271629028528d8d505f174466844f0ba01fbdaffcd82f89f48455b2fc687d20",
+      "lines": 124
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/server.js",
+      "sha256": "386335177764b66562d6402465284a441257ecd182e1949df40083deda02f805",
+      "lines": 624
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/cookieJar.js",
+      "sha256": "e679a9cd1b095a38e1b2b4d1bac7eaefd1344867e625913bf818ae1822d535d1",
+      "lines": 59
+    },
+    {
+      "path": "云盘/yunpan-login-local/src/ssoBrowser.js",
+      "sha256": "f3080314e000ceb6f26ae682d8ed0ff568281c147940ff9f4c763b395d4c5bf0",
+      "lines": 83
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/go-worker/main.go",
+      "sha256": "f1117894163ccc9d2b00ea960f815f390eca71cf85166df041dd0e10ec1a8d07",
+      "lines": 460
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/app.ts",
+      "sha256": "3c7278f2eb6a525b21156d0bbf1198a17706390b219319732383a6e500b62e30",
+      "lines": 259
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/index.ts",
+      "sha256": "a2b06b33a24cd9c5f30479fadd37f0dc070d4a09834273e51e643ad9e4f8ce13",
+      "lines": 9
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/server.ts",
+      "sha256": "8f6e3dff5a2f78e807f589d4df311b7c4d4c713250c5cd8cdf19aedadec48bc7",
+      "lines": 45
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/announcements.ts",
+      "sha256": "8ffc57010a9db7d7bd2f8bdd680e76b054dd3249b3688c150cb069bdfdb839ad",
+      "lines": 165
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/starbucks.ts",
+      "sha256": "31d8d9b149bc8fcf3688e73683ba11db30d3d5c3b05e9f86dffd231ddb91c959",
+      "lines": 67
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/shopQuery.ts",
+      "sha256": "229a475593b6fdb015d491863c95454a25bd75733b74369f01959e130f7cd0ec",
+      "lines": 275
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/callbackAppointments.ts",
+      "sha256": "3770f6eb533ecee8efe2073c1a3cc48286f3380c7c8afac68e60b89c5d8a818d",
+      "lines": 55
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/admin.ts",
+      "sha256": "9f0272faa6167eebb12a7fa8744b864f0265c7e7c4e668fa5a6ce936e6c7abff",
+      "lines": 142
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/debugCrypto.ts",
+      "sha256": "2e5617c2569ba4eabc69155c0ca4af6ceff1aec4cf6abf413c02a2505f7972a4",
+      "lines": 375
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/legacyBusinessQuery.ts",
+      "sha256": "aeff61f11bb5a3b5ad1a8cb494805bfde774654406f980fd2d0c1b9dca53cde1",
+      "lines": 77
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/qqtPremiumBroadbandOrders.ts",
+      "sha256": "3b69b828be7ac7d53187487268ff7109abe59ce51821c97faa96fa6a7bbd377f",
+      "lines": 111
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/businessOrder.ts",
+      "sha256": "fcd341add7d00f4bb494c9209f95d507f3b21d49b02ef97cab9059568421f2e9",
+      "lines": 317
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/aigouOrders.ts",
+      "sha256": "c3023cfb1d7d4b3a8b49be9fd194f0b96d8fcb6f8c2c81fd854836d207b5cecb",
+      "lines": 329
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/benefitOrders.ts",
+      "sha256": "c0bd4fd7e56bc71ed7ef43a619fc693db8f627dda4a299610ee2f07fca898f21",
+      "lines": 451
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/accounts.ts",
+      "sha256": "db942068a73f4fa411c182645075843013df4253288ba8941cfa06031cc23b72",
+      "lines": 5891
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/accessLogs.ts",
+      "sha256": "768b2eb037d1947c237f50a92710e6a380821f988f4de66e71c9376b5b535ffc",
+      "lines": 77
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/luckyThreeDay.ts",
+      "sha256": "af98e56f29e8f85366e6e669e6eeeebc40b9d5070e751c9415847204d96edf42",
+      "lines": 392
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/tasks.ts",
+      "sha256": "2b6a01265a278e97356cf2d9fdab30065df90cf4c7c44ba640c500de383237e4",
+      "lines": 635
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/bmccActivityOrder.ts",
+      "sha256": "e06baaf4c94af1dc93632ec254e4c4c8e38d609dadbbbc9b8f6f8073e30351ca",
+      "lines": 362
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/businessQuery.ts",
+      "sha256": "d4f3ea96d18079024440d535b30ba68af868c83f186f0a6ded7eec4e859ed47b",
+      "lines": 1022
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/cmcc10086.ts",
+      "sha256": "a6eefbae349bef48f6023228644a3e7c4eb639cd54231fd18354f214dbb05fda",
+      "lines": 177
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/broadbandOrders.ts",
+      "sha256": "8694e8833d16970609867591944045da2ac14c768973ebe30fee03a9517af0be",
+      "lines": 273
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/wedPuzzle.ts",
+      "sha256": "f832c0fd3ccc1c5cd4fbd8c42fc78b2bb25169066a16ff959775699599b94341",
+      "lines": 89
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/retailProducts.ts",
+      "sha256": "b5542393f885fdc7d01a5033ca3dc11a30d03c2aeea2c4a5648777a98e33d676",
+      "lines": 179
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/auth.ts",
+      "sha256": "31aa3c4179d8f4a2ad3221fb79d459f421d3a114df0702d8503e940c6cbd6970",
+      "lines": 792
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/routes/worker.ts",
+      "sha256": "d420935ca5189ad92eedf1a04484c23760730465e5c87254d4b7d879f361b02d",
+      "lines": 476
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/prisma.ts",
+      "sha256": "2abbe5c81421be5785b239a2693ccf326b89e1c17c3e7fef5fe7f25ca1396746",
+      "lines": 17
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtActivityState.ts",
+      "sha256": "2ff14759c0217e8e0cd03d28932653bb32c1cb6df07196f31622a4c1af7863e2",
+      "lines": 60
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccLoginParams.ts",
+      "sha256": "b5e4e55e7bd5f767a2beade19d0fd3bcedd5c36c190520c2fbec5b93c4fdb01f",
+      "lines": 92
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtSign.ts",
+      "sha256": "d962335023d5e099bdc4e3954579458fe3cf2f4f5137d41ef69a3d27571d1034",
+      "lines": 992
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountProfile.ts",
+      "sha256": "31efc6deaaea14ceee18ed81cf0416e10a0a2e57847b13af5be6526cfbe36838",
+      "lines": 137
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/yunpan10086.ts",
+      "sha256": "01c24b0a3c3816a26c4c6797812779eb2f6afc8fcad2708f37a0088889a8646d",
+      "lines": 931
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/starbucksStore.ts",
+      "sha256": "5ae3f7f42c60ff8b17ebe1d75e212d063615bc30c87525c1713b35ecd1ce24c3",
+      "lines": 43
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/logStore.ts",
+      "sha256": "8d1e1d47e09b4682e4350fb78ea3e8c95778209533413882226d2b188c3a6287",
+      "lines": 14
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/starbucks.ts",
+      "sha256": "9a18a584e14e45b7e4417fc2e9fde5251cb5cf95261073e2126378c19e798afe",
+      "lines": 86
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccQrLogin.ts",
+      "sha256": "8a4b80b7eaa8b2a0949048aa44c139716b0de4526111a947d2a24f92114596d8",
+      "lines": 341
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBenefitOrderCrypto.ts",
+      "sha256": "d439777d810d0d4806553d9d8469c5a80e07dbdfc201ed02da525d73aef07316",
+      "lines": 92
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountsStore.ts",
+      "sha256": "94336c845ebd51200d4d8e3a4edeefd687bfaab4b3c68c012f573bd93faf3942",
+      "lines": 43
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/releaseInfo.ts",
+      "sha256": "382e7dec589091b9c3b0c2ba40aa88883631c3ad04b79215f4e6f2f28aa51cf8",
+      "lines": 16
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/aigouPackageOrder.ts",
+      "sha256": "42c7477d1475a6fdf1fd66b357ba20eb572a7c50c7e70ac43bfb065ad79a149f",
+      "lines": 262
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccAutoCheckin.ts",
+      "sha256": "cad6ef342bc627c350b8a08dbcd81d13c9169b4fbd5f846cfaadf64974a27328",
+      "lines": 279
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtSso.ts",
+      "sha256": "e5cac70452b876b9636a0ffb14c29b18d6f1b44ce1ccdaa3ead58760f45021b8",
+      "lines": 182
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccCookieRecovery.ts",
+      "sha256": "04c94b5d553bb9cba99afdcd8eff80f1c6b9a408d6baaf8fee8a25e3af07662c",
+      "lines": 151
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountsStoreJson.ts",
+      "sha256": "d28da4520a1fd1136f63969781f2fcef0df50909571c0cce28ba807610495ba9",
+      "lines": 460
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/processErrorGuards.ts",
+      "sha256": "e82348740a746d6ac38d6232618e7eb9e79e1ed591f494bc144219bfc1384571",
+      "lines": 23
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/globalTelecomCustomerService.ts",
+      "sha256": "e1496ccb65e640860abb334f8c4637fbc7a3a6c69ffde7c40742f4a15d940bf0",
+      "lines": 145
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/serviceLoginGuard.ts",
+      "sha256": "2888958c03d23bdf508891bb44b26bf24e9cac13be02f290833a6b6eb4e27eec",
+      "lines": 82
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBusinessCrypto.ts",
+      "sha256": "0e5ed7a1c430be43167f2666a61516ce69b1f3c4989604e4c0f77564736e956d",
+      "lines": 65
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/broadbandOrder.ts",
+      "sha256": "bbe291ef784a8a17a99dbb8da629b8fd27a6ff4cdb5fa29863015b60de86fe5a",
+      "lines": 916
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/runtimeConfig.ts",
+      "sha256": "279052a0cdf5b38779598d343a29200ef550b64f020c30311791913e66e1c974",
+      "lines": 122
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cocPackageSession.ts",
+      "sha256": "51ce4cf0da388b73f27732189704a7ed1d83ba0e2afc1bb1a2ceb4cb5484b283",
+      "lines": 345
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accessLogMiddleware.ts",
+      "sha256": "dfbc51eafd34f465f1bd8a6a2cd058f5d1d893dbf729f6ce4ee10fdc10c528e4",
+      "lines": 68
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtPremiumBroadbandOrder.ts",
+      "sha256": "e401212b0d29fd9fe5095e567abaafc64c897bd9429c6bfb2617a2b0d59886fe",
+      "lines": 501
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/luckyBagOrder.ts",
+      "sha256": "724e1ed1ade24757c8c8d017c86d78984feb586ec4034d3cd6d809737b18f1e1",
+      "lines": 259
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccCallback.ts",
+      "sha256": "1c1dadbf8c1a9c61e567436e8d5d4e5f00ba20f39347de84bc1bd7276c95c8a6",
+      "lines": 160
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBenefitOrder.ts",
+      "sha256": "10b2b03c7dcb4051863017f8a47b204c37c5cd150008d1e12f6cf07a9689fa31",
+      "lines": 2052
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/dailyTaskState.ts",
+      "sha256": "d034b9a51c871df1e143c0634c80849d00aa0329c1fc58e328726265513e2d35",
+      "lines": 209
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/bmccActivityConfigs.ts",
+      "sha256": "7562c96a2042b90431d55bbc2228b4f8fe84bf812366e3deebc1ad880476a2de",
+      "lines": 174
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/aigouBusinessOrder.ts",
+      "sha256": "c821a1cf9c44c703c50c75aeba6d9678c3652310968968f9f004f5c33614f4ff",
+      "lines": 496
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/runPool.ts",
+      "sha256": "fbf844635ade96e3881a754b607960941ce75eaf82d664089a5b07b7dacbfc30",
+      "lines": 28
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccShopCrypto.ts",
+      "sha256": "c381340ea03b3fd6b87562f5e65139af0765549028f32d27e35df0aa8b0dfbe7",
+      "lines": 61
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/publicLinksStore.ts",
+      "sha256": "8bc7bb41977a50c2cd880688ec2d9bcb221d795384b7521a29fde96aa6c43d10",
+      "lines": 9
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/pushplus.ts",
+      "sha256": "d1fc7b5806aa35a2c6fa9d8d131960db45359c90989349d557d598bcec04b9ae",
+      "lines": 48
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/globalTelecomDailyAccount.ts",
+      "sha256": "01b344361c96ca5a69786aaf7f84f6463efdfb82d9739a996a9299219dcf835b",
+      "lines": 109
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/debugCrypto.ts",
+      "sha256": "8285e7ceea9e09bfed789ef41be7ff42d6cc278853b550c54e9a1d02312d88d2",
+      "lines": 75
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/retailProductQuery.ts",
+      "sha256": "8e5237d19c6282c5567d7af546a4e63184033a39885e2582daa55b9a907500f5",
+      "lines": 477
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedCouponStock.ts",
+      "sha256": "345cb4eec7b0ec0dabf5181c79a2b01bb7f28d688b99480f4778198f65545992",
+      "lines": 95
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/yunpanSso.ts",
+      "sha256": "773e75b22dcf94473e7259e37fc8e9f82210587b42c16bc49c736892016898ca",
+      "lines": 210
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/credentialMaintenance.ts",
+      "sha256": "4199b2cc687613c4060a88be49532982d732c93d62cd22d290cfdb7deb76b695",
+      "lines": 22
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccSessionBridge.ts",
+      "sha256": "26b0ab670ff079fe9ce0d786bb768f03191179e3afa26210e47e0eea1be650ac",
+      "lines": 604
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/starbucksProtocol.ts",
+      "sha256": "c701dd8416cb5f4c37f4cbe13174b350c622ed132c412bcc874bc342882a401c",
+      "lines": 181
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/aigouShoppingCart.ts",
+      "sha256": "6699bcbbccdfba7594cbc5a181a706c1b3b1669c9f1f794421abfe5fcc52a925",
+      "lines": 658
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accessLog.ts",
+      "sha256": "d9e5844da4ec820591baac2d6b6dd862722eec3da9f9ae9fecd6205c2dbf3a3e",
+      "lines": 321
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccCrypto.ts",
+      "sha256": "e1cbd4c014369785b1686213fec4fa314e982790965b6a36a86c3e53d519a5ab",
+      "lines": 58
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/broadbandOrderConfigs.ts",
+      "sha256": "b9249e774861e1c9f2bf7932bea3233409333f491d67ae92529ea2b20296a2c7",
+      "lines": 324
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBusinessH5.ts",
+      "sha256": "cb4924e29c0ad287f7af5a0d4a07ace31f9222d12679d657b71464d241c8f3a5",
+      "lines": 97
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountAigouSession.ts",
+      "sha256": "00475f929d800af209e1f474fbea470a85c1cff4128796c8d5e7eb7af8c64cbb",
+      "lines": 78
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccRiskToken.ts",
+      "sha256": "c2eff5f46b78af2d48f73832fff492125fcae491fc3afa0eb4f4a896e59a19c7",
+      "lines": 54
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/databaseMaintenance.ts",
+      "sha256": "a6522bd992dadc8748f47f3af0bd503ac37a07b80ef813307bef3e706554ba81",
+      "lines": 188
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/luckyThreeDayOverrides.ts",
+      "sha256": "b7ea4e24faa6522dcf841397be4bfdea1a1ed1cc06dc84e62ade75154043b4c1",
+      "lines": 125
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/legacyBusinessQuery.ts",
+      "sha256": "1c0b5dc249f3321bf7c3c573bb54ad80d96defbe6db7c5f9c567c6eabc50f04b",
+      "lines": 337
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtBlindBox.ts",
+      "sha256": "b44b239af94e997a13933504f8c67d0679ee6ebba967a951e21be656645d4f0f",
+      "lines": 76
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedPuzzleJobs.ts",
+      "sha256": "4c23ef4beb41cb21335ad5b72d8e6d628e235090896281d13e3241040971f599",
+      "lines": 360
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/announcementStore.ts",
+      "sha256": "2c85b4180d065bdb931e1dd2472814d4f584e0d88279ab11639ffdbe8bafdf59",
+      "lines": 429
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/taskGuards.ts",
+      "sha256": "20f80ff2b69b679a184457542d0136bc7597b5a517305b769cbab340d1f9f2ba",
+      "lines": 30
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/dbFlag.ts",
+      "sha256": "d6cec6c260fbfedf69892767da8d96f1b61d003686b030c230a93d1dc327f621",
+      "lines": 5
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedToolboxBridge.ts",
+      "sha256": "20cf0e41b732f047577d9f29596904bc9dd9f211ecd9ac7823ddbe6458b3535d",
+      "lines": 49
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/credentialsStore.ts",
+      "sha256": "ea5c5524f10e66b592a5b7990f5e8d3498a27071dd467057d920cde7cf9d9524",
+      "lines": 239
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBusinessQuery.ts",
+      "sha256": "9b60365b75c36ede2a71a1df974c54d9990480348a2fa16ebda3851b4295894e",
+      "lines": 955
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedActivityLock.ts",
+      "sha256": "92f0e46a6869d79131f5bd48be27c62d86b2fc67518105de0f65a7923ef40d05",
+      "lines": 30
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedCouponStockMonitor.ts",
+      "sha256": "5cf2600e9d0e8693143a6e6837dbf80f2484559808d7bb2ce3be88d326884147",
+      "lines": 185
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/globalTelecom.ts",
+      "sha256": "68ac53e89f0ba11c7e7e31fd6dac92f72118aaed0f83146fb746fd12e45a1a5b",
+      "lines": 1206
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccHttp.ts",
+      "sha256": "200ac59deddd8a88bdfb815519128b38a7c731cd6ddf495d88dba032347870c1",
+      "lines": 188
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/harParser.ts",
+      "sha256": "6c05be83580279d5633ceded99d4c7f4dd119ce4468a637184ac7b89178fc3dc",
+      "lines": 134
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/credentialsDb.ts",
+      "sha256": "915905feda625c014653c51c8c5767416ad2789ce758d8be10c941297dc2a591",
+      "lines": 112
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/logStoreDb.ts",
+      "sha256": "f8f1e7ccc709180509a1a1daaa89b1c340a19a24f707f294ff906a107664cfb3",
+      "lines": 31
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/batchTasks.ts",
+      "sha256": "a1190234cc981fd39322c6a28a03e81c93aec6803bc41c466ad9a1ce5e9e6f92",
+      "lines": 3105
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/aigouSession.ts",
+      "sha256": "aa2f86b8949c5c804c1588daa912f16c690a5ae2765161a733a1bf85d76220d2",
+      "lines": 279
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccTypes.ts",
+      "sha256": "c3b10b7ea3ec9491ba4c001634ae3106b90b0ee0bc1e2c170e2f8b65ccbd47d2",
+      "lines": 196
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccShopSession.ts",
+      "sha256": "4acc5772e6746651b0a809a3f2841e2016686ab0be2ea85b7283a5ae695004a7",
+      "lines": 195
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/luckyThreeDay.ts",
+      "sha256": "ad1278e8db3e99bfff3da05efa446d04bec4b2222dfa5632d56f5b4b21ef46d8",
+      "lines": 502
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cookieUtils.ts",
+      "sha256": "13e52a95cdb80d0b393ab09285208ea6f3adb9ab28054ad017e665ed170157a1",
+      "lines": 67
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/adminAuthStore.ts",
+      "sha256": "7ef2f42bc87596238c5beea30d17d8e3795c522f8a5671abdfd901ba50d26082",
+      "lines": 185
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/publicLinksStoreJson.ts",
+      "sha256": "85fcef791afdfa13699a60d3c1c6cc345b22900f6620967637f9171b2dac1e07",
+      "lines": 170
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountsStoreDb.ts",
+      "sha256": "cf6005c048a5b3a373af9c402702e712ac121a010111457baace33fc1922cc4b",
+      "lines": 1249
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/publicLinkPushStore.ts",
+      "sha256": "3d4e98af983c6b9ca30f01acb14fbb08c2d61bb846d746a5ddef11d17194dc52",
+      "lines": 181
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtSmsAuth.ts",
+      "sha256": "f21eee3a2eded8a0843229fbf7e5544834220722d8b775d0f44b409d7fe6607a",
+      "lines": 175
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/bmccActivityLoginCache.ts",
+      "sha256": "8fe23266cc788519fb8e71232a791cd53c28770581546086806c5ecc39e3bf4c",
+      "lines": 141
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccShopBusiness.ts",
+      "sha256": "5f010048be6bf84a8259e843e7a6b99639a1976ba6795ef8e15d709dd497ebb5",
+      "lines": 415
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/accountCocPackageSession.ts",
+      "sha256": "a6feaeebbdbffe49d5fe0db4218c537866da3a930345f84977e2a504748e1772",
+      "lines": 81
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/bmccActivityOrder.ts",
+      "sha256": "41f7ea306aade6df5b76c0a64bc025cb46e5004531c95e202591ec23d542e5d8",
+      "lines": 993
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cryptoBox.ts",
+      "sha256": "a970968487acc4735ec9811b62729e5d5d35d4dbd457681507b20541bdc29e59",
+      "lines": 64
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/wedRecharge.ts",
+      "sha256": "1af19ed2ca73285ba984707190d07bfdb37e6ebd1aeac74641611b1b97870d25",
+      "lines": 781
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmcc10086.ts",
+      "sha256": "7b347977e953665dd5fb272e6af4187ebde989c23ac2f1320927da62ebf32ab1",
+      "lines": 537
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/qqtTokenExport.ts",
+      "sha256": "97aeaeed1f6c4423849cf87e7330462f87e66b58bce9eefdcaea1834bf733f7a",
+      "lines": 307
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/publicLinksStoreDb.ts",
+      "sha256": "a6a79f36da3b10fb6c11e284df3198da84c207895a6d63413c28bf174359c762",
+      "lines": 177
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/broadbandPortalClient.ts",
+      "sha256": "97ea72e97166d9a901ed652f39f638c2571ed355665f3e8597cc6327e12abc7c",
+      "lines": 307
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccBusinessOrder.ts",
+      "sha256": "2d1d8c665cb796281ef69ac761751ae02a0539bca000e45c71f22e1f0bbe4127",
+      "lines": 842
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/globalTelecomDaily.ts",
+      "sha256": "04bc507cd03d8a8b5457243c0419351699f7effae603c2f29e0169a1c72dfd99",
+      "lines": 147
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/userAuthStore.ts",
+      "sha256": "41a817ee0dd53a1dd75c6d3647902e2f6a8709a6a7a57ef96f453f34206430be",
+      "lines": 677
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/api/services/cmccAgeFeedOrder.ts",
+      "sha256": "a5e6e252241e0d8eecdb3a8ed3ea0c6cc01470d7c25f413b184c573d54c9f320",
+      "lines": 126
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/vite-env.d.ts",
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "lines": 1
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/qqtPremiumBroadbandOrderApi.ts",
+      "sha256": "3f0c1d0c032053f62a069a489821dd000725d88c676b31d9aa48eddc849c55f7",
+      "lines": 92
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/broadbandOrderApi.ts",
+      "sha256": "e70f55473835221df22ebaf962023dcd30df64e832d6d4d1daa29db9bfd54224",
+      "lines": 157
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/accountHealth.ts",
+      "sha256": "8cceff08187b42db98c4181440eec2242f04ed7ecb46f679bcde43e9a6ce253c",
+      "lines": 336
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/globalTelecomApi.ts",
+      "sha256": "3325d4ac55c6a5ae7c223cf2ceac6030ab0cdc52a914ba9ce8936e8fae76747f",
+      "lines": 298
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/benefitOrderApi.ts",
+      "sha256": "959daf02af5e5c85eb165bbb4e9cedc791fd7307e9a1bc050bfcb8ed94b10580",
+      "lines": 206
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/retailProductApi.ts",
+      "sha256": "4b0fe156534699efceee2fd29e95a707f333a724cc0f57b98b35c7a2a2d5619e",
+      "lines": 130
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/bmccActivityOrderApi.ts",
+      "sha256": "fe5a768b4bba04316d2eece7a2cc5d1befe3cd93b11ab52f0833d3ac95b32228",
+      "lines": 215
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/customBusinessTiers.ts",
+      "sha256": "72ed481a0c029a564c92f1f4dbb091c95ba7312d63b34d47992e3d378bd23742",
+      "lines": 79
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/api.ts",
+      "sha256": "d9bd37400eb65cc90ca2abb9f83ff4f2c51fa5669d7c3c01c66715bc022998d7",
+      "lines": 333
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/luckyThreeDayApi.ts",
+      "sha256": "66f917842028ac9783180494362042f8aa53dd5c360289308fac14db0e4a0339",
+      "lines": 189
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/types.ts",
+      "sha256": "3c4f1f1aafd607dcd926db4ce01ba1a1b8258ba8638be871b19dda8e0c415eae",
+      "lines": 325
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/aigouOrderApi.ts",
+      "sha256": "027454e61d077f8ed750b6a536ef2b1e7ed30e7eb5bbc87d895390aa46c1af30",
+      "lines": 215
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/format.ts",
+      "sha256": "3d3679d7f0d940997e7d96672c0d6d9c719ae73ae747f997f3d25e280850f80c",
+      "lines": 42
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/bmccActivityOrderFields.ts",
+      "sha256": "635494104445a433bc8f1ecc2c08e947f03c75a0519e30d91d80b8c2bbfcbc66",
+      "lines": 24
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/v2/lib/businessOrderApi.ts",
+      "sha256": "748fa9540dbeddb532f3de3fe39fefada9b06fc29d163deacc5ed783a6421e61",
+      "lines": 170
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/hooks/useQrLogin.ts",
+      "sha256": "d49bbe790bbc7e66c2767a597ec51a007327e4e420ee35a4c8f4737668fb7cdb",
+      "lines": 168
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/hooks/useTheme.ts",
+      "sha256": "71cd0dcf693c80daecd0f4b9f80f52d4e12c3a30f6a4abd134c8502d7383df15",
+      "lines": 29
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/dialogDrag.ts",
+      "sha256": "6272be76441cf0fe9a0769fb1bca27ea075b19555c36557836770e1fbbb47614",
+      "lines": 29
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/xdrPrize.ts",
+      "sha256": "2c3f8a1dd966bc41614c181610fc61a5b7b7f8df46a2b91c3c24b696c564c540",
+      "lines": 108
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/utils.ts",
+      "sha256": "7c8c3dfc0cdd370d44932828eb067ef771c8fe7996693221d5d4b90af6d54f2d",
+      "lines": 6
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/floatingMenu.ts",
+      "sha256": "798de63186c98c34b040bf7b03bfb36e834dc8a3cb2c3147c84439c4da995084",
+      "lines": 43
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/accountLoginState.ts",
+      "sha256": "e0ec44aa7be7fd493aaa644ef5205f05bdd6b0e5e252400a12f3cdec8dc7bdb5",
+      "lines": 42
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/accountSortable.ts",
+      "sha256": "6ec9dec64dacf52d37b0b33b299f6882503a69feafe970328505d480035fb35c",
+      "lines": 192
+    },
+    {
+      "path": "免登录进入全球通/cookie-app/src/lib/accountOrder.ts",
+      "sha256": "ff732c18f0f44bdc2abb62d1a782237f9099dbd5def38f5cdbbc6275c740867a",
+      "lines": 31
+    },
+    {
+      "path": "bj-cmcc-qy/frontend/src/App.vue",
+      "sha256": "75cf745595ad6fdf5f9fccea847c39a2319a8fffc10652c30b1530d9d39e149a",
+      "lines": 3523
+    },
+    {
+      "path": "bj-cmcc-qy/frontend/src/main.js",
+      "sha256": "0fcb89c419800d96e76c2b2573bb088bedbc321d4c933efe34d6a6326ddd4cb0",
+      "lines": 6
+    },
+    {
+      "path": "bj-cmcc-qy/frontend/src/api.js",
+      "sha256": "feab7539d8e52414727fcbbe28b5fc3578551a37ee05a80bc8de781703d1ac08",
+      "lines": 213
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/sessionStore.js",
+      "sha256": "815c609b926d471a0604de130c520c0f69ee86323acacbe142b4e12696364108",
+      "lines": 71
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/server.js",
+      "sha256": "917eb82e2c273a7d177929378d7eee0b3641bcd70cc768fb7f9b91a5e746be94",
+      "lines": 57
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/config.js",
+      "sha256": "7ba7dfb7c2275abaf21ba0e700d8dd4c467d20f2ca12b8cfb8842f91ee19e103",
+      "lines": 14
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/bmccClient.js",
+      "sha256": "a2134d3bf3f4bd24f0a42260cabaa959b23910ebbcc6f22131248d674f98fc26",
+      "lines": 99
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/utils/crypto.js",
+      "sha256": "5ce761fc45daa311cb8a0e3b10b26873c9411ac0db5fdd88c2e25b0c671f8537",
+      "lines": 65
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/utils/http.js",
+      "sha256": "99a89839b5785793404666f87f7482a7b723286f9c683dba8682e35509ef9f3f",
+      "lines": 19
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/orders.js",
+      "sha256": "3d67a03c25947524b2c580707731f7c76cc4c8f4f1f0807bce2dbedbc033e728",
+      "lines": 22
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/offerOrder.js",
+      "sha256": "113512c42034bf6decd3015a780f80d0a8bbc14d9a4f239fae472d0e99a01c49",
+      "lines": 92
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/exchange.js",
+      "sha256": "24da584f0d2813e51850b1ae3b32c9c3e17ba743f9e123cc2302391fe7fe7e6b",
+      "lines": 54
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/auth.js",
+      "sha256": "2c6c1cf948f408a54ac255b279ec190c4e4b557dcda5f8d3c00cccb04b468248",
+      "lines": 95
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/fortune.js",
+      "sha256": "6c5ec4f9ff6d9fec825fe28a5bc698603331b6346bbd2d5325d80e0b86b29633",
+      "lines": 68
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/plus99New.js",
+      "sha256": "40292c35d875ea9a1e4af997316427c43ccd3407318cfb709ddd90cd86a2d191",
+      "lines": 123
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/coupons.js",
+      "sha256": "fe6f50b1142dfef7664b4da69df92e9cb029a3b88f51d423d1ba05560e580da8",
+      "lines": 17
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/rights.js",
+      "sha256": "7dbb92f35fa68f3cb49dd50feb1056b1cfeec875dd8a12540032bc9660295b15",
+      "lines": 27
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/routes/debug.js",
+      "sha256": "bb365b8121f7f0f066b35cdf9617483a2c69dde18d4bd9b93f6554f75fcfeb64",
+      "lines": 16
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/offerOrderService.js",
+      "sha256": "2d1a2a4d430e4ee4d45711184c6ceba05f19ee2642b3d174fbc6f48671f5d841",
+      "lines": 47
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/plus99NewService.js",
+      "sha256": "e0d6f76795c0479da714b0efe7c942bdbe5636d60836f996b8eebcf3e9383662",
+      "lines": 241
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/exchangeService.js",
+      "sha256": "77557180ccbad1a8c7607edc8768a11b38bcfe00766a50498f9c833856d10bc6",
+      "lines": 128
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/fortuneBagService.js",
+      "sha256": "554eea970a19dfe7793dc8f1749ca78d66b374db711718bdd46e20873a519c91",
+      "lines": 510
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/offerOrderLogService.js",
+      "sha256": "af8847522bd4fc0efe5e7ff2ba333f484fad679e5e6c7f6a0e43f8a4f91e08c0",
+      "lines": 26
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/cmccQrLoginService.js",
+      "sha256": "79f3b9e59381b5fa24744be7d5827fec106e24993df11b6d5dbf5f12ec1715db",
+      "lines": 305
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/couponService.js",
+      "sha256": "da4335c28b97254fa2503a5e482ce024cf594eb93604028f71d652c9c12bfa20",
+      "lines": 20
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/rightsCatalog.js",
+      "sha256": "aa712ef3afc0320749cab6a3dc8520304344d0b162c81b377a6eda5d1cc1ef01",
+      "lines": 60
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/orderService.js",
+      "sha256": "e6cd29bb1df7632a0c63acf1918397050f58c902b23bb5c456b42b4d393d7799",
+      "lines": 48
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/rightsService.js",
+      "sha256": "e94d288c79b5d570c1aeee7d2f4ba7ab09042cb9ffc2d393f6325130d270091a",
+      "lines": 32
+    },
+    {
+      "path": "bj-cmcc-qy/backend/src/services/authService.js",
+      "sha256": "ce4a6a21ff90cea6e720362a3b7ce6c627ff6f968a8a83bd2eaa7cda49c3632a",
+      "lines": 57
+    },
+    {
+      "path": "qqt/frontend/src/App.vue",
+      "sha256": "745549eef24b1f2702653cf4892191e0dacce0b1f3fe4f411653bab8050ac96f",
+      "lines": 99
+    },
+    {
+      "path": "qqt/frontend/src/main.ts",
+      "sha256": "af9b1c44e450f33b7148d4dc2a8801dbccb84ff6b1736245bf3238361c575794",
+      "lines": 9
+    },
+    {
+      "path": "qqt/frontend/src/composables/useCountdown.ts",
+      "sha256": "3740c1fe466c5359aeb42c556aaff7b88cc9280aa254ab4c60959e7107973efa",
+      "lines": 40
+    },
+    {
+      "path": "qqt/frontend/src/plugins/axios.ts",
+      "sha256": "e478d87bb912d78202299aea7a33a210e3283d580432ae626bf04e9fe1e16763",
+      "lines": 18
+    },
+    {
+      "path": "qqt/frontend/src/views/Token.vue",
+      "sha256": "859bb0e702b3b3d72c07b015937f8e69cf9dc20467a6593ad5507ee2282e55a6",
+      "lines": 2152
+    },
+    {
+      "path": "qqt/frontend/src/views/Home.vue",
+      "sha256": "1a6075bdaca36aa1bd1be4759934c0c904ad9ba2b455bbfec51e0353a5653413",
+      "lines": 2623
+    },
+    {
+      "path": "qqt/frontend/src/views/DesktopView.vue",
+      "sha256": "48c8dd119659f2e5807fefdf5bb860e22c3e5b74a053268db7d50b30dd484245",
+      "lines": 2348
+    },
+    {
+      "path": "qqt/frontend/src/services/auth.ts",
+      "sha256": "2e6fc7a1306994ab89052e25706c5094120e2add2b672c43cc0ec6e17a2c0018",
+      "lines": 113
+    },
+    {
+      "path": "qqt/frontend/src/router/index.ts",
+      "sha256": "7ef695167db63fa37441b9cfe5c28e96f17940cf422de37732fc6d181dd1fa2b",
+      "lines": 34
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/App.vue",
+      "sha256": "745549eef24b1f2702653cf4892191e0dacce0b1f3fe4f411653bab8050ac96f",
+      "lines": 99
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/main.ts",
+      "sha256": "af9b1c44e450f33b7148d4dc2a8801dbccb84ff6b1736245bf3238361c575794",
+      "lines": 9
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/composables/useCountdown.ts",
+      "sha256": "3740c1fe466c5359aeb42c556aaff7b88cc9280aa254ab4c60959e7107973efa",
+      "lines": 40
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/plugins/axios.ts",
+      "sha256": "e478d87bb912d78202299aea7a33a210e3283d580432ae626bf04e9fe1e16763",
+      "lines": 18
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/views/Token.vue",
+      "sha256": "61c6b035077ca88a5944c255d3740e3ab1a963281ded57a8ea8e40d50d30d532",
+      "lines": 2155
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/views/Home.vue",
+      "sha256": "1a6075bdaca36aa1bd1be4759934c0c904ad9ba2b455bbfec51e0353a5653413",
+      "lines": 2623
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/views/DesktopView.vue",
+      "sha256": "a2628444c0473da2b98a686ee69dfc1ab474f247c9e8ea6c13cca50b7ca97a36",
+      "lines": 2347
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/views/NewHome.vue",
+      "sha256": "e27a6e4161f58d574f180f716776551db4da5c4228d74f2d54c4499391dfa244",
+      "lines": 3342
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/views/Premium.vue",
+      "sha256": "14c21f191e3ac0a06dc7a37351c35ba56ec2dbd985de2861614c22665018ca8d",
+      "lines": 660
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/services/auth.ts",
+      "sha256": "2e6fc7a1306994ab89052e25706c5094120e2add2b672c43cc0ec6e17a2c0018",
+      "lines": 113
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/frontend/src/router/index.ts",
+      "sha256": "9e2e0274f3ee1ef44cac844e83ed3031f6f84f3563d8a0587e28419fcc7f630d",
+      "lines": 49
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/testSm2.mjs",
+      "sha256": "b713d7a619e268696ce415800ee35cd82ab17056008fc2d6c03e8b600d23c0a4",
+      "lines": 7
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/testEncrypt.mjs",
+      "sha256": "1032a04b235b6d21ff61d435ff576eab3cb98d0ae3b10f5cb9508c11d0728f3a",
+      "lines": 7
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/logger.js",
+      "sha256": "9e0af5dce0eadf8ab6e719a5002fea02dac7e6fcf33966bf74ce8b3939fea9c3",
+      "lines": 34
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/index.js",
+      "sha256": "09b8a3bb9a928dbe064a0568809c6b430ab8534e0e810a8013df619cb0478849",
+      "lines": 380
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/httpClient.js",
+      "sha256": "71aa19d8a9080af7f1e88880cf3a55245c3c4d4c4040a261ef6243ba5cb965d3",
+      "lines": 57
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/config.js",
+      "sha256": "b488167b5248aba7cfe381f5ba419b0fa16e08b0125951414a3bae2119adffcb",
+      "lines": 14
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/crypto.js",
+      "sha256": "03870796a5a9162bc76aa5905e6a0e93c145c79aadc54e69d1c19172eb09f222",
+      "lines": 18
+    },
+    {
+      "path": "qqt/qqt-cmicrwx/backend/src/sm2Legacy.js",
+      "sha256": "b5bc6f3069c852e85c460b5b8783733fdf105114378a43ff4b1c092961a121c2",
+      "lines": 39
+    },
+    {
+      "path": "qqt/backend/testSm2.mjs",
+      "sha256": "b713d7a619e268696ce415800ee35cd82ab17056008fc2d6c03e8b600d23c0a4",
+      "lines": 7
+    },
+    {
+      "path": "qqt/backend/testEncrypt.mjs",
+      "sha256": "1032a04b235b6d21ff61d435ff576eab3cb98d0ae3b10f5cb9508c11d0728f3a",
+      "lines": 7
+    },
+    {
+      "path": "qqt/backend/src/logger.js",
+      "sha256": "9e0af5dce0eadf8ab6e719a5002fea02dac7e6fcf33966bf74ce8b3939fea9c3",
+      "lines": 34
+    },
+    {
+      "path": "qqt/backend/src/index.js",
+      "sha256": "8ce9d1f5a9129e54b521bd79399b088e8bf691638a8ef0cc6c81b8019f9e6e07",
+      "lines": 388
+    },
+    {
+      "path": "qqt/backend/src/httpClient.js",
+      "sha256": "71aa19d8a9080af7f1e88880cf3a55245c3c4d4c4040a261ef6243ba5cb965d3",
+      "lines": 57
+    },
+    {
+      "path": "qqt/backend/src/config.js",
+      "sha256": "b488167b5248aba7cfe381f5ba419b0fa16e08b0125951414a3bae2119adffcb",
+      "lines": 14
+    },
+    {
+      "path": "qqt/backend/src/crypto.js",
+      "sha256": "03870796a5a9162bc76aa5905e6a0e93c145c79aadc54e69d1c19172eb09f222",
+      "lines": 18
+    },
+    {
+      "path": "qqt/backend/src/sm2Legacy.js",
+      "sha256": "c02825579e76fe0afc924664feac2920be6b12b4a72eb250fc1ec23bacd3a980",
+      "lines": 39
+    },
+    {
+      "path": "bjcmcc-route-hub/frontend/src/App.vue",
+      "sha256": "62c4fc8377cb6f77f15d332ef8ebf97522fdb8316bc32e55c0305b70f76169a7",
+      "lines": 720
+    },
+    {
+      "path": "bjcmcc-route-hub/frontend/src/main.js",
+      "sha256": "e6989f43be872be95a6bcf4185151038b63e88fc2ff7b4a776b654b909804598",
+      "lines": 5
+    },
+    {
+      "path": "bjcmcc-route-hub/frontend/src/api.js",
+      "sha256": "e449c987bf5f551fedd88593116211d6bf0b416336a8d1599e27b2715419e836",
+      "lines": 33
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/server.js",
+      "sha256": "af95729b2b8c0cd2d1fd3f86bbb8788ecb92be1f71444714cebd2f1f3001eeb3",
+      "lines": 112
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/config.js",
+      "sha256": "e5b957bac7f20b2d7c8d88f8d0e92f128aa3f8a201b4414619d424911ab9e1a4",
+      "lines": 42
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/services/adminSession.js",
+      "sha256": "ef1312ae65fbea4ff35344a744d60cafd5eb83e5ac52fde811a1380d2dc71243",
+      "lines": 62
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/services/routeParser.js",
+      "sha256": "035d27fb1a1352d3467f4f38e0c95498e8c1fa5b0baed22b46d51780e069a949",
+      "lines": 287
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/services/importService.js",
+      "sha256": "9e0f8b6c51f3299aa21798ccc504fe7fc368d0a5fa1b394a5df6ce3eaae1e0a3",
+      "lines": 110
+    },
+    {
+      "path": "bjcmcc-route-hub/backend/src/services/catalogStore.js",
+      "sha256": "74e4db5a3da820a87352c80a7032356d3b5ad76cb0bf66f834acc311c9834034",
+      "lines": 136
+    },
+    {
+      "path": "qqtlocal-rights/go-worker/main.go",
+      "sha256": "1161dc1461c62a66cb2d3bb1b9f95632121ea714dcbaa1d2468035a2b0a7d31e",
+      "lines": 831
+    },
+    {
+      "path": "qqtlocal-rights/backend/pushplus.py",
+      "sha256": "1324c6a4a8406b94148a69624de5d5219235e5702c688f10086684e4020e8b50",
+      "lines": 33
+    },
+    {
+      "path": "qqtlocal-rights/backend/qqt_mcyp.py",
+      "sha256": "52946203855a374dbbb928e0997ff41ada76b0f9b199208d366f723276cbebbd",
+      "lines": 800
+    },
+    {
+      "path": "qqtlocal-rights/backend/app.py",
+      "sha256": "5004c4ef3753ac4ee80ab5f45e79b38c801c1fcef50e7584af12e22624bdae8f",
+      "lines": 1567
+    },
+    {
+      "path": "qqtlocal-rights/backend/js_utils/sm2_lib.js",
+      "sha256": "a106332881e95566fb9bd0d5bc19ad59bdb035bc5afcec4e2c04e68cefdbc007",
+      "lines": 4089
+    },
+    {
+      "path": "qqtlocal-rights/backend/js_utils/encrypt.js",
+      "sha256": "08cff12d05711f2dfde57cf170bcbb76efde76d080788430af738f6960703c72",
+      "lines": 62
+    },
+    {
+      "path": "qqtlocal-rights/backend/js_utils/config.js",
+      "sha256": "448b6adf27d11a7c591cc2b1a0b4a14cb158afa41362df4b12cd7bdd3dccb308",
+      "lines": 13
+    },
+    {
+      "path": "qqtlocal-rights/java-worker/src/main/java/com/qqt/Worker.java",
+      "sha256": "d91c1d75a46433787037dbecff8a64af3f69984f0068dc574a720c0fff1ab502",
+      "lines": 434
+    }
+  ],
+  "harFiles": [
+    {
+      "path": "铂金会员校园版.har",
+      "sha256": "453cd2940ed85c79dbd58bf4d30a6582cdf678ddb77fb9a11b0d0794af09ceb7"
+    },
+    {
+      "path": "5ga加速订购.har",
+      "sha256": "c381b213aae9d65fc997b1abdfd11443beff393dfa651484033af2b9c57672ba"
+    },
+    {
+      "path": "业务查询和退订.har",
+      "sha256": "cdd199c249b117f34e8d0ade52a85feb9cb0b992b32c5584eed6fd658dc9cd45"
+    },
+    {
+      "path": "86转云应用.har",
+      "sha256": "9bec716f49fbb1602bb19f0a37adfe0225956fe1a1f25116909dac5df7d5f156"
+    },
+    {
+      "path": "欢畅流量.har",
+      "sha256": "c8dcaf4f02395cdc5ebbcf14a453fbf06a3a8392ed5c4da9e65aaf27caf896f4"
+    },
+    {
+      "path": "云应用139.har",
+      "sha256": "627ad39489ad64c6f4d561acac45cb1ebe22bf3ebb7354f97da3a8531dc8f7b2"
+    },
+    {
+      "path": "订购王卡会员青春版.har",
+      "sha256": "f9bb7989136609b38ca3f21ca178a6b46d276f6f97bf13d0903e02fa0956e5ef"
+    },
+    {
+      "path": "承诺低消权益回馈版办理.har",
+      "sha256": "1841635fb1cc085db81991e8bf2f042f2f997d92f156eeeb295caae34c1f6806"
+    },
+    {
+      "path": "云盘登录.har",
+      "sha256": "200cc0ac6a1011d577d36c4a4eff00948ee7d7b730570cc6f87d35758ec2a5ef"
+    },
+    {
+      "path": "主套餐撤回.har",
+      "sha256": "f7b15cd34ff0cd88146534aad6d84700377b02fd1d1c6f54998b75841e38f93c"
+    },
+    {
+      "path": "app登录.har",
+      "sha256": "564949d0ed9f749b67e7697e49ecee0c8367dc81a0cb71585e217b7f73337ec1"
+    },
+    {
+      "path": "App订购.har",
+      "sha256": "869e8fffe90098c999afe269ee1a916a368a791baf33699aa4a11e6756f7024b"
+    },
+    {
+      "path": "已订业务.har",
+      "sha256": "315a787395330b7af4cdff8f4dc92a64741445a60eba5b4504b38b31fadce686"
+    },
+    {
+      "path": "星巴克联合会员权益查询.har",
+      "sha256": "f04011a52f482909d996a6e08feb8a36a9093499a65e11b8fd11024d98ad4f52"
+    },
+    {
+      "path": "置换app的ck.har",
+      "sha256": "63ccb5848e7f9e8b3ac154dde1bb8f8234b5fdb4de7bf23f87986ac1589416ec"
+    },
+    {
+      "path": "云盘-全球通.har",
+      "sha256": "e66525fa05a9635436df3df28299b4f8218fb59c8b1ea9dcfa879d13d94a57ba"
+    },
+    {
+      "path": "欢畅流量北移.har",
+      "sha256": "afa6b22b9a67bcd21e68e5f478a7f1e2a86f71bb5a3aa94326013f9100bc14bc"
+    },
+    {
+      "path": "星巴克权益订购.har",
+      "sha256": "662125a40987fc2f7ce02db3f1d091dab35cf3bb4378293c6a171be5cb70771d"
+    },
+    {
+      "path": "新业务订购.har",
+      "sha256": "2c29e1fa4f0fd9dafb60e4ca03fda0feae0b8952187da1a2adc6b263ba08b1f3"
+    },
+    {
+      "path": "c1.har",
+      "sha256": "05391045466406ae8bc68516083ff0ed94c6da2738e89dceeeb030b0edc17cd8"
+    },
+    {
+      "path": "查询权益详情.har",
+      "sha256": "f226da6d31fa71c38a5c58fff63b9e362e552cf53f41d5b23daf7b4677f12d73"
+    },
+    {
+      "path": "查询权益状态.har",
+      "sha256": "b22fb77c55a8b0237a5b0002a2908c12cc58def833a3f58e5715a3380633e2dd"
+    },
+    {
+      "path": "幸运三日签.har",
+      "sha256": "ed85171d27c002b809f59cd5ff8e022004e1c11b05af6f41e40b4f3abe3ef571"
+    },
+    {
+      "path": "铂金会员校园版订购.har",
+      "sha256": "236c0dd1ccc66cd45208c52b8b253d37797fe48d0ea3ea35782d7d5e61559e8f"
+    },
+    {
+      "path": "10086跳转爱购.har",
+      "sha256": "7bd382e420673ea7e87fb93239fc0af4d96484818d590a3fef7fbb51cdd8ac6c"
+    },
+    {
+      "path": "8y4G.har",
+      "sha256": "e0ed5f8cae99feb80bd777791de409f36f65b17c010ad8498ecf32ed6ef607ab"
+    },
+    {
+      "path": "10086到touch.har",
+      "sha256": "0066673e1dabae1398129803229227d62c7d15997d295bfb1ff28a9a6f692313"
+    },
+    {
+      "path": "用户认证.har",
+      "sha256": "fda315e4fe2e21289fe8fa7a6cbd004a345fa055c985d4723f6821b05b958e40"
+    },
+    {
+      "path": "星动日.har",
+      "sha256": "87454083aaaafd03595feed3699579ec4f8640c932edd2afee031bfbc917451c"
+    },
+    {
+      "path": "请求示例.har",
+      "sha256": "897d24638329102c28213fcecee8757891db08d5aff6ac0e5a62a20f9b3c5a0e"
+    },
+    {
+      "path": "订购权益业务.har",
+      "sha256": "da88b4a6be911fb28147afe758fd8ba848a215444def9ddf4e235581f410111d"
+    },
+    {
+      "path": "三日签奖励领取.har",
+      "sha256": "88f33bbb328d87f16f425b4ef58c604a642dc05fcf960d483d437714db6bf070"
+    },
+    {
+      "path": "wap电信登录.har",
+      "sha256": "0a09d972fc2818ad884964d9b974641fcb486cd0541fddb70cb964fc1874d85d"
+    },
+    {
+      "path": "周三任务.har",
+      "sha256": "035ad1a4bca070d3dd5d94f7f0ae4cde4209c0da3a3b4bb07da92fad224f67b1"
+    },
+    {
+      "path": "全球通信息查询和成长值查询.har",
+      "sha256": "8f2fe05f6a1f3ab7f359d19e8cef08721643f681904ee44e3d39bc740be13ad2"
+    },
+    {
+      "path": "欢畅流量中移.har",
+      "sha256": "7548cf6dec0469907cc3f773d9ecb6231c8a70133d4f3640745cbdca0debb3a1"
+    },
+    {
+      "path": "卓越钻石卡.har",
+      "sha256": "b74caea5fe8c5e04ceda51f27e988c5380019db60a78649735cc26af02be38da"
+    },
+    {
+      "path": "好礼多多.har",
+      "sha256": "f88253d11d10c4b9a75fbb71233d4632f350d3e3f3add6b315561d307ccf2247"
+    },
+    {
+      "path": "积分倍享合约.har",
+      "sha256": "af981fe90a9ae5c24c440454d65a376185c51c6838b25ea9dfb53dcacbfd9d0c"
+    },
+    {
+      "path": "getSkuType.har",
+      "sha256": "af70a61dfea7ea0bb3318eac7de3070fd843c62f0038b68783e289fd902a47e7"
+    },
+    {
+      "path": "王卡会员开通.har",
+      "sha256": "c7bf44f4e8bf5f42d8515db7d3a1d393fcb30782acfe7be43539c1c35d22dbe4"
+    },
+    {
+      "path": "mcloud.har",
+      "sha256": "36c563139cda238ebd70e358293492849a0a8115dee2d3f486eca3452667dc84"
+    },
+    {
+      "path": "云盘登录 2.har",
+      "sha256": "5ff2de2a8a119907ce007fb0cc1351b1ee9fa09f25f2a289b65897ba974cef8a"
+    },
+    {
+      "path": "cmcc-notice/查询实例.har",
+      "sha256": "341575c120783456c957206b63d1dc2e76ecfaba05b716e533d6aafd5834604d"
+    },
+    {
+      "path": "KingCard/订购王卡会员青春版.har",
+      "sha256": "f9bb7989136609b38ca3f21ca178a6b46d276f6f97bf13d0903e02fa0956e5ef"
+    },
+    {
+      "path": "KingCard/王卡会员开通.har",
+      "sha256": "c7bf44f4e8bf5f42d8515db7d3a1d393fcb30782acfe7be43539c1c35d22dbe4"
+    },
+    {
+      "path": "已订业务查询/确认退订.har",
+      "sha256": "ec26d21e6715a4046d7f807d78274fb5bb3e05729d95c1c9b372177977cd6b39"
+    },
+    {
+      "path": "已订业务查询/发送登录验证码.har",
+      "sha256": "025267dc281e59acd6ad6ac009609d617b3f6bb99b0f8bcd9d54ed9abe7a160b"
+    },
+    {
+      "path": "已订业务查询/业务状态查询.har",
+      "sha256": "8b1986d743e1329061492d7ee6f7c76e74347b2da488a4bb781dc8a6df659d37"
+    },
+    {
+      "path": "已订业务查询/查询用户信息.har",
+      "sha256": "31ae82f022dd516e33936832ab4a0a17cc6908ccdb513dbbb24758e500ca5bb4"
+    },
+    {
+      "path": "已订业务查询/查询已订业务.har",
+      "sha256": "8de573f36d1adef68bc07cb859862eae45bd1eac288528bb1bd04ba5a61f5dea"
+    },
+    {
+      "path": "已订业务查询/确认登录.har",
+      "sha256": "1d57d71ddd1771f491fc7c3df81565eca8f66ffefdaa08dab9dd76f5a1bd8b38"
+    },
+    {
+      "path": "已订业务查询/发送退订验证码.har",
+      "sha256": "8a8fbc23c3c344f0b731c4817bbbef3723a137f745cb2e427d14d2347b16fa25"
+    },
+    {
+      "path": "咪咕视频年包合约/xyw.bj.10086.cn_06-10-2026-15-36-39.har",
+      "sha256": "4c28917620c3e1d5f7d76cab797987f5c14636876ba62f14471c633ce03f5043"
+    },
+    {
+      "path": "云盘/getSmsCode.har",
+      "sha256": "1ef905ba1e47da4d0cf5295740d063e2102bee416189b9f7de80ee3459ac4236"
+    },
+    {
+      "path": "云盘/captcha.har",
+      "sha256": "03e5ee7266db18ceb471f1d920e3a627afa66c95366ff98deba67b2fc920d5f7"
+    },
+    {
+      "path": "云盘/login.har",
+      "sha256": "738e476b2a47cc074338d78adfd11d11f7fc59f5dd18f1edbb03b527b27afc1f"
+    },
+    {
+      "path": "云盘/云盘请求分析.har",
+      "sha256": "81e15076162ef9d18b8148857142e54e4f7a3176ec87998768c7eb56337e1b42"
+    },
+    {
+      "path": "云盘/queryAvailableBenefit.har",
+      "sha256": "3ab71db2e474a27adcbb2faf8be93c095082c4a5cfc489cabaf96027a1c52382"
+    },
+    {
+      "path": "云盘/getRsaPublicKey.har",
+      "sha256": "b663db1948c6a84698b3554c09a603714860fcc9ba1760d55cca12d605f16c56"
+    },
+    {
+      "path": "免登录进入全球通/重定向全球通获取token.har",
+      "sha256": "2f13069f6ec7e126233ceb69c18f57c54b2a6e1283663b306884cebe546ce6ba"
+    },
+    {
+      "path": "免登录进入全球通/发送登录验证码.har",
+      "sha256": "c7d0d0cf35ca1838ab01c18b7d4beafbf48723d62366d651aef600e20ddea7cb"
+    },
+    {
+      "path": "免登录进入全球通/全球通签到.har",
+      "sha256": "5efed0040814881d5418a21f5402a4a598a5f8969086931fa359910a6cad9ffe"
+    },
+    {
+      "path": "免登录进入全球通/跳转全球通获取响应url.har",
+      "sha256": "40e7153e534f22f0a953944f3fbf48edd7a5f8f934b3181b089093b60414e017"
+    },
+    {
+      "path": "免登录进入全球通/10086重定向到全球通.har",
+      "sha256": "f197610b03d020ef9f0f55391710e1d0215217cbf355ddb01f5b086420199d0b"
+    },
+    {
+      "path": "免登录进入全球通/app10086newhome.har",
+      "sha256": "002cbc9437adfbbca764bd9b1d0e0d8a089cb79aeaae74a06cbe094cb3f5bb60"
+    },
+    {
+      "path": "免登录进入全球通/输入验证码确认登录.har",
+      "sha256": "c7d0d0cf35ca1838ab01c18b7d4beafbf48723d62366d651aef600e20ddea7cb"
+    },
+    {
+      "path": "免登录进入全球通/har/Stream-wx.10086.cn-2026-01-22 01:57:16.har",
+      "sha256": "711b15b8d887cf1918f7df58e61b4be203acddf87c8a3cc2f47223bb4b69ca6b"
+    },
+    {
+      "path": "免登录进入全球通/har/Stream-wx.10086.cn-2026-01-22 01:57:17.har",
+      "sha256": "19dd2793a2623d68f2264a8c47e0532ee855005a165cfa643802a86fbe448875"
+    },
+    {
+      "path": "免登录进入全球通/har/Stream-wx.10086.cn-2026-01-22 01:57:17(1).har",
+      "sha256": "f2cc48b6dd82675ef3ffa75a306ac9558e97f76c32cb1178363fd1111af7ec04"
+    }
+  ],
+  "excluded": [
+    "依赖目录",
+    "构建产物",
+    "运行数据/环境文件/日志/备份",
+    "REA第三方工具自身源码",
+    "压缩包未解包的内部文件",
+    "测试夹具不算真实调用",
+    ".local诊断与私有运行配置",
+    "私有星巴克协议/签名配置",
+    ".local诊断与私有运行配置",
+    "私有星巴克协议/签名配置",
+    ".local诊断与私有运行配置",
+    "私有星巴克协议/签名配置"
+  ],
+  "notes": "sourceFiles为自有实现候选；保存页面还补充只含地址和行号的引用，不包含Cookie、请求/响应值。",
+  "supportingProtocolFiles": [
+    {
+      "path": "免登录进入全球通/cookie-app/api/vendor/cmcc/BasicService_H5module.js",
+      "sha256": "2b3b008f515b739a71a74addee6fa072f615b744cfffe56bc912f38e8c91079a"
+    },
+    {
+      "path": "免登录进入全球通/10086登录页/wx.10086.cn/website/js/shared/crypto20251103.js",
+      "sha256": "3279d57cf959d70ad4dc787546a5e729767ce64af65423c663cbe91a1d609a01"
+    }
+  ]
+}
