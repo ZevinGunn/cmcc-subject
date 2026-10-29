@@ -1,0 +1,60 @@
+# 本地抓包、压缩包与临时备份
+*.[hH][aA][rR]
+*.[zZ][iI][pP]
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.bak.*
+*.backup
+*~
+
+# 依赖、构建产物与工具缓存
+node_modules/
+.pnpm-store/
+dist/
+dist-ssr/
+.deploy/
+coverage/
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+.DS_Store
+
+# 凭据和本地运行数据；保留配置模板
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*.local.json
+*.local.json.*
+logs/
+*.log
+*.pid
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-shm
+*.db-wal
+
+# 本机状态、文档排版中间产物与第三方参考仓库
+/bj-mobile-business-local/backend/data/sessions.json
+/docs/.qa-*/
+/docs/.fontconfig-*.conf
+/docs/**/_work/
+/docs/wgt_order_document_meta.json
+/参考工具/rea/
+/参考工具/cmcc-auto-checkin/
+
+# 根目录保存的网页和原始分析样本
+/*.html
+/ai豆倍享合约
+/三类合约列表（20251031） (1).xls
+/低消合约方案对应生效全球通等级表250801.docx
