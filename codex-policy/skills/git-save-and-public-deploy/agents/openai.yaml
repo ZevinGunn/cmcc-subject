@@ -1,0 +1,6 @@
+interface:
+  display_name: "中文提交与公网同步"
+  short_description: "代码修改后强制中文 Git 提交，并验证 CMCC 公网服务更新"
+  default_prompt: "使用 $git-save-and-public-deploy 保存本次代码变更，完成中文 Git 提交，并更新和核验受影响的 CMCC 公网服务。"
+policy:
+  allow_implicit_invocation: true

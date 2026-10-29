@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+venv/
+logs/
+data/
+.trae/
+node_modules/
+target/
+go-worker/worker

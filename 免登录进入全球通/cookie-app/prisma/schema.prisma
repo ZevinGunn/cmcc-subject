@@ -1,0 +1,397 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin", "darwin-arm64", "linux-arm64-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 String   @id
+  userId             String?
+  phone              String   @default("")
+  label              String?
+  displayPhone       String?
+
+  cookieEnc          String?
+  cookieUpdatedAt    DateTime?
+  cookieCheckedAt    DateTime?
+  cookieInvalidAt    DateTime?
+  cookieInvalidReason String?
+  activationInfoEnc  String?
+  activationCheckedAt DateTime?
+
+  requestHeadersEnc  String?
+  newHomeUrlEnc      String?
+
+  qqtAccessTokenEnc  String?
+  qqtAccessTokenCheckedAt DateTime?
+  qqtInfoEnc         String?
+  qqtSignInfoEnc     String?
+  qqtSignResultEnc   String?
+  qqtSignUpdatedAt   DateTime?
+  xdrReceiveEnc      String?
+  xdrReceiveUpdatedAt DateTime?
+  wedRechargeInfoEnc String?
+  wedRechargeUpdatedAt DateTime?
+  smsLoginAt         DateTime?
+  smsLoginExpireAt   DateTime?
+  disabledAt         DateTime?
+  disabledReason     String?
+  publicPinnedAt     DateTime?
+  publicSortOrder    Int      @default(0)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  links              PublicLinkAccount[]
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  logs               LogEntry[]
+  taskItems          BatchTaskItem[]
+  dailyTaskStates    DailyTaskState[]
+  retailProductQueryTasks RetailProductQueryTask[]
+  retailProductQuerySchedules RetailProductQuerySchedule[]
+
+  @@index([updatedAt])
+  @@index([disabledAt])
+  @@index([userId])
+  @@index([userId, publicPinnedAt, publicSortOrder])
+}
+
+model DailyTaskState {
+  id          String   @id
+  accountId   String
+  taskDate    String
+  taskType    String
+  status      String   @default("pending")
+  source      String   @default("manual")
+  message     String?
+  resultJson  String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, taskDate, taskType])
+  @@index([accountId, taskDate])
+  @@index([taskDate, taskType, status])
+}
+
+model PublicLink {
+  id        String   @id
+  disabledAt DateTime?
+  disabledReason String?
+  usedAt    DateTime?
+  usedByUserId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts  PublicLinkAccount[]
+  usedByUser User? @relation(fields: [usedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([disabledAt])
+  @@index([usedByUserId])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  displayName  String?
+  disabledAt   DateTime?
+  disabledReason String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     UserSession[]
+  usedLinks    PublicLink[]
+  @@index([disabledAt])
+}
+
+model UserSession {
+  token      String   @id
+  userId     String
+  sourceLinkId String?
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastSeenAt DateTime?
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model AuthPolicy {
+  id                String   @id @default("default")
+  usernameAllowlistJson String @default("[]")
+  usernameBlocklistJson String @default("[]")
+  defaultResetPassword String @default("")
+  updatedAt         DateTime @updatedAt
+}
+
+model LuckyThreeDayBenefitOverride {
+  activityId  String
+  batchId     String
+  skuId       String
+  attemptable Boolean  @default(true)
+  inventory   Int?
+  updatedAt   DateTime @updatedAt
+
+  @@id([activityId, batchId, skuId])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  role         String   @default("super_admin")
+  disabledAt   DateTime?
+  disabledReason String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([disabledAt])
+}
+
+model PublicLinkAccount {
+  linkId    String
+  accountId String
+  createdAt DateTime @default(now())
+
+  link      PublicLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  account   Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([linkId, accountId])
+  @@index([accountId])
+}
+
+model LogEntry {
+  id        BigInt   @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  level     String   @default("info")
+  action    String
+
+  requestId String?
+  accountId String?
+  linkId    String?
+
+  message   String?
+  metaEnc   String?
+
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([accountId])
+  @@index([linkId])
+}
+
+model AccessLog {
+  id         BigInt   @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  actorType  String   @default("anonymous")
+  actorId    String?
+  actorName  String?
+  feature    String
+  action     String
+  method     String
+  path       String
+  statusCode Int
+  success    Boolean
+  durationMs Int
+  ipAddress  String?
+  userAgent  String?
+  referer    String?
+  requestId  String?
+  metaJson   String?
+
+  @@index([createdAt])
+  @@index([actorType, actorId, createdAt])
+  @@index([feature, createdAt])
+  @@index([success, createdAt])
+}
+
+model BatchTask {
+  id               String          @id
+  type             String
+  scopeType        String
+  scopeId          String?
+  source           String          @default("manual")
+  scheduleId       String?
+  status           String          @default("pending")
+  dedupeKey        String?
+  runKey           String?         @unique
+  sspid            String?
+  timezone         String?
+  totalCount       Int             @default(0)
+  completedCount   Int             @default(0)
+  successCount     Int             @default(0)
+  failedCount      Int             @default(0)
+  skippedCount     Int             @default(0)
+  currentLabel     String?
+  message          String?
+  paramsJson       String?
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  items            BatchTaskItem[]
+  schedule         TaskSchedule?   @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+
+  @@index([scopeType, scopeId, status])
+  @@index([dedupeKey, status])
+  @@index([createdAt])
+}
+
+model BatchTaskItem {
+  id               String      @id
+  taskId           String
+  accountId        String
+  accountLabel     String?
+  orderIndex       Int
+  status           String      @default("pending")
+  message          String?
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  task             BatchTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  account          Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, accountId])
+  @@index([taskId, orderIndex])
+  @@index([accountId])
+}
+
+model TaskSchedule {
+  id               String              @id
+  name             String
+  enabled          Boolean             @default(true)
+  scopeType        String
+  scopeId          String?
+  action           String
+  timezone         String              @default("Asia/Shanghai")
+  sspid            String?
+  timesJson        String
+  lastTriggeredAt  DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  tasks            BatchTask[]
+  fires            TaskScheduleFire[]
+
+  @@index([enabled, scopeType, scopeId])
+}
+
+model TaskScheduleFire {
+  id               String       @id
+  scheduleId       String
+  fireKey          String       @unique
+  taskId           String?
+  createdAt        DateTime     @default(now())
+
+  schedule         TaskSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId, createdAt])
+}
+
+model RetailProduct {
+  productCode    String   @id
+  productId      String?
+  productName    String?
+  normCount      Int      @default(0)
+  contentJson    String
+  firstFoundAt   DateTime @default(now())
+  lastFoundAt    DateTime @default(now())
+  lastQueriedAt  DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([productName])
+  @@index([lastFoundAt])
+}
+
+model RetailProductQueryTask {
+  id             String   @id
+  source         String   @default("manual")
+  executionMode  String   @default("sequential")
+  status         String   @default("pending")
+  intervalMs     Int      @default(1000)
+  concurrency    Int      @default(1)
+  totalCount     Int      @default(0)
+  completedCount Int      @default(0)
+  foundCount     Int      @default(0)
+  notFoundCount  Int      @default(0)
+  failedCount    Int      @default(0)
+  currentCode    String?
+  message        String?
+  scheduleId     String?
+  accountId      String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  items          RetailProductQueryItem[]
+  schedule       RetailProductQuerySchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  account        Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([scheduleId, createdAt])
+  @@index([accountId, createdAt])
+}
+
+model RetailProductQueryItem {
+  id             String   @id
+  taskId         String
+  productCode    String
+  orderIndex     Int
+  status         String   @default("pending")
+  message        String?
+  errorCode      String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  task           RetailProductQueryTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, productCode])
+  @@index([taskId, orderIndex])
+  @@index([productCode])
+}
+
+model RetailProductQuerySchedule {
+  id             String   @id
+  name           String
+  enabled        Boolean  @default(true)
+  startCode      String
+  endCode        String
+  executionMode  String   @default("sequential")
+  queryIntervalMs Int     @default(1000)
+  concurrency    Int      @default(1)
+  runIntervalSec Int
+  nextRunAt      DateTime
+  lastRunAt      DateTime?
+  accountId      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tasks          RetailProductQueryTask[]
+  account        Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([enabled, nextRunAt])
+  @@index([accountId])
+}

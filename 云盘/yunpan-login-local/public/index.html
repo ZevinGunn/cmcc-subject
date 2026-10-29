@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>云盘登录工作台</title>
+    <script>
+      window.AliyunCaptchaConfig = {
+        region: "cn",
+        prefix: "7elm7k"
+      };
+    </script>
+    <script src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <aside class="panel account-panel">
+          <div class="panel-title">
+            <span>账户</span>
+            <button id="refreshSessionBtn" class="icon-button" title="刷新会话">R</button>
+          </div>
+
+          <label class="field">
+            <span>手机号</span>
+            <input id="phoneInput" autocomplete="tel" inputmode="tel" placeholder="请输入完整手机号" />
+          </label>
+
+          <label class="field compact">
+            <span>国家码</span>
+            <select id="nationSelect">
+              <option value="+86">+86</option>
+              <option value="+852">+852</option>
+              <option value="92">92</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>滑块验证凭据</span>
+            <input id="puzzleInput" autocomplete="off" placeholder="完成官方滑块后自动填写" />
+          </label>
+
+          <div class="captcha-box">
+            <div id="captcha-element"></div>
+            <button id="captchaTriggerBtn" class="quiet-button" type="button">打开官方滑块验证</button>
+            <p id="captchaStatus" class="helper-text">如短信接口提示风控，请先完成滑块再重发短信。</p>
+          </div>
+
+          <div class="button-row">
+            <button id="publicKeyBtn" class="action-button secondary">
+              <span class="button-icon">K</span>
+              公钥
+            </button>
+            <button id="smsBtn" class="action-button primary">
+              <span class="button-icon">S</span>
+              发送验证码
+            </button>
+          </div>
+
+          <label class="field">
+            <span>短信验证码</span>
+            <input id="smsCodeInput" autocomplete="one-time-code" inputmode="numeric" maxlength="8" placeholder="6 位验证码" />
+          </label>
+
+          <button id="loginBtn" class="action-button full">
+            <span class="button-icon">L</span>
+            登录并保存 Token
+          </button>
+          <details>
+            <summary>导入自己的 App 登录会话</summary>
+            <label class="field"><span>Authorization</span><input id="importAuthorizationInput" type="password" autocomplete="off" placeholder="Basic …" /></label>
+            <label class="field"><span>原会话请求头（可选 JSON）</span><textarea id="importHeadersInput" rows="2" autocomplete="off" spellcheck="false" placeholder='{"x-deviceinfo":"…","x-huawei-channelsrc":"…"}'></textarea></label>
+            <button id="importSessionBtn" class="action-button full secondary" type="button">导入并保存会话</button>
+          </details>
+
+          <div class="divider"></div>
+
+          <label class="field compact">
+            <span>toSourceId</span>
+            <input id="sourceIdInput" value="001003" />
+          </label>
+
+          <div class="segmented" role="group" aria-label="sso token mode">
+            <button class="segment active" data-mode="auto" data-protocol="auto">自动</button>
+            <button class="segment" data-mode="v2" data-protocol="app">明文 V2</button>
+            <button class="segment" data-mode="v1" data-protocol="web">Web V1</button>
+            <button class="segment" data-mode="v2" data-protocol="web">Web V2</button>
+          </div>
+
+          <div class="button-row">
+            <button id="cloudPhoneJumpBtn" class="action-button accent">生成云手机跳转</button>
+            <button id="cappJumpBtn" class="action-button accent">生成 CAPP 跳转</button>
+          </div>
+          <label class="field">
+            <span>CAPP 应用入口</span>
+            <input id="cappTemplateInput" value="https://capp.139.com/#/?i=DYFvhV8fncc%3D&amp;token=#ssoToken#&amp;targetSourceId=001304" />
+            <small class="helper-text">默认应用：芒果 TV，可替换为其他 CAPP 应用入口。</small>
+          </label>
+
+          <button id="ssoBtn" class="action-button full accent">
+            <span class="button-icon">T</span>
+            获取 ssoToken
+          </button>
+
+          <label class="field">
+            <span>跳转链接</span>
+            <textarea id="urlInput" rows="4">https://wx.10086.cn/website/businessPlatform/flowShop?secondChannel=P00000116110&netToken=#ssoToken&targetSourceId=001003</textarea>
+          </label>
+
+          <div class="button-row">
+            <button id="defaultJumpBtn" class="action-button accent">
+              <span class="button-icon">86</span>
+              生成 10086 跳转
+            </button>
+            <button id="globalJumpBtn" class="action-button accent">
+              <span class="button-icon">GT</span>
+              生成全球通跳转
+            </button>
+          </div>
+
+          <label class="field compact"><span>星动日活动编号</span><input id="globalCampaignInput" value="66050" inputmode="numeric" maxlength="10" /></label>
+
+          <button id="buildUrlBtn" class="action-button full secondary">
+            <span class="button-icon">U</span>
+            现场换票并生成认证链接
+          </button>
+
+          <button id="clearBtn" class="quiet-button">清空本地会话</button>
+        </aside>
+
+        <section class="main-panel">
+          <header class="topbar">
+            <div>
+              <h1>云盘登录工作台</h1>
+              <p id="statusText">等待操作</p>
+            </div>
+            <div class="status-pill" id="loginPill">未登录</div>
+          </header>
+
+          <section class="steps" id="steps">
+            <button class="step" data-step="key">
+              <span class="step-index">1</span>
+              <span>公钥</span>
+            </button>
+            <button class="step" data-step="sms">
+              <span class="step-index">2</span>
+              <span>短信</span>
+            </button>
+            <button class="step" data-step="login">
+              <span class="step-index">3</span>
+              <span>Token</span>
+            </button>
+            <button class="step" data-step="sso">
+              <span class="step-index">4</span>
+              <span>ssoToken</span>
+            </button>
+          </section>
+
+          <section class="link-output-grid" aria-label="云手机与云应用链接">
+            <article class="panel url-panel">
+              <div class="panel-title"><span>云手机跳转链接</span><button id="copyCloudPhoneBtn" class="icon-button" title="复制云手机链接" disabled>C</button></div>
+              <span id="cloudPhoneFreshness" class="freshness" role="status">未生成</span>
+              <input id="cloudPhoneOutput" readonly aria-label="云手机链接" placeholder="生成后显示" />
+            </article>
+            <article class="panel url-panel">
+              <div class="panel-title"><span>CAPP 云应用链接</span><button id="copyCappBtn" class="icon-button" title="复制 CAPP 链接" disabled>C</button></div>
+              <span id="cappFreshness" class="freshness" role="status">未生成</span>
+              <input id="cappOutput" readonly aria-label="CAPP 链接" placeholder="生成后显示" />
+            </article>
+          </section>
+
+          <section class="panel url-panel">
+            <div class="panel-title"><span>全球通 access_token</span><button id="copyGlobalAccessBtn" class="icon-button" title="复制全球通 access_token" disabled>C</button></div>
+            <span id="globalAccessFreshness" class="freshness" role="status">未置换</span>
+            <input id="globalAccessOutput" readonly aria-label="全球通 access_token" placeholder="校验登录成功后显示" />
+            <details>
+              <summary>使用 App 已签发的全球通链接</summary>
+              <label class="field"><span>全球通 SSO 链接</span><textarea id="nativeGlobalUrlInput" rows="2" placeholder="可选：粘贴当前 App 生成的 HTTPS SSO 链接" autocomplete="off"></textarea></label>
+            </details>
+            <button id="globalAccessBtn" class="action-button accent">置换全球通 access_token 并验证登录</button>
+          </section>
+
+          <section class="output-grid">
+            <article class="panel result-panel">
+              <div class="panel-title">
+                <span>执行结果</span>
+                <button id="copyResultBtn" class="icon-button" title="复制结果">C</button>
+              </div>
+              <pre id="resultOutput">{}</pre>
+            </article>
+
+            <article class="panel session-panel">
+              <div class="panel-title">
+                <span>会话</span>
+                <span id="sessionTime" class="muted">-</span>
+              </div>
+              <dl class="session-list" id="sessionList"></dl>
+            </article>
+          </section>
+
+          <section class="link-output-grid" aria-label="跳转链接">
+            <article class="panel url-panel">
+              <div class="panel-title">
+                <div class="title-with-status">
+                  <span>10086 跳转链接</span>
+                  <span id="builtUrlFreshness" class="freshness">未生成</span>
+                </div>
+                <button id="copyUrlBtn" class="icon-button" title="复制 10086 跳转链接" disabled>C</button>
+              </div>
+              <input id="builtUrlOutput" readonly placeholder="生成后显示" />
+            </article>
+
+            <article class="panel url-panel">
+              <div class="panel-title">
+                <div class="title-with-status">
+                  <span>全球通跳转链接</span>
+                  <span id="globalUrlFreshness" class="freshness">未生成</span>
+                </div>
+                <button id="copyGlobalUrlBtn" class="icon-button" title="复制全球通跳转链接" disabled>C</button>
+              </div>
+              <input id="globalUrlOutput" readonly placeholder="生成后显示" />
+            </article>
+          </section>
+
+          <section class="panel url-panel">
+            <div class="panel-title">
+              <div class="title-with-status">
+                <span>wx.10086 上游 CK</span>
+                <span id="wxCookieFreshness" class="freshness">未获取</span>
+              </div>
+              <button id="copyWxCookieBtn" class="icon-button" title="复制上游 CK" disabled>C</button>
+            </div>
+            <textarea id="wxCookieOutput" readonly rows="4" placeholder="获取后显示上游 Set-Cookie 实际下发的 CK"></textarea>
+            <button id="wxCookieBtn" class="action-button full accent">
+              <span class="button-icon">CK</span>
+              获取 wx.10086 CK
+            </button>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

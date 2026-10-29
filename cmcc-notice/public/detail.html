@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>公告详情</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="background"></div>
+    <main class="shell">
+      <header class="hero">
+        <div class="hero-text">
+          <h1>公告详情</h1>
+          <p class="subtitle">公告内容预览</p>
+        </div>
+      </header>
+
+      <section class="panel detail-panel active" id="detail-panel">
+        <div class="detail-body">
+          <iframe id="detail-frame" title="公告详情" sandbox="allow-same-origin" scrolling="no"></iframe>
+        </div>
+      </section>
+    </main>
+    <div class="float-menu">
+      <a class="nav-link mobile-utility" id="detail-download" href="#" target="_blank" rel="noopener noreferrer">下载公告</a>
+      <button class="mobile-utility" id="detail-image" type="button">生成图片</button>
+      <button class="mobile-utility" id="detail-pdf" type="button">生成PDF</button>
+      <a class="nav-link" href="/">返回主页</a>
+    </div>
+
+    <script src="/detail.js"></script>
+  </body>
+</html>

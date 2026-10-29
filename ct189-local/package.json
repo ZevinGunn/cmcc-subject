@@ -1,0 +1,17 @@
+{
+  "name": "ct189-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ct189-local-backend --filter ct189-local-frontend run dev",
+    "dev:backend": "pnpm --filter ct189-local-backend run dev",
+    "dev:frontend": "pnpm --filter ct189-local-frontend run dev",
+    "install:all": "pnpm install",
+    "build": "pnpm --filter ct189-local-frontend run build",
+    "start": "pnpm --filter ct189-local-backend run start",
+    "test": "node scripts/test.mjs",
+    "publish:domain": "node scripts/publish-domain.mjs"
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
+}

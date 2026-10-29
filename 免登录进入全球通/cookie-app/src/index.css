@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* 品牌色仅用于页面底层，信息和表单维持原有实色表面。 */
+:root {
+  --brand-page-background: linear-gradient(135deg, #e9f5fd 0%, #f5f9fc 44%, #eff7e7 100%);
+  background: #f3f8fb;
+}
+
+:root[data-brand="starbucks"] {
+  --brand-page-background: linear-gradient(135deg, #e4f2eb 0%, #f5f8f5 48%, #eef3e6 100%);
+  background: #f2f7f3;
+}
+
+.brand-page {
+  background-color: #f3f8fb;
+  background-image: var(--brand-page-background);
+  background-repeat: no-repeat;
+}
+
+:root[data-brand="starbucks"] .brand-page {
+  background-color: #f2f7f3;
+}
+
+.brand-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.public-login-page,
+.public-login-page * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.public-login-page img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+.account-drag-handle {
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.account-sort-chosen,
+.account-sort-chosen .account-drag-handle {
+  cursor: grabbing !important;
+}
+
+.account-sort-ghost {
+  opacity: 1 !important;
+  background: rgb(239 246 255) !important;
+  border-color: rgb(147 197 253) !important;
+  box-shadow: none !important;
+  outline: 1px dashed rgb(96 165 250);
+  outline-offset: -2px;
+}
+
+.account-sort-ghost > * {
+  visibility: hidden;
+}
+
+.account-sort-settling {
+  visibility: hidden;
+}
+
+.account-sort-fallback,
+.account-sort-overlay {
+  z-index: 100 !important;
+  cursor: grabbing !important;
+  opacity: 1 !important;
+  background: white !important;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 16%) !important;
+  outline: 1px solid rgb(59 130 246 / 55%);
+  /* A transform transition here makes Sortable read an interpolated matrix,
+     accumulating pointer offset errors on every move. Tracking must be 1:1. */
+  transition: none !important;
+  will-change: transform;
+  transform-origin: top left !important;
+  pointer-events: none !important;
+}
+
+@media (pointer: coarse) {
+  .account-sort-item {
+    cursor: default;
+    touch-action: pan-y;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-sort-item {
+    transition: none !important;
+  }
+}
+
+[data-global-dialog-panel="true"] {
+  cursor: default;
+  will-change: transform;
+}
+
+[data-global-dialog-panel="true"]::after {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(113 113 122 / 28%);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+[data-global-dialog-panel="true"][data-dialog-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}

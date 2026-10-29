@@ -1,0 +1,12 @@
+{
+  "name": "cmcc-project-manager",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check public/v2.js",
+    "test": "node --test test/*.test.js",
+    "credentials:rotate": "node scripts/rotate-manager-credentials.mjs --apply"
+  }
+}

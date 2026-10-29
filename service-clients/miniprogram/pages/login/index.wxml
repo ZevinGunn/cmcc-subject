@@ -1,0 +1,8 @@
+<view class="page">
+  <view class="heading">登录随行工具箱</view>
+  <view class="actions"><button class="{{mode === 'link' ? 'primary' : 'secondary'}}" data-mode="link" bindtap="switchMode">专属链接</button><button class="{{mode === 'password' ? 'primary' : 'secondary'}}" data-mode="password" bindtap="switchMode">账号密码</button></view>
+  <view wx:if="{{mode === 'link'}}"><view class="label">专属链接或邀请码</view><input class="field" value="{{link}}" bindinput="input" data-field="link" placeholder="粘贴专属链接或输入邀请码" maxlength="1024" disabled="{{busy}}" /></view>
+  <block wx:else><view class="label">站点账号</view><input class="field" value="{{username}}" bindinput="input" data-field="username" placeholder="输入站点用户名" disabled="{{busy}}" /><view class="label">密码</view><input class="field" password value="{{password}}" bindinput="input" data-field="password" placeholder="输入站点密码" disabled="{{busy}}" /></block>
+  <checkbox-group bindchange="consent"><label class="row"><checkbox value="agreed" checked="{{agreed}}" color="#007caf" /><text class="muted">我已阅读并同意隐私说明</text><button class="small secondary" bindtap="privacy">查看</button></label></checkbox-group>
+  <view class="spacer"></view><button class="primary" bindtap="login" loading="{{busy}}" disabled="{{busy || !agreed}}">登录</button>
+</view>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN" data-brand="cmcc">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/cmcc/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/cmcc/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0085ce" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>中国移动用户管理</title>
+    <script>
+      (() => {
+        const isStarbucks = /(?:^|\/)starbucks\/?$/.test(location.pathname)
+        if (!isStarbucks) return
+        document.documentElement.dataset.brand = 'starbucks'
+        document.querySelector('link[rel="icon"]').href = '/brand/starbucks/favicon-32.png'
+        document.querySelector('link[rel="apple-touch-icon"]').href = '/brand/starbucks/apple-touch-icon.png'
+        document.querySelector('meta[name="theme-color"]').content = '#00754a'
+        document.title = '星巴克卡券'
+      })()
+    </script>
+    <script type="module">
+      if (import.meta.hot?.on) {
+        import.meta.hot.on('vite:error', (error) => {
+          if (error.err) {
+            console.error(
+              [error.err.message, error.err.frame].filter(Boolean).join('\n'),
+            )
+          }
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

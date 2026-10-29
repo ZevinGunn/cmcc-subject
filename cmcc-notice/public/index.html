@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>资费公示公告查询</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="background"></div>
+    <main class="shell">
+      <header class="hero">
+        <div class="hero-text">
+          <h1>中国移动资费公示公告查询</h1>
+        </div>
+      </header>
+
+      <section class="panel filter-panel">
+        <div class="filter-group">
+          <label>
+            <span>关键词搜索</span>
+            <input id="filter-keyword" placeholder="请输入关键词" />
+          </label>
+          <label>
+            <span>省份</span>
+            <select id="filter-province">
+              <option value="">全部省份</option>
+              <option value="471">内蒙古</option>
+              <option value="100">北京市</option>
+              <option value="220">天津市</option>
+              <option value="531">山东省</option>
+              <option value="311">河北省</option>
+              <option value="351">山西省</option>
+              <option value="551">安徽省</option>
+              <option value="210">上海市</option>
+              <option value="250">江苏省</option>
+              <option value="571">浙江省</option>
+              <option value="591">福建省</option>
+              <option value="898">海南省</option>
+              <option value="200">广东省</option>
+              <option value="771">广西</option>
+              <option value="971">青海省</option>
+              <option value="270">湖北省</option>
+              <option value="731">湖南省</option>
+              <option value="791">江西省</option>
+              <option value="371">河南省</option>
+              <option value="891">西藏</option>
+              <option value="280">四川省</option>
+              <option value="230">重庆市</option>
+              <option value="290">陕西省</option>
+              <option value="851">贵州省</option>
+              <option value="871">云南省</option>
+              <option value="931">甘肃省</option>
+              <option value="951">宁夏</option>
+              <option value="991">新疆</option>
+              <option value="431">吉林省</option>
+              <option value="240">辽宁省</option>
+              <option value="451">黑龙江省</option>
+            </select>
+          </label>
+          <button class="ghost" id="filter-clear" type="button">
+            清除
+          </button>
+        </div>
+        <div class="filter-meta" id="filter-meta">展示全部数据</div>
+      </section>
+
+      <section class="panel result-panel">
+        <div class="result-header">
+          <h2>公告列表</h2>
+          <div class="result-meta" id="count-meta">0 条</div>
+        </div>
+        <div class="table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>标题</th>
+                <th class="sortable">
+                  开始时间
+                  <button class="sort-btn" data-sort="startTime">↕</button>
+                </th>
+                <th class="sortable">
+                  状态时间
+                  <button class="sort-btn" data-sort="stateTime">↕</button>
+                </th>
+                <th>编号</th>
+              </tr>
+            </thead>
+            <tbody id="result-list"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <div class="float-menu">
+      <a class="nav-link mobile-utility" href="/tools.html">参数加解密工具</a>
+      <button id="fetch-btn">刷新</button>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

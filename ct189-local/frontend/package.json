@@ -1,0 +1,18 @@
+{
+  "name": "ct189-local-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5711",
+    "build": "vite build",
+    "test:browser": "node test/login-browser.mjs && node test/access-browser.mjs",
+    "preview": "vite preview --host 127.0.0.1 --port 5712"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.1.4",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {}
+}

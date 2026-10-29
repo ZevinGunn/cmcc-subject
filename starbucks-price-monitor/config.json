@@ -1,0 +1,17 @@
+{
+  "interval_seconds": 300,
+  "target_price": null,
+  "low_price_threshold": null,
+  "high_price_threshold": "27.10",
+  "threshold_interval_seconds": 300,
+  "high_price_notify_interval_seconds": 600,
+  "notify_only_high": true,
+  "alert_count": 1,
+  "alert_interval_seconds": 10,
+  "daily_send_limit": 200,
+  "request_timeout_seconds": 15,
+  "query_attempts": 3,
+  "error_notify_interval_seconds": 3600,
+  "pushplus_env_file": "../qqtlocal-rights/.env",
+  "pushplus_users_file": "pushplus-users.local.json"
+}

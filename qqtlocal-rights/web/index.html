@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQT 极速抢购控制台</title>
+    <style>
+        :root {
+            --primary: #1d4ed8;
+            --primary-hover: #1e40af;
+            --bg: #ffffff;
+            --panel-border: #d1d5db;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5f5;
+            --danger: #b91c1c;
+            --success: #15803d;
+            --sidebar-width: 340px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: 360px;
+            background: var(--bg);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+            transition: width 0.1s;
+        }
+
+        .sidebar-resizer {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: col-resize;
+            background: transparent;
+            z-index: 10;
+        }
+        .sidebar-resizer:hover { background: var(--primary); opacity: 0.5; }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0; /* Prevent flex overflow */
+            background-color: var(--bg);
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--panel-border);
+            align-items: center;
+        }
+        .stat-item { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: 700; font-family: 'Menlo', monospace; }
+        .stat-value.highlight { color: #38bdf8; }
+        .stat-value.warn { color: #fbbf24; }
+
+        /* Components */
+        .panel {
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+            background: var(--bg);
+        }
+        
+        h2 { font-size: 18px; margin: 0 0 15px 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        h3 { font-size: 16px; margin: 0 0 10px 0; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--panel-border);
+            border-radius: 0;
+            font-size: 14px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .checkbox-row { display: flex; align-items: center; gap: 8px; }
+        .checkbox-row input { width: auto; }
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 0;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: white; border: 1px solid var(--panel-border); color: var(--text); }
+        .btn-secondary:hover { background: #f3f4f6; }
+        .btn-sm { padding: 4px 8px; font-size: 12px; width: auto; }
+
+        /* User List */
+        .user-item {
+            background: #fff;
+            border: 1px solid var(--panel-border);
+            border-radius: 0;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .user-phone { font-weight: 600; font-size: 15px; }
+        .user-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
+        .tag { padding: 2px 6px; border-radius: 0; font-size: 10px; font-weight: 600; }
+        .tag.success { background: #dcfce7; color: #166534; }
+        .tag.error { background: #fee2e2; color: #991b1b; }
+
+        /* Config Grid */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        /* Logs */
+        .log-container {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid var(--panel-border);
+            padding: 20px;
+            color: #d4d4d4;
+            font-family: 'Menlo', 'Monaco', monospace;
+            font-size: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+        /* Logs styles continued */
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .log-content {
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Status Bar */
+        #status-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 0;
+            color: white;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+        }
+        #status-bar.success { background: var(--success); }
+        #status-bar.error { background: var(--danger); }
+        
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 500px;
+            border-radius: 0;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .family-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        .family-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        .family-item:hover {
+            background: #f9fafb;
+        }
+        .family-item.selected {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Family Modal -->
+<div id="familyModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="$('#familyModal').style.display='none'">&times;</span>
+        <h3>👨‍👩‍👧‍👦 选择转赠亲友</h3>
+        <p class="text-muted" style="font-size:12px; margin-bottom:10px;">点击选择要转赠的家庭成员号码，再次点击取消选择。</p>
+        <div id="familyList" class="family-list">
+            <div style="text-align:center; padding:20px;">加载中...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar: Account Management -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-resizer" id="resizer"></div>
+    <div class="sidebar-toggle" onclick="toggleSidebar()">◀</div>
+    
+    <div class="panel">
+        <h2>🔑 账号管理</h2>
+        
+        <!-- Login Tabs -->
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn btn-sm btn-primary" id="tab_token" onclick="showLogin('token')">Token 登录</button>
+            <button class="btn btn-sm btn-secondary" id="tab_sms" onclick="showLogin('sms')">验证码登录</button>
+        </div>
+
+        <!-- Token Login -->
+        <div id="login_token">
+            <div class="form-group">
+                <textarea id="in_token" rows="3" placeholder="粘贴 Token / Cookie（支持多行）..."></textarea>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="loginToken()">➕ 添加账号</button>
+                <button class="btn btn-secondary" style="background:#0f766e; color:#fff;" onclick="syncCmccTokens()">🔄 同步未领取 Token</button>
+            </div>
+            <div class="hint" style="margin-top:8px;">从中国移动用户管理项目一键导入当前最新的未领取权益账号 Token。</div>
+        </div>
+
+        <!-- SMS Login -->
+        <div id="login_sms" style="display:none;">
+            <div class="form-group">
+                <input
+                    id="in_phone"
+                    type="tel"
+                    inputmode="numeric"
+                    autocomplete="tel"
+                    pattern="[0-9]*"
+                    maxlength="11"
+                    placeholder="手机号">
+            </div>
+            <div class="form-group" style="display:flex; gap:8px;">
+                <input
+                    id="in_code"
+                    name="code"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    enterkeyhint="done"
+                    required
+                    aria-label="短信验证码"
+                    maxlength="6"
+                    placeholder="验证码">
+                <button class="btn btn-secondary btn-sm" id="btn_send_sms" onclick="sendSms()">发送</button>
+            </div>
+            <button class="btn btn-primary" onclick="loginSms()">登录并添加</button>
+        </div>
+    </div>
+
+        <div class="panel" style="flex:1; border-bottom:none;">
+            <div class="user-row" style="gap:10px;">
+                <h3>已添加用户 (<span id="user_count">0</span>)</h3>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="refreshAllUsers()">🔄 刷新全部</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearAllUsers()">🗑 清除全部</button>
+                </div>
+            </div>
+        <div id="user_list">
+            <!-- User Items -->
+        </div>
+    </div>
+</div>
+
+<!-- Main Content: Config & Logs -->
+<div class="main-content">
+    
+    <!-- Stats Dashboard -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">🚀 距离任务启动</span>
+            <span class="stat-value highlight" id="countdown">--:--:--.---</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">📡 网络延迟 (RTT)</span>
+            <span class="stat-value" id="latency">-- ms</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">🕒 系统时间</span>
+            <span class="stat-value" id="sys_time">--:--:--</span>
+        </div>
+    </div>
+
+    <!-- Strategy Configuration -->
+        <div class="panel" style="background:white; border:1px solid var(--panel-border);">
+        <div class="user-row">
+            <h2>⚙️ 抢购策略配置</h2>
+            <div style="display:flex; gap:10px;">
+                <span id="task_status_tag" class="tag" style="font-size:12px; padding:6px 10px; display:none;"></span>
+                <button class="btn btn-primary btn-sm" style="background:#ea580c; border-color:#ea580c;" onclick="runImmediately()">🔥 立即执行</button>
+                <button class="btn btn-primary btn-sm" id="btn_schedule" onclick="toggleSchedule()">⏰ 开启定时任务</button>
+                <button class="btn btn-secondary btn-sm" style="background:#047857; color:#fff;" onclick="runTestMode()">🧪 一键测试</button>
+                <button class="btn btn-secondary btn-sm" style="background:#1d4ed8; color:#fff;" onclick="runProduction()">🚀 正式抢购</button>
+                <button class="btn btn-secondary btn-sm" style="background:#7c3aed; color:#fff;" onclick="runXingdongProduction()">⭐ 星动日抢购</button>
+                <button class="btn btn-secondary btn-sm" onclick="stopXingdongSchedule()">停止星动日</button>
+            </div>
+        </div>
+
+        <div class="config-grid">
+            <!-- Time Config -->
+            <div class="form-group">
+                <label>目标小时 (0-23)</label>
+                <input type="number" id="cfg_hour" value="9">
+            </div>
+            <div class="form-group">
+                <label>目标分钟 (0-59)</label>
+                <input type="number" id="cfg_minute" value="59">
+            </div>
+            <div class="form-group">
+                <label>目标秒 (0-59)</label>
+                <input type="number" id="cfg_second" value="59">
+            </div>
+            <div class="form-group">
+                <label>延迟启动 (毫秒)</label>
+                <input type="number" id="cfg_delay" value="850">
+            </div>
+            <div class="form-group">
+                <label>时间基准</label>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="cfg_use_server_time">
+                    <span>使用北京时间</span>
+                </div>
+                <div class="hint">网络卡顿严重时建议关闭</div>
+            </div>
+            <div class="form-group">
+                <label>执行模式</label>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="cfg_monitor_mode">
+                    <span>监控模式</span>
+                </div>
+                <div class="hint">更精准但更吃性能</div>
+            </div>
+            
+            <!-- Performance Config -->
+            <div class="form-group">
+                <label>并发线程数</label>
+                <input type="number" id="cfg_workers" value="10">
+                <div class="hint">建议 10 起步，账号多时用 16-24 试跑，以日志 p95 RTT 和成功率为准。</div>
+            </div>
+            <div class="form-group">
+                <label>轮询次数</label>
+                <input type="number" id="cfg_poll" value="5">
+            </div>
+            <div class="form-group">
+                <label>每轮账号间隔 (毫秒)</label>
+                <input type="number" id="cfg_account_delay" value="10" min="0">
+            </div>
+            <div class="form-group">
+                <label>每轮账号数</label>
+                <input type="number" id="cfg_accounts_per_poll" value="5" min="1">
+            </div>
+            <div class="form-group">
+                <label>轮询间隔 (毫秒)</label>
+                <input type="number" id="cfg_interval" value="50">
+            </div>
+            <div class="form-group">
+                <label>执行器</label>
+                <select id="cfg_executor">
+                    <option value="python">Python (AsyncIO)</option>
+                    <option value="go">Go Worker</option>
+                    <option value="java">Java Worker</option>
+                </select>
+                <div class="hint">建议用同一批账号和相同参数分别测试，直接对比日志里的 RTT 统计。</div>
+            </div>
+             <div class="form-group">
+                <label>权益类型</label>
+                <select id="cfg_activity_type">
+                    <option value="normal">常态权益</option>
+                    <option value="xingdong">星动日权益</option>
+                </select>
+                <div class="hint">切换星动日时会自动使用当前日期对应的权益 ID。</div>
+            </div>
+             <div class="form-group">
+                <label>商品 ID</label>
+                <input id="cfg_prod_id" value="3442">
+            </div>
+             <div class="form-group">
+                <label>星动日权益 ID</label>
+                <input id="cfg_xingdong_prod_id" value="3911" inputmode="numeric">
+                <div class="hint">每月 26-28 日自动使用。</div>
+            </div>
+             <div class="form-group">
+                <label>天天星动日权益 ID</label>
+                <input id="cfg_daily_xingdong_prod_id" value="3912" inputmode="numeric">
+                <div class="hint">非 26-28 日自动使用。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs -->
+    <div class="log-container">
+        <div class="log-header">
+            <span>📜 实时运行日志</span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-sm btn-secondary" style="background:#333; color:white; border:none;" onclick="copyLogSnapshot()">复制日志</button>
+                <button class="btn btn-sm btn-secondary" style="background:#333; color:white; border:none;" onclick="$('#log_content').innerHTML=''">清空</button>
+            </div>
+        </div>
+        <div id="log_content" class="log-content">等待任务启动...</div>
+    </div>
+
+</div>
+
+<div id="status-bar"></div>
+
+<script>
+// --- Global State & Config (Must be first) ---
+let users = JSON.parse(localStorage.getItem('qqt_users') || '[]');
+const JOB_ID = 'daily_rush_global'; 
+let isScheduled = false;
+const AUTH_KEY_STORAGE = 'qqt_auth_key';
+const AUTH_EXPIRES_STORAGE = 'qqt_auth_expires';
+const SIDEBAR_RATIO_STORAGE = 'qqt_sidebar_width_ratio';
+const DEFAULT_SIDEBAR_RATIO = 0.32;
+const MIN_SIDEBAR_RATIO = 0.18;
+const MAX_SIDEBAR_RATIO = 0.32;
+const MIN_SIDEBAR_WIDTH = 260;
+const MAX_SIDEBAR_WIDTH = 600;
+const XINGDONG_PRODUCT_ID = '3911';
+const DAILY_XINGDONG_PRODUCT_ID = '3912';
+
+// Load config from local storage or default
+let config = JSON.parse(localStorage.getItem('qqt_config') || JSON.stringify({
+    hour: 10, minute: 0, second: 0, delay: 850,
+    workers: 10, poll: 5, interval: 50, prod_id: "3442",
+    xingdong_prod_id: XINGDONG_PRODUCT_ID,
+    daily_xingdong_prod_id: DAILY_XINGDONG_PRODUCT_ID,
+    activity_type: "normal",
+    executor: "python",
+    use_server_time: true, monitor_mode: false,
+    account_delay: 10,
+    accounts_per_poll: 5,
+    sync_cmcc_tokens_before_run: false,
+    cmcc_token_updated_within_minutes: 60,
+    cmcc_token_valid_for_minutes: 120
+}));
+if (!config.executor) config.executor = "python";
+if (!config.activity_type) config.activity_type = "normal";
+if (config.activity_type === 'wed_recharge') config.activity_type = 'normal';
+if (config.xingdong_prod_id === undefined || config.xingdong_prod_id === "" || config.xingdong_prod_id === "3537") {
+    config.xingdong_prod_id = XINGDONG_PRODUCT_ID;
+}
+if (config.daily_xingdong_prod_id === undefined || config.daily_xingdong_prod_id === "") {
+    config.daily_xingdong_prod_id = DAILY_XINGDONG_PRODUCT_ID;
+}
+if (config.use_server_time === undefined) config.use_server_time = true;
+if (config.monitor_mode === undefined) config.monitor_mode = false;
+if (config.account_delay === undefined) config.account_delay = 10;
+if (config.accounts_per_poll === undefined) config.accounts_per_poll = 5;
+config.sync_cmcc_tokens_before_run = false;
+if (config.cmcc_token_updated_within_minutes === undefined) config.cmcc_token_updated_within_minutes = 60;
+if (config.cmcc_token_valid_for_minutes === undefined) config.cmcc_token_valid_for_minutes = 120;
+
+const $ = sel => document.querySelector(sel);
+const APP_BASE = window.location.pathname.startsWith('/app/qqt/') ? '/app/qqt' : '';
+const appPath = path => `${APP_BASE}${path}`;
+const getAuthKey = () => (localStorage.getItem(AUTH_KEY_STORAGE) || '').trim();
+const clearAuth = () => {
+    localStorage.removeItem(AUTH_KEY_STORAGE);
+    localStorage.removeItem(AUTH_EXPIRES_STORAGE);
+};
+const requireAuth = () => {
+    const key = getAuthKey();
+    const exp = Number(localStorage.getItem(AUTH_EXPIRES_STORAGE) || 0);
+    if (!key || (exp && Date.now() > exp)) {
+        clearAuth();
+        window.location.href = appPath('/login.html');
+    }
+};
+
+requireAuth();
+
+const api = async (path, init={}) => {
+    try {
+        const headers = {'Content-Type': 'application/json', ...(init.headers || {})};
+        const key = getAuthKey();
+        if (key) headers['Authorization'] = `Bearer ${key}`;
+        const res = await fetch(appPath('/api')+path, { 
+            headers,
+            ...init 
+        });
+        const data = await res.json();
+        if (res.status === 401) {
+            clearAuth();
+            window.location.href = appPath('/login.html');
+            throw new Error('Unauthorized');
+        }
+        if(!res.ok) throw new Error(formatApiError(data));
+        return data;
+    } catch(e) { throw e; }
+};
+function formatApiError(data) {
+    const detail = data && (data.detail || data.msg || data.message);
+    if (Array.isArray(detail)) {
+        return detail.map(item => {
+            if (!item || typeof item !== 'object') return String(item);
+            const loc = Array.isArray(item.loc) ? item.loc.join('.') : '';
+            return `${loc ? loc + ': ' : ''}${item.msg || JSON.stringify(item)}`;
+        }).join('；');
+    }
+    if (detail && typeof detail === 'object') return JSON.stringify(detail);
+    return detail || 'Error';
+}
+const showToast = (msg, type='success') => {
+    const el = $('#status-bar');
+    el.textContent = msg;
+    el.className = type;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display='none', 3000);
+};
+
+// --- State (Global) ---
+// let users ... (Moved to top)
+// const JOB_ID ... (Moved to top)
+// let isScheduled ... (Moved to top)
+
+// --- Global Config ---
+// let config ... (Moved to top)
+
+// --- Countdown & Stats ---
+let timeOffset = 0; // Server time offset
+let nextRunTime = null;
+
+async function syncTime() {
+    if (!config.use_server_time) {
+        $('#latency').textContent = 'Local';
+        $('#latency').className = 'stat-value';
+        const displayTime = new Date();
+        $('#sys_time').textContent = displayTime.toLocaleTimeString('zh-CN', {hour12:false}) + '.' + displayTime.getMilliseconds().toString().padStart(3,'0');
+        timeOffset = 0;
+        return;
+    }
+    const start = Date.now();
+    try {
+        const res = await api('/sys/time'); 
+        const end = Date.now();
+        const rtt = end - start;
+        $('#latency').textContent = rtt + ' ms';
+        $('#latency').className = rtt > 100 ? 'stat-value warn' : 'stat-value';
+
+        if (res && typeof res.timestamp === 'number') {
+            const serverMs = res.timestamp * 1000;
+            const clientMid = start + (rtt / 2);
+            timeOffset = serverMs - clientMid;
+        }
+        
+        // Update Sys Time Display
+        const displayTime = new Date(Date.now() + timeOffset);
+        $('#sys_time').textContent = displayTime.toLocaleTimeString('zh-CN', {hour12:false}) + '.' + displayTime.getMilliseconds().toString().padStart(3,'0');
+        
+        // Check task status occasionally
+        if (Date.now() % 10000 < 2000) checkTaskStatus();
+        
+    } catch {
+        $('#latency').textContent = 'Timeout';
+    }
+}
+
+async function checkTaskStatus() {
+    try {
+        const jobs = await api('/jobs');
+        const job = jobs.find(j => j.name === "每日自动抢购");
+        const wasScheduled = isScheduled;
+        isScheduled = !!job;
+        updateStatusUI();
+        const hasValidUsers = users.some(u => u.status);
+        if (!hasValidUsers) {
+            if (job || activeLogJobId) {
+                await stopSchedule({silent: true});
+            } else {
+                stopLogPoll();
+                localStorage.removeItem('current_job_id');
+            }
+            return;
+        }
+        if (job) {
+            const jobId = localStorage.getItem('current_job_id') || job.job_id;
+            if (jobId) {
+                localStorage.setItem('current_job_id', jobId);
+                startLogPoll(jobId);
+            }
+        } else if (wasScheduled) {
+            stopLogPoll();
+            localStorage.removeItem('current_job_id');
+        }
+    } catch {}
+}
+
+function updateStatusUI() {
+    const btn = $('#btn_schedule');
+    const tag = $('#task_status_tag');
+    
+    if (isScheduled) {
+        btn.textContent = '⏹ 停止定时任务';
+        btn.className = 'btn btn-secondary btn-sm';
+        tag.style.display = 'block';
+        tag.className = 'tag success';
+        tag.textContent = '✅ 定时运行中';
+        $('#countdown').style.color = '#38bdf8';
+    } else {
+        btn.textContent = '⏰ 开启定时任务';
+        btn.className = 'btn btn-primary btn-sm';
+        tag.style.display = 'none';
+        $('#countdown').textContent = '--:--:--.---';
+        $('#countdown').style.color = '#64748b';
+    }
+}
+
+function updateCountdown() {
+    if (!isScheduled) return;
+    
+    // Calculate target time based on config
+    const baseMs = Date.now() + (config.use_server_time ? timeOffset : 0);
+    const now = new Date(baseMs);
+    const target = new Date(now);
+    const hour = Number(config.hour) || 0;
+    const minute = Number(config.minute) || 0;
+    const second = Number(config.second) || 0;
+    const delayMs = Number(config.delay) || 0;
+    target.setHours(hour, minute, second, 0);
+    target.setTime(target.getTime() + delayMs);
+    
+    // If target passed today, move to tomorrow
+    if (now > target) {
+        target.setDate(target.getDate() + 1);
+    }
+    
+    const diff = target - now;
+    
+    // Format HH:MM:SS.ms
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const ms = diff % 1000;
+    
+    $('#countdown').textContent = 
+        `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}.${ms.toString().padStart(3,'0')}`;
+}
+
+setInterval(updateCountdown, 47); // ~20fps
+setInterval(syncTime, 2000);
+
+// --- Sidebar Logic ---
+const sidebar = document.getElementById('sidebar');
+const resizer = document.getElementById('resizer');
+let isResizing = false;
+let sidebarCollapsed = false;
+
+function clampSidebarWidth(width) {
+    const viewport = Math.max(window.innerWidth || 0, MIN_SIDEBAR_WIDTH);
+    const minWidth = Math.max(MIN_SIDEBAR_WIDTH, Math.round(viewport * MIN_SIDEBAR_RATIO));
+    const maxWidth = Math.min(MAX_SIDEBAR_WIDTH, Math.round(viewport * MAX_SIDEBAR_RATIO));
+    return Math.min(Math.max(width, minWidth), Math.max(minWidth, maxWidth));
+}
+
+function applySidebarWidth(width, persist = false) {
+    const nextWidth = clampSidebarWidth(width);
+    sidebar.style.width = nextWidth + 'px';
+    document.documentElement.style.setProperty('--sidebar-width', nextWidth + 'px');
+    if (persist) {
+        const ratio = Math.min(MAX_SIDEBAR_RATIO, Math.max(MIN_SIDEBAR_RATIO, nextWidth / Math.max(window.innerWidth || nextWidth, 1)));
+        localStorage.setItem(SIDEBAR_RATIO_STORAGE, String(ratio));
+    }
+}
+
+function restoreSidebarWidth() {
+    const savedRatio = Number(localStorage.getItem(SIDEBAR_RATIO_STORAGE));
+    const ratio = Number.isFinite(savedRatio) && savedRatio > 0 ? savedRatio : DEFAULT_SIDEBAR_RATIO;
+    applySidebarWidth(Math.round((window.innerWidth || 1200) * ratio), false);
+}
+
+resizer.addEventListener('mousedown', (e) => {
+    if (sidebarCollapsed) return;
+    isResizing = true;
+    document.body.style.cursor = 'col-resize';
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    applySidebarWidth(e.clientX, true);
+});
+
+document.addEventListener('mouseup', () => {
+    isResizing = false;
+    document.body.style.cursor = 'default';
+});
+
+function toggleSidebar() {
+    if(sidebarCollapsed) {
+        sidebarCollapsed = false;
+        restoreSidebarWidth();
+        $('.sidebar-toggle').textContent = '◀';
+    } else {
+        sidebarCollapsed = true;
+        sidebar.style.width = '0px';
+        $('.sidebar-toggle').textContent = '▶';
+    }
+}
+
+window.addEventListener('resize', () => {
+    if (!sidebarCollapsed) restoreSidebarWidth();
+});
+
+// --- Login Logic ---
+function showLogin(type) {
+    $('#login_token').style.display = type==='token'?'block':'none';
+    $('#login_sms').style.display = type==='sms'?'block':'none';
+    $('#tab_token').className = type==='token'?'btn btn-sm btn-primary':'btn btn-sm btn-secondary';
+    $('#tab_sms').className = type==='sms'?'btn btn-sm btn-primary':'btn btn-sm btn-secondary';
+}
+
+function normalizeTokenCookie(line) {
+    let token = String(line || '').trim();
+    if (token.includes('access_token=')) {
+        token = token.split('access_token=')[1].split(';')[0];
+    }
+    return `access_token=${token}`;
+}
+
+async function syncCmccTokens(opts = {}) {
+    const silent = !!opts.silent;
+    const skipSave = !!opts.skipSave;
+    const refresh = opts.refresh !== false;
+    try {
+        if (!silent) showToast('正在同步中国移动未领取 Token...');
+        let res;
+        try {
+            res = await api('/integrations/cmcc/sync-tokens', {
+                method: 'POST',
+                body: JSON.stringify({
+                    refresh,
+                    updated_within_minutes: Number(config.cmcc_token_updated_within_minutes || 60),
+                    valid_for_minutes: Number(config.cmcc_token_valid_for_minutes || 120)
+                })
+            });
+        } catch (e) {
+            if (!String(e?.message || '').toLowerCase().includes('method not allowed')) {
+                throw e;
+            }
+            const updatedWindow = Number(config.cmcc_token_updated_within_minutes || 60);
+            const validWindow = Number(config.cmcc_token_valid_for_minutes || 120);
+            res = await api(`/integrations/cmcc/sync-tokens?refresh=${refresh ? 1 : 0}&updated_within_minutes=${updatedWindow}&valid_for_minutes=${validWindow}`, {
+                method: 'GET'
+            });
+        }
+        const importedUsers = Array.isArray(res.users) ? res.users : [];
+        let verifiedOk = 0;
+        let verifiedFail = 0;
+        for (const user of importedUsers) {
+            const cookie = String(user?.cookie || '').trim();
+            if (!cookie) continue;
+            const success = await verifyAndAddUser(cookie, { silent: true, skipSync: true });
+            if (success) verifiedOk += 1;
+            else verifiedFail += 1;
+        }
+        saveUsers();
+        renderUsers();
+        if (!skipSave) await saveConfig({ skipTokenSync: true, silent: true });
+        if (!silent) {
+            showToast(`同步完成：导入 ${importedUsers.length} 个，校验成功 ${verifiedOk} 个，失败 ${verifiedFail} 个，跳过 ${res.skipped || 0} 个`);
+        }
+        return importedUsers;
+    } catch (e) {
+        if (!silent) showToast(`同步失败: ${e.message}`, 'error');
+        return [];
+    }
+}
+
+function upsertWedRechargeUser(user) {
+    const cookie = String(user?.cookie || '').trim();
+    if (!cookie) return false;
+    const identity = String(user?.phone || user?.phone_masked || user?.display_phone || user?.account_id || '').trim();
+    if (!identity) return false;
+    const idx = users.findIndex(u =>
+        u.phone === identity ||
+        (user.account_id && u.account_id === user.account_id) ||
+        (user.display_phone && u.display_phone === user.display_phone)
+    );
+    const next = {
+        phone: identity,
+        province: user.province || '周三话费券',
+        level: user.level || '活动CK',
+        cookie,
+        status: 1,
+        updateTime: Date.now(),
+        display_phone: user.display_phone || user.phone_masked || identity,
+        phone_masked: user.phone_masked || '',
+        account_id: user.account_id || '',
+        activity_type: 'wed_recharge',
+        wedRechargeInfo: user.wedRechargeInfo,
+        wedRechargeUpdatedAt: user.wedRechargeUpdatedAt
+    };
+    if (idx >= 0) users[idx] = { ...users[idx], ...next };
+    else users.push(next);
+    return true;
+}
+
+async function syncWedRechargeCookies(opts = {}) {
+    const silent = !!opts.silent;
+    try {
+        if (!silent) showToast('正在从中国移动用户管理导入周三话费券 CK...');
+        const res = await api('/integrations/cmcc/wed-recharge/cookies', {
+            method: 'POST',
+            body: JSON.stringify({
+                refresh: opts.refresh !== false,
+                query_info: !!opts.query_info,
+                concurrency: 2
+            })
+        });
+        const importedUsers = Array.isArray(res.users) ? res.users : [];
+        let imported = 0;
+        let invalid = 0;
+        for (const user of importedUsers) {
+            const cookie = String(user?.cookie || '');
+            if (!cookie.includes('HLWHD_SESSION_TOKEN=')) {
+                invalid += 1;
+                continue;
+            }
+            if (upsertWedRechargeUser(user)) imported += 1;
+        }
+        saveUsers();
+        renderUsers();
+        config.activity_type = 'wed_recharge';
+        config.executor = 'go';
+        config.workers = 1;
+        config.poll = 1;
+        config.interval = 0;
+        config.account_delay = 300;
+        config.sync_cmcc_tokens_before_run = false;
+        initConfig();
+        localStorage.setItem('qqt_config', JSON.stringify(config));
+        if (!silent) {
+            showToast(`周三 CK 导入完成：导入 ${imported} 个，异常 ${invalid} 个，跳过 ${res.skipped || 0} 个`);
+        }
+        return importedUsers;
+    } catch (e) {
+        if (!silent) showToast(`周三 CK 导入失败: ${e.message}`, 'error');
+        return [];
+    }
+}
+
+async function loginToken() {
+    const raw = $('#in_token').value || '';
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return showToast('请输入Token', 'error');
+
+    if (lines.length === 1) {
+        const cookie = normalizeTokenCookie(lines[0]);
+        await verifyAndAddUser(cookie);
+        $('#in_token').value = '';
+        return;
+    }
+
+    showToast(`开始导入 ${lines.length} 个Token...`);
+    let ok = 0;
+    let fail = 0;
+    for (const line of lines) {
+        const cookie = normalizeTokenCookie(line);
+        const success = await verifyAndAddUser(cookie, { silent: true, skipSync: true });
+        if (success) ok += 1;
+        else fail += 1;
+    }
+    $('#in_token').value = '';
+    if (ok > 0) saveConfig();
+    showToast(`导入完成: 成功 ${ok}，失败 ${fail}`, fail ? 'error' : 'success');
+}
+
+async function sendSms() {
+    const phone = $('#in_phone').value;
+    if(!phone) return showToast('请输入手机号', 'error');
+    try {
+        await api('/auth/sms/send', { method:'POST', body:JSON.stringify({phone}) });
+        showToast('验证码已发送');
+    } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function loginSms() {
+    const phone = $('#in_phone').value;
+    const code = $('#in_code').value;
+    if(!phone || !code) return showToast('请填写完整', 'error');
+    try {
+        const res = await api('/auth/login', { method:'POST', body:JSON.stringify({phone, smsCode:code}) });
+        if(res.status == 1 || res.msg === "成功") {
+            const cookies = res.cookies.map(c => `${c.name}=${c.value}`).join('; ');
+            await verifyAndAddUser(cookies);
+            $('#in_phone').value = '';
+            $('#in_code').value = '';
+        } else throw new Error(res.msg);
+    } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function verifyAndAddUser(cookie, opts = {}) {
+    const silent = !!opts.silent;
+    const skipSync = !!opts.skipSync;
+    try {
+        if (!silent) showToast('正在验证账号...', 'success'); // Using success style for info to be green
+        const res = await api('/auth/user/profile', { method:'POST', body:JSON.stringify({cookies_text:cookie}) });
+        const data = res.data || {};
+        
+        if((res.msg==="成功" || res.status==1) && data.phone) {
+            const idx = users.findIndex(u => u.phone === data.phone);
+            const user = {
+                phone: data.phone,
+                province: data.province,
+                level: data.levelName,
+                cookie: cookie,
+                status: 1,
+                updateTime: Date.now()
+            };
+            if(idx >= 0) users[idx] = user;
+            else users.push(user);
+            
+            saveUsers();
+            renderUsers();
+            if (!silent) showToast(`账号 ${user.phone} 添加成功`);
+            if (!skipSync) saveConfig(); // Auto sync job
+            return true;
+        } else {
+            if (!silent) showToast('账号验证失败', 'error');
+            return false;
+        }
+    } catch(e) {
+        if (!silent) showToast('验证异常: '+e.message, 'error');
+        return false;
+    }
+}
+
+// --- User Management ---
+function saveUsers() { localStorage.setItem('qqt_users', JSON.stringify(users)); }
+
+function renderUsers() {
+    $('#user_count').textContent = users.length;
+    $('#user_list').innerHTML = users.map(u => `
+        <div class="user-item">
+            <div class="user-row">
+                <span class="user-phone">${u.phone}</span>
+                <span class="tag ${u.status?'success':'error'}">${u.status?'有效':'无效'}</span>
+            </div>
+            <div class="user-row">
+                <div class="user-meta">
+                    <span>${u.province}</span>
+                    <span>${u.level}</span>
+                </div>
+                ${u.receive_phone ? `<div style="font-size:11px; color:#ea580c; margin-top:2px;">➡ 转赠: ${u.receive_phone_display || '未知号码'}</div>` : ''}
+                <div style="margin-top:6px; display:flex; gap:6px;">
+                    <button class="btn btn-secondary btn-sm" onclick="checkUser('${u.phone}')" style="padding:2px 6px;">🔄 状态</button>
+                    <button class="btn btn-secondary btn-sm" onclick="openFamilyModal('${u.phone}')" style="padding:2px 6px;">👨‍👩‍👧‍👦 亲友</button>
+                    <button class="btn btn-danger btn-sm" onclick="delUser('${u.phone}')" style="padding:2px 6px;">🗑 删除</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// --- Family Circle ---
+let currentFamilyUser = null;
+
+async function openFamilyModal(phone) {
+    currentFamilyUser = users.find(u => u.phone === phone);
+    if(!currentFamilyUser) return;
+    
+    $('#familyModal').style.display = 'block';
+    const listEl = $('#familyList');
+    listEl.innerHTML = '<div style="text-align:center; padding:20px;">加载中...</div>';
+    
+    try {
+        const res = await api('/user/family', { method:'POST', body:JSON.stringify({cookies_text: currentFamilyUser.cookie}) });
+        
+        if (res.error) throw new Error(res.error);
+        
+        // Parse data structure based on user feedback
+        let list = [];
+        if (res.data && Array.isArray(res.data.familyList)) {
+            list = res.data.familyList;
+        } else if (Array.isArray(res.data)) {
+            list = res.data;
+        }
+        
+        // Render
+        if (list.length === 0) {
+            listEl.innerHTML = '<div style="text-align:center; padding:20px;">暂无亲友成员</div>';
+        } else {
+            listEl.innerHTML = list.map(m => {
+                // Use familyMemNum as the value for receive_phone
+                const isSelected = currentFamilyUser.receive_phone === m.familyMemNum;
+                // Display name logic: showFamilyMemNum + (familyMemName ? `(${familyMemName})` : '')
+                const displayName = m.showFamilyMemNum || m.phone || '未知';
+                const memo = m.familyMemName ? `(${m.familyMemName})` : '';
+                const val = m.familyMemNum || m.phone; // Fallback
+                
+                return `
+                <div class="family-item ${isSelected ? 'selected' : ''}" onclick="selectFamilyMember('${val}', '${displayName}')">
+                    <div>
+                        <div style="font-weight:600;">${displayName} <span style="font-weight:normal; font-size:12px;">${memo}</span></div>
+                    </div>
+                    <div>${isSelected ? '✅' : ''}</div>
+                </div>
+                `;
+            }).join('');
+        }
+    } catch(e) {
+        listEl.innerHTML = `<div style="text-align:center; padding:20px; color:red;">加载失败: ${e.message}</div>`;
+    }
+}
+
+function selectFamilyMember(val, display) {
+    if(!currentFamilyUser) return;
+    
+    // Toggle
+    if (currentFamilyUser.receive_phone === val) {
+        currentFamilyUser.receive_phone = ""; // Deselect
+        currentFamilyUser.receive_phone_display = "";
+    } else {
+        currentFamilyUser.receive_phone = val; // Store encrypted value (familyMemNum)
+        currentFamilyUser.receive_phone_display = display; // Store display value
+    }
+    
+    saveUsers();
+    renderUsers();
+    saveConfig(); // Sync to job
+    $('#familyModal').style.display = 'none';
+    showToast(currentFamilyUser.receive_phone ? `已设置转赠给: ${display}` : '已取消转赠');
+}
+
+function delUser(phone) {
+    if(!confirm('确认删除?')) return;
+    users = users.filter(u => u.phone !== phone);
+    saveUsers();
+    renderUsers();
+    saveConfig(); // Sync job
+}
+
+async function refreshAllUsers() {
+    for(const u of users) await checkUser(u.phone);
+    showToast('刷新完成');
+}
+
+function clearAllUsers() {
+    if (!users.length) {
+        showToast('当前没有账号可清除', 'error');
+        return;
+    }
+    if (!confirm('确认删除全部账号并停止定时任务？')) return;
+    users = [];
+    saveUsers();
+    renderUsers();
+    localStorage.removeItem('current_job_id');
+    if (logTimer) {
+        clearInterval(logTimer);
+        logTimer = null;
+    }
+    $('#log_content').textContent = '等待任务启动...';
+    saveConfig({skipBackend: true, silent: true});
+    stopSchedule({silent: true}).catch(() => {});
+    showToast('全部账号已清除');
+}
+
+async function checkUser(phone) {
+    const u = users.find(u => u.phone === phone);
+    if(!u) return;
+    try {
+        const res = await api('/auth/user/profile', { method:'POST', body:JSON.stringify({cookies_text:u.cookie}) });
+        const valid = (res.msg==="成功" || res.status==1) && res.data?.phone;
+        u.status = valid ? 1 : 0;
+        u.updateTime = Date.now();
+        saveUsers();
+        renderUsers();
+    } catch(e) { 
+        u.status = 0; 
+        saveUsers(); 
+        renderUsers(); 
+    }
+}
+
+// --- Config & Job Sync ---
+function readConfigInputs() {
+    return {
+        hour: $('#cfg_hour').value,
+        minute: $('#cfg_minute').value,
+        second: $('#cfg_second').value,
+        delay: $('#cfg_delay').value,
+        use_server_time: $('#cfg_use_server_time').checked,
+        monitor_mode: $('#cfg_monitor_mode').checked,
+        workers: $('#cfg_workers').value,
+        poll: $('#cfg_poll').value,
+        interval: $('#cfg_interval').value,
+        executor: $('#cfg_executor').value,
+        activity_type: $('#cfg_activity_type').value,
+        prod_id: $('#cfg_prod_id').value,
+        xingdong_prod_id: $('#cfg_xingdong_prod_id').value,
+        daily_xingdong_prod_id: $('#cfg_daily_xingdong_prod_id').value,
+        account_delay: $('#cfg_account_delay').value,
+        accounts_per_poll: $('#cfg_accounts_per_poll').value,
+        sync_cmcc_tokens_before_run: false,
+        cmcc_token_updated_within_minutes: 60,
+        cmcc_token_valid_for_minutes: 120
+    };
+}
+
+// Init inputs
+function initConfig() {
+    $('#cfg_hour').value = config.hour;
+    $('#cfg_minute').value = config.minute;
+    $('#cfg_second').value = config.second;
+    $('#cfg_delay').value = config.delay;
+    $('#cfg_use_server_time').checked = !!config.use_server_time;
+    $('#cfg_monitor_mode').checked = !!config.monitor_mode;
+    $('#cfg_workers').value = config.workers;
+    $('#cfg_poll').value = config.poll;
+    $('#cfg_interval').value = config.interval;
+    $('#cfg_executor').value = config.executor || 'python';
+    $('#cfg_activity_type').value = config.activity_type || 'normal';
+    $('#cfg_prod_id').value = config.prod_id;
+    $('#cfg_xingdong_prod_id').value = config.xingdong_prod_id || XINGDONG_PRODUCT_ID;
+    $('#cfg_daily_xingdong_prod_id').value = config.daily_xingdong_prod_id || DAILY_XINGDONG_PRODUCT_ID;
+    $('#cfg_account_delay').value = config.account_delay;
+    $('#cfg_accounts_per_poll').value = config.accounts_per_poll;
+    applyActivityDefaults(false);
+}
+
+function getActiveAccounts() {
+    return users.filter(u => u.status).map(u => ({
+        cookie: u.cookie,
+        receive_phone: u.receive_phone || "",
+        phone: u.phone || "",
+        display_phone: u.display_phone || ""
+    }));
+}
+
+function buildRushPayload({name, accounts, schedule_type, cron, run_at, activity_type, xingdong_slot, overrides = {}}) {
+    const activityType = activity_type || config.activity_type || 'normal';
+    const isXingdong = activityType === 'xingdong';
+    return {
+        name,
+        accounts,
+        product_id: config.prod_id,
+        activity_type: activityType,
+        xingdong_slot: xingdong_slot || 'all',
+        xingdong_product_id: config.xingdong_prod_id || '',
+        daily_xingdong_product_id: config.daily_xingdong_prod_id || '',
+        channel_code: isXingdong ? '75442' : '',
+        is_random: '0',
+        source: '1',
+        executor: config.executor || "python",
+        schedule_type,
+        cron,
+        run_at,
+        use_server_time: !!config.use_server_time,
+        monitor_mode: !!config.monitor_mode,
+        sync_cmcc_tokens_before_run: false,
+        cmcc_token_updated_within_minutes: 60,
+        cmcc_token_valid_for_minutes: 120,
+        start_delay_ms: Number(config.delay),
+        run_mode: "concurrent",
+        max_workers: Number(config.workers),
+        poll_times: Number(config.poll),
+        poll_interval_ms: Number(config.interval),
+        per_account_delay_ms: Number(config.account_delay),
+        accounts_per_poll: Number(config.accounts_per_poll),
+        ...overrides
+    };
+}
+
+async function saveConfig(opts = {}) {
+    const skipBackend = !!opts.skipBackend;
+    const silent = !!opts.silent;
+    config = readConfigInputs();
+    localStorage.setItem('qqt_config', JSON.stringify(config));
+    if (!config.use_server_time) timeOffset = 0;
+    updateCountdown();
+    syncTime();
+
+    if (skipBackend) return;
+    
+    // Sync to Backend
+    if(users.length === 0) {
+        if (!silent) showToast('没有账号', 'error');
+        return;
+    }
+    // Build accounts list
+    const accounts = getActiveAccounts();
+    
+    if(accounts.length === 0) {
+        if (!silent) showToast('没有有效账号，无法创建任务', 'error');
+        return;
+    }
+
+    const payload = buildRushPayload({
+        name: "每日自动抢购",
+        schedule_type: "cron",
+        cron: {
+            hour: config.hour,
+            minute: config.minute,
+            second: config.second,
+            day: "*",
+            month: "*",
+            day_of_week: "*"
+        },
+        accounts,
+        activity_type: 'normal',
+        xingdong_slot: 'all'
+    });
+    
+    try {
+        // Try delete old one
+        const jobs = await api('/jobs');
+        for(const j of jobs) {
+            if(j.name === "每日自动抢购") {
+                await api(`/jobs/${j.job_id}`, { method:'DELETE' });
+            }
+        }
+        
+        const res = await api('/jobs', { method:'POST', body:JSON.stringify(payload) });
+        localStorage.setItem('current_job_id', res.job_id);
+        isScheduled = true;
+        updateStatusUI();
+        if (!silent) showToast('定时任务已开启');
+        startLogPoll(res.job_id);
+        
+    } catch(e) {
+        if (!silent) showToast('开启任务失败: '+e.message, 'error');
+    }
+}
+
+async function runImmediately() {
+    config = readConfigInputs();
+    const cfg = {
+        workers: $('#cfg_workers').value,
+        poll: $('#cfg_poll').value,
+        interval: $('#cfg_interval').value,
+        executor: $('#cfg_executor').value,
+        prod_id: $('#cfg_prod_id').value,
+        account_delay: config.account_delay,
+        accounts_per_poll: config.accounts_per_poll
+    };
+    
+    if(users.length === 0) return showToast('没有账号', 'error');
+    
+    const accounts = getActiveAccounts();
+    
+    if(accounts.length === 0) return showToast('没有有效账号', 'error');
+
+    const payload = buildRushPayload({
+        name: `Manual-${config.executor || 'python'}-${Date.now()}`,
+        schedule_type: "immediate", // Run once now
+        accounts,
+        overrides: {
+            product_id: cfg.prod_id,
+            max_workers: Number(cfg.workers),
+            poll_times: Number(cfg.poll),
+            poll_interval_ms: Number(cfg.interval),
+            per_account_delay_ms: Number(cfg.account_delay),
+            accounts_per_poll: Number(cfg.accounts_per_poll)
+        }
+    });
+    
+    try {
+        const res = await api('/jobs', { method:'POST', body:JSON.stringify(payload) });
+        showToast('立即执行指令已发送！');
+        startLogPoll(res.job_id);
+    } catch(e) {
+        showToast('执行失败: '+e.message, 'error');
+    }
+}
+
+async function runTestMode() {
+    config = readConfigInputs();
+    if(users.length === 0) return showToast('没有账号', 'error');
+    const accounts = getActiveAccounts();
+    if(accounts.length === 0) return showToast('没有有效账号', 'error');
+
+    const now = new Date();
+    const runAt = new Date(now.getTime() + 60 * 1000);
+    config.hour = runAt.getHours();
+    config.minute = runAt.getMinutes();
+    config.second = runAt.getSeconds();
+    config.poll = 5;
+    config.interval = 15;
+    config.account_delay = 10;
+    config.accounts_per_poll = Math.max(1, Math.ceil(accounts.length / 5));
+    config.monitor_mode = true;
+    config.use_server_time = true;
+    initConfig();
+    saveConfig({skipBackend: true, silent: true});
+
+    const pad = (num) => String(num).padStart(2, '0');
+    const runAtStr = `${runAt.getFullYear()}-${pad(runAt.getMonth() + 1)}-${pad(runAt.getDate())}T${pad(runAt.getHours())}:${pad(runAt.getMinutes())}:${pad(runAt.getSeconds())}`;
+    const payload = buildRushPayload({
+        name: `测试-${config.executor || 'python'}-${Date.now()}`,
+        schedule_type: "date",
+        run_at: runAtStr,
+        accounts,
+        overrides: {
+            use_server_time: true,
+            monitor_mode: true,
+            poll_times: 5,
+            poll_interval_ms: 15,
+            per_account_delay_ms: 10,
+            accounts_per_poll: Math.max(1, Math.ceil(accounts.length / 5)),
+            is_test_run: true,
+            force_sequential_run_once: true
+        }
+    });
+
+    try {
+        const res = await api('/jobs', { method:'POST', body:JSON.stringify(payload) });
+        localStorage.setItem('current_job_id', res.job_id);
+        startLogPoll(res.job_id);
+        showToast('测试任务已创建，约一分钟后开始');
+    } catch(e) {
+        showToast('测试任务创建失败: '+e.message, 'error');
+    }
+}
+
+function runProduction() {
+    config.activity_type = 'normal';
+    config.hour = 9;
+    config.minute = 59;
+    config.second = 59;
+    config.delay = 850;
+    config.poll = 5;
+    config.interval = 20;
+    config.account_delay = 10;
+    config.accounts_per_poll = Math.max(1, Math.ceil(20 / config.poll));
+    config.workers = Math.min(Math.max(users.filter(u => u.status).length, 1), 10);
+    config.monitor_mode = true;
+    config.use_server_time = true;
+    config.prod_id = config.prod_id || "3442";
+    initConfig();
+    saveConfig();
+    showToast('正式抢购配置已应用，已自动下发定时任务');
+}
+
+async function runXingdongProduction() {
+    config = readConfigInputs();
+    if(users.length === 0) return showToast('没有账号', 'error');
+    const accounts = getActiveAccounts();
+    if(accounts.length === 0) return showToast('没有有效账号', 'error');
+
+    config.activity_type = 'xingdong';
+    config.xingdong_prod_id = config.xingdong_prod_id || XINGDONG_PRODUCT_ID;
+    config.daily_xingdong_prod_id = config.daily_xingdong_prod_id || DAILY_XINGDONG_PRODUCT_ID;
+    if (!/^\d+$/.test(String(config.xingdong_prod_id).trim())) {
+        return showToast('星动日权益 ID 必须是数字', 'error');
+    }
+    if (!/^\d+$/.test(String(config.daily_xingdong_prod_id).trim())) {
+        return showToast('天天星动日权益 ID 必须是数字', 'error');
+    }
+    config.prod_id = isXingdongDate(new Date()) ? config.xingdong_prod_id : config.daily_xingdong_prod_id;
+    config.delay = 850;
+    config.poll = 5;
+    config.interval = 20;
+    config.account_delay = 10;
+    config.accounts_per_poll = Math.max(1, Math.ceil(20 / config.poll));
+    config.workers = Math.min(Math.max(accounts.length, 1), 10);
+    config.monitor_mode = true;
+    config.use_server_time = true;
+    initConfig();
+    localStorage.setItem('qqt_config', JSON.stringify(config));
+
+    try {
+        await stopXingdongSchedule({silent: true});
+        const common = {
+            accounts,
+            activity_type: 'xingdong',
+            overrides: {
+                product_id: config.prod_id,
+                use_server_time: true,
+                monitor_mode: true,
+                start_delay_ms: Number(config.delay),
+                poll_times: Number(config.poll),
+                poll_interval_ms: Number(config.interval),
+                per_account_delay_ms: Number(config.account_delay),
+                accounts_per_poll: Number(config.accounts_per_poll),
+                channel_code: '75442',
+                source: '1'
+            }
+        };
+        const earlyPayload = buildRushPayload({
+            ...common,
+            name: '星动自动抢购-提前场',
+            schedule_type: 'cron',
+            xingdong_slot: 'early',
+            cron: { hour: '9', minute: '29', second: '59', day: '26-28', month: '*', day_of_week: '*' }
+        });
+        const normalPayload = buildRushPayload({
+            ...common,
+            name: '星动自动抢购-普通场',
+            schedule_type: 'cron',
+            xingdong_slot: 'normal',
+            cron: { hour: '9', minute: '59', second: '59', day: '*', month: '*', day_of_week: '*' }
+        });
+        const earlyRes = await api('/jobs', { method:'POST', body:JSON.stringify(earlyPayload) });
+        await api('/jobs', { method:'POST', body:JSON.stringify(normalPayload) });
+        localStorage.setItem('current_job_id', earlyRes.job_id);
+        startLogPoll(earlyRes.job_id);
+        showToast('星动自动任务已下发：26-28 提前场 + 每日普通场');
+    } catch(e) {
+        showToast('星动自动任务创建失败: '+e.message, 'error');
+    }
+}
+
+async function runWedRechargeProduction() {
+    config = readConfigInputs();
+    let accounts = getActiveAccounts().filter(acc => (acc.cookie || '').includes('HLWHD_SESSION_TOKEN='));
+    if(accounts.length === 0) {
+        await syncWedRechargeCookies({ silent: false });
+        accounts = getActiveAccounts().filter(acc => (acc.cookie || '').includes('HLWHD_SESSION_TOKEN='));
+    }
+    if(accounts.length === 0) return showToast('没有可用的周三话费券账号', 'error');
+
+    config.activity_type = 'wed_recharge';
+    config.executor = 'go';
+    config.hour = 7;
+    config.minute = 59;
+    config.second = 59;
+    config.delay = 1000;
+    config.poll = 1;
+    config.interval = 0;
+    config.account_delay = 300;
+    config.accounts_per_poll = accounts.length;
+    config.workers = 1;
+    config.monitor_mode = true;
+    config.use_server_time = true;
+    config.sync_cmcc_tokens_before_run = false;
+    initConfig();
+    localStorage.setItem('qqt_config', JSON.stringify(config));
+
+    try {
+        await stopWedRechargeSchedule({silent: true});
+        const payload = buildRushPayload({
+            name: '周三话费券自动抢购',
+            accounts,
+            schedule_type: 'cron',
+            activity_type: 'wed_recharge',
+            cron: { hour: '7', minute: '59', second: '59', day: '*', month: '*', day_of_week: 'wed' },
+            overrides: {
+                executor: 'go',
+                use_server_time: true,
+                monitor_mode: true,
+                sync_cmcc_tokens_before_run: false,
+                start_delay_ms: 1000,
+                run_mode: 'sequential',
+                max_workers: 1,
+                poll_times: 1,
+                poll_interval_ms: 0,
+                per_account_delay_ms: 300,
+                accounts_per_poll: 0
+            }
+        });
+        const res = await api('/jobs', { method:'POST', body:JSON.stringify(payload) });
+        localStorage.setItem('current_job_id', res.job_id);
+        startLogPoll(res.job_id);
+        showToast('周三话费券串行任务已下发');
+    } catch(e) {
+        showToast('周三话费券任务创建失败: '+e.message, 'error');
+    }
+}
+
+function isXingdongDate(date) {
+    const day = date.getDate();
+    return day >= 26 && day <= 28;
+}
+
+async function stopWedRechargeSchedule(opts = {}) {
+    try {
+        const jobs = await api('/jobs');
+        for(const j of jobs) {
+            const name = j.name || '';
+            if(name.startsWith('周三话费券')) {
+                await api(`/jobs/${j.job_id}`, { method:'DELETE' });
+            }
+        }
+        if (!opts.silent) showToast('周三话费券任务已停止');
+    } catch(e) {
+        if (!opts.silent) showToast('停止周三话费券失败: '+e.message, 'error');
+    }
+}
+
+async function stopXingdongSchedule(opts = {}) {
+    try {
+        const jobs = await api('/jobs');
+        for(const j of jobs) {
+            const name = j.name || '';
+            if(name.startsWith('星动日抢购') || name.startsWith('星动自动抢购')) {
+                await api(`/jobs/${j.job_id}`, { method:'DELETE' });
+            }
+        }
+        if (!opts.silent) showToast('星动自动任务已停止');
+    } catch(e) {
+        if (!opts.silent) showToast('停止星动日失败: '+e.message, 'error');
+    }
+}
+
+async function stopSchedule(opts = {}) {
+    try {
+        const jobs = await api('/jobs');
+        for(const j of jobs) {
+            if(j.name === "每日自动抢购") {
+                await api(`/jobs/${j.job_id}`, { method:'DELETE' });
+            }
+        }
+        isScheduled = false;
+        updateStatusUI();
+        stopLogPoll();
+        localStorage.removeItem('current_job_id');
+        if (!opts.silent) showToast('定时任务已停止');
+    } catch(e) {
+        showToast('停止失败: '+e.message, 'error');
+    }
+}
+
+function toggleSchedule() {
+    if(isScheduled) stopSchedule();
+    else saveConfig();
+}
+
+async function copyLogSnapshot() {
+    const cfg = readConfigInputs();
+    const jobId = localStorage.getItem('current_job_id') || '无';
+    const now = new Date();
+    const validCount = users.filter(u => u.status).length;
+    const configJson = JSON.stringify(cfg, null, 2);
+    const accountLines = users.length ? users.map(u => {
+        const statusText = u.status ? '有效' : '失效';
+        const target = u.receive_phone_display || u.receive_phone || '无转赠';
+        return `- ${u.phone} | ${statusText} | 转赠: ${target}`;
+    }).join('\n') : '暂无账号';
+    const logText = ($('#log_content').textContent || '').trim() || '暂无日志内容';
+    const detailLines = [
+        `=== 抢购日志快照 (${now.toLocaleString('zh-CN')}) ===`,
+        `任务ID：${jobId}`,
+        `抢购情况：${isScheduled ? '定时任务正在运行' : '未启用定时任务'}`,
+        `有效账号：${validCount}/${users.length}`,
+        '',
+        '=== 页面配置 ===',
+        configJson,
+        '',
+        `=== 账号详情 (${users.length}) ===`,
+        accountLines,
+        '',
+        '=== 抢购参数 ===',
+        `目标时间：${String(cfg.hour).padStart(2,'0')}:${String(cfg.minute).padStart(2,'0')}:${String(cfg.second).padStart(2,'0')}`,
+        `延迟启动：${cfg.delay || '0'} 毫秒`,
+        `并发线程：${cfg.workers}`,
+        `轮询次数：${cfg.poll}`,
+        `轮询间隔：${cfg.interval} 毫秒`,
+        `执行器：${cfg.executor || 'python'}`,
+        `权益类型：${cfg.activity_type === 'wed_recharge' ? '周三话费券' : (cfg.activity_type === 'xingdong' ? '星动日权益' : '常态权益')}`,
+        `商品ID：${cfg.prod_id}`,
+        `星动日权益ID：${cfg.xingdong_prod_id || '未设置'}`,
+        `天天星动日权益ID：${cfg.daily_xingdong_prod_id || '未设置'}`,
+        `使用北京时间：${cfg.use_server_time ? '是' : '否'}`,
+        `监控模式：${cfg.monitor_mode ? '开启' : '关闭'}`,
+        '',
+        '=== 详细日志 ===',
+        logText
+    ];
+    try {
+        await copyTextToClipboard(detailLines.join('\n'));
+        showToast('日志内容已复制');
+    } catch (err) {
+        showToast('复制失败: ' + (err && err.message ? err.message : err), 'error');
+    }
+}
+
+function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-9999px';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        try {
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (success) {
+                resolve();
+            } else {
+                reject(new Error('浏览器复制失败'));
+            }
+        } catch (error) {
+            document.body.removeChild(textarea);
+            reject(error);
+        }
+    });
+}
+
+// --- Logs ---
+let logTimer;
+let activeLogJobId = null;
+
+function stopLogPoll() {
+    if(logTimer) {
+        clearInterval(logTimer);
+        logTimer = null;
+    }
+    activeLogJobId = null;
+    $('#log_content').textContent = '等待任务启动...';
+}
+
+function startLogPoll(jobId) {
+    if(!jobId) {
+        stopLogPoll();
+        return;
+    }
+    if(activeLogJobId === jobId && logTimer) return;
+    if(logTimer) clearInterval(logTimer);
+
+    activeLogJobId = jobId;
+    logTimer = setInterval(async () => {
+        try {
+            const res = await api(`/logs/${jobId}`);
+            if(res.files && res.files.length > 0) {
+                const latest = res.files[0];
+                const content = await api(`/logs/${jobId}/${latest}`);
+                const el = $('#log_content');
+                const shouldScroll = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
+                el.textContent = content.content || '暂无日志内容';
+                if(shouldScroll) el.scrollTop = el.scrollHeight;
+            }
+        } catch {}
+    }, 2000);
+}
+
+function applyActivityDefaults(updateProductId) {
+    const type = $('#cfg_activity_type').value || 'normal';
+    if (type !== 'xingdong') return;
+    const xingdongInput = $('#cfg_xingdong_prod_id');
+    const dailyInput = $('#cfg_daily_xingdong_prod_id');
+    if (!String(xingdongInput.value || '').trim()) xingdongInput.value = XINGDONG_PRODUCT_ID;
+    if (!String(dailyInput.value || '').trim()) dailyInput.value = DAILY_XINGDONG_PRODUCT_ID;
+    if (updateProductId) {
+        $('#cfg_prod_id').value = isXingdongDate(new Date()) ? xingdongInput.value : dailyInput.value;
+    }
+}
+
+// Init
+restoreSidebarWidth();
+initConfig();
+renderUsers();
+checkTaskStatus();
+$('#cfg_use_server_time').addEventListener('change', () => {
+    saveConfig({skipBackend: !isScheduled, silent: true});
+});
+$('#cfg_monitor_mode').addEventListener('change', () => {
+    saveConfig({skipBackend: !isScheduled, silent: true});
+});
+$('#cfg_executor').addEventListener('change', () => {
+    saveConfig({skipBackend: !isScheduled, silent: true});
+    showToast(`执行器已切换为 ${$('#cfg_executor').value}`);
+});
+$('#cfg_activity_type').addEventListener('change', () => {
+    applyActivityDefaults(true);
+    saveConfig({skipBackend: true, silent: true});
+});
+['#cfg_xingdong_prod_id', '#cfg_daily_xingdong_prod_id'].forEach((sel) => {
+    $(sel).addEventListener('change', () => {
+        applyActivityDefaults(true);
+        saveConfig({skipBackend: true, silent: true});
+    });
+});
+
+</script>
+</body>
+</html>

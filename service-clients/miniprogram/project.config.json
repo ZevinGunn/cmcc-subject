@@ -1,0 +1,8 @@
+{
+  "appid": "touristappid",
+  "projectname": "随行工具箱",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": { "es6": true, "enhance": true, "minified": true, "urlCheck": true, "postcss": true },
+  "libVersion": "3.10.0"
+}

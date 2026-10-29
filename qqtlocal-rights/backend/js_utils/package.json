@@ -1,0 +1,9 @@
+{
+  "name": "js_utils",
+  "version": "1.0.0",
+  "main": "encrypt.js",
+  "type": "module",
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  }
+}

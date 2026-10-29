@@ -1,0 +1,28 @@
+{
+  "name": "shanxi-order-local",
+  "version": "1.8.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "build:public": "SHANXI_PUBLIC_BUILD=1 vite build",
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.js",
+    "check": "npm run test && npm run build",
+    "test:ui": "node test/ui-acceptance.mjs && node test/ui-acceptance.mjs --attempt && node test/ui-acceptance.mjs --config && node test/ui-accounts.mjs && node test/ui-session-cache.mjs && node test/ui-crypto.mjs && node test/ui-business-presets.mjs && node test/ui-subscriptions.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "lucide-vue-next": "^0.468.0",
+    "playwright": "^1.58.2",
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "vite": "^6.4.1"
+  }
+}

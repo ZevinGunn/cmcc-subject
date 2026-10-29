@@ -1,0 +1,21 @@
+{
+  "origin": "https://home.1008086.xyz",
+  "groups": ["移动业务", "权益活动", "查询与工具", "管理控制台"],
+  "aliases": ["https://contract3.1008086.xyz", "https://notic.1008086.xyz"],
+  "services": [
+    { "id": "mobile", "name": "移动账号", "url": "https://home.1008086.xyz/public", "group": "移动业务", "sourceService": "home", "description": "账号维护、业务查询与权益活动" },
+    { "id": "bmcc", "name": "北京移动业务", "url": "https://bmcc.1008086.xyz/", "group": "移动业务", "sourceService": "bmcc", "description": "业务查询、订购与退订" },
+    { "id": "bjcmcc", "name": "业务快捷入口", "url": "https://bjcmcc.1008086.xyz/", "group": "移动业务", "sourceService": "bjcmcc", "description": "北京移动业务目录与快捷办理" },
+    { "id": "puzzle", "name": "周三拼图", "url": "https://home.1008086.xyz/wed-puzzle/", "group": "权益活动", "sourceService": "home", "description": "任务、转赠接收与拼图互助" },
+    { "id": "starbucks", "name": "星巴克卡券", "url": "https://home.1008086.xyz/starbucks", "group": "权益活动", "sourceService": "home", "description": "卡券查询、分类与批量复制" },
+    { "id": "rights", "name": "北京移动权益", "url": "https://rights.1008086.xyz/", "group": "权益活动", "sourceService": "rights", "description": "权益查询、领取与兑换" },
+    { "id": "qqt", "name": "QQT 公共版", "url": "https://qqt.1008086.xyz/", "group": "权益活动", "sourceService": "qqt", "description": "短信登录与权益领取" },
+    { "id": "qqtlocal", "name": "QQT 极速抢购", "url": "https://qqtlocal.1008086.xyz/", "group": "权益活动", "sourceService": "qqtlocal", "description": "定时任务与极速抢购控制台" },
+    { "id": "contracts", "name": "北京移动合约查询", "url": "https://contracts.1008086.xyz/", "group": "查询与工具", "sourceService": "contract3", "description": "二三类合约、低消与全球通等级" },
+    { "id": "arpu", "name": "ARPU 消费查询", "url": "https://arpu.1008086.xyz/", "group": "查询与工具", "sourceService": "arpu", "description": "好礼多多与每用户平均收入查询" },
+    { "id": "notice", "name": "资费公告查询", "url": "https://notice.1008086.xyz/", "group": "查询与工具", "sourceService": "notice", "description": "中国移动资费公示公告" },
+    { "id": "tools", "name": "Tools 工具工作台", "url": "https://tools.1008086.xyz/", "group": "查询与工具", "sourceService": "tools", "description": "链接、二维码、AES 与文本处理" },
+    { "id": "home-console", "name": "移动用户管理", "url": "https://home.1008086.xyz/", "group": "管理控制台", "sourceService": "home", "description": "用户、账号与访问权限管理" },
+    { "id": "project", "name": "Project Ops", "url": "https://project.1008086.xyz/", "group": "管理控制台", "sourceService": "project", "description": "项目运行与运维管理，需管理员登录" }
+  ]
+}

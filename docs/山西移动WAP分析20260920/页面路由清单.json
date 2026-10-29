@@ -1,0 +1,909 @@
+[
+  {
+    "path": "/",
+    "title": "首页",
+    "chunks": [],
+    "line": 2632,
+    "available": true
+  },
+  {
+    "path": "/home",
+    "title": "首页",
+    "chunks": [
+      0,
+      6
+    ],
+    "line": 2638,
+    "available": false
+  },
+  {
+    "path": "/interest/:id",
+    "title": "移路有你，相伴有礼",
+    "chunks": [
+      0,
+      85
+    ],
+    "line": 2651,
+    "available": false
+  },
+  {
+    "path": "/login",
+    "title": "登录",
+    "chunks": [
+      0,
+      1
+    ],
+    "line": 2664,
+    "available": false
+  },
+  {
+    "path": "/login/login",
+    "title": "登录",
+    "chunks": [
+      0,
+      1
+    ],
+    "line": 2677,
+    "available": false
+  },
+  {
+    "path": "/orderSel/index",
+    "title": "订单列表",
+    "chunks": [
+      0,
+      13
+    ],
+    "line": 2690,
+    "available": false
+  },
+  {
+    "path": "/orderSel/kdDetails",
+    "title": "宽带中心",
+    "chunks": [
+      0,
+      20
+    ],
+    "line": 2703,
+    "available": false
+  },
+  {
+    "path": "/orderSel/czDetails",
+    "title": "充值中心",
+    "chunks": [
+      0,
+      35
+    ],
+    "line": 2716,
+    "available": false
+  },
+  {
+    "path": "/orderSel/retUrl",
+    "title": "充值结果页",
+    "chunks": [
+      5
+    ],
+    "line": 2729,
+    "available": false
+  },
+  {
+    "path": "/groupFp/index",
+    "title": "集团发票",
+    "chunks": [
+      67
+    ],
+    "line": 2742,
+    "available": false
+  },
+  {
+    "path": "/groupFp/groupIndex",
+    "title": "集团发票",
+    "chunks": [
+      0,
+      70
+    ],
+    "line": 2755,
+    "available": false
+  },
+  {
+    "path": "/groupFp/invoiceList",
+    "title": "发票列表",
+    "chunks": [
+      0,
+      82
+    ],
+    "line": 2768,
+    "available": false
+  },
+  {
+    "path": "/groupFp/invoiceDetails",
+    "title": "发票详情",
+    "chunks": [
+      0,
+      64
+    ],
+    "line": 2781,
+    "available": false
+  },
+  {
+    "path": "/act/actInfo1",
+    "title": "教育宽带",
+    "chunks": [
+      59
+    ],
+    "line": 2794,
+    "available": false
+  },
+  {
+    "path": "/AggregatePage/aggregateShow",
+    "title": "",
+    "chunks": [
+      0,
+      52
+    ],
+    "line": 2807,
+    "available": false
+  },
+  {
+    "path": "/AggregatePage/publicWelfareDetail",
+    "title": "公告专区",
+    "chunks": [
+      0,
+      40
+    ],
+    "line": 2820,
+    "available": false
+  },
+  {
+    "path": "/AggregatePage/publicWelfareInfo/:id",
+    "title": "公告专区",
+    "chunks": [
+      0,
+      2
+    ],
+    "line": 2833,
+    "available": false
+  },
+  {
+    "path": "/AggregatePage/publicWelfareInfo",
+    "title": "公告专区",
+    "chunks": [
+      0,
+      2
+    ],
+    "line": 2846,
+    "available": false
+  },
+  {
+    "path": "/myHeapp",
+    "title": "我的小和",
+    "chunks": [
+      0,
+      8
+    ],
+    "line": 2859,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo",
+    "title": "视频彩铃",
+    "chunks": [
+      0,
+      33
+    ],
+    "line": 2872,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo/addMemberSub",
+    "title": "视频彩铃开通",
+    "chunks": [
+      0,
+      47
+    ],
+    "line": 2885,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo/success",
+    "title": "视频彩铃开通成功",
+    "chunks": [
+      69
+    ],
+    "line": 2898,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo/particulars",
+    "title": "视频彩铃群组管理",
+    "chunks": [
+      0,
+      45
+    ],
+    "line": 2911,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo/member",
+    "title": "视频彩铃成员管理",
+    "chunks": [
+      0,
+      68
+    ],
+    "line": 2924,
+    "available": false
+  },
+  {
+    "path": "/enterpriseVideo/addMember",
+    "title": "视频彩铃成员",
+    "chunks": [
+      0,
+      60
+    ],
+    "line": 2937,
+    "available": false
+  },
+  {
+    "path": "/orderSel/zjDetails",
+    "title": "智家中心",
+    "chunks": [
+      0,
+      42
+    ],
+    "line": 2950,
+    "available": false
+  },
+  {
+    "path": "/coinTran",
+    "title": "金币转赠",
+    "chunks": [
+      0,
+      54
+    ],
+    "line": 2963,
+    "available": false
+  },
+  {
+    "path": "/consultPage",
+    "title": "物联网办理",
+    "chunks": [
+      0,
+      19
+    ],
+    "line": 2976,
+    "available": false
+  },
+  {
+    "path": "/orderDetail",
+    "title": "订单详情",
+    "chunks": [
+      0,
+      31
+    ],
+    "line": 2989,
+    "available": false
+  },
+  {
+    "path": "/orderSel/tvDetails",
+    "title": "电视开户",
+    "chunks": [
+      0,
+      10
+    ],
+    "line": 3002,
+    "available": false
+  },
+  {
+    "path": "/mobileCloud",
+    "title": "移动云",
+    "chunks": [
+      0,
+      51
+    ],
+    "line": 3015,
+    "available": false
+  },
+  {
+    "path": "/mobileCloud/detail",
+    "title": "移动云开通",
+    "chunks": [
+      0,
+      50
+    ],
+    "line": 3028,
+    "available": false
+  },
+  {
+    "path": "/commserver/userBuss",
+    "title": "已订业务",
+    "chunks": [
+      0,
+      30
+    ],
+    "line": 3041,
+    "available": false
+  },
+  {
+    "path": "/attrQry/index",
+    "title": "归属地查询",
+    "chunks": [
+      0,
+      79
+    ],
+    "line": 3054,
+    "available": false
+  },
+  {
+    "path": "/cardThAppoin",
+    "title": "靓号预约",
+    "chunks": [
+      0,
+      29
+    ],
+    "line": 3067,
+    "available": false
+  },
+  {
+    "path": "/fastClick",
+    "title": "通话详单",
+    "chunks": [
+      0,
+      4
+    ],
+    "line": 3080,
+    "available": false
+  },
+  {
+    "path": "/clairvoyantEye",
+    "title": "千里眼",
+    "chunks": [
+      0,
+      22
+    ],
+    "line": 3093,
+    "available": false
+  },
+  {
+    "path": "/qrCode",
+    "title": "二维码",
+    "chunks": [
+      71
+    ],
+    "line": 3106,
+    "available": false
+  },
+  {
+    "path": "/dualdomain",
+    "title": "5G双域专网",
+    "chunks": [
+      0,
+      83
+    ],
+    "line": 3119,
+    "available": false
+  },
+  {
+    "path": "/dualdomain/success",
+    "title": "5G双域专网",
+    "chunks": [
+      0,
+      65
+    ],
+    "line": 3132,
+    "available": false
+  },
+  {
+    "path": "/dualdomain/fail",
+    "title": "5G双域专网",
+    "chunks": [
+      0,
+      66
+    ],
+    "line": 3145,
+    "available": false
+  },
+  {
+    "path": "/migrationCharge",
+    "title": "老旧资费迁移",
+    "chunks": [
+      0,
+      55
+    ],
+    "line": 3158,
+    "available": false
+  },
+  {
+    "path": "/migrationCharge/success",
+    "title": "老旧资费迁移",
+    "chunks": [
+      0,
+      37
+    ],
+    "line": 3171,
+    "available": false
+  },
+  {
+    "path": "/productRank",
+    "title": "商品销量排行榜",
+    "chunks": [
+      0,
+      41
+    ],
+    "line": 3184,
+    "available": false
+  },
+  {
+    "path": "/investigation",
+    "title": "问卷调查",
+    "chunks": [
+      0,
+      56
+    ],
+    "line": 3197,
+    "available": false
+  },
+  {
+    "path": "/serviceStar",
+    "title": "满意度评价",
+    "chunks": [
+      0,
+      44
+    ],
+    "line": 3212,
+    "available": false
+  },
+  {
+    "path": "/basicService",
+    "title": "基础业务开关",
+    "chunks": [
+      0,
+      48
+    ],
+    "line": 3225,
+    "available": false
+  },
+  {
+    "path": "/basicService/success",
+    "title": "基础业务开关",
+    "chunks": [
+      0,
+      62
+    ],
+    "line": 3238,
+    "available": false
+  },
+  {
+    "path": "/basicRemind",
+    "title": "业务提醒",
+    "chunks": [
+      0,
+      36
+    ],
+    "line": 3251,
+    "available": false
+  },
+  {
+    "path": "/famPay",
+    "title": "家人充值",
+    "chunks": [
+      0,
+      18
+    ],
+    "line": 3264,
+    "available": false
+  },
+  {
+    "path": "/addPhone",
+    "title": "号码添加",
+    "chunks": [
+      0,
+      21
+    ],
+    "line": 3277,
+    "available": false
+  },
+  {
+    "path": "/bindRec",
+    "title": "绑定记录",
+    "chunks": [
+      0,
+      78
+    ],
+    "line": 3290,
+    "available": false
+  },
+  {
+    "path": "/commserver/myActive",
+    "title": "我的活动",
+    "chunks": [
+      0,
+      34
+    ],
+    "line": 3303,
+    "available": false
+  },
+  {
+    "path": "/cloudPhone",
+    "title": "云手机",
+    "chunks": [
+      0,
+      23
+    ],
+    "line": 3316,
+    "available": false
+  },
+  {
+    "path": "/trajectQry",
+    "title": "实例详情",
+    "chunks": [
+      0,
+      57
+    ],
+    "line": 3329,
+    "available": false
+  },
+  {
+    "path": "/cusRecord",
+    "title": "发起记录",
+    "chunks": [
+      0,
+      58
+    ],
+    "line": 3342,
+    "available": false
+  },
+  {
+    "path": "/jtThird",
+    "title": "集团中间页",
+    "chunks": [
+      0,
+      80
+    ],
+    "line": 3355,
+    "available": false
+  },
+  {
+    "path": "/goldshop",
+    "title": "金币商城",
+    "chunks": [
+      0,
+      28
+    ],
+    "line": 3368,
+    "available": false
+  },
+  {
+    "path": "/goldshop/rule",
+    "title": "金币兑换规则",
+    "chunks": [
+      0,
+      84
+    ],
+    "line": 3381,
+    "available": false
+  },
+  {
+    "path": "/goldshop/prize",
+    "title": "我的奖品",
+    "chunks": [
+      0,
+      88
+    ],
+    "line": 3394,
+    "available": false
+  },
+  {
+    "path": "/goldshop/goods",
+    "title": "商品详情",
+    "chunks": [
+      0,
+      46
+    ],
+    "line": 3407,
+    "available": false
+  },
+  {
+    "path": "/robot",
+    "title": "在线客服",
+    "chunks": [
+      87
+    ],
+    "line": 3420,
+    "available": false
+  },
+  {
+    "path": "/newInvest",
+    "title": "问卷调查",
+    "chunks": [
+      0,
+      75
+    ],
+    "line": 3433,
+    "available": false
+  },
+  {
+    "path": "/403",
+    "title": "没有权限访问",
+    "chunks": [
+      73
+    ],
+    "line": 3446,
+    "available": false
+  },
+  {
+    "path": "/invest",
+    "title": "问卷调查",
+    "chunks": [
+      0,
+      77
+    ],
+    "line": 3459,
+    "available": false
+  },
+  {
+    "path": "/invests",
+    "title": "问卷调查",
+    "chunks": [
+      0,
+      74
+    ],
+    "line": 3472,
+    "available": false
+  },
+  {
+    "path": "/whiteShop",
+    "title": "白名单金币商城",
+    "chunks": [
+      0,
+      27
+    ],
+    "line": 3485,
+    "available": false
+  },
+  {
+    "path": "/whiteDetail",
+    "title": "白名单商品详情",
+    "chunks": [
+      0,
+      43
+    ],
+    "line": 3498,
+    "available": false
+  },
+  {
+    "path": "/goldBill",
+    "title": "金币账单",
+    "chunks": [
+      0,
+      3
+    ],
+    "line": 3511,
+    "available": false
+  },
+  {
+    "path": "/questionnaire",
+    "title": "营销活动感知评估",
+    "chunks": [
+      0,
+      39
+    ],
+    "line": 3524,
+    "available": false
+  },
+  {
+    "path": "/linglong",
+    "title": "玲珑一键测",
+    "chunks": [
+      0,
+      89
+    ],
+    "line": 3537,
+    "available": false
+  },
+  {
+    "path": "/networkQuality",
+    "title": "信号升格-评价有礼活动",
+    "chunks": [
+      0,
+      15
+    ],
+    "line": 3550,
+    "available": false
+  },
+  {
+    "path": "/gridQuestion",
+    "title": "信号升格-评价有礼活动",
+    "chunks": [
+      0,
+      76
+    ],
+    "line": 3565,
+    "available": false
+  },
+  {
+    "path": "/supportiveActive/help",
+    "title": "助力赢好礼",
+    "chunks": [
+      0,
+      38
+    ],
+    "line": 3580,
+    "available": false
+  },
+  {
+    "path": "/supportiveActive/empty",
+    "title": "助力赢好礼",
+    "chunks": [
+      61
+    ],
+    "line": 3593,
+    "available": false
+  },
+  {
+    "path": "/supportiveActive/explain",
+    "title": "助力赢好礼",
+    "chunks": [
+      81
+    ],
+    "line": 3606,
+    "available": false
+  },
+  {
+    "path": "/supportiveActive/thank",
+    "title": "助力赢好礼",
+    "chunks": [
+      0,
+      63
+    ],
+    "line": 3619,
+    "available": false
+  },
+  {
+    "path": "/supportiveActive/award",
+    "title": "助力赢好礼",
+    "chunks": [
+      0,
+      32
+    ],
+    "line": 3632,
+    "available": false
+  },
+  {
+    "path": "/flowRules",
+    "title": "流量规则查询",
+    "chunks": [
+      0,
+      86
+    ],
+    "line": 3645,
+    "available": false
+  },
+  {
+    "path": "/sportAct",
+    "title": "咪咕足球通",
+    "chunks": [
+      0,
+      16
+    ],
+    "line": 3658,
+    "available": false
+  },
+  {
+    "path": "/olymPic",
+    "title": "咪咕体育",
+    "chunks": [
+      0,
+      17
+    ],
+    "line": 3673,
+    "available": false
+  },
+  {
+    "path": "/gold/index",
+    "title": "金币存钱罐",
+    "chunks": [
+      0,
+      7
+    ],
+    "line": 3688,
+    "available": false
+  },
+  {
+    "path": "/gold/goldExg",
+    "title": "金币兑换",
+    "chunks": [
+      0,
+      9
+    ],
+    "line": 3703,
+    "available": false
+  },
+  {
+    "path": "/prestore/pay",
+    "title": "预存有礼",
+    "chunks": [
+      0,
+      12
+    ],
+    "line": 3718,
+    "available": false
+  },
+  {
+    "path": "/prestore/payResult",
+    "title": "支付结果",
+    "chunks": [
+      0,
+      49
+    ],
+    "line": 3731,
+    "available": false
+  },
+  {
+    "path": "/techWorkerDay",
+    "title": "科技工作者日专属权益",
+    "chunks": [
+      0,
+      24
+    ],
+    "line": 3744,
+    "available": false
+  },
+  {
+    "path": "/remoteBooking",
+    "title": "康养语音遥控器预约办理",
+    "chunks": [
+      0,
+      26
+    ],
+    "line": 3757,
+    "available": false
+  },
+  {
+    "path": "/warningBoard",
+    "title": "物联网客户预警看板",
+    "chunks": [
+      0,
+      25
+    ],
+    "line": 3770,
+    "available": false
+  },
+  {
+    "path": "/promotion/glod/yYCoinDetail",
+    "title": "金币明细",
+    "chunks": [
+      0,
+      53
+    ],
+    "line": 3783,
+    "available": false
+  },
+  {
+    "path": "/royalty/allocation",
+    "title": "权益分配金",
+    "chunks": [
+      0,
+      11
+    ],
+    "line": 3799,
+    "available": false
+  },
+  {
+    "path": "/qqt5ga",
+    "title": "全球通5GA加速权益",
+    "chunks": [
+      0,
+      14
+    ],
+    "line": 3812,
+    "available": true
+  },
+  {
+    "path": "/*",
+    "title": "页面找不到了",
+    "chunks": [
+      72
+    ],
+    "line": 3825,
+    "available": false
+  }
+]

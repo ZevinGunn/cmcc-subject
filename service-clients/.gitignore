@@ -1,0 +1,12 @@
+node_modules/
+artifacts/
+android/build/
+android/local.properties
+*.keystore
+*.jks
+*.log
+.DS_Store
+miniprogram/project.private.config.json
+assets/icon.png
+assets/icon.ico
+assets/icon.icns

@@ -1,0 +1,140 @@
+{
+  "groups": [
+    {
+      "id": "cmcc-public",
+      "name": "公网项目",
+      "projects": [
+        {
+          "id": "home",
+          "name": "全球通免登录",
+          "domain": "home.1008086.xyz",
+          "backend": {
+            "pm2Name": "cookie-app",
+            "port": 3101
+          },
+          "frontend": {
+            "cwd": "免登录进入全球通/cookie-app",
+            "dist": "免登录进入全球通/cookie-app/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "home"
+        },
+        {
+          "id": "rights",
+          "name": "北京移动权益",
+          "domain": "rights.1008086.xyz",
+          "backend": {
+            "pm2Name": "rights-backend",
+            "port": 3010
+          },
+          "frontend": {
+            "cwd": "bj-cmcc-qy/frontend",
+            "dist": "bj-cmcc-qy/frontend/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "rights"
+        },
+        {
+          "id": "arpu",
+          "name": "好礼多多 ARPU",
+          "domain": "arpu.1008086.xyz",
+          "backend": {
+            "pm2Name": "arpu-proxy",
+            "port": 3000
+          },
+          "frontend": null,
+          "rebuildTarget": "arpu"
+        },
+        {
+          "id": "qqtlocal",
+          "name": "QQT 本地极速抢购",
+          "domain": "qqtlocal.1008086.xyz",
+          "backend": {
+            "pm2Name": "qqtlocal",
+            "port": 8899
+          },
+          "frontend": null,
+          "rebuildTarget": "qqtlocal"
+        },
+        {
+          "id": "notice",
+          "name": "公告查询",
+          "domain": "notice.1008086.xyz",
+          "backend": {
+            "pm2Name": "cmcc-notice",
+            "port": 3111
+          },
+          "frontend": null,
+          "rebuildTarget": "notice"
+        },
+        {
+          "id": "qqt",
+          "name": "QQT 公共版",
+          "domain": "qqt.1008086.xyz",
+          "backend": {
+            "pm2Name": "qqt-backend",
+            "port": 7607
+          },
+          "frontend": {
+            "cwd": "qqt/frontend",
+            "dist": "qqt/frontend/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "qqt"
+        },
+        {
+          "id": "bmcc",
+          "name": "北京移动业务查询退订",
+          "domain": "bmcc.1008086.xyz",
+          "backend": {
+            "pm2Name": "bmcc-backend",
+            "port": 8788
+          },
+          "frontend": {
+            "cwd": "bj-mobile-business-local/frontend",
+            "dist": "bj-mobile-business-local/frontend/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "bmcc"
+        },
+        {
+          "id": "bjcmcc",
+          "name": "北京移动业务快捷入口",
+          "domain": "bjcmcc.1008086.xyz",
+          "backend": {
+            "pm2Name": "bjcmcc-route-hub",
+            "port": 8790
+          },
+          "frontend": {
+            "cwd": "bjcmcc-route-hub/frontend",
+            "dist": "bjcmcc-route-hub/frontend/dist",
+            "build": ["npm", "run", "build"]
+          },
+          "rebuildTarget": "bjcmcc"
+        },
+        {
+          "id": "wangka",
+          "name": "王卡会员便捷订购",
+          "domain": "wangka.1008086.xyz",
+          "backend": {
+            "pm2Name": "wangka-order",
+            "port": 8787
+          },
+          "frontend": null,
+          "rebuildTarget": "wangka"
+        },
+        {
+          "id": "yunpan",
+          "name": "云盘登录工作台",
+          "domain": "yunpan.1008086.xyz",
+          "backend": {
+            "pm2Name": "yunpan-login",
+            "port": 7399
+          },
+          "frontend": null,
+          "rebuildTarget": "yunpan"
+        }
+      ]
+    }
+  ]
+}

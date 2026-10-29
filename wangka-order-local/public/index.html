@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>王卡会员便捷订购</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>王卡会员便捷订购</h1>
+          <p id="modeText">正在读取运行模式...</p>
+        </div>
+        <button id="statusBtn">刷新状态</button>
+      </header>
+
+      <section class="panel">
+        <h2>会话</h2>
+        <label>
+          上游 Cookie（真实模式使用）
+          <textarea id="cookieText" rows="3" placeholder="KSESSIONID=...; acw_tc=...; tfstk=..."></textarea>
+        </label>
+        <button id="saveCookieBtn">保存到当前本地会话</button>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>普通王卡会员</h2>
+          <div class="actions">
+            <button id="kHomeBtn">读取首页状态</button>
+            <button id="kSendBtn">发送短信</button>
+            <button id="kCheckBtn">校验短信</button>
+            <button id="kSignBtn" class="danger">提交入会</button>
+          </div>
+          <label>阿里 NVC/滑块票据（真实模式必填）<textarea id="nvctText" rows="3"></textarea></label>
+          <label>短信验证码<input id="kCode" inputmode="numeric" placeholder="请输入短信验证码"></label>
+          <label>确认短语<input id="kConfirm" placeholder="真实提交请输入：我确认本人办理"></label>
+        </article>
+
+        <article class="panel">
+          <h2>超级会员青春版</h2>
+          <div class="actions">
+            <button id="sIndexBtn">读取套餐</button>
+            <button id="sSendBtn">发送短信</button>
+            <button id="sCheckBtn">校验短信</button>
+            <button id="sOrderBtn" class="danger">提交订购</button>
+          </div>
+          <label>渠道<input id="channel" value="CJHY_LTYOUTH_fulishe1"></label>
+          <div class="captcha-grid">
+            <label>CaptchaCode<input id="tcCode" value="0"></label>
+            <label>AppId<input id="tcAppId" placeholder="197442953"></label>
+            <label>Randstr<input id="tcRandstr" placeholder="@xxx"></label>
+            <label>Ticket<input id="tcTicket" placeholder="腾讯验证码 ticket"></label>
+          </div>
+          <label>短信验证码<input id="sCode" inputmode="numeric" placeholder="请输入短信验证码"></label>
+          <label>确认短语<input id="sConfirm" placeholder="真实提交请输入：我确认本人办理"></label>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>结果</h2>
+        <pre id="result"></pre>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,405 @@
+{
+  "note": "查询参数值和fragment已删除；SDK和广告链接不是业务接口，无法从静态材料枚举所有动态地址",
+  "items": [
+    {
+      "url_without_query_or_fragment": "https://jiguang.coc.10086.cn/v3/projects/9e4e5fa7244c6b6e/collect",
+      "categories": [
+        "静态引用或SDK依赖",
+        "采集接口保存记录 方法待确认"
+      ],
+      "sources": [
+        "jiguang.coc.10086.cn/v3/projects/9e4e5fa7244c6b6e/collect.html:1",
+        "ZIP collect.html"
+      ],
+      "query_parameter_names": [
+        "stm",
+        "compress"
+      ]
+    },
+    {
+      "url_without_query_or_fragment": "https://wap.sx.10086.cn/h/cms200/comm/MobileAbility/jssdk/kjjssdk.min.js",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:48"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://h.app.coc.10086.cn/appother/js/public/cmcc.js",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:55"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://touch.10086.cn/i/autoejshop/22t20l07/images/login-sync-bg1.jpg",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:107"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://touch.10086.cn/i/autoejshop/22t20l07/images/login-sync-bg2.jpg",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:107"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://wap.sx.10086.cn/material/assets/pub-pic/round.png",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:128"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://he.sx.chinamobile.com/h/static/icon/share_0503.png",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/index.html:134"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://manhattan.didistatic.com/static/manhattan/mand-mobile/result-page/2.1/",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:8740"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://www.npmjs.com/package/babel-plugin-import",
+      "categories": [
+        "依赖文档链接 非业务调用"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:13068"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://github.com/fingerprintjs/fingerprintjs",
+      "categories": [
+        "依赖文档链接 非业务调用"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:22336",
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:22364"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://rescdn.hjq.komect.com/file16/appclientH5/appresource/image/web/web/x3/hjq_share_logo_round.png",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:22791"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://hy.10086.cn/hjq",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:22792"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://img01.yzcdn.cn/vant/coupon-empty.png",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:29751"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://img01.yzcdn.cn/vant/empty-image-",
+      "categories": [
+        "动态资源地址前缀 非完整地址"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:30884"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://img01.yzcdn.cn/vant/share-sheet-",
+      "categories": [
+        "动态资源地址前缀 非完整地址"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:33930"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://img01.yzcdn.cn/upload_files/2020/06/24/FmKWDg0bN9rMcTp9ne8MXiQWGtLn.png",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:34443"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://hsop.komect.com",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:37404"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://test.hsop.komect.com",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:37405"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://trace.hjq.komect.com/TRACEProbeService/accept",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:37406",
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:37408"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://i.test",
+      "categories": [
+        "依赖库测试字符串 非业务调用"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/vendor.63a682905434dfed9d0a.js:43363"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://res.wx.qq.com/open/js/jweixin-1.0.0.js",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:6879",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:16644"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://momentjs.com/guides/",
+      "categories": [
+        "依赖文档链接 非业务调用"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9064",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9282",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9285",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9289",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9414",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9900",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:9902"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://www.cmpassport.com/h5/js/jssdk_yw_auth/jssdk.min.js",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:11645",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:11666",
+        "wap.sx.10086.cn/h/act/static/js/0.dd02173d6339a739e0c9.js:11766"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://qqt.cmicrwx.cn/2016tyjf/xhmqqthy/res/wap/djqy.html",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/14.e6d587744c2a85563c04.js:152"
+      ],
+      "query_parameter_names": [
+        "sspId"
+      ]
+    },
+    {
+      "url_without_query_or_fragment": "https://at.alicdn.com/t/font_1031158_u69w8yhxdu.woff2",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:90",
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:976"
+      ],
+      "query_parameter_names": [
+        "t"
+      ]
+    },
+    {
+      "url_without_query_or_fragment": "https://at.alicdn.com/t/font_1031158_u69w8yhxdu.woff",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:90",
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:976"
+      ],
+      "query_parameter_names": [
+        "t"
+      ]
+    },
+    {
+      "url_without_query_or_fragment": "https://at.alicdn.com/t/font_1031158_u69w8yhxdu.ttf",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:90",
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:976"
+      ],
+      "query_parameter_names": [
+        "t"
+      ]
+    },
+    {
+      "url_without_query_or_fragment": "http://wap.sx.10086.cn",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:2087",
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:4250",
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:4553"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://wap.sx.10086.cn/h/act/index.html",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:5135"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://wap.sx.10086.cn/h/rest/v1/operateCSDdata/spageOperationCSDRest",
+      "categories": [
+        "静态引用或SDK依赖"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:6145"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://manhattan.didistatic.com/static/manhattan/mand-mobile/icon/2.0.2/iconfont.woff",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:6483"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://manhattan.didistatic.com/static/manhattan/mand-mobile/icon/2.0.2/iconfont.ttf",
+      "categories": [
+        "静态图片或字体 非业务接口"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/act/static/js/app.b4d0d00ffdaab3101d03.js:6483"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "https://github.com/Valve/fingerprintjs2",
+      "categories": [
+        "依赖文档链接 非业务调用"
+      ],
+      "sources": [
+        "wap.sx.10086.cn/h/cms200/comm/MobileAbility/jssdk/kjjssdk.min.js:1595",
+        "wap.sx.10086.cn/h/cms200/comm/MobileAbility/jssdk/kjjssdk.min.js:2107"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://wap.sx.10086.cn/h/index.html",
+      "categories": [
+        "广告配置地址 非自动认定API"
+      ],
+      "sources": [
+        "HAR#4 AD_INFO_LIST"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://he.sx.chinamobile.com/h/index.html",
+      "categories": [
+        "广告配置地址 非自动认定API"
+      ],
+      "sources": [
+        "HAR#4 AD_INFO_LIST"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://group.sx.10086.cn/h/index.html",
+      "categories": [
+        "广告配置地址 非自动认定API"
+      ],
+      "sources": [
+        "HAR#4 AD_INFO_LIST"
+      ],
+      "query_parameter_names": []
+    },
+    {
+      "url_without_query_or_fragment": "http://wap.sx.10086.cn/h/broadband/index.html",
+      "categories": [
+        "广告配置地址 非自动认定API"
+      ],
+      "sources": [
+        "HAR#4 AD_INFO_LIST"
+      ],
+      "query_parameter_names": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>随行工具箱</title><link rel="stylesheet" href="shell.css"></head>
+<body>
+  <header><div class="brand"><img src="../assets/icon.svg" width="28" height="28" alt=""><span>随行工具箱</span><small id="version"></small></div><strong id="current-tool">移动账号</strong><button id="invite">专属链接</button></header>
+  <div class="toolbar"><div class="history"><button id="back" aria-label="返回上一页" title="返回上一页">←</button><button id="forward" aria-label="前进" title="前进">→</button><button id="reload" aria-label="刷新" title="刷新">↻</button></div><span id="status" role="status">正在连接…</span><button id="home">工具首页</button><button id="browser">浏览器打开</button><button id="clear">清除登录</button></div>
+  <aside><label class="search-label" for="tool-search">全部工具 <span id="tool-count"></span></label><input id="tool-search" type="search" placeholder="搜索工具" autocomplete="off"><nav id="tools" aria-label="全部工具"></nav><p id="no-results" hidden>未找到匹配的工具</p></aside>
+  <main><p id="empty">正在加载工具…</p></main>
+  <div id="toast" role="alert" hidden></div>
+  <dialog id="invite-dialog"><form id="invite-form"><h1>使用专属链接</h1><label for="invite-value">专属链接或邀请码</label><input id="invite-value" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="粘贴专属链接或输入邀请码" required maxlength="1024"><p class="hint">登录信息仅用于访问你的账号，安装包不包含任何账号数据。</p><div class="actions"><button type="button" id="cancel">取消</button><button type="submit" class="primary">打开并登录</button></div></form></dialog>
+  <script src="renderer.cjs"></script>
+</body></html>

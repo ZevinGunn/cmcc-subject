@@ -1,0 +1,740 @@
+[
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111602038125"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "canExchangeTimes",
+        "attrValue": "10"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div>1、 Plus会员纯享加量包新-1张券，产品资费19.9元／次，订购成功立即扣费立即生效，本月月底失效次月不续订。仅支持主账户支付，主账户余额&gt;19.9元可订购。</div><div>2、产品有效期内享有1张通用权益兑换券，可在北京移动权益超市﹣权益福袋中选取符合条件的产品兑换；_权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</div><div>3、<font color=\"#ff0000\">权益兑换券领取当月有效</font>，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</div><div>4、产品订购成功可获得100G的通用流量日包,自生效时刻起24小时有效，流量用完或时间到达后均失效，流量不可转赠、不滚存、不共享。优于定向流量和套内通用流量。</div><div>5、以上产品可重复订购，每个产品每日限订购1次，每个产品每月最多订购<font color=\"#ff0000\">10</font>笔。 Plus 纯享产品不互斥可同时订购。</div><div>6、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<font color=\"#ff0000\"><b><u><div>1、 Plus会员纯享加量包新-1张券，产品资费19.9元／次，订购成功立即扣费立即生效，本月月底失效次月不续订。仅支持主账户支付，主账户余额&gt;19.9元可订购。</div><div>2、产品有效期内享有1张通用权益兑换券，可在Plus会员﹣权益福袋中选取符合条件的产品兑换；_权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</div><div>3、权益兑换券领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</div><div>4、产品订购成功可获得100G的通用流量日包,自生效时刻起24小时有效，流量用完或时间到达后均失效，流量不可转赠、不滚存、不共享。优于定向流量和套内通用流量。</div><div>5、以上产品可重复订购，每个产品每日限订购1次，每个产品每月最多订购10笔。 Plus 纯享产品不互斥可同时订购。</div><div>6、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div></u></b></font>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "订购立即生效月底失效，兑换券订购当月有效，不转结。"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "1_19.9元",
+    "legalRightsId": "1523940727651385346",
+    "legalRightsName": "Plus会员纯享加量包新-1张券",
+    "legalRightsNbr": "QY1652170757577",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  },
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "2"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111004272780"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "canExchangeTimes",
+        "attrValue": "10"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享加量包-2张券，产品资费39.6元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。</font><span style=\"background-color: rgb(255, 255, 255);\"><font color=\"#ff0000\">仅支持主账户付费，</font></span><font color=\"#ff0000\">主账户余额＞39.6元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、产品有效期内，您每月可立即领取通用权益兑换券，可在北京移动权益超市-权益福袋中选取符合条件的产品兑换；</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品每月最多订购10笔。Plus纯享产品不互斥可同时订购。<br></div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享加量包-2张券，产品资费39.6元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。仅支持主账户付费，主账户余额＞39.6元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、产品有效期内，您每月可立即领取通用权益兑换券，可在Plus会员-权益福袋中选取符合条件的产品兑换；<br>权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品每月最多订购10笔。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "订购立即生效月底失效，兑换券订购当月有效，不转结。"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "rightsPricing",
+        "attrValue": "0"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "2_39.6元",
+    "legalRightsId": "1523942150879805441",
+    "legalRightsName": "Plus会员纯享加量包-2张券",
+    "legalRightsNbr": "QY1652171096901",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  },
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "3"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111004272781"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "canExchangeTimes",
+        "attrValue": "10"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享加量包-3张券，产品资费58.8元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。</font></u></b><u><b><font color=\"#ff0000\">仅支持主账户付费，</font></b></u><b><u><font color=\"#ff0000\">主账户余额＞58.8元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、产品有效期内，您每月可立即领取通用权益兑换券，可在北京移动权益超市-权益福袋中选取符合条件的产品兑换；<br></font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品<font color=\"#ff0000\">每月最多订购10笔</font>。Plus纯享产品不互斥可同时订购。<br></div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享加量包-3张券，产品资费58.8元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。仅支持主账户付费，主账户余额＞58.8元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、产品有效期内，您每月可立即领取通用权益兑换券，可在Plus会员-权益福袋中选取符合条件的产品兑换；<br>权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品<font color=\"#ff0000\">每月最多订购10笔</font>。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "订购立即生效月底失效，兑换券订购当月有效，不转结。"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "3_58.8元",
+    "legalRightsId": "1523942553189822466",
+    "legalRightsName": "Plus会员纯享加量包-3张券",
+    "legalRightsNbr": "QY1652171192819",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  },
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "4"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111004272782"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "canExchangeTimes",
+        "attrValue": "10"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div><font color=\"#ff0000\"><u><b>1、Plus会员纯享加量包-5张券，产品资费96.8元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。</b></u></font><b><u><font color=\"#ff0000\">仅支持主账户付费，</font></u></b><u style=\"color: rgb(255, 0, 0);\"><b>主账户余额＞96.8元 可订购。</b></u></div><div><font color=\"#ff0000\"><u><b>2、产品有效期内，您每月可立即领取通用权益兑换券，可在北京移动权益超市-权益福袋中选取符合条件的产品兑换；<br></b></u></font></div><div><font color=\"#ff0000\"><u><b>3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</b></u></font><br></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品<font color=\"#ff0000\">每月最多订购10笔</font>。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<div><font color=\"#ff0000\"><u><b>1、Plus会员纯享加量包-5张券，产品资费96.8元/次，订购成功立即扣费立即生效，本月月底失效次月不续订。仅支持主账户付费，主账户余额＞96.8元 可订购。</b></u></font></div><div><font color=\"#ff0000\"><u><b>2、产品有效期内，您每月可立即领取通用权益兑换券，可在Plus会员-权益福袋中选取符合条件的产品兑换；<br>权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</b></u></font></div><div><font color=\"#ff0000\"><u><b>3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</b></u></font><br></div><div>4、以上产品可重复订购，每个产品每日限订购1次，每个产品<font color=\"#ff0000\">每月最多订购10笔</font>。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "订购立即生效月底失效，兑换券订购当月有效，不转结。"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "5_96.8元",
+    "legalRightsId": "1523942907582320642",
+    "legalRightsName": "Plus会员纯享加量包-5张券",
+    "legalRightsNbr": "QY1652171277314",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  },
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "6"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111602018227"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "canExchangeTimes",
+        "attrValue": "10"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享半年包，产品资费99元/半年，订购成功立即扣费立即生效，产品有效期6个月，到期后不续订。仅支持主账户付费，主账户余额＞99元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、6个月有效期内，每月可领取1张通用权益兑换券，可在北京移动权益超市-权益福袋中选取符合条件的产品兑换；</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div>4、以上产品可重复订购，每个产品<font color=\"#ff0000\">每日限订购1次</font>，每个产品<font color=\"#ff0000\">每月最多订购3笔</font>。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享半年包，产品资费99元/半年，订购成功立即扣费立即生效，产品有效期6个月，到期后不续订。仅支持主账户付费，主账户余额＞99元 可订购。若产品有效期内退订，产品当月月底失效，但不退费。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、6个月有效期内，每月可领取1张通用权益兑换券，可在Plus会员-权益福袋中选取符合条件的产品兑换；<br>权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div>4、以上产品可重复订购，每个产品<font color=\"#ff0000\">每日限订购1次</font>，每个产品<font color=\"#ff0000\">每月最多订购3笔</font>。Plus纯享产品不互斥可同时订购。<br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "有效期6个月内，每月可领取1张兑换券，兑换券当月有效"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "6_99元/半年",
+    "legalRightsId": "1523937920061304834",
+    "legalRightsName": "Plus会员纯享半年包",
+    "legalRightsNbr": "QY1652170088196",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  },
+  {
+    "buyTimes": 0,
+    "dailyExchangeTimes": 0,
+    "goldHalfOrderNum": 0,
+    "goldOrderNum": 1,
+    "groupLastMonthBuyTimes": 0,
+    "groupOrderTimes": 0,
+    "halfOrderNum": 0,
+    "isOrder": "1",
+    "lastMonthBuyTimes": 0,
+    "legalRightsAttrs": [
+      {
+        "attrNbr": "syncGroup",
+        "attrValue": "1100"
+      },
+      {
+        "attrNbr": "crmProductType",
+        "attrValue": "COMMON_PRODUCT"
+      },
+      {
+        "attrNbr": "belongAreas",
+        "attrValue": "1021"
+      },
+      {
+        "attrNbr": "partnerName",
+        "attrValue": "本地"
+      },
+      {
+        "attrNbr": "seq",
+        "attrValue": "7"
+      },
+      {
+        "attrNbr": "skuid",
+        "attrValue": "no"
+      },
+      {
+        "attrNbr": "offerId",
+        "attrValue": "111602018228"
+      },
+      {
+        "attrNbr": "justForMember",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "userDailyOrderNumLimit",
+        "attrValue": "1"
+      },
+      {
+        "attrNbr": "remark",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享年包，产品资费188元/年，订购成功立即扣费立即生效，产品有效期12个月，到期后不续订。仅支持主账户付费，主账户余额＞188元 可订购。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、12个月有效期内，每月可领取1张通用权益兑换券，可在北京移动权益超市-权益福袋中选取符合条件的产品兑换；<br></font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div><b><u><font color=\"#ff0000\">4、以上产品可重复订购，每个产品每日限订购1次，每月最多订购3笔。Plus纯享产品不互斥可同时订购。</font></u></b><br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "orderExplain",
+        "attrValue": "单次业务"
+      },
+      {
+        "attrNbr": "chargeExplain",
+        "attrValue": "<div><b><u><font color=\"#ff0000\">1、Plus会员纯享年包，产品资费188元/年，订购成功立即扣费立即生效，产品有效期12个月，到期后不续订。仅支持主账户付费，主账户余额＞188元 可订购。若产品有效期内退订，产品当月月底失效，但不退费。</font></u></b></div><div><b><u><font color=\"#ff0000\">2、12个月有效期内，每月可领取1张通用权益兑换券，可在Plus会员-权益福袋中选取符合条件的产品兑换；<br>权益福袋内可兑换的数字权益及每款权益可兑换的次数、具体的使用规则，可能会因相关合作协议有所调整，具体以领取时会员页面实时展示规则为准。</font></u></b></div><div><b><u><font color=\"#ff0000\">3、领取当月有效，不转结。请尽快在有效期内兑换使用（支持兑换权益福袋中所提供的数字权益内容，有效期以领取的权益内容为准）。</font></u></b><br></div><div><b><u><font color=\"#ff0000\">4、以上产品可重复订购，每个产品每日限订购1次，每月最多订购3笔。Plus纯享产品不互斥可同时订购。</font></u></b><br></div><div>5、所有北京移动用户均可订购本产品（用户办理时无权益超市会员身份的要求）</div>"
+      },
+      {
+        "attrNbr": "effExplain",
+        "attrValue": "有效期12个月内，每月可领取1张兑换券，兑换券当月有效。"
+      },
+      {
+        "attrNbr": "relatedPeriodic",
+        "attrValue": "0"
+      },
+      {
+        "attrNbr": "configurableModule",
+        "attrValue": "(())[[]]"
+      },
+      {
+        "attrNbr": "img_211_151",
+        "attrValue": "/rights/202205/9548e0e4-6c96-451b-9d32-08ee5e50da3d-admin.png"
+      },
+      {
+        "attrNbr": "img_211_151_fileId",
+        "attrValue": "2022051016060123956"
+      },
+      {
+        "attrNbr": "img_330_182",
+        "attrValue": "/rights/202205/f5df4b6c-81a6-4c68-8fa3-03a36250c52d-admin.png"
+      },
+      {
+        "attrNbr": "img_330_182_fileId",
+        "attrValue": "2022051016060620996"
+      },
+      {
+        "attrNbr": "img_750_288",
+        "attrValue": "/rights/202205/21e60fca-440e-4e53-8961-e562c91ba5ce-admin.png"
+      },
+      {
+        "attrNbr": "img_750_288_fileId",
+        "attrValue": "2022051016061022636"
+      },
+      {
+        "attrNbr": "memberPackageLevel",
+        "attrValue": "1100"
+      }
+    ],
+    "legalRightsConsType": "1000",
+    "legalRightsDesc": "12_188元/年",
+    "legalRightsId": "1523939073268416514",
+    "legalRightsName": "Plus会员纯享年包",
+    "legalRightsNbr": "QY1652170363142",
+    "legalRightsStatusCd": "1700",
+    "legalRightsSubordinate": "1200",
+    "legalRightsType": "9999",
+    "memberOfferId": [],
+    "monthExchangeTimes": 0,
+    "platHalfOrderNum": 0,
+    "platOrderNum": 1,
+    "plusHalfOrderNum": 0,
+    "saleVolume": 0,
+    "statusCd": "1700",
+    "verticalClassFoodNum": 0,
+    "verticalClassMarketNum": 0,
+    "verticalClassMoiveNum": 0
+  }
+]

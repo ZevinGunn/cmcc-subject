@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script>
+    (function () {
+      var host = window.location.hostname;
+      var isProxyPreview = !/^ysmapp\.bj\.10086\.cn$/i.test(host);
+      var base = document.createElement("base");
+      base.href = isProxyPreview ? "/" : "http://ysmapp.bj.10086.cn:80/app/channel-web/";
+      document.head.appendChild(base);
+      window.__isLocalPreview = isProxyPreview;
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <title>北京移动 ARPU消费查询（每用户平均收入）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="format-detection" content="email=no">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --text: #132238;
+      --muted: #61738b;
+      --border: #dce6f1;
+      --primary: #0b7adf;
+      --primary-strong: #085cb2;
+      --primary-soft: #e8f3ff;
+      --success: #0f8f56;
+      --success-soft: #e8f8f0;
+      --warning: #c67b00;
+      --warning-soft: #fff3dd;
+      --danger: #cf3f3f;
+      --danger-soft: #fdecec;
+      --shadow: 0 10px 24px rgba(18, 46, 79, 0.08);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(11, 122, 223, 0.16), transparent 24%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 42%, #edf3f9 100%);
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 20px));
+      margin: 0 auto;
+      padding: 14px 0 18px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(11, 122, 223, 0.98), rgba(6, 91, 181, 0.92)),
+        linear-gradient(135deg, #0b7adf, #085cb2);
+      color: #fff;
+      box-shadow: 0 14px 32px rgba(5, 67, 132, 0.2);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero h1 {
+      position: relative;
+      margin: 0 0 6px;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 38px;
+      padding: 0 13px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .service-link:hover,
+    .service-link:focus-visible {
+      border-color: #fff;
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+    }
+
+    .hero p {
+      position: relative;
+      margin: 0;
+      max-width: 860px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hero-tips {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .hero-tips span {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.96);
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .layout {
+      display: block;
+      margin-top: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(220, 230, 241, 0.8);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .panel-desc,
+    .panel-note,
+    .meta-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .cache-note {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .batch-box {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      background: var(--panel-soft);
+    }
+
+    .field-label {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .text-input,
+    .textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .text-input {
+      height: 42px;
+      padding: 0 12px;
+    }
+
+    .textarea {
+      min-height: 84px;
+      padding: 10px 12px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .text-input:focus,
+    .textarea:focus {
+      outline: none;
+      border-color: rgba(11, 122, 223, 0.65);
+      box-shadow: 0 0 0 4px rgba(11, 122, 223, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 0 14px;
+      min-height: 40px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease, background 0.16s ease;
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      box-shadow: 0 10px 18px rgba(11, 122, 223, 0.16);
+    }
+
+    .btn-primary:hover:not(:disabled),
+    .btn-secondary:hover:not(:disabled),
+    .btn-ghost:hover:not(:disabled),
+    .btn-link:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      color: var(--primary-strong);
+      background: var(--primary-soft);
+    }
+
+    .btn-ghost {
+      color: var(--text);
+      background: #eef3f8;
+    }
+
+    .btn-link {
+      min-height: auto;
+      padding: 6px 8px;
+      border-radius: 10px;
+      color: var(--primary-strong);
+      background: transparent;
+    }
+
+    .phone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 84px;
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 84px;
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      background: var(--panel-soft);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.55;
+      font-size: 12px;
+    }
+
+    .phone-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #fff;
+    }
+
+    .phone-main {
+      min-width: 0;
+    }
+
+    .phone-title-row,
+    .result-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .phone-value {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .phone-sub {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .phone-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-strong);
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      flex: 0 0 auto;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(11, 122, 223, 0.4);
+      background: var(--primary-soft);
+    }
+
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      border: 1px solid var(--border);
+    }
+
+    .stat-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: #eff5fb;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 3px rgba(11, 122, 223, 0.12);
+    }
+
+    .status-bar.running .status-dot {
+      background: var(--warning);
+      box-shadow: 0 0 0 3px rgba(198, 123, 0, 0.14);
+    }
+
+    .status-bar.success .status-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(15, 143, 86, 0.14);
+    }
+
+    .status-bar.error .status-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(207, 63, 63, 0.14);
+    }
+
+    .result-panel {
+      margin-top: 12px;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-card {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
+    }
+
+    .result-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .result-phone {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .result-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-pending {
+      color: #9d6000;
+      background: var(--warning-soft);
+    }
+
+    .badge-success {
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .badge-error {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .summary-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(220, 230, 241, 0.9);
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .summary-item strong {
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .month-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+    }
+
+    .month-table thead {
+      background: #eff6fd;
+    }
+
+    .month-table th,
+    .month-table td {
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(220, 230, 241, 0.8);
+    }
+
+    .month-table td {
+      font-weight: 600;
+    }
+
+    .month-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .estimate-box {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .estimate-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .estimate-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .estimate-field label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .estimate-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .estimate-input:focus {
+      outline: none;
+      border-color: rgba(11, 122, 223, 0.65);
+      box-shadow: 0 0 0 3px rgba(11, 122, 223, 0.1);
+    }
+
+    .estimate-result {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .estimate-result strong {
+      font-size: 16px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .calculator-panel.panel {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border: 0;
+      border-radius: 0;
+      background: rgba(12, 24, 40, 0.45);
+      box-shadow: none;
+    }
+
+    .calculator-panel.show {
+      display: flex;
+    }
+
+    .calculator-panel .panel-body {
+      width: min(980px, 100%);
+      max-height: min(860px, calc(100vh - 32px));
+      overflow: auto;
+      border: 1px solid rgba(220, 230, 241, 0.95);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: 0 22px 48px rgba(8, 28, 56, 0.22);
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .calculator-source {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .select-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .select-input:focus {
+      outline: none;
+      border-color: rgba(11, 122, 223, 0.65);
+      box-shadow: 0 0 0 4px rgba(11, 122, 223, 0.12);
+    }
+
+    .calculator-months {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .month-field {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .month-field-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .month-field label,
+    .calculator-control label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .month-field input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      flex: 0 0 auto;
+    }
+
+    .calculator-number {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .calculator-number:focus {
+      outline: none;
+      border-color: rgba(11, 122, 223, 0.65);
+      box-shadow: 0 0 0 3px rgba(11, 122, 223, 0.1);
+    }
+
+    .calculator-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .calculator-result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .calculator-result {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 12px;
+      background: var(--panel-soft);
+    }
+
+    .calculator-result span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .calculator-result strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1;
+      word-break: break-all;
+    }
+
+    .calculator-control-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .calculator-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(108px, 0.8fr);
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .calculator-control-text {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .calculator-control-text p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .calculator-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .result-error {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--danger-soft);
+      color: #8b2f2f;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .round-toggle {
+      display: inline-flex;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid rgba(220, 230, 241, 0.9);
+      border-radius: 12px;
+      background: #f6f9fc;
+    }
+
+    .round-toggle button {
+      min-height: 30px;
+      padding: 0 10px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .round-toggle button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--primary-strong);
+      box-shadow: 0 4px 10px rgba(42, 60, 82, 0.08);
+    }
+
+    .notice {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translate(-50%, 12px);
+      min-width: min(520px, calc(100% - 24px));
+      max-width: calc(100% - 24px);
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #fff;
+      background: rgba(19, 34, 56, 0.92);
+      box-shadow: 0 14px 28px rgba(16, 28, 45, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+      z-index: 20;
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    .notice.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .notice.success {
+      background: rgba(15, 143, 86, 0.94);
+    }
+
+    .notice.error {
+      background: rgba(207, 63, 63, 0.95);
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 12px, 1180px);
+        padding: 10px 0 14px;
+      }
+
+      .hero {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .panel-body {
+        padding: 12px;
+      }
+
+      .entry-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .entry-grid .text-input {
+        grid-column: auto;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .calculator-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .calculator-months {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .calculator-panel.panel {
+        align-items: flex-end;
+        padding: 8px;
+      }
+
+      .calculator-panel .panel-body {
+        max-height: calc(100vh - 16px);
+        border-radius: 14px;
+      }
+
+      .month-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .service-link {
+        width: 100%;
+      }
+
+      .hero h1 {
+        font-size: 20px;
+      }
+
+      .hero-tips {
+        display: none;
+      }
+
+      .entry-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-item,
+      .result-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .phone-actions,
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .phone-title-row,
+      .result-title-row {
+        justify-content: space-between;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-item {
+        padding: 8px 10px;
+      }
+
+      .summary-item strong {
+        font-size: 18px;
+      }
+
+      .estimate-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .calculator-source,
+      .calculator-months,
+      .calculator-result-grid,
+      .calculator-control {
+        grid-template-columns: 1fr;
+      }
+
+      .estimate-result {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-row">
+        <h1>北京移动 ARPU消费查询（每用户平均收入）</h1>
+        <a class="service-link" href="https://contracts.1008086.xyz/">合约查询 <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-body">
+          <div class="panel-head">
+            <div>
+              <h2>号码输入</h2>
+            </div>
+          </div>
+
+          <div class="entry-grid">
+            <input id="phoneInput" class="text-input" type="tel" inputmode="numeric" maxlength="20" placeholder="请输入 11 位手机号码">
+            <button id="addAndQueryBtn" class="btn btn-primary" type="button">新增号码并查询</button>
+          </div>
+
+          <div class="batch-box">
+            <label class="field-label" for="batchInput">批量导入号码</label>
+            <textarea id="batchInput" class="textarea" placeholder="例如：&#10;13800138000&#10;13900139000, 13700137000"></textarea>
+            <div class="btn-row">
+              <button id="importPhonesBtn" class="btn btn-secondary" type="button">导入号码</button>
+              <button id="clearBatchBtn" class="btn btn-ghost" type="button">清空粘贴区</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button id="queryAllBtn" class="btn btn-primary" type="button">查询全部</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel result-panel">
+      <div class="panel-body">
+        <div class="panel-head">
+          <div>
+            <h2>查询结果</h2>
+          </div>
+          <div class="toolbar">
+            <div class="round-toggle" role="group" aria-label="结果展示方式">
+              <button id="roundCeilBtn" type="button" data-round-mode="ceil" aria-pressed="true">取整</button>
+              <button id="roundDecimalBtn" type="button" data-round-mode="decimal" aria-pressed="false">不取整</button>
+            </div>
+            <button id="showAllPhonesBtn" class="icon-btn" type="button" aria-label="一键显示号码" title="一键显示号码"></button>
+            <button id="hideAllPhonesBtn" class="icon-btn" type="button" aria-label="一键隐藏号码" title="一键隐藏号码"></button>
+            <button id="copyResultsBtn" class="btn btn-link" type="button">复制结果</button>
+            <button id="clearResultsBtn" class="btn btn-link" type="button">清空结果</button>
+          </div>
+        </div>
+        <div id="resultList" class="result-list"></div>
+      </div>
+    </section>
+
+    <section class="panel calculator-panel">
+      <div class="panel-body">
+        <div class="panel-head">
+          <div>
+            <h2>ARPU 消费计算器</h2>
+            <p class="panel-desc">已默认带入当前账号近 6 个月消费，也可手动调整后计算近 3 / 6 月 ARPU，并反推本月消费目标。</p>
+          </div>
+          <button id="calculatorCloseBtn" class="icon-btn" type="button" aria-label="关闭计算器" title="关闭计算器">×</button>
+        </div>
+        <div class="calculator-grid">
+          <div>
+            <div class="calculator-source">
+              <select id="calculatorSourceSelect" class="select-input" aria-label="选择已查询号码消费">
+                <option value="">选择已查询号码消费</option>
+              </select>
+              <button id="calculatorLoadSourceBtn" class="btn btn-secondary" type="button">带入</button>
+            </div>
+            <div id="calculatorMonths" class="calculator-months"></div>
+            <div class="calculator-actions">
+              <button id="calculatorSelectRecent3Btn" class="btn btn-secondary" type="button">选择近3月</button>
+              <button id="calculatorSelectRecent6Btn" class="btn btn-secondary" type="button">选择近6月</button>
+              <button id="calculatorClearBtn" class="btn btn-ghost" type="button">清空</button>
+            </div>
+          </div>
+          <div>
+            <div class="calculator-result-grid">
+              <div class="calculator-result">
+                <span>所选月份平均 ARPU</span>
+                <strong id="calculatorSelectedAvg">--</strong>
+              </div>
+              <div class="calculator-result">
+                <span>近 3 / 6 月 ARPU</span>
+                <strong id="calculatorFixedAvg">-- / --</strong>
+              </div>
+            </div>
+            <div class="calculator-control-grid">
+              <div class="calculator-control">
+                <div class="calculator-control-text">
+                  <label for="calculatorCurrentInput">本月预估消费</label>
+                  <p>按“本月 + N-1、N-2...”测算下月滚动 ARPU。</p>
+                </div>
+                <input id="calculatorCurrentInput" class="calculator-number" type="number" inputmode="decimal" min="0" step="0.01" placeholder="金额">
+              </div>
+              <div class="calculator-result">
+                <span>下月近 3 / 6 月 ARPU</span>
+                <strong id="calculatorNextAvg">-- / --</strong>
+              </div>
+              <div class="calculator-control">
+                <div class="calculator-control-text">
+                  <label for="calculatorTarget3Input">目标近 3 月 ARPU</label>
+                  <p>反推本月至少需消费多少。</p>
+                </div>
+                <input id="calculatorTarget3Input" class="calculator-number" type="number" inputmode="decimal" min="0" step="0.01" placeholder="目标">
+              </div>
+              <div class="calculator-control">
+                <div class="calculator-control-text">
+                  <label for="calculatorTarget6Input">目标近 6 月 ARPU</label>
+                  <p>按近 5 个月历史消费反推本月。</p>
+                </div>
+                <input id="calculatorTarget6Input" class="calculator-number" type="number" inputmode="decimal" min="0" step="0.01" placeholder="目标">
+              </div>
+              <div class="calculator-result">
+                <span>达成目标需本月消费</span>
+                <strong id="calculatorNeedText">-- / --</strong>
+              </div>
+            </div>
+            <p class="calculator-note">N-1 表示最近一个已出账月份；空值按未填写处理，计算固定近 3 / 6 月时按 0 参与，所选月份平均只统计勾选且已填写的月份。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 12px;">
+      <div class="panel-body">
+        <div class="panel-head">
+          <div>
+            <h2>待查询号码列表</h2>
+          </div>
+          <div class="toolbar">
+            <button id="clearPhonesBtn" class="btn btn-link" type="button">清空号码</button>
+          </div>
+        </div>
+        <div id="phoneList" class="phone-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <form id="requestForm" hidden>
+    <input type="hidden" id="submitPhoneNO" name="submitPhoneNO" value="">
+    <input type="hidden" name="submitWareTypeId" value="">
+    <input type="hidden" name="submitWarePlanId" value="">
+    <input type="hidden" name="submitWarePackageId" value="A1000529">
+    <input type="hidden" name="nbc" value="ddf05d72a82e5df6698124e53faf3fb9">
+    <input type="hidden" name="submitCheckCode" value="">
+    <input type="hidden" name="submitSelectedInfo" value="">
+    <input type="hidden" name="submitCheckCodeId" value="">
+    <input type="hidden" name="submitChannel" value="app_share">
+    <input type="hidden" name="submitCode" value="WWFSX001570">
+    <input type="hidden" name="submitEmpCode" value="WWFSX001570">
+    <input type="hidden" name="token" value="">
+  </form>
+
+  <div id="notice" class="notice"></div>
+
+    <script>
+    (function () {
+      var MONTH_LABELS = ["N-1", "N-2", "N-3", "N-4", "N-5", "N-6"];
+      var STORAGE_KEY = "arpu-query-workbench-v2";
+      var ROUND_MODES = {
+        ceil: "ceil",
+        decimal: "decimal"
+      };
+      var state = {
+        phones: [],
+        results: {},
+        visiblePhones: {},
+        roundMode: ROUND_MODES.ceil,
+        calculator: {
+          months: ["", "", "", "", "", ""],
+          selected: [true, true, true, true, true, true],
+          current: "",
+          target3: "",
+          target6: "",
+          sourcePhone: ""
+        },
+        isQuerying: false,
+        queryMode: "",
+        stopRequested: false,
+        noticeTimer: null
+      };
+
+      var phoneInput = document.getElementById("phoneInput");
+      var batchInput = document.getElementById("batchInput");
+      var phoneList = document.getElementById("phoneList");
+      var resultList = document.getElementById("resultList");
+      var queryAllBtn = document.getElementById("queryAllBtn");
+      var clearResultsBtn = document.getElementById("clearResultsBtn");
+      var copyResultsBtn = document.getElementById("copyResultsBtn");
+      var hideAllPhonesBtn = document.getElementById("hideAllPhonesBtn");
+      var showAllPhonesBtn = document.getElementById("showAllPhonesBtn");
+      var roundCeilBtn = document.getElementById("roundCeilBtn");
+      var roundDecimalBtn = document.getElementById("roundDecimalBtn");
+      var clearPhonesBtn = document.getElementById("clearPhonesBtn");
+      var calculatorPanel = document.querySelector(".calculator-panel");
+      var calculatorCloseBtn = document.getElementById("calculatorCloseBtn");
+      var calculatorSourceSelect = document.getElementById("calculatorSourceSelect");
+      var calculatorLoadSourceBtn = document.getElementById("calculatorLoadSourceBtn");
+      var calculatorMonths = document.getElementById("calculatorMonths");
+      var calculatorSelectRecent3Btn = document.getElementById("calculatorSelectRecent3Btn");
+      var calculatorSelectRecent6Btn = document.getElementById("calculatorSelectRecent6Btn");
+      var calculatorClearBtn = document.getElementById("calculatorClearBtn");
+      var calculatorCurrentInput = document.getElementById("calculatorCurrentInput");
+      var calculatorTarget3Input = document.getElementById("calculatorTarget3Input");
+      var calculatorTarget6Input = document.getElementById("calculatorTarget6Input");
+      var calculatorSelectedAvg = document.getElementById("calculatorSelectedAvg");
+      var calculatorFixedAvg = document.getElementById("calculatorFixedAvg");
+      var calculatorNextAvg = document.getElementById("calculatorNextAvg");
+      var calculatorNeedText = document.getElementById("calculatorNeedText");
+      var requestForm = document.getElementById("requestForm");
+      var notice = document.getElementById("notice");
+      var storageAvailable = checkStorageAvailable();
+
+      function buildApiUrl(path) {
+        if (!window.__isLocalPreview) {
+          return path;
+        }
+        if (/^https?:\/\//i.test(path)) {
+          return path;
+        }
+        return window.location.origin + "/proxy/app/channel-web/" + path.replace(/^\/+/, "");
+      }
+
+      function checkStorageAvailable() {
+        try {
+          var testKey = STORAGE_KEY + ".test";
+          window.localStorage.setItem(testKey, "1");
+          window.localStorage.removeItem(testKey);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function showNotice(message, type) {
+        notice.textContent = message;
+        notice.className = "notice show" + (type ? " " + type : "");
+        window.clearTimeout(state.noticeTimer);
+        state.noticeTimer = window.setTimeout(function () {
+          notice.className = "notice";
+        }, 2400);
+      }
+
+      function normalizePhone(value) {
+        return String(value || "").replace(/\D/g, "");
+      }
+
+      function isValidPhone(phone) {
+        return /^1\d{10}$/.test(phone);
+      }
+
+      function parsePhones(text) {
+        var raw = String(text || "");
+        var splitTokens = raw.split(/[\s,，;；]+/).map(normalizePhone);
+        var matchTokens = raw.match(/1\d{10}/g) || [];
+        var merged = splitTokens.concat(matchTokens.map(normalizePhone));
+        var result = [];
+        var cache = {};
+        for (var i = 0; i < merged.length; i++) {
+          var phone = merged[i];
+          if (!phone || !isValidPhone(phone) || cache[phone]) {
+            continue;
+          }
+          cache[phone] = true;
+          result.push(phone);
+        }
+        return result;
+      }
+
+      function dedupePhones(list) {
+        var unique = [];
+        var cache = {};
+        var source = Array.isArray(list) ? list : [];
+        for (var i = 0; i < source.length; i++) {
+          var phone = normalizePhone(source[i]);
+          if (!isValidPhone(phone) || cache[phone]) {
+            continue;
+          }
+          cache[phone] = true;
+          unique.push(phone);
+        }
+        return unique;
+      }
+
+      function maskPhone(phone) {
+        var normalized = normalizePhone(phone);
+        if (!isValidPhone(normalized)) {
+          return normalized;
+        }
+        return normalized.slice(0, 3) + "****" + normalized.slice(7);
+      }
+
+      function isPhoneVisible(phone) {
+        return !!state.visiblePhones[phone];
+      }
+
+      function formatPhoneDisplay(phone) {
+        return isPhoneVisible(phone) ? phone : maskPhone(phone);
+      }
+
+      function renderEyeIcon(visible) {
+        if (visible) {
+          return [
+            '<svg viewBox="0 0 24 24" aria-hidden="true">',
+              '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>',
+              '<circle cx="12" cy="12" r="3"></circle>',
+            '</svg>'
+          ].join("");
+        }
+        return [
+          '<svg viewBox="0 0 24 24" aria-hidden="true">',
+            '<path d="M3 3l18 18"></path>',
+            '<path d="M10.6 6.3A11.4 11.4 0 0 1 12 6c6.5 0 10 6 10 6a18.8 18.8 0 0 1-4 4.6"></path>',
+            '<path d="M6.7 6.8C3.8 8.6 2 12 2 12s3.5 6 10 6c1.9 0 3.5-.5 4.9-1.2"></path>',
+            '<path d="M9.9 9.9A3 3 0 0 0 14.1 14.1"></path>',
+          '</svg>'
+        ].join("");
+      }
+
+      function normalizeRoundMode(value) {
+        return value === ROUND_MODES.decimal ? ROUND_MODES.decimal : ROUND_MODES.ceil;
+      }
+
+      function formatAmount(value) {
+        var number = Number(value);
+        if (!isFinite(number)) {
+          return "0";
+        }
+        if (state.roundMode === ROUND_MODES.ceil) {
+          return String(Math.ceil(number));
+        }
+        return (Math.round((number + Number.EPSILON) * 100) / 100).toFixed(2);
+      }
+
+      function calculateAverage(values) {
+        if (!values || !values.length) {
+          return 0;
+        }
+        var total = 0;
+        for (var i = 0; i < values.length; i++) {
+          total += Number(values[i]) || 0;
+        }
+        return total / values.length;
+      }
+
+      function sanitizeAmountInput(value) {
+        var raw = String(value == null ? "" : value).replace(/[^\d.]/g, "");
+        if (!raw) {
+          return "";
+        }
+        var parts = raw.split(".");
+        var integer = parts.shift() || "";
+        var decimal = parts.join("").slice(0, 2);
+        return decimal ? integer + "." + decimal : integer;
+      }
+
+      function parseAmountInput(value) {
+        if (value === "" || value == null) {
+          return null;
+        }
+        var number = Number(value);
+        return isFinite(number) ? number : null;
+      }
+
+      function normalizeCalculator(rawCalculator) {
+        var source = rawCalculator && typeof rawCalculator === "object" ? rawCalculator : {};
+        var months = Array.isArray(source.months) ? source.months.slice(0, 6).map(sanitizeAmountInput) : [];
+        var selected = Array.isArray(source.selected) ? source.selected.slice(0, 6).map(function (value) {
+          return value !== false;
+        }) : [];
+        while (months.length < 6) {
+          months.push("");
+        }
+        while (selected.length < 6) {
+          selected.push(true);
+        }
+        return {
+          months: months,
+          selected: selected,
+          current: sanitizeAmountInput(source.current),
+          target3: sanitizeAmountInput(source.target3),
+          target6: sanitizeAmountInput(source.target6),
+          sourcePhone: isValidPhone(normalizePhone(source.sourcePhone)) ? normalizePhone(source.sourcePhone) : ""
+        };
+      }
+
+      function calculatorNumbers() {
+        return state.calculator.months.map(function (value) {
+          var number = parseAmountInput(value);
+          return number == null ? 0 : number;
+        });
+      }
+
+      function formatDateTime(timestamp) {
+        if (!timestamp) {
+          return "尚未查询";
+        }
+        var date = new Date(timestamp);
+        var month = String(date.getMonth() + 1).padStart(2, "0");
+        var day = String(date.getDate()).padStart(2, "0");
+        var hour = String(date.getHours()).padStart(2, "0");
+        var minute = String(date.getMinutes()).padStart(2, "0");
+        var second = String(date.getSeconds()).padStart(2, "0");
+        return month + "-" + day + " " + hour + ":" + minute + ":" + second;
+      }
+
+      function currentTimeText() {
+        return formatDateTime(Date.now());
+      }
+
+      function persistState() {
+        if (!storageAvailable) {
+          return;
+        }
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            phones: state.phones.slice(),
+            results: state.results,
+            visiblePhones: state.visiblePhones,
+            roundMode: state.roundMode,
+            calculator: state.calculator,
+            savedAt: Date.now()
+          }));
+        } catch (error) {
+          // ignore storage errors so querying is not blocked
+        }
+      }
+
+      function normalizeCachedResults(rawResults) {
+        var normalized = {};
+        if (!rawResults || typeof rawResults !== "object") {
+          return normalized;
+        }
+
+        Object.keys(rawResults).forEach(function (key) {
+          var phone = normalizePhone(key);
+          if (!isValidPhone(phone)) {
+            return;
+          }
+
+          var item = rawResults[key] || {};
+          var months = Array.isArray(item.months) ? item.months.slice(0, 6).map(function (value) {
+            return Number(value) || 0;
+          }) : [];
+          while (months.length < 6) {
+            months.push(0);
+          }
+
+          var queriedAt = Number(item.queriedAt) || 0;
+          var status = item.status;
+          var normalizedItem = {
+            phone: phone,
+            status: status === "success" || status === "error" ? status : "error",
+            months: months,
+            avg3: Number(item.avg3),
+            avg6: Number(item.avg6),
+            message: String(item.message || ""),
+            queriedAt: queriedAt,
+            queryTime: item.queryTime ? String(item.queryTime) : (queriedAt ? formatDateTime(queriedAt) : ""),
+            estimate: normalizeEstimate(item.estimate)
+          };
+
+          if (status === "pending") {
+            normalizedItem.status = "error";
+            normalizedItem.message = "上次查询未完成，请重新查询";
+          }
+
+          normalizedItem.avg3 = calculateAverage(months.slice(0, 3));
+          normalizedItem.avg6 = calculateAverage(months);
+          if (normalizedItem.status === "error" && !normalizedItem.message) {
+            normalizedItem.message = "已恢复历史结果，可重新查询";
+          }
+
+          normalized[phone] = normalizedItem;
+        });
+
+        return normalized;
+      }
+
+      function normalizeEstimate(rawEstimate) {
+        var source = rawEstimate && typeof rawEstimate === "object" ? rawEstimate : {};
+        return {
+          target3: sanitizeAmountInput(source.target3),
+          target6: sanitizeAmountInput(source.target6),
+          current: sanitizeAmountInput(source.current)
+        };
+      }
+
+      function normalizeVisiblePhones(rawVisiblePhones, phones) {
+        var normalized = {};
+        var allowed = {};
+        (phones || []).forEach(function (phone) {
+          allowed[phone] = true;
+        });
+
+        if (!rawVisiblePhones || typeof rawVisiblePhones !== "object") {
+          return normalized;
+        }
+
+        Object.keys(rawVisiblePhones).forEach(function (key) {
+          var phone = normalizePhone(key);
+          if (allowed[phone] && rawVisiblePhones[key]) {
+            normalized[phone] = true;
+          }
+        });
+
+        return normalized;
+      }
+
+      function restoreState() {
+        if (!storageAvailable) {
+          return;
+        }
+
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return;
+          }
+          var parsed = JSON.parse(raw) || {};
+          state.roundMode = normalizeRoundMode(parsed.roundMode);
+          state.calculator = normalizeCalculator(parsed.calculator);
+          var restoredResults = normalizeCachedResults(parsed.results);
+          var restoredPhones = dedupePhones((parsed.phones || []).concat(Object.keys(restoredResults)));
+
+          if (!restoredPhones.length && !Object.keys(restoredResults).length) {
+            renderRoundModeToggle();
+            return;
+          }
+
+          state.phones = restoredPhones;
+          state.results = restoredResults;
+          state.visiblePhones = normalizeVisiblePhones(parsed.visiblePhones, restoredPhones);
+          persistState();
+          setStatus("已恢复 " + restoredPhones.length + " 个号码和 " + Object.keys(restoredResults).length + " 条历史结果。", "");
+          showNotice("已从当前浏览器恢复历史号码和查询结果。", "success");
+        } catch (error) {
+          try {
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch (_) {}
+        }
+      }
+
+      function setStatus(message, type) {
+        window.__lastStatusMessage = message;
+      }
+
+      function togglePhoneVisibility(phone) {
+        if (isPhoneVisible(phone)) {
+          delete state.visiblePhones[phone];
+        } else {
+          state.visiblePhones[phone] = true;
+        }
+        persistState();
+        renderPhoneList();
+        renderResults();
+      }
+
+      function setAllPhoneVisibility(visible) {
+        var nextState = {};
+        if (visible) {
+          state.phones.forEach(function (phone) {
+            nextState[phone] = true;
+          });
+        }
+        state.visiblePhones = nextState;
+        persistState();
+        renderPhoneList();
+        renderResults();
+      }
+
+      function renderRoundModeToggle() {
+        roundCeilBtn.setAttribute("aria-pressed", state.roundMode === ROUND_MODES.ceil ? "true" : "false");
+        roundDecimalBtn.setAttribute("aria-pressed", state.roundMode === ROUND_MODES.decimal ? "true" : "false");
+      }
+
+      function setRoundMode(mode) {
+        var nextMode = normalizeRoundMode(mode);
+        if (state.roundMode === nextMode) {
+          return;
+        }
+        state.roundMode = nextMode;
+        persistState();
+        renderRoundModeToggle();
+        renderResults();
+        renderCalculator();
+        showNotice(nextMode === ROUND_MODES.ceil ? "结果展示已切换为向上取整。" : "结果展示已切换为保留两位小数。", "success");
+      }
+
+      function buildCopyLine(item) {
+        return [
+          maskPhone(item.phone),
+          "近三个月:" + formatAmount(item.avg3),
+          "近六个月:" + formatAmount(item.avg6),
+          "六个月消费:" + item.months.map(function (value) {
+            return formatAmount(value);
+          }).join("/")
+        ].join(" ");
+      }
+
+      async function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "readonly");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (!copied) {
+          throw new Error("复制失败");
+        }
+      }
+
+      async function copyResults() {
+        var successItems = state.phones.map(function (phone) {
+          return state.results[phone];
+        }).filter(function (item) {
+          return item && item.status === "success";
+        });
+
+        if (!successItems.length) {
+          showNotice("暂无可复制的成功结果。", "error");
+          return;
+        }
+
+        var content = successItems.map(buildCopyLine).join("\n");
+        try {
+          await copyText(content);
+          showNotice("已复制 " + successItems.length + " 条查询结果。", "success");
+        } catch (error) {
+          showNotice("复制失败，请稍后重试。", "error");
+        }
+      }
+
+      function addPhones(phones) {
+        var added = [];
+        for (var i = 0; i < phones.length; i++) {
+          var phone = phones[i];
+          if (state.phones.indexOf(phone) === -1) {
+            state.phones.push(phone);
+            added.push(phone);
+          }
+        }
+        persistState();
+        renderPhoneList();
+        renderSummary();
+        return added;
+      }
+
+      function removePhone(phone) {
+        state.phones = state.phones.filter(function (item) {
+          return item !== phone;
+        });
+        delete state.results[phone];
+        delete state.visiblePhones[phone];
+        persistState();
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+      }
+
+      function clearPhones() {
+        state.phones = [];
+        state.results = {};
+        state.visiblePhones = {};
+        persistState();
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+      }
+
+      function clearResults() {
+        state.results = {};
+        persistState();
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+        setStatus("结果已清空，可继续添加号码重新查询。", "");
+      }
+
+      function updateResult(phone, payload) {
+        var current = state.results[phone] || { phone: phone };
+        state.results[phone] = Object.assign({}, current, payload);
+        persistState();
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+      }
+
+      function updateEstimate(phone, field, value, sourceInput) {
+        var item = state.results[phone];
+        if (!item || item.status !== "success") {
+          return;
+        }
+        var estimate = normalizeEstimate(item.estimate);
+        estimate[field] = sanitizeAmountInput(value);
+        state.results[phone] = Object.assign({}, item, { estimate: estimate });
+        persistState();
+        if (sourceInput && sourceInput.value !== estimate[field]) {
+          sourceInput.value = estimate[field];
+        }
+        updateEstimateDisplay(phone);
+        renderSummary();
+      }
+
+      function updateEstimateDisplay(phone) {
+        var item = state.results[phone];
+        if (!item || item.status !== "success") {
+          return;
+        }
+        var box = resultList.querySelector('[data-estimate-phone="' + phone + '"]');
+        if (!box) {
+          return;
+        }
+        var result = calculateEstimate(item);
+        var need3Node = box.querySelector('[data-estimate-result="need3"]');
+        var need6Node = box.querySelector('[data-estimate-result="need6"]');
+        var nextNode = box.querySelector('[data-estimate-result="next"]');
+        if (need3Node) {
+          need3Node.textContent = result.needFor3 == null ? "--" : formatAmount(result.needFor3);
+        }
+        if (need6Node) {
+          need6Node.textContent = result.needFor6 == null ? "--" : formatAmount(result.needFor6);
+        }
+        if (nextNode) {
+          nextNode.textContent = (result.nextAvg3 == null ? "--" : formatAmount(result.nextAvg3)) + " / " + (result.nextAvg6 == null ? "--" : formatAmount(result.nextAvg6));
+        }
+      }
+
+      function renderCalculatorSources() {
+        var sourcePhone = state.calculator.sourcePhone;
+        var options = ['<option value="">选择已查询号码消费</option>'];
+        var successPhones = state.phones.filter(function (phone) {
+          return state.results[phone] && state.results[phone].status === "success";
+        });
+        if (sourcePhone && successPhones.indexOf(sourcePhone) === -1 && state.results[sourcePhone] && state.results[sourcePhone].status === "success") {
+          successPhones.unshift(sourcePhone);
+        }
+        successPhones.forEach(function (phone) {
+          options.push('<option value="' + phone + '"' + (phone === sourcePhone ? " selected" : "") + ">" + formatPhoneDisplay(phone) + "</option>");
+        });
+        calculatorSourceSelect.innerHTML = options.join("");
+        calculatorLoadSourceBtn.disabled = !calculatorSourceSelect.value;
+      }
+
+      function renderCalculator() {
+        calculatorMonths.innerHTML = MONTH_LABELS.map(function (label, index) {
+          return [
+            '<div class="month-field">',
+              '<div class="month-field-top">',
+                '<label for="calculatorMonth', index, '">', label, ' 消费</label>',
+                '<input type="checkbox" aria-label="选择 ', label, '" data-action="calculator-select-month" data-index="', index, '"', state.calculator.selected[index] ? " checked" : "", '>',
+              '</div>',
+              '<input id="calculatorMonth', index, '" class="calculator-number" type="number" inputmode="decimal" min="0" step="0.01" placeholder="金额" data-action="calculator-month-input" data-index="', index, '" value="', escapeHtml(state.calculator.months[index]), '">',
+            '</div>'
+          ].join("");
+        }).join("");
+
+        calculatorCurrentInput.value = state.calculator.current;
+        calculatorTarget3Input.value = state.calculator.target3;
+        calculatorTarget6Input.value = state.calculator.target6;
+        renderCalculatorSources();
+        updateCalculatorResult();
+      }
+
+      function updateCalculatorResult() {
+        var numbers = calculatorNumbers();
+        var selectedValues = [];
+        state.calculator.selected.forEach(function (selected, index) {
+          if (selected && parseAmountInput(state.calculator.months[index]) != null) {
+            selectedValues.push(numbers[index]);
+          }
+        });
+
+        var fixedAvg3 = calculateAverage(numbers.slice(0, 3));
+        var fixedAvg6 = calculateAverage(numbers);
+        var selectedAvg = selectedValues.length ? calculateAverage(selectedValues) : null;
+        var current = parseAmountInput(state.calculator.current);
+        var target3 = parseAmountInput(state.calculator.target3);
+        var target6 = parseAmountInput(state.calculator.target6);
+        var nextAvg3 = current == null ? null : calculateAverage([current, numbers[0], numbers[1]]);
+        var nextAvg6 = current == null ? null : calculateAverage([current].concat(numbers.slice(0, 5)));
+        var needFor3 = target3 == null ? null : Math.max(0, target3 * 3 - numbers[0] - numbers[1]);
+        var needFor6 = target6 == null ? null : Math.max(0, target6 * 6 - numbers[0] - numbers[1] - numbers[2] - numbers[3] - numbers[4]);
+
+        calculatorSelectedAvg.textContent = selectedAvg == null ? "--" : formatAmount(selectedAvg);
+        calculatorFixedAvg.textContent = formatAmount(fixedAvg3) + " / " + formatAmount(fixedAvg6);
+        calculatorNextAvg.textContent = (nextAvg3 == null ? "--" : formatAmount(nextAvg3)) + " / " + (nextAvg6 == null ? "--" : formatAmount(nextAvg6));
+        calculatorNeedText.textContent = (needFor3 == null ? "--" : formatAmount(needFor3)) + " / " + (needFor6 == null ? "--" : formatAmount(needFor6));
+      }
+
+      function updateCalculatorMonth(index, value, sourceInput) {
+        if (index < 0 || index >= 6) {
+          return;
+        }
+        var nextValue = sanitizeAmountInput(value);
+        state.calculator.months[index] = nextValue;
+        if (sourceInput && sourceInput.value !== nextValue) {
+          sourceInput.value = nextValue;
+        }
+        persistState();
+        updateCalculatorResult();
+      }
+
+      function updateCalculatorField(field, value, sourceInput) {
+        if (!Object.prototype.hasOwnProperty.call(state.calculator, field)) {
+          return;
+        }
+        var nextValue = sanitizeAmountInput(value);
+        state.calculator[field] = nextValue;
+        if (sourceInput && sourceInput.value !== nextValue) {
+          sourceInput.value = nextValue;
+        }
+        persistState();
+        updateCalculatorResult();
+      }
+
+      function setCalculatorMonthSelection(count) {
+        state.calculator.selected = MONTH_LABELS.map(function (_, index) {
+          return index < count;
+        });
+        persistState();
+        renderCalculator();
+      }
+
+      function clearCalculator() {
+        state.calculator = normalizeCalculator({
+          months: ["", "", "", "", "", ""],
+          selected: [true, true, true, true, true, true]
+        });
+        persistState();
+        renderCalculator();
+      }
+
+      function openCalculator() {
+        calculatorPanel.classList.add("show");
+        document.body.classList.add("modal-open");
+        calculatorPanel.setAttribute("aria-hidden", "false");
+        renderCalculator();
+      }
+
+      function closeCalculator() {
+        calculatorPanel.classList.remove("show");
+        document.body.classList.remove("modal-open");
+        calculatorPanel.setAttribute("aria-hidden", "true");
+      }
+
+      function loadCalculatorFromPhone(phone) {
+        var item = state.results[phone];
+        if (!item || item.status !== "success") {
+          showNotice("请选择已有成功查询结果的号码。", "error");
+          return;
+        }
+        state.calculator.months = item.months.slice(0, 6).map(function (value) {
+          return sanitizeAmountInput(String(value));
+        });
+        while (state.calculator.months.length < 6) {
+          state.calculator.months.push("");
+        }
+        state.calculator.sourcePhone = phone;
+        persistState();
+        renderCalculator();
+        openCalculator();
+        showNotice("已带入 " + maskPhone(phone) + " 的近 6 个月消费。", "success");
+      }
+
+      function renderPhoneList() {
+        if (!state.phones.length) {
+          phoneList.innerHTML = '<div class="empty-state">还没有待查询号码。<br>可输入单个号码并查询，或批量粘贴后导入。</div>';
+          return;
+        }
+
+        var html = state.phones.map(function (phone, index) {
+          var result = state.results[phone];
+          var desc = "待查询";
+          var disabledAttr = state.isQuerying ? " disabled" : "";
+          var visible = isPhoneVisible(phone);
+          var eyeLabel = visible ? "隐藏号码" : "显示号码";
+          if (result && result.status === "pending") {
+            desc = "查询中";
+          } else if (result && result.status === "success") {
+            desc = "最近查询成功";
+          } else if (result && result.status === "error") {
+            desc = "最近查询失败";
+          }
+          return [
+            '<div class="phone-item">',
+              '<div class="phone-main">',
+                '<div class="phone-title-row">',
+                  '<span class="phone-value">', formatPhoneDisplay(phone), '</span>',
+                  '<button class="icon-btn" type="button" data-action="toggle-visibility" data-phone="', phone, '" aria-label="', eyeLabel, '" title="', eyeLabel, '">', renderEyeIcon(visible), '</button>',
+                '</div>',
+                '<span class="phone-sub">序号 ', String(index + 1), ' / ', desc, '</span>',
+              '</div>',
+              '<div class="phone-actions">',
+                '<button class="btn btn-link" type="button" data-action="query-one" data-phone="', phone, '"', disabledAttr, '>单独查询</button>',
+                '<button class="btn btn-link" type="button" data-action="remove" data-phone="', phone, '"', disabledAttr, '>移除</button>',
+              '</div>',
+            '</div>'
+          ].join("");
+        }).join("");
+
+        phoneList.innerHTML = html;
+      }
+
+      function renderSummary() {
+        var results = Object.keys(state.results).map(function (phone) {
+          return state.results[phone];
+        });
+
+        queryAllBtn.disabled = state.isQuerying || !state.phones.length;
+        copyResultsBtn.disabled = !results.some(function (item) {
+          return item.status === "success";
+        });
+        hideAllPhonesBtn.disabled = !state.phones.length || state.phones.every(function (phone) {
+          return !isPhoneVisible(phone);
+        });
+        showAllPhonesBtn.disabled = !state.phones.length || state.phones.every(function (phone) {
+          return isPhoneVisible(phone);
+        });
+        clearPhonesBtn.disabled = state.isQuerying;
+        clearResultsBtn.disabled = state.isQuerying;
+        renderCalculatorSources();
+      }
+
+      function buildMonthTable(monthValues) {
+        var headCells = MONTH_LABELS.map(function (label) {
+          return "<th>" + label + "</th>";
+        }).join("");
+        var valueCells = monthValues.map(function (value) {
+          return "<td>" + formatAmount(value) + "</td>";
+        }).join("");
+
+        return [
+          '<table class="month-table">',
+            "<thead><tr>", headCells, "</tr></thead>",
+            "<tbody><tr>", valueCells, "</tr></tbody>",
+          "</table>"
+        ].join("");
+      }
+
+      function calculateEstimate(item) {
+        var months = Array.isArray(item.months) ? item.months : [];
+        var n1 = Number(months[0]) || 0;
+        var n2 = Number(months[1]) || 0;
+        var n3 = Number(months[2]) || 0;
+        var n4 = Number(months[3]) || 0;
+        var n5 = Number(months[4]) || 0;
+        var estimate = normalizeEstimate(item.estimate);
+        var target3 = parseAmountInput(estimate.target3);
+        var target6 = parseAmountInput(estimate.target6);
+        var current = parseAmountInput(estimate.current);
+        var needFor3 = target3 == null ? null : Math.max(0, target3 * 3 - n1 - n2);
+        var needFor6 = target6 == null ? null : Math.max(0, target6 * 6 - n1 - n2 - n3 - n4 - n5);
+        var nextAvg3 = current == null ? null : calculateAverage([current, n1, n2]);
+        var nextAvg6 = current == null ? null : calculateAverage([current, n1, n2, n3, n4, n5]);
+
+        return {
+          estimate: estimate,
+          needFor3: needFor3,
+          needFor6: needFor6,
+          nextAvg3: nextAvg3,
+          nextAvg6: nextAvg6
+        };
+      }
+
+      function renderEstimateBox(item) {
+        var result = calculateEstimate(item);
+        var need3Text = result.needFor3 == null ? "--" : formatAmount(result.needFor3);
+        var need6Text = result.needFor6 == null ? "--" : formatAmount(result.needFor6);
+        var next3Text = result.nextAvg3 == null ? "--" : formatAmount(result.nextAvg3);
+        var next6Text = result.nextAvg6 == null ? "--" : formatAmount(result.nextAvg6);
+
+        return [
+          '<div class="estimate-box" data-estimate-phone="', item.phone, '">',
+            '<div class="estimate-row">',
+              '<div class="estimate-field">',
+                '<label>目标近3月ARPU</label>',
+                '<input class="estimate-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="目标值" data-action="estimate-input" data-phone="', item.phone, '" data-field="target3" value="', escapeHtml(result.estimate.target3), '">',
+              '</div>',
+              '<div class="estimate-result"><span>本月需消费</span><strong data-estimate-result="need3">', need3Text, '</strong></div>',
+            '</div>',
+            '<div class="estimate-row">',
+              '<div class="estimate-field">',
+                '<label>目标近6月ARPU</label>',
+                '<input class="estimate-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="目标值" data-action="estimate-input" data-phone="', item.phone, '" data-field="target6" value="', escapeHtml(result.estimate.target6), '">',
+              '</div>',
+              '<div class="estimate-result"><span>本月需消费</span><strong data-estimate-result="need6">', need6Text, '</strong></div>',
+            '</div>',
+            '<div class="estimate-row">',
+              '<div class="estimate-field">',
+                '<label>本月预估消费</label>',
+                '<input class="estimate-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="预估金额" data-action="estimate-input" data-phone="', item.phone, '" data-field="current" value="', escapeHtml(result.estimate.current), '">',
+              '</div>',
+              '<div class="estimate-result"><span>下月近3/6月ARPU</span><strong data-estimate-result="next">', next3Text, ' / ', next6Text, '</strong></div>',
+            '</div>',
+          '</div>'
+        ].join("");
+      }
+
+      function renderResults() {
+        var entries = Object.keys(state.results).map(function (phone) {
+          return state.results[phone];
+        });
+
+        if (!entries.length) {
+          resultList.innerHTML = '<div class="empty-state">暂无查询结果。<br>添加号码后点击“查询全部”即可生成消费明细和 ARPU 结果。</div>';
+          return;
+        }
+
+        entries.sort(function (a, b) {
+          var aIndex = state.phones.indexOf(a.phone);
+          var bIndex = state.phones.indexOf(b.phone);
+          var safeA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+          var safeB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+          return safeA - safeB;
+        });
+
+        resultList.innerHTML = entries.map(function (item) {
+          var disabledAttr = state.isQuerying ? " disabled" : "";
+          var visible = isPhoneVisible(item.phone);
+          var eyeLabel = visible ? "隐藏号码" : "显示号码";
+          var badgeClass = "badge-pending";
+          var badgeText = "查询中";
+          if (item.status === "success") {
+            badgeClass = "badge-success";
+            badgeText = "查询成功";
+          } else if (item.status === "error") {
+            badgeClass = "badge-error";
+            badgeText = "查询失败";
+          }
+
+          var content = '';
+          if (item.status === "success") {
+            content = [
+              '<div class="summary-grid">',
+                '<div class="summary-item">',
+                  '<span>近 3 个月 ARPU</span>',
+                  '<strong>', formatAmount(item.avg3), '</strong>',
+                '</div>',
+                '<div class="summary-item">',
+                  '<span>近 6 个月 ARPU</span>',
+                  '<strong>', formatAmount(item.avg6), '</strong>',
+                '</div>',
+              '</div>',
+              buildMonthTable(item.months),
+              renderEstimateBox(item)
+            ].join("");
+          } else if (item.status === "error") {
+            content = '<div class="result-error">' + escapeHtml(item.message || "查询失败，请稍后重试。") + '</div>';
+          } else {
+            content = '<div class="result-error" style="background: var(--warning-soft); color: #8b5f1f;">正在请求接口并计算 ARPU，请稍候...</div>';
+          }
+
+          return [
+            '<article class="result-card">',
+              '<div class="result-top">',
+                '<div>',
+                  '<div class="result-title-row">',
+                    '<h3 class="result-phone">', formatPhoneDisplay(item.phone), '</h3>',
+                    '<button class="icon-btn" type="button" data-action="toggle-visibility" data-phone="', item.phone, '" aria-label="', eyeLabel, '" title="', eyeLabel, '">', renderEyeIcon(visible), '</button>',
+                  '</div>',
+                  '<div class="result-meta">最近查询时间：', item.queryTime || "处理中", '</div>',
+                '</div>',
+                '<span class="badge ', badgeClass, '">', badgeText, '</span>',
+              '</div>',
+              content,
+              '<div class="btn-row" style="margin-top:10px;">',
+                '<button class="btn btn-link" type="button" data-action="query-one" data-phone="', item.phone, '"', disabledAttr, '>重新查询</button>',
+                item.status === "success" ? '<button class="btn btn-link" type="button" data-action="open-calculator" data-phone="' + item.phone + '">ARPU消费计算器</button>' : '',
+              '</div>',
+            '</article>'
+          ].join("");
+        }).join("");
+      }
+
+      function escapeHtml(text) {
+        return String(text || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function createRequestParams(phone) {
+        document.getElementById("submitPhoneNO").value = phone;
+        var params = new URLSearchParams();
+        new FormData(requestForm).forEach(function (value, key) {
+          if (value !== "") {
+            params.append(key, value);
+          }
+        });
+        return params;
+      }
+
+      async function fetchConsumption(phone) {
+        var params = createRequestParams(phone);
+        var url = buildApiUrl("busiCore/customerValidateAndConsumption.action") + "?" + params.toString();
+        var response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        });
+
+        var data;
+        try {
+          data = await response.json();
+        } catch (error) {
+          throw new Error(response.ok ? "接口返回无法解析" : "代理或上游接口返回异常");
+        }
+
+        if (!response.ok) {
+          throw new Error(data && (data.errorMsg || data.message) ? data.errorMsg || data.message : "接口请求失败");
+        }
+
+        if (!data || data.errorCode !== "success") {
+          throw new Error(data && data.errorMsg ? data.errorMsg : "查询失败");
+        }
+
+        var entity;
+        try {
+          entity = typeof data.entity === "string" ? JSON.parse(data.entity) : (data.entity || {});
+        } catch (error) {
+          throw new Error("消费数据解析失败");
+        }
+
+        var months = [];
+        for (var i = 1; i <= 6; i++) {
+          months.push(Number(entity["arpu_" + i]) || 0);
+        }
+
+        return {
+          months: months,
+          avg3: calculateAverage(months.slice(0, 3)),
+          avg6: calculateAverage(months)
+        };
+      }
+
+      async function queryOne(phone) {
+        var startAt = Date.now();
+        updateResult(phone, {
+          status: "pending",
+          message: "",
+          queriedAt: startAt,
+          queryTime: formatDateTime(startAt)
+        });
+
+        try {
+          var result = await fetchConsumption(phone);
+          var successAt = Date.now();
+          updateResult(phone, {
+            status: "success",
+            months: result.months,
+            avg3: result.avg3,
+            avg6: result.avg6,
+            estimate: normalizeEstimate((state.results[phone] || {}).estimate),
+            message: "",
+            queriedAt: successAt,
+            queryTime: formatDateTime(successAt)
+          });
+          setStatus("已完成 " + phone + " 的消费查询。", "success");
+          return true;
+        } catch (error) {
+          var errorAt = Date.now();
+          updateResult(phone, {
+            status: "error",
+            message: error && error.message ? error.message : "查询失败",
+            queriedAt: errorAt,
+            queryTime: formatDateTime(errorAt)
+          });
+          setStatus(phone + " 查询失败，请查看结果卡片中的原因。", "error");
+          return false;
+        }
+      }
+
+      async function runSingleQuery(phone) {
+        if (state.isQuerying) {
+          showNotice("当前已有查询任务执行中，请稍候。", "error");
+          return;
+        }
+
+        state.isQuerying = true;
+        state.queryMode = "single";
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+        setStatus("正在查询 " + phone + " 的消费数据。", "running");
+
+        await queryOne(phone);
+
+        state.isQuerying = false;
+        state.queryMode = "";
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+      }
+
+      async function queryAll(mode) {
+        if (!state.phones.length) {
+          showNotice("请先新增至少一个号码再开始查询。", "error");
+          return;
+        }
+        if (state.isQuerying) {
+          showNotice("当前队列正在执行，请稍候。", "error");
+          return;
+        }
+
+        var isRequery = mode === "refresh";
+        state.isQuerying = true;
+        state.queryMode = "batch";
+        state.stopRequested = false;
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+        setStatus(isRequery ? "正在重新查询全部号码，请稍候。" : "批量查询已开始，正在按顺序请求接口。", "running");
+
+        for (var i = 0; i < state.phones.length; i++) {
+          if (state.stopRequested) {
+            break;
+          }
+          await queryOne(state.phones[i]);
+        }
+
+        state.isQuerying = false;
+        state.queryMode = "";
+        renderPhoneList();
+        renderResults();
+        renderSummary();
+
+        if (state.stopRequested) {
+          setStatus("批量查询已停止，已保留当前结果。", "error");
+          state.stopRequested = false;
+        } else {
+          setStatus(isRequery ? "全部号码已重新查询完成。" : "批量查询已完成，可继续新增号码或重新查询。", "success");
+        }
+      }
+
+      function handleSingleAdd(queryImmediately) {
+        var phone = normalizePhone(phoneInput.value);
+        if (!phone) {
+          showNotice("请输入 11 位手机号码。", "error");
+          phoneInput.focus();
+          return;
+        }
+        if (!isValidPhone(phone)) {
+          showNotice("手机号码格式不正确，请输入 11 位数字。", "error");
+          phoneInput.focus();
+          return;
+        }
+
+        var added = addPhones([phone]);
+        phoneInput.value = "";
+
+        if (!added.length) {
+          showNotice("该号码已存在于待查询列表中。", "error");
+        } else {
+          showNotice("号码已加入待查询列表。", "success");
+        }
+
+        if (!queryImmediately) {
+          return;
+        }
+
+        if (state.isQuerying) {
+          if (state.queryMode === "batch") {
+            showNotice("号码已加入列表，当前队列会继续顺序处理。", "success");
+          } else {
+            showNotice("号码已加入列表，当前查询完成后可继续发起查询。", "success");
+          }
+          return;
+        }
+
+        runSingleQuery(phone);
+      }
+
+      function handleBatchImport() {
+        var phones = parsePhones(batchInput.value);
+        if (!phones.length) {
+          showNotice("未识别到有效号码，请检查分隔格式。", "error");
+          batchInput.focus();
+          return;
+        }
+        var added = addPhones(phones);
+        batchInput.value = "";
+        if (!added.length) {
+          showNotice("导入的号码都已存在，无需重复添加。", "error");
+          return;
+        }
+        showNotice("已导入 " + added.length + " 个号码。", "success");
+      }
+
+      document.getElementById("addAndQueryBtn").addEventListener("click", function () {
+        handleSingleAdd(true);
+      });
+
+      document.getElementById("importPhonesBtn").addEventListener("click", handleBatchImport);
+
+      document.getElementById("clearBatchBtn").addEventListener("click", function () {
+        batchInput.value = "";
+        batchInput.focus();
+      });
+
+      queryAllBtn.addEventListener("click", function () {
+        queryAll();
+      });
+
+      copyResultsBtn.addEventListener("click", function () {
+        copyResults();
+      });
+
+      roundCeilBtn.addEventListener("click", function () {
+        setRoundMode(ROUND_MODES.ceil);
+      });
+
+      roundDecimalBtn.addEventListener("click", function () {
+        setRoundMode(ROUND_MODES.decimal);
+      });
+
+      hideAllPhonesBtn.addEventListener("click", function () {
+        setAllPhoneVisibility(false);
+        showNotice("号码已全部隐藏。", "success");
+      });
+
+      showAllPhonesBtn.addEventListener("click", function () {
+        setAllPhoneVisibility(true);
+        showNotice("号码已全部显示。", "success");
+      });
+
+      clearResultsBtn.addEventListener("click", function () {
+        clearResults();
+        showNotice("查询结果已清空。", "success");
+      });
+
+      clearPhonesBtn.addEventListener("click", function () {
+        clearPhones();
+        setStatus("号码列表和缓存结果已清空。", "");
+        showNotice("号码和结果已从当前浏览器缓存清空。", "success");
+      });
+
+      phoneInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handleSingleAdd(false);
+        }
+      });
+
+      phoneList.addEventListener("click", function (event) {
+        var target = event.target.closest("[data-action]");
+        if (!target || !target.dataset || !target.dataset.action) {
+          return;
+        }
+        var action = target.dataset.action;
+        var phone = target.dataset.phone;
+        if (!phone) {
+          return;
+        }
+        if (action === "remove") {
+          removePhone(phone);
+          showNotice("号码已移除。", "success");
+          return;
+        }
+        if (action === "toggle-visibility") {
+          togglePhoneVisibility(phone);
+          return;
+        }
+        if (action === "query-one") {
+          runSingleQuery(phone);
+        }
+      });
+
+      resultList.addEventListener("click", function (event) {
+        var target = event.target.closest("[data-action]");
+        if (!target || !target.dataset) {
+          return;
+        }
+        if (target.dataset.action === "toggle-visibility") {
+          togglePhoneVisibility(target.dataset.phone);
+          return;
+        }
+        if (target.dataset.action === "open-calculator") {
+          loadCalculatorFromPhone(target.dataset.phone);
+          return;
+        }
+        if (target.dataset.action !== "query-one") {
+          return;
+        }
+        var phone = target.dataset.phone;
+        if (!phone) {
+          return;
+        }
+        runSingleQuery(phone);
+      });
+
+      resultList.addEventListener("input", function (event) {
+        var target = event.target;
+        if (!target || !target.dataset || target.dataset.action !== "estimate-input") {
+          return;
+        }
+        updateEstimate(target.dataset.phone, target.dataset.field, target.value, target);
+      });
+
+      calculatorMonths.addEventListener("input", function (event) {
+        var target = event.target;
+        if (!target || !target.dataset || target.dataset.action !== "calculator-month-input") {
+          return;
+        }
+        updateCalculatorMonth(Number(target.dataset.index), target.value, target);
+      });
+
+      calculatorMonths.addEventListener("change", function (event) {
+        var target = event.target;
+        if (!target || !target.dataset || target.dataset.action !== "calculator-select-month") {
+          return;
+        }
+        var index = Number(target.dataset.index);
+        if (index < 0 || index >= 6) {
+          return;
+        }
+        state.calculator.selected[index] = !!target.checked;
+        persistState();
+        updateCalculatorResult();
+      });
+
+      calculatorCurrentInput.addEventListener("input", function () {
+        updateCalculatorField("current", calculatorCurrentInput.value, calculatorCurrentInput);
+      });
+
+      calculatorTarget3Input.addEventListener("input", function () {
+        updateCalculatorField("target3", calculatorTarget3Input.value, calculatorTarget3Input);
+      });
+
+      calculatorTarget6Input.addEventListener("input", function () {
+        updateCalculatorField("target6", calculatorTarget6Input.value, calculatorTarget6Input);
+      });
+
+      calculatorSourceSelect.addEventListener("change", function () {
+        state.calculator.sourcePhone = normalizePhone(calculatorSourceSelect.value);
+        persistState();
+        renderCalculatorSources();
+      });
+
+      calculatorLoadSourceBtn.addEventListener("click", function () {
+        loadCalculatorFromPhone(normalizePhone(calculatorSourceSelect.value));
+      });
+
+      calculatorSelectRecent3Btn.addEventListener("click", function () {
+        setCalculatorMonthSelection(3);
+      });
+
+      calculatorSelectRecent6Btn.addEventListener("click", function () {
+        setCalculatorMonthSelection(6);
+      });
+
+      calculatorClearBtn.addEventListener("click", function () {
+        clearCalculator();
+        showNotice("计算器已清空。", "success");
+      });
+
+      calculatorCloseBtn.addEventListener("click", closeCalculator);
+
+      calculatorPanel.addEventListener("click", function (event) {
+        if (event.target === calculatorPanel) {
+          closeCalculator();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && calculatorPanel.classList.contains("show")) {
+          closeCalculator();
+        }
+      });
+
+      showAllPhonesBtn.innerHTML = renderEyeIcon(true);
+      hideAllPhonesBtn.innerHTML = renderEyeIcon(false);
+      restoreState();
+      renderRoundModeToggle();
+      renderCalculator();
+      closeCalculator();
+      renderPhoneList();
+      renderResults();
+      renderSummary();
+    })();
+  </script>
+</body>
+</html>

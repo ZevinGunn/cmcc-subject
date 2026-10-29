@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --panel: #ffffff;
+            --border: #d1d5db;
+            --text: #111;
+            --muted: #6b6b6b;
+            --accent: #111;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
+        }
+        .layout {
+            width: min(560px, 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        h1, h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        h2 {
+            font-size: 18px;
+        }
+        .hint, .note {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0;
+        }
+        label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            background: #fff;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .btn {
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+        .btn.secondary {
+            background: #fff;
+            color: var(--text);
+        }
+        .grid {
+            display: flex;
+            gap: 12px;
+        }
+        .grid > div:last-child {
+            width: 120px;
+        }
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .key-list {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .key-item {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #fff;
+        }
+        .key-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+        .key-row strong {
+            word-break: break-all;
+        }
+        .key-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .key-actions .btn {
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        #toast {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            padding: 10px 14px;
+            border: 1px solid #111;
+            background: #fff;
+            color: #111;
+            font-size: 12px;
+            display: none;
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <div class="panel" id="loginPanel">
+        <h1>管理员登录</h1>
+        <p class="hint">请使用后台账号登录以管理密钥。</p>
+        <div>
+            <label for="adminUser">账号</label>
+            <input id="adminUser" placeholder="管理员账号">
+        </div>
+        <div>
+            <label for="adminPass">密码</label>
+            <input id="adminPass" type="password" placeholder="管理员密码">
+        </div>
+        <button class="btn" onclick="adminLogin()">登录</button>
+    </div>
+
+    <div class="panel hidden" id="adminPanel">
+        <div class="actions-row">
+            <h2>密钥管理</h2>
+            <button class="btn secondary" onclick="loadKeys()">刷新</button>
+        </div>
+        <p class="note">新增或延长密钥后会自动生效，可用于普通用户登录。</p>
+        <div class="grid">
+            <div style="flex: 1;">
+                <label for="newLabel">标记 / 备注</label>
+                <input id="newLabel" placeholder="可选">
+            </div>
+            <div>
+                <label for="newTtl">有效期(小时)</label>
+                <input id="newTtl" type="number" value="24" min="1">
+            </div>
+        </div>
+        <div class="grid">
+            <div style="flex: 1;">
+                <label for="newKey">自定义密钥（留空自动生成）</label>
+                <input id="newKey" placeholder="可选">
+            </div>
+            <button class="btn" onclick="createKey()">新增密钥</button>
+        </div>
+        <div class="actions-row">
+            <span class="hint">密钥列表</span>
+            <button class="btn secondary" onclick="adminLogout()">退出管理</button>
+        </div>
+        <div class="key-list" id="keyList">
+            <div class="hint">正在加载...</div>
+        </div>
+    </div>
+</div>
+<div id="toast"></div>
+<script>
+    const ADMIN_TOKEN_STORAGE = 'qqt_admin_token';
+    const ADMIN_EXPIRES_STORAGE = 'qqt_admin_expires';
+    const $ = (selector) => document.querySelector(selector);
+
+    function showToast(message, duration = 2500) {
+        const el = $('#toast');
+        el.textContent = message;
+        el.style.display = 'block';
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, duration);
+    }
+
+    function getAdminToken() {
+        const token = (localStorage.getItem(ADMIN_TOKEN_STORAGE) || '').trim();
+        const exp = Number(localStorage.getItem(ADMIN_EXPIRES_STORAGE) || 0);
+        if (!token || (exp && Date.now() > exp)) {
+            localStorage.removeItem(ADMIN_TOKEN_STORAGE);
+            localStorage.removeItem(ADMIN_EXPIRES_STORAGE);
+            return '';
+        }
+        return token;
+    }
+
+    function showAdminPanel() {
+        $('#loginPanel').classList.add('hidden');
+        $('#adminPanel').classList.remove('hidden');
+    }
+
+    function showLoginPanel() {
+        $('#adminPanel').classList.add('hidden');
+        $('#loginPanel').classList.remove('hidden');
+    }
+
+    async function adminLogin() {
+        const username = $('#adminUser').value.trim();
+        const password = $('#adminPass').value.trim();
+        if (!username || !password) {
+            showToast('请填写管理员账号和密码');
+            return;
+        }
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.detail || '登录失败');
+            }
+            localStorage.setItem(ADMIN_TOKEN_STORAGE, data.token);
+            localStorage.setItem(ADMIN_EXPIRES_STORAGE, String(data.expires_at * 1000));
+            showToast('管理员登录成功');
+            showAdminPanel();
+            loadKeys();
+        } catch (err) {
+            showToast(err.message || '登录失败');
+        }
+    }
+
+    function adminLogout() {
+        localStorage.removeItem(ADMIN_TOKEN_STORAGE);
+        localStorage.removeItem(ADMIN_EXPIRES_STORAGE);
+        $('#keyList').innerHTML = '<div class="hint">请登录后查看密钥</div>';
+        showLoginPanel();
+        showToast('已退出管理员');
+    }
+
+    async function adminApi(path, init = {}) {
+        const token = getAdminToken();
+        if (!token) {
+            adminLogout();
+            throw new Error('管理员认证失效');
+        }
+        const headers = {'Content-Type': 'application/json', ...(init.headers || {})};
+        headers['X-Admin-Token'] = token;
+        const res = await fetch('/api' + path, {...init, headers});
+        const data = await res.json();
+        if (!res.ok) {
+            if (res.status === 401) {
+                adminLogout();
+            }
+            throw new Error(data.detail || '请求失败');
+        }
+        return data;
+    }
+
+    function formatTs(value) {
+        return value ? new Date(value * 1000).toLocaleString('zh-CN') : '未知';
+    }
+
+    async function loadKeys() {
+        try {
+            const res = await adminApi('/admin/keys');
+            renderKeys(res.keys || []);
+        } catch (err) {
+            showToast(err.message || '密钥加载失败');
+        }
+    }
+
+    function renderKeys(list) {
+        const el = $('#keyList');
+        if (!list.length) {
+            el.innerHTML = '<div class="hint">暂无密钥</div>';
+            return;
+        }
+        el.innerHTML = list.map(item => {
+            const created = formatTs(item.created_at);
+            const expires = formatTs(item.expires_at);
+            const label = item.label || '未标记';
+            const keySafe = (item.key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return `
+                <div class="key-item">
+                    <div class="key-row">
+                        <strong>${item.key}</strong>
+                        <span>${label}</span>
+                    </div>
+                    <div class="key-row" style="font-size:12px;">
+                        <span>创建: ${created}</span>
+                        <span>到期: ${expires}</span>
+                    </div>
+                    <div class="key-actions">
+                        <button class="btn secondary" onclick="extendKey('${keySafe}')">延长 24h</button>
+                        <button class="btn secondary" onclick="deleteKey('${keySafe}')">删除</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function createKey() {
+        const label = $('#newLabel').value.trim();
+        const key = $('#newKey').value.trim();
+        const ttl = Number($('#newTtl').value) || 24;
+        try {
+            await adminApi('/admin/keys', {
+                method: 'POST',
+                body: JSON.stringify({label, key, ttl_hours: ttl})
+            });
+            $('#newLabel').value = '';
+            $('#newKey').value = '';
+            showToast('密钥已创建');
+            loadKeys();
+        } catch (err) {
+            showToast(err.message || '创建失败');
+        }
+    }
+
+    async function extendKey(key) {
+        try {
+            await adminApi(`/admin/keys/${encodeURIComponent(key)}/extend`, {
+                method: 'POST',
+                body: JSON.stringify({extend_hours: 24})
+            });
+            showToast('延长成功');
+            loadKeys();
+        } catch (err) {
+            showToast(err.message || '延长失败');
+        }
+    }
+
+    async function deleteKey(key) {
+        if (!confirm('确定删除该密钥?')) return;
+        try {
+            await adminApi(`/admin/keys/${encodeURIComponent(key)}`, {method: 'DELETE'});
+            showToast('已删除');
+            loadKeys();
+        } catch (err) {
+            showToast(err.message || '删除失败');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (getAdminToken()) {
+            showAdminPanel();
+            loadKeys();
+        }
+    });
+</script>
+</body>
+</html>

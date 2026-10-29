@@ -1,0 +1,21 @@
+{
+  "name": "qqt-proxy-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Node.js proxy service for qqt.cmicrwx.cn SMS login flow",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "NODE_ENV=production node src/index.js",
+    "build": "echo \"backend has no build step\"",
+    "lint": "echo \"No lint configured\""
+  },
+  "dependencies": {
+    "cookie": "^0.6.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.7.0",
+    "sm-crypto": "^0.3.12"
+  }
+}

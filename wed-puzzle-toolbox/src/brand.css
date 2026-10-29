@@ -1,0 +1,10 @@
+/* 与中国移动账号中心使用相同的蓝绿品牌底色。 */
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e9f5fd 0%, #f5f9fc 44%, #eff7e7 100%);
+}
+.brand-logo { width: 36px; height: 36px; flex-shrink: 0; object-fit: contain; }
+@media (max-width: 720px) {
+  .brand { min-width: 0; gap: 9px; }
+  .brand-logo { width: 30px; height: 30px; }
+}

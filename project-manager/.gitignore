@@ -1,0 +1,6 @@
+.env
+logs/*.jsonl
+logs/*.log
+logs/.operation.lock*
+runtime/
+*.bak-*

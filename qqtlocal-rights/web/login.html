@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQT 密钥登录</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --panel: #ffffff;
+            --border: #d1d5db;
+            --text: #111;
+            --muted: #6b6b6b;
+            --accent: #111;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text);
+        }
+        .panel {
+            width: min(460px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0;
+        }
+        label {
+            font-size: 12px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            background: #fff;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .btn {
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+        .btn.secondary {
+            background: #fff;
+            color: var(--text);
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        #cachedTip {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        #toast {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            padding: 10px 14px;
+            border: 1px solid #111;
+            background: #fff;
+            color: #111;
+            font-size: 12px;
+            display: none;
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="panel">
+    <h1>QQT 控制台登录</h1>
+    <p class="hint">使用授权密钥进入系统，密钥默认 24 小时有效。可在管理员后台生成或刷新密钥。</p>
+    <div>
+        <label for="userKey">密钥</label>
+        <input id="userKey" placeholder="请输入密钥">
+    </div>
+    <button class="btn" onclick="loginWithKey()">进入系统</button>
+    <button class="btn secondary" onclick="clearCachedKey()">清除缓存密钥</button>
+    <div class="actions">
+        <button class="btn secondary" onclick="useCachedKey()">使用缓存密钥进入</button>
+    </div>
+    <div id="cachedTip"></div>
+</div>
+<div id="toast"></div>
+<script>
+    const AUTH_KEY_STORAGE = 'qqt_auth_key';
+    const AUTH_EXPIRES_STORAGE = 'qqt_auth_expires';
+    const $ = (selector) => document.querySelector(selector);
+
+    function showToast(message, duration = 2500) {
+        const el = $('#toast');
+        el.textContent = message;
+        el.style.display = 'block';
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, duration);
+    }
+
+    function maskKey(key) {
+        if (!key) return '';
+        if (key.length <= 8) return key;
+        return key.slice(0, 4) + '...' + key.slice(-4);
+    }
+
+    function getCachedKey() {
+        return (localStorage.getItem(AUTH_KEY_STORAGE) || '').trim();
+    }
+
+    function getCachedExpiry() {
+        return Number(localStorage.getItem(AUTH_EXPIRES_STORAGE) || 0);
+    }
+
+    function updateCachedTip() {
+        const key = getCachedKey();
+        const exp = getCachedExpiry();
+        if (!key) {
+            $('#cachedTip').textContent = '未检测到本地密钥';
+            return;
+        }
+        const expText = exp ? new Date(exp).toLocaleString('zh-CN') : '未知';
+        $('#cachedTip').textContent = `本地密钥: ${maskKey(key)} | 到期: ${expText}`;
+    }
+
+    async function loginWithKey() {
+        const key = $('#userKey').value.trim();
+        if (!key) {
+            showToast('请输入密钥');
+            return;
+        }
+        try {
+            const res = await fetch('/api/auth/key/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({key})
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || '登录失败');
+            localStorage.setItem(AUTH_KEY_STORAGE, key);
+            if (data.expires_at) {
+                localStorage.setItem(AUTH_EXPIRES_STORAGE, String(data.expires_at * 1000));
+            }
+            showToast('登录成功');
+            window.location.href = '/';
+        } catch (err) {
+            showToast(err.message || '登录失败');
+        }
+    }
+
+    function useCachedKey() {
+        const key = getCachedKey();
+        const exp = getCachedExpiry();
+        if (!key) {
+            showToast('没有缓存密钥');
+            return;
+        }
+        if (exp && Date.now() > exp) {
+            clearCachedKey();
+            return;
+        }
+        window.location.href = '/';
+    }
+
+    function clearCachedKey() {
+        localStorage.removeItem(AUTH_KEY_STORAGE);
+        localStorage.removeItem(AUTH_EXPIRES_STORAGE);
+        updateCachedTip();
+        showToast('已清除缓存');
+    }
+
+    updateCachedTip();
+</script>
+</body>
+</html>
