@@ -103,5 +103,7 @@ venv-linux/
 .pycache/
 .trae/
 .vscode/
-.target/
+target/
 /docs/**/_work/
+
+build/
