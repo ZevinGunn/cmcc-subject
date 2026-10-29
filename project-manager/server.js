@@ -50,6 +50,8 @@ const probeWaiters = [];
 const maxRequestBytes = 64 * 1024;
 const loginWindowMs = 15 * 60 * 1000;
 const loginMaxFailures = 5;
+const adminPasswordMinLength = 12;
+const adminPasswordMaxLength = 256;
 const sensitivePatterns = [
   /(["']?authorization["']?\s*[:=]\s*["']?)(?:(?:bearer|basic)\s+)?([^"',;\s}]+)/gi,
   /(["']?[a-z0-9_.-]*(?:password|passwd|secret|token|key|cookie|database[_-]?url)["']?\s*[:=]\s*["']?)([^"',;\s}]+)/gi,
@@ -123,6 +125,20 @@ function verifyAdminPassword(password, encoded = "") {
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
+function adminPasswordPolicyError(password) {
+  const length = String(password || "").length;
+  if (length < adminPasswordMinLength) return "password_too_short";
+  if (length > adminPasswordMaxLength) return "password_too_long";
+  return "";
+}
+
+function adminPasswordMatches(admin, password) {
+  const candidate = String(password || "");
+  if (!admin) return false;
+  return verifyAdminPassword(candidate, admin.passwordHash)
+    || (admin.id === "bootstrap-admin" && safePasswordEqual(candidate));
+}
+
 function publicAdmin(admin) {
   if (!admin) return null;
   const { passwordHash: _passwordHash, ...safe } = admin;
@@ -173,18 +189,26 @@ function adminById(id) {
 async function authenticateAdmin(username, password) {
   const admin = adminByUsername(username);
   if (!admin || admin.disabled) return null;
-  const bootstrapRecovery = admin.id === "bootstrap-admin" && safePasswordEqual(password);
-  if (!bootstrapRecovery && !verifyAdminPassword(password, admin.passwordHash)) return null;
+  if (!adminPasswordMatches(admin, password)) return null;
   admin.lastLoginAt = new Date().toISOString();
   admin.updatedAt = admin.updatedAt || admin.lastLoginAt;
   await saveAdminStore();
   return admin;
 }
 
-function revokeAdminSessions(adminId) {
-  for (const [id, session] of sessions) {
-    if (session?.adminId === adminId) sessions.delete(id);
+function revokeSessionsForAdmin(sessionStore, adminId, exceptSessionId = "") {
+  let revoked = 0;
+  for (const [id, session] of sessionStore) {
+    if (session?.adminId === adminId && id !== exceptSessionId) {
+      sessionStore.delete(id);
+      revoked += 1;
+    }
   }
+  return revoked;
+}
+
+function revokeAdminSessions(adminId, exceptSessionId = "") {
+  return revokeSessionsForAdmin(sessions, adminId, exceptSessionId);
 }
 
 function canAccessService(admin, serviceId) {
@@ -331,6 +355,10 @@ function validSession(token = "") {
 
 function requestAdmin(req) {
   return sessionAdmin(parseCookies(req)[sessionCookie]);
+}
+
+function requestSessionId(req) {
+  return String(parseCookies(req)[sessionCookie] || "").split(".")[0] || "";
 }
 
 async function readJson(req) {
@@ -2118,7 +2146,8 @@ function serveStatic(req, res) {
     return;
   }
   let requestPath = urlPath;
-  if (["/", "/login", "/home"].includes(urlPath)) requestPath = "/index.html";
+  if (["/", "/login"].includes(urlPath)) requestPath = "/v2.html";
+  if (urlPath === "/home") requestPath = "/index.html";
   if (urlPath === "/v2" || urlPath.startsWith("/v2/")) requestPath = "/v2.html";
   const filePath = path.resolve(publicDir, requestPath.replace(/^\/+/, ""));
   const relative = path.relative(publicDir, filePath);
@@ -2191,6 +2220,43 @@ async function handleApi(req, res) {
     return json(res, 200, { admin: publicAdmin(currentAdmin) });
   }
 
+  if (req.method === "POST" && pathname === "/api/v2/account/password") {
+    const body = await readJson(req);
+    const currentPassword = String(body.currentPassword || "");
+    const nextPassword = String(body.newPassword || "");
+    const policyError = adminPasswordPolicyError(nextPassword);
+    if (policyError) return json(res, 400, { error: policyError });
+
+    const rateKey = `password-change:${currentAdmin.id}:${clientIp(req)}`;
+    const rateState = loginState(rateKey);
+    if (rateState.failures >= loginMaxFailures) {
+      const retryAfter = Math.max(1, Math.ceil((rateState.resetAt - Date.now()) / 1000));
+      res.setHeader("retry-after", String(retryAfter));
+      return json(res, 429, { error: "password_change_rate_limited", retryAfter });
+    }
+    if (!adminPasswordMatches(currentAdmin, currentPassword)) {
+      rateState.failures += 1;
+      return json(res, 403, {
+        error: "current_password_incorrect",
+        attemptsRemaining: Math.max(0, loginMaxFailures - rateState.failures),
+      });
+    }
+    if (adminPasswordMatches(currentAdmin, nextPassword)) {
+      return json(res, 409, { error: "password_unchanged" });
+    }
+
+    currentAdmin.passwordHash = hashAdminPassword(nextPassword);
+    currentAdmin.passwordChangedAt = new Date().toISOString();
+    currentAdmin.updatedAt = currentAdmin.passwordChangedAt;
+    await saveAdminStore();
+    const revokedSessions = revokeAdminSessions(currentAdmin.id, requestSessionId(req));
+    loginAttempts.delete(rateKey);
+    return json(res, 200, {
+      admin: publicAdmin(currentAdmin),
+      revokedSessions,
+    });
+  }
+
   if (req.method === "GET" && pathname === "/api/v2/admins") {
     if (currentAdmin.role !== "owner") return json(res, 403, { error: "owner_required" });
     return json(res, 200, {
@@ -2207,7 +2273,8 @@ async function handleApi(req, res) {
     const role = String(body.role || "viewer");
     if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(username)) return json(res, 400, { error: "invalid_username" });
     if (adminByUsername(username)) return json(res, 409, { error: "username_exists" });
-    if (password.length < 12) return json(res, 400, { error: "password_too_short" });
+    const passwordError = adminPasswordPolicyError(password);
+    if (passwordError) return json(res, 400, { error: passwordError });
     if (!["owner", "operator", "viewer"].includes(role)) return json(res, 400, { error: "invalid_role" });
     const requestedIds = Array.isArray(body.serviceIds) ? [...new Set(body.serviceIds.map(String))] : [];
     if (requestedIds.some((id) => !serviceById.has(id))) return json(res, 400, { error: "invalid_service_scope" });
@@ -2236,8 +2303,12 @@ async function handleApi(req, res) {
     if (!admin) return json(res, 404, { error: "admin_not_found" });
     const body = await readJson(req);
     if (body.password !== undefined) {
-      if (String(body.password).length < 12) return json(res, 400, { error: "password_too_short" });
-      admin.passwordHash = hashAdminPassword(String(body.password));
+      if (admin.id === currentAdmin.id) return json(res, 400, { error: "use_password_change_endpoint" });
+      const password = String(body.password);
+      const passwordError = adminPasswordPolicyError(password);
+      if (passwordError) return json(res, 400, { error: passwordError });
+      admin.passwordHash = hashAdminPassword(password);
+      admin.passwordChangedAt = new Date().toISOString();
       revokeAdminSessions(admin.id);
     }
     if (body.displayName !== undefined) admin.displayName = String(body.displayName).trim().slice(0, 60) || admin.username;
@@ -2825,6 +2896,8 @@ export const testHelpers = {
   activateStagedFrontend,
   advanceOperationStage,
   aggregateResult,
+  adminPasswordMatches,
+  adminPasswordPolicyError,
   commandResult,
   createOperationStageUpdater,
   clearLoginAttempts,
@@ -2840,7 +2913,9 @@ export const testHelpers = {
   rollbackFrontend,
   stageFrontend,
   trustedAuthRedirect,
+  hashAdminPassword,
   validateFrontendArtifact,
+  revokeSessionsForAdmin,
 };
 
 export { runCliCommand };

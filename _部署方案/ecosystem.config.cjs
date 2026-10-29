@@ -25,6 +25,12 @@ const apps = [
       env: { NODE_ENV: "production", PORT: "3000" },
     },
     {
+      name: "contract3-query",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/contract3-query",
+      script: "server.js",
+      env: { NODE_ENV: "production", HOST: "127.0.0.1", PORT: "3002" },
+    },
+    {
       name: "cmcc-notice",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/cmcc-notice",
       script: "server.js",
@@ -62,6 +68,7 @@ const apps = [
       script: "/opt/homebrew/bin/cloudflared",
       args: "tunnel --config /Users/ZevinGunn/.cloudflared/cmcc-bmcc.yml run 22aeed61-cece-43a0-b810-7080da91cfb7",
       env: { NODE_ENV: "production" },
+      kill_timeout: 35000,
     },
     {
       name: "wangka-order",
@@ -82,6 +89,12 @@ const apps = [
       },
     },
     {
+      name: "tools-workbench",
+      cwd: "/Users/ZevinGunn/CMCC-PROJECT/tools-workbench",
+      script: "server.mjs",
+      env: { NODE_ENV: "production", PORT: "4177" },
+    },
+    {
       name: "project-manager",
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/project-manager",
       script: "server.js",
@@ -92,9 +105,17 @@ const apps = [
         PATH: "/Users/ZevinGunn/.nvm/versions/node/v18.20.8/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
       },
     },
-  ];
+];
+
+const resilientDefaults = {
+  autorestart: true,
+  min_uptime: "10s",
+  exp_backoff_restart_delay: 200,
+  kill_timeout: 10000,
+  time: true,
+};
 
 module.exports = {
   // Project Ops loads its own .env at process start; no app inherits manager credentials from PM2.
-  apps: apps.map((app) => ({ ...app, filter_env: ["MANAGER_"] })),
+  apps: apps.map((app) => ({ ...resilientDefaults, ...app, filter_env: ["MANAGER_"] })),
 };

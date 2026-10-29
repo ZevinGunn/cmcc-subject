@@ -151,21 +151,40 @@
           <h2>业务订购</h2>
           <span>{{ activeUser.label }}</span>
         </div>
-        <div class="login-grid offer-order-grid">
-
-          <label>
-            <span>已知业务</span>
-            <select v-model="selectedKnownOfferId" @change="applyKnownOffer">
-              <option value="">请选择业务</option>
-              <option v-for="item in knownOfferOrders" :key="item.offerId" :value="item.offerId">
-                {{ item.name }}
-              </option>
-            </select>
-          </label>
-          <!-- <label>
-            <span>业务名称</span>
-            <input v-model="offerOrder.name" placeholder="当前业务名称" />
-          </label> -->
+        <div class="offer-order-grid">
+          <div class="offer-config-block">
+            <div class="offer-config-row">
+              <label>
+                <span>业务配置</span>
+                <select v-model="selectedOfferConfigKey" @change="applySelectedOffer">
+                  <option value="">请选择业务</option>
+                  <optgroup label="已知业务">
+                    <option v-for="item in knownOfferOptions" :key="item.key" :value="item.key">
+                      {{ item.name }}
+                    </option>
+                  </optgroup>
+                  <optgroup v-if="customOfferOrders.length" label="自定义业务">
+                    <option v-for="item in customOfferOrders" :key="item.key" :value="item.key">
+                      {{ item.name }} · {{ item.offerId }}
+                    </option>
+                  </optgroup>
+                </select>
+              </label>
+              <button type="button" class="offer-config-button" @click="openCustomOfferEditor">新建配置</button>
+              <button
+                v-if="selectedCustomOffer"
+                type="button"
+                class="offer-config-button danger-lite"
+                @click="removeSelectedCustomOffer"
+              >
+                删除配置
+              </button>
+            </div>
+            <div v-if="offerOrder.offerId" class="selected-offer-summary">
+              <span><strong>offerId</strong>{{ offerOrder.offerId }}</span>
+              <span><strong>offerType</strong>{{ offerOrder.offerType || "默认" }}</span>
+            </div>
+          </div>
           <label>
             <span>订购验证码</span>
             <input
@@ -179,11 +198,31 @@
             />
           </label>
         </div>
+        <div v-if="customOfferEditorOpen" class="custom-offer-editor">
+          <div class="custom-offer-grid">
+            <label>
+              <span>业务名称</span>
+              <input v-model="customOfferDraft.name" maxlength="80" placeholder="请输入业务名称" @keyup.enter="importCustomOffer" />
+            </label>
+            <label>
+              <span>offerId</span>
+              <input v-model="customOfferDraft.offerId" maxlength="64" placeholder="请输入 offerId" @keyup.enter="importCustomOffer" />
+            </label>
+            <label>
+              <span>offerType（选填）</span>
+              <input v-model="customOfferDraft.offerType" maxlength="64" placeholder="留空使用默认值" @keyup.enter="importCustomOffer" />
+            </label>
+          </div>
+          <div class="row-actions custom-offer-actions">
+            <button type="button" @click="closeCustomOfferEditor">取消</button>
+            <button type="button" class="primary" :disabled="!canImportCustomOffer" @click="importCustomOffer">导入配置</button>
+          </div>
+        </div>
         <div class="row-actions offer-order-actions">
-          <button @click="sendOfferSms" :disabled="busy || !offerOrder.offerId || offerSmsCountdown > 0">
+          <button @click="sendOfferSms" :disabled="busy || !canUseOfferConfig || offerSmsCountdown > 0">
             {{ offerSmsCountdown > 0 ? `${offerSmsCountdown}s后再发` : "发送验证码" }}
           </button>
-          <button class="primary danger-button" @click="submitOfferOrder" :disabled="busy || !offerOrder.offerId">确认订购</button>
+          <button class="primary danger-button" @click="submitOfferOrder" :disabled="busy || !canUseOfferConfig">确认订购</button>
         </div>
       </section>
 
@@ -379,7 +418,6 @@
       <div class="search-row">
         <input v-model="keyword" placeholder="搜索权益，例如 稻香村、味多美、腾讯" @keyup.enter="searchRights" />
         <input
-          v-if="canViewZeroCostRights"
           v-model="exchangeNumFilter"
           type="number"
           min="0"
@@ -388,7 +426,7 @@
           @change="searchRights"
         />
         <button @click="searchRights">搜索</button>
-        <button class="ghost" @click="clearSearch" :disabled="!keyword && !exchangeNumFilter">清空</button>
+        <button class="ghost" @click="clearSearch" :disabled="!keyword && exchangeNumFilter === ''">清空</button>
         <button @click="loadRights({ force: true })">全部</button>
       </div>
       <div class="list">
@@ -421,7 +459,9 @@
                 </option>
               </select>
             </label>
-            <button @click="addToCart(item)">加入购物车</button>
+            <button :disabled="!canExchangeRight(item)" @click="addToCart(item)">
+              {{ canExchangeRight(item) ? "加入购物车" : "暂不可兑换" }}
+            </button>
           </div>
         </article>
       </div>
@@ -537,7 +577,7 @@
           />
           <div>
             <h3>{{ order.legalRightsName }}</h3>
-            <p>{{ order.date }} · {{ order.legalRightsNbr }}</p>
+            <p>{{ order.date }} · 权益编码：{{ order.legalRightsNbr || "-" }} · Offer ID：{{ order.offerId || "-" }}</p>
           </div>
           <button class="order-view" @click.stop="openOrderDetail(order)">查看</button>
         </article>
@@ -669,8 +709,8 @@
             </select>
           </label>
           <div class="dialog-buttons">
-            <button class="ghost" @click="addDialogToCart">加入购物车</button>
-            <button class="primary" @click="exchangeFromDialog">立即兑换</button>
+            <button class="ghost" :disabled="!canExchangeRight(rightDialog)" @click="addDialogToCart">加入购物车</button>
+            <button class="primary" :disabled="!canExchangeRight(rightDialog)" @click="exchangeFromDialog">立即兑换</button>
           </div>
         </div>
       </section>
@@ -899,10 +939,10 @@ import {
 const IMG_PREFIX = "https://xcxpn.bmcc.com.cn/images";
 const ORDER_CODE_CACHE_KEY = "bmcc_order_code_cache_v1";
 const ORDER_CODE_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
-const RIGHTS_CACHE_KEY = "bmcc_rights_cache_v1";
+const RIGHTS_CACHE_KEY = "bmcc_rights_cache_v3";
 const PAGE_STATE_KEY = "bmcc_page_state_v1";
+const CUSTOM_OFFER_ORDERS_KEY = "bmcc_custom_offer_orders_v1";
 const UNIVERSAL_CERTIFICATE_ID = "1387830401690525697";
-const ZERO_COST_RIGHTS_ALLOWED_PHONES = new Set(["15210334812"]);
 const KNOWN_OFFER_ORDERS = [
   { offerId: "111602016645", name: "黄金会员5元档（北京）" },
   { offerId: "111602008211", name: "权益超市黄金会员（集团）" },
@@ -1089,8 +1129,11 @@ const plus99AccessCodeInput = ref(getPlus99AccessCode());
 const plus99ClaimDialog = ref(null);
 const plus99VerifyCode = ref("");
 const knownOfferOrders = ref(KNOWN_OFFER_ORDERS);
-const selectedKnownOfferId = ref("");
-const offerOrder = ref({ name: "", offerId: "", verifyCode: "" });
+const customOfferOrders = ref(loadCustomOfferOrders());
+const selectedOfferConfigKey = ref("");
+const customOfferEditorOpen = ref(false);
+const customOfferDraft = ref({ name: "", offerId: "", offerType: "" });
+const offerOrder = ref({ name: "", offerId: "", offerType: "", verifyCode: "" });
 const offerNeedSmsResult = ref(null);
 const offerOrderLastResult = ref(null);
 const offerSmsSent = ref(false);
@@ -1122,7 +1165,6 @@ const availableCoupons = computed(() => Number(coupon.value?.universalCanUse || 
 const cartCost = computed(() => cart.value.reduce((sum, item) => sum + costOf(item) * Number(item.quantity || 1), 0));
 const canSubmitCart = computed(() => cart.value.length > 0 && cartCost.value <= availableCoupons.value);
 const cartKey = computed(() => `bmcc_cart_${selectedToken.value || "guest"}`);
-const canViewZeroCostRights = computed(() => ZERO_COST_RIGHTS_ALLOWED_PHONES.has(String(activeUser.value?.user?.phoneNo || "")));
 const canRequestSms = computed(() => /^\d{11}$/.test(String(phone.value || "")));
 const canLoginWithSms = computed(
   () => /^\d{11}$/.test(String(phone.value || "")) && /^\d{6}$/.test(String(code.value || ""))
@@ -1132,6 +1174,22 @@ const canLoginWithGroupToken = computed(() => {
   const phone = String(groupTokenForm.value.phone || "").trim();
   return Boolean(token) && (!phone || /^\d{11}$/.test(phone));
 });
+const knownOfferOptions = computed(() =>
+  knownOfferOrders.value.map((item, index) => ({ ...item, key: `known:${index}` }))
+);
+const selectedOfferConfig = computed(() => {
+  const known = knownOfferOptions.value.find((item) => item.key === selectedOfferConfigKey.value);
+  return known || customOfferOrders.value.find((item) => item.key === selectedOfferConfigKey.value) || null;
+});
+const selectedCustomOffer = computed(() =>
+  selectedOfferConfig.value?.source === "custom" ? selectedOfferConfig.value : null
+);
+const canImportCustomOffer = computed(
+  () => Boolean(String(customOfferDraft.value.name || "").trim()) && Boolean(String(customOfferDraft.value.offerId || "").trim())
+);
+const canUseOfferConfig = computed(
+  () => Boolean(String(offerOrder.value.name || "").trim()) && Boolean(String(offerOrder.value.offerId || "").trim())
+);
 const qrStatusText = computed(() => {
   if (qrCookie.value.cookie) return "已获取 Cookie";
   if (qrFlow.value.status === "success") return "扫码成功";
@@ -1649,43 +1707,111 @@ function clearPlus99Access() {
   savePlus99Access();
 }
 
-function applyKnownOffer() {
-  const item = knownOfferOrders.value.find((entry) => entry.offerId === selectedKnownOfferId.value);
-  if (!item) return;
+function applySelectedOffer() {
+  const item = selectedOfferConfig.value;
+  if (!item) {
+    offerOrder.value = { name: "", offerId: "", offerType: "", verifyCode: "" };
+    resetOfferOrderInteraction();
+    return;
+  }
   offerOrder.value = {
     ...offerOrder.value,
     name: item.name,
     offerId: item.offerId,
+    offerType: item.offerType || "",
     verifyCode: ""
   };
+  resetOfferOrderInteraction();
+}
+
+function openCustomOfferEditor() {
+  customOfferDraft.value = { name: "", offerId: "", offerType: "" };
+  customOfferEditorOpen.value = true;
+}
+
+function closeCustomOfferEditor() {
+  customOfferEditorOpen.value = false;
+  customOfferDraft.value = { name: "", offerId: "", offerType: "" };
+}
+
+function importCustomOffer() {
+  const name = String(customOfferDraft.value.name || "").trim();
+  const offerId = String(customOfferDraft.value.offerId || "").trim();
+  const offerType = String(customOfferDraft.value.offerType || "").trim();
+  if (!name || !offerId) return show("请填写业务名称和 offerId");
+
+  const existing = customOfferOrders.value.find(
+    (item) => item.offerId === offerId && String(item.offerType || "") === offerType
+  );
+  const item = existing
+    ? { ...existing, name }
+    : {
+        key: `custom:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        source: "custom",
+        name,
+        offerId,
+        offerType
+      };
+  customOfferOrders.value = [item, ...customOfferOrders.value.filter((entry) => entry.key !== item.key)].slice(0, 50);
+  persistCustomOfferOrders();
+  selectedOfferConfigKey.value = item.key;
+  applySelectedOffer();
+  closeCustomOfferEditor();
+  show(existing ? "业务配置已更新" : "业务配置已导入");
+}
+
+function removeSelectedCustomOffer() {
+  const item = selectedCustomOffer.value;
+  if (!item) return;
+  customOfferOrders.value = customOfferOrders.value.filter((entry) => entry.key !== item.key);
+  persistCustomOfferOrders();
+  selectedOfferConfigKey.value = "";
+  applySelectedOffer();
+  show("自定义配置已删除");
+}
+
+function resetOfferOrderInteraction() {
+  clearOfferSmsCountdown();
   offerNeedSmsResult.value = null;
   offerOrderLastResult.value = null;
   offerSmsSent.value = false;
 }
 
-function handleOfferIdInput() {
-  const offerId = String(offerOrder.value.offerId || "").trim();
-  const item = knownOfferOrders.value.find((entry) => entry.offerId === offerId);
-  selectedKnownOfferId.value = item?.offerId || "";
-  if (item && !offerOrder.value.name) offerOrder.value.name = item.name;
-  offerOrder.value.verifyCode = "";
-  offerNeedSmsResult.value = null;
-  offerOrderLastResult.value = null;
-  offerSmsSent.value = false;
+function loadCustomOfferOrders() {
+  try {
+    const rows = JSON.parse(localStorage.getItem(CUSTOM_OFFER_ORDERS_KEY) || "[]");
+    if (!Array.isArray(rows)) return [];
+    return rows
+      .map((item, index) => ({
+        key: String(item?.key || `custom:legacy-${index}`),
+        source: "custom",
+        name: String(item?.name || "").trim(),
+        offerId: String(item?.offerId || "").trim(),
+        offerType: String(item?.offerType || "").trim()
+      }))
+      .filter((item) => item.name && item.offerId)
+      .slice(0, 50);
+  } catch {
+    return [];
+  }
+}
+
+function persistCustomOfferOrders() {
+  localStorage.setItem(CUSTOM_OFFER_ORDERS_KEY, JSON.stringify(customOfferOrders.value));
 }
 
 function offerOrderPayload() {
   const offerId = String(offerOrder.value.offerId || "").trim();
-  const item = knownOfferOrders.value.find((entry) => entry.offerId === offerId);
   return {
     offerId,
-    businessName: offerOrder.value.name || item?.name || ""
+    businessName: String(offerOrder.value.name || "").trim(),
+    offerType: String(offerOrder.value.offerType || "").trim()
   };
 }
 
 async function checkOfferNeedSms() {
   const payload = offerOrderPayload();
-  if (!payload.offerId) return show("请选择业务");
+  if (!payload.offerId || !payload.businessName) return show("请选择业务配置");
   const data = await wrap(() => endpoints.offerOrderNeedSms(payload), "");
   offerNeedSmsResult.value = data;
   offerOrderLastResult.value = null;
@@ -1694,7 +1820,7 @@ async function checkOfferNeedSms() {
 
 async function sendOfferSms() {
   const payload = offerOrderPayload();
-  if (!payload.offerId) return show("请选择业务");
+  if (!payload.offerId || !payload.businessName) return show("请选择业务配置");
   const needSms = await checkOfferNeedSms();
   if (!needSms?.success) {
     offerOrderLastResult.value = needSms;
@@ -1716,7 +1842,7 @@ async function submitOfferOrder() {
     ...offerOrderPayload(),
     verifyCode: String(offerOrder.value.verifyCode || "").trim()
   };
-  if (!payload.offerId) return show("请选择业务");
+  if (!payload.offerId || !payload.businessName) return show("请选择业务配置");
   if (!offerNeedSmsResult.value) {
     return show("请先发送验证码");
   }
@@ -1908,11 +2034,10 @@ function applyRightsFilters() {
 }
 
 function filterRightsForCurrentUser(items = []) {
-  const targetCost = canViewZeroCostRights.value && exchangeNumFilter.value !== "" ? Number(exchangeNumFilter.value) : null;
+  const targetCost = exchangeNumFilter.value !== "" ? Number(exchangeNumFilter.value) : null;
   return (Array.isArray(items) ? items : [])
     .filter((item) => {
       const cost = rightExchangeCost(item);
-      if (!canViewZeroCostRights.value && cost === 0) return false;
       if (targetCost != null && cost !== targetCost) return false;
       return true;
     })
@@ -1971,6 +2096,7 @@ function openRightDetail(item) {
 }
 
 function addToCart(item) {
+  if (!canExchangeRight(item)) return show("当前权益缺少兑换参数，请刷新后重试");
   if (!canSetQuantity(item, getCartQuantity(item) + 1)) {
     return show("超过当前可用兑换券数量，无法加入购物车");
   }
@@ -1983,6 +2109,7 @@ function addToCart(item) {
 }
 
 function addToCartWithQuantity(item, quantity) {
+  if (!canExchangeRight(item)) return show("当前权益缺少兑换参数，请刷新后重试");
   const amount = Math.max(1, Number(quantity || 1));
   for (let i = 0; i < amount; i += 1) {
     if (!canSetQuantity(item, getCartQuantity(item) + 1)) {
@@ -2144,7 +2271,11 @@ function expandCartItems(items) {
 }
 
 function isSyncExchangeItem(item) {
-  return item?.syncExchange === true || item?.exchangeMode === "sync" || /稻香村|苏禾/.test(String(item?.legalRightsName || ""));
+  return item?.publicZeroCost === true || item?.syncExchange === true || item?.exchangeMode === "sync" || /稻香村|苏禾/.test(String(item?.legalRightsName || ""));
+}
+
+function canExchangeRight(item) {
+  return item?.exchangeAvailable !== false && (item?.publicZeroCost === true || Boolean(item?.legalRightsId || item?.rightId));
 }
 
 function progressPlaceholder(item, index) {
@@ -2212,7 +2343,8 @@ function sanitizeDialogQty() {
 function maxDialogQuantity() {
   if (!rightDialog.value) return 1;
   const available = availableCoupons.value - cartCost.value;
-  const cost = costOf(rightDialog.value) || 1;
+  const cost = costOf(rightDialog.value);
+  if (cost === 0) return Number.POSITIVE_INFINITY;
   return Math.max(1, Math.floor((available + cost * getCartQuantity(rightDialog.value)) / cost));
 }
 
@@ -2223,6 +2355,7 @@ function addDialogToCart() {
 
 async function exchangeFromDialog() {
   if (!rightDialog.value) return;
+  if (!canExchangeRight(rightDialog.value)) return show("当前权益缺少兑换参数，请刷新后重试");
   const amount = Math.max(1, Number(dialogQuantity.value || 1));
   const need = costOf(rightDialog.value) * amount;
   if (need > availableCoupons.value) return show("当前可用兑换券不足");
@@ -2637,6 +2770,7 @@ function cartItemKey(item) {
 }
 
 function canSetQuantity(item, nextQuantity) {
+  if (costOf(item) === 0) return true;
   const key = cartItemKey(item);
   const nextCost = cart.value.reduce((sum, row) => {
     const quantity = cartItemKey(row) === key ? nextQuantity : Number(row.quantity || 1);
@@ -2649,6 +2783,7 @@ function canSetQuantity(item, nextQuantity) {
 }
 
 function maxQuantityFor(item) {
+  if (costOf(item) === 0) return Number.POSITIVE_INFINITY;
   const key = cartItemKey(item);
   const otherCost = cart.value.reduce((sum, row) => {
     if (cartItemKey(row) === key) return sum;

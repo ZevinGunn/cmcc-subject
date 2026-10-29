@@ -1,0 +1,14 @@
+{
+  "name": "cloudapp-flow-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline fixture simulator for the 10086-to-cloud-app session and launch flow.",
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

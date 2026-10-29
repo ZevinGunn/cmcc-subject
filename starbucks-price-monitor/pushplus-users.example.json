@@ -1,0 +1,12 @@
+[
+  {
+    "name": "原用户",
+    "enabled": true,
+    "use_default_token": true
+  },
+  {
+    "name": "用户2",
+    "enabled": false,
+    "token": "替换成该用户的 pushplus token，再将 enabled 改为 true"
+  }
+]

@@ -55,6 +55,39 @@ router.get('/session', (req, res) => {
   ok(res, { session: publicSession(session) })
 })
 
+router.post('/session/validate', async (req, res, next) => {
+  try {
+    const session = getSession(req.body?.sessionId)
+    if (!session) return fail(res, 404, '登录缓存不存在或已过期', 'SESSION_NOT_FOUND')
+    const expectedPhone = String(req.body?.phone || '').replace(/\D/g, '')
+    const loginMaterialReady = Boolean(
+      session.artifact && session.accessToken && session.wafToken && session.portalKey,
+    )
+    const tokenExpired = Boolean(
+      session.accessTokenExpireAt && session.accessTokenExpireAt <= Date.now(),
+    )
+    if (!loginMaterialReady || tokenExpired) {
+      return fail(res, 401, '北京移动登录缓存已过期，请重新登录', 'LOGIN_SESSION_EXPIRED')
+    }
+    const userInfo = await getOnlineUserInfo(session)
+    if (!userInfo.ok) {
+      return fail(res, 401, '北京移动登录缓存已失效，请重新登录', 'LOGIN_SESSION_EXPIRED')
+    }
+    const actualPhone = String(userInfo.data?.mobile || '').replace(/\D/g, '')
+    if (expectedPhone && actualPhone && expectedPhone !== actualPhone) {
+      return fail(res, 403, '登录缓存与当前办理号码不一致，请重新登录', 'LOGIN_SESSION_PHONE_MISMATCH')
+    }
+    saveSessions()
+    ok(res, {
+      valid: true,
+      validatedAt: new Date().toISOString(),
+      session: publicSession(session),
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.delete('/session/:id', (req, res) => {
   deleteSession(req.params.id)
   ok(res, { deleted: true })

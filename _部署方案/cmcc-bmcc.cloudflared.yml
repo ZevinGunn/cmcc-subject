@@ -1,0 +1,35 @@
+tunnel: 22aeed61-cece-43a0-b810-7080da91cfb7
+credentials-file: __HOME__/.cloudflared/22aeed61-cece-43a0-b810-7080da91cfb7.json
+
+# QUIC connectivity to one Cloudflare region is degraded on this host. The
+# connector's own preflight recommends HTTP/2 as the stable transport.
+protocol: http2
+
+originRequest:
+  connectTimeout: 3s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+
+ingress:
+  - hostname: bmcc.1008086.xyz
+    service: http://127.0.0.1:80
+    originRequest:
+      httpHostHeader: bmcc.1008086.xyz
+  - hostname: bjcmcc.1008086.xyz
+    service: http://127.0.0.1:80
+    originRequest:
+      httpHostHeader: bjcmcc.1008086.xyz
+  - hostname: contracts.1008086.xyz
+    service: http://127.0.0.1:80
+    originRequest:
+      httpHostHeader: contracts.1008086.xyz
+  - hostname: contract3.1008086.xyz
+    service: http://127.0.0.1:80
+    originRequest:
+      httpHostHeader: contract3.1008086.xyz
+  - hostname: tools.1008086.xyz
+    service: http://127.0.0.1:80
+    originRequest:
+      httpHostHeader: tools.1008086.xyz
+  - service: http_status:404

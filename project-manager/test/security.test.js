@@ -48,6 +48,39 @@ test("redacts complete quoted JSON credentials containing spaces and separators"
   assert.equal((output.match(/\[REDACTED\]/g) || []).length, Object.keys(secrets).length);
 });
 
+test("admin password changes enforce policy and verify stored or recovery credentials", () => {
+  assert.equal(testHelpers.adminPasswordPolicyError("short"), "password_too_short");
+  assert.equal(testHelpers.adminPasswordPolicyError("x".repeat(257)), "password_too_long");
+  assert.equal(testHelpers.adminPasswordPolicyError("memorable-passphrase"), "");
+
+  const admin = {
+    id: "operator-1",
+    passwordHash: testHelpers.hashAdminPassword("current-password"),
+  };
+  assert.equal(testHelpers.adminPasswordMatches(admin, "current-password"), true);
+  assert.equal(testHelpers.adminPasswordMatches(admin, "wrong-password"), false);
+  const legacyLongPassword = "legacy-".padEnd(300, "x");
+  assert.equal(testHelpers.adminPasswordMatches({
+    id: "legacy-admin",
+    passwordHash: testHelpers.hashAdminPassword(legacyLongPassword),
+  }, legacyLongPassword), true);
+  assert.equal(testHelpers.adminPasswordMatches({
+    ...admin,
+    id: "bootstrap-admin",
+  }, process.env.MANAGER_PASSWORD), true);
+});
+
+test("password change session revocation keeps only the current session", () => {
+  const sessionStore = new Map([
+    ["current", { adminId: "admin-1" }],
+    ["other", { adminId: "admin-1" }],
+    ["unrelated", { adminId: "admin-2" }],
+  ]);
+
+  assert.equal(testHelpers.revokeSessionsForAdmin(sessionStore, "admin-1", "current"), 1);
+  assert.deepEqual([...sessionStore.keys()], ["current", "unrelated"]);
+});
+
 test("login rate limiting isolates trusted-proxy clients without a shared socket bucket", () => {
   const proxiedRequest = (ip) => ({
     headers: { "x-manager-client-ip": ip },

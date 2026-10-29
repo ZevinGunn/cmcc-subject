@@ -49,6 +49,10 @@
       <p class="voice-link">收不到短信？点此试试 <a>语音验证码</a></p>
 
       <div class="login-tool-entry">
+        <button type="button" @click="$emit('open-quick-order')">
+          <ShoppingCart :size="18" />
+          新业务订购（xyw.bj）
+        </button>
         <button type="button" @click="$emit('open-shop')">
           <ClipboardList :size="18" />
           商城 Cookie 查询
@@ -79,7 +83,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { ChevronLeft, ClipboardList, ImageIcon, KeyRound, LockKeyhole, Smartphone } from 'lucide-vue-next'
+import { ChevronLeft, ClipboardList, ImageIcon, KeyRound, LockKeyhole, ShoppingCart, Smartphone } from 'lucide-vue-next'
 import MessageDialog from '../components/MessageDialog.vue'
 import { api } from '../api/client'
 import { setSession } from '../stores/session'
@@ -91,7 +95,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['back', 'logged-in', 'open-shop', 'open-debug'])
+const emit = defineEmits(['back', 'logged-in', 'open-shop', 'open-debug', 'open-quick-order'])
 
 const phone = ref('')
 const captcha = ref('')

@@ -31,7 +31,7 @@ export async function previewExchange(session, payload) {
             rightCode: right.legalRightsNbr,
             rightId: right.legalRightsId,
             certificateId: payload.certificateId || payload.defaultCertificateId || UNIVERSAL_CERTIFICATE_ID,
-            certificateNum: right.certificateNum || right.exchangeNum || 0
+            certificateNum: right.certificateNum ?? right.exchangeNum ?? 0
           }
         : null
     }
@@ -62,12 +62,12 @@ function resolveCertificate(payload = {}, coupon = {}) {
     if (!(payload.certificateId || certificate.certificateId)) throw new Error("未找到可用的专属兑换券");
     return {
       certificateId: payload.certificateId || certificate.certificateId,
-      certificateNum: Number(payload.certificateNum || certificate.exchangeNum || payload.exchangeNum || 1)
+      certificateNum: Number(payload.certificateNum ?? certificate.exchangeNum ?? payload.exchangeNum ?? 1)
     };
   }
   return {
     certificateId: payload.certificateId || UNIVERSAL_CERTIFICATE_ID,
-    certificateNum: Number(payload.certificateNum || payload.exchangeNum || 1)
+    certificateNum: Number(payload.certificateNum ?? payload.exchangeNum ?? 1)
   };
 }
 

@@ -2,8 +2,9 @@
   <CryptoDebugPage v-if="view === 'debug'" @back="onDebugBack" />
   <ShopBusinessPage v-else-if="view === 'shop'" @back="onShopBack" @open-debug="pushRoute('/debug')" />
   <ActivityPage v-else-if="view === 'activity'" @back="onActivityBack" />
-  <LoginPage v-else-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" @open-shop="pushRoute('/shop')" @open-debug="pushRoute('/debug')" />
-  <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" @open-activities="onOpenActivities" />
+  <QuickOrderPage v-else-if="view === 'quick-order'" :initial-platform="route.params.platform || 'xyw'" @back="onQuickOrderBack" />
+  <LoginPage v-else-if="view === 'login'" :can-return="canReturnToBusiness" @back="onLoginBack" @logged-in="onLoggedIn" @open-shop="pushRoute('/shop')" @open-debug="pushRoute('/debug')" @open-quick-order="pushRoute('/quick-order?platform=xyw')" />
+  <BusinessPage v-else @logout="onLogout" @login-new="onLoginNew" @open-activities="onOpenActivities" @open-quick-order="pushRoute('/quick-order')" />
 </template>
 
 <script setup>
@@ -13,6 +14,7 @@ import BusinessPage from './pages/BusinessPage.vue'
 import CryptoDebugPage from './pages/CryptoDebugPage.vue'
 import ActivityPage from './pages/ActivityPage.vue'
 import ShopBusinessPage from './pages/ShopBusinessPage.vue'
+import QuickOrderPage from './pages/QuickOrderPage.vue'
 import { api } from './api/client'
 import { clearSession, sessionState, setSession } from './stores/session'
 
@@ -22,6 +24,7 @@ const view = computed(() => {
   if (route.value.name === 'debug') return 'debug'
   if (route.value.name === 'shop') return 'shop'
   if (route.value.name === 'activity' && sessionState.sessionId) return 'activity'
+  if (route.value.name === 'quick-order') return 'quick-order'
   return !booting.value && sessionState.sessionId && route.value.name === 'business' ? 'business' : 'login'
 })
 const canReturnToBusiness = computed(() => Boolean(sessionState.sessionId && route.value.name === 'login' && route.value.params.from === 'business'))
@@ -32,7 +35,7 @@ function readRoute() {
   const params = Object.fromEntries(new URLSearchParams(query))
   const name = path.replace(/^\//, '') || ''
   return {
-    name: name === 'business' ? 'business' : name === 'activity' ? 'activity' : name === 'shop' ? 'shop' : name.startsWith('debug') ? 'debug' : 'login',
+    name: name === 'business' ? 'business' : name === 'activity' ? 'activity' : name === 'shop' ? 'shop' : name === 'quick-order' ? 'quick-order' : name.startsWith('debug') ? 'debug' : 'login',
     params,
   }
 }
@@ -55,7 +58,7 @@ function pushRoute(path) {
 
 function syncRoute() {
   route.value = readRoute()
-  if (['debug', 'shop'].includes(route.value.name)) return
+  if (['debug', 'shop', 'quick-order'].includes(route.value.name)) return
   if (['business', 'activity'].includes(route.value.name) && !sessionState.sessionId) replaceRoute('/login')
 }
 
@@ -97,10 +100,14 @@ function onActivityBack() {
   replaceRoute('/business')
 }
 
+function onQuickOrderBack() {
+  replaceRoute(sessionState.sessionId ? '/business' : '/login')
+}
+
 onMounted(async () => {
   window.addEventListener('hashchange', syncRoute)
   if (!window.location.hash) replaceRoute(sessionState.sessionId ? '/business' : '/login')
-  if (['debug', 'shop'].includes(route.value.name)) {
+  if (['debug', 'shop', 'quick-order'].includes(route.value.name)) {
     booting.value = false
     return
   }
@@ -116,7 +123,7 @@ onMounted(async () => {
       return
     }
     setSession({ userInfo: data.session.userInfo })
-    if (!['login', 'debug', 'shop', 'activity'].includes(route.value.name)) replaceRoute('/business')
+    if (!['login', 'debug', 'shop', 'activity', 'quick-order'].includes(route.value.name)) replaceRoute('/business')
   } catch {
     clearSession()
     replaceRoute('/login')

@@ -22,6 +22,7 @@ usage() {
   bmcc       北京移动业务查询退订
   bjcmcc     北京移动业务快捷入口
   arpu       好礼多多 ARPU
+  contract3  北京移动合约查询
   qqtlocal   QQT 本地极速抢购
   notice     公告查询
   wangka     王卡会员便捷订购

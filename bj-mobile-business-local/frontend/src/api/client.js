@@ -27,6 +27,17 @@ function requestBodyForLog(path, body = {}) {
       omitted: '[CUSTOM_ORDER_CONFIG_AND_SMS_OMITTED]',
     }
   }
+  if (path.startsWith('/quick-orders')) {
+    return {
+      platform: body.platform || '',
+      hasAuth: Boolean(body.auth),
+      hasOption: Boolean(body.optionId),
+      hasSmsCode: Boolean(body.smsCode),
+      agreed: body.agreed === true,
+      realOrderConfirmed: body.realOrderConfirmed === true,
+      omitted: '[QUICK_ORDER_CREDENTIALS_AND_CODES_OMITTED]',
+    }
+  }
   return redactBody(body)
 }
 
@@ -165,5 +176,35 @@ export const api = {
   },
   verifyCustomOrderSms(orderId, body) {
     return request(`/custom-orders/${encodeURIComponent(orderId)}/sms/verify`, { method: 'POST', body })
+  },
+  getQuickOrderCatalog() {
+    return request('/quick-orders/catalog')
+  },
+  createQuickOrderSession(body) {
+    return request('/quick-orders/sessions', { method: 'POST', body })
+  },
+  getQuickOrderSession(id) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}`)
+  },
+  sendQuickOrderAuthSms(id) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/auth/sms/send`, { method: 'POST' })
+  },
+  verifyQuickOrderAuth(id, body) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/auth/verify`, { method: 'POST', body })
+  },
+  prepareQuickOrder(id) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/prepare`, { method: 'POST' })
+  },
+  selectQuickOrder(id, body) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/select`, { method: 'POST', body })
+  },
+  sendQuickOrderSms(id, body) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/sms/send`, { method: 'POST', body })
+  },
+  confirmQuickOrder(id, body) {
+    return request(`/quick-orders/sessions/${encodeURIComponent(id)}/confirm`, { method: 'POST', body })
+  },
+  deleteQuickOrderSession(id) {
+    return fetch(`/api/quick-orders/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' })
   },
 }

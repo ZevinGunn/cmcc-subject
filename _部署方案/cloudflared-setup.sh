@@ -72,37 +72,46 @@ cat > "$USER_CONFIG" <<YAML
 tunnel: $TUN_ID
 credentials-file: $CRED
 
+# UDP/QUIC has shown degraded reachability on this China Mobile connection.
+protocol: http2
+
+originRequest:
+  connectTimeout: 3s
+  tcpKeepAlive: 30s
+  keepAliveConnections: 100
+  keepAliveTimeout: 90s
+
 ingress:
   - hostname: home.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: home.1008086.xyz
   - hostname: rights.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: rights.1008086.xyz
   - hostname: arpu.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: arpu.1008086.xyz
   - hostname: qqtlocal.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: qqtlocal.1008086.xyz
   - hostname: notice.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: notice.1008086.xyz
   - hostname: notic.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: notic.1008086.xyz
   - hostname: qqt.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: qqt.1008086.xyz
   - hostname: project.1008086.xyz
-    service: http://localhost:80
+    service: http://127.0.0.1:80
     originRequest:
       httpHostHeader: project.1008086.xyz
   - service: http_status:404

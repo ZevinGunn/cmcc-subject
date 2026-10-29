@@ -1,11 +1,18 @@
 import { Router } from 'express'
 import {
+  discardCustomOrder,
   initializeCustomOrder,
+  loadFlyCardUsage,
   previewCustomOrder,
   sendCustomOrderSms,
   submitCustomOrder,
   verifyCustomOrderSms,
 } from '../services/customOrderService.js'
+import {
+  checkPremiumBroadband,
+  initializePremiumBroadband,
+  submitPremiumBroadband,
+} from '../services/premiumBroadbandService.js'
 import { getSession, publicSession, saveSessions } from '../services/sessionStore.js'
 import { fail, ok } from '../utils/response.js'
 
@@ -47,6 +54,54 @@ router.post('/preview', (req, res) => {
   sendResult(res, previewCustomOrder(req.body?.config || {}), 'preview')
 })
 
+router.post('/fly-card-usage', async (req, res, next) => {
+  try {
+    const session = requireSession(req, res)
+    if (!session) return
+    const result = await loadFlyCardUsage(session)
+    saveSessions()
+    sendResult(res, result, 'usage', session)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.post('/premium-broadband/initialize', async (req, res, next) => {
+  try {
+    const session = requireSession(req, res)
+    if (!session) return
+    const result = await initializePremiumBroadband(session)
+    saveSessions()
+    sendResult(res, result, 'initialization', session)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.post('/premium-broadband/check', async (req, res, next) => {
+  try {
+    const session = requireSession(req, res)
+    if (!session) return
+    const result = await checkPremiumBroadband(session, req.body || {})
+    saveSessions()
+    sendResult(res, result, 'check', session)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.post('/premium-broadband/submit', async (req, res, next) => {
+  try {
+    const session = requireSession(req, res)
+    if (!session) return
+    const result = await submitPremiumBroadband(session, req.body || {})
+    saveSessions()
+    sendResult(res, result, 'submission', session)
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.post('/submit', async (req, res, next) => {
   try {
     const session = requireSession(req, res)
@@ -57,6 +112,17 @@ router.post('/submit', async (req, res, next) => {
     })
     saveSessions()
     sendResult(res, result, 'order', session)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.delete('/:orderId', (req, res, next) => {
+  try {
+    const session = requireSession(req, res)
+    if (!session) return
+    const result = discardCustomOrder(session, req.params.orderId)
+    sendResult(res, result, 'order')
   } catch (error) {
     next(error)
   }

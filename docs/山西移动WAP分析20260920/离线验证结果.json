@@ -1,0 +1,8 @@
+{
+  "AES_CBC_PKCS7_cross_language": true,
+  "HMAC_SHA256_cross_language": true,
+  "RSA_PKCS1v15_cross_language": true,
+  "source_roundtrip": true,
+  "production_AES_HAR_decrypted": false,
+  "legacy_DES_adInfoQry_request_response_decrypted": true
+}

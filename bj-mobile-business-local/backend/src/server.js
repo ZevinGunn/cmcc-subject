@@ -11,6 +11,7 @@ import debugRouter from './routes/debug.js'
 import activitiesRouter from './routes/activities.js'
 import customOrdersRouter from './routes/customOrders.js'
 import shopBusinessRouter from './routes/shopBusiness.js'
+import quickOrdersRouter from './routes/quickOrders.js'
 import { createRequestId, logEvent, logFile } from './utils/logger.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,6 +48,17 @@ function requestBodyForLog(req) {
       omitted: '[SHOP_COOKIE_AND_SMS_OMITTED]',
     }
   }
+  if (req.originalUrl.startsWith('/api/quick-orders')) {
+    return {
+      platform: req.body?.platform || '',
+      hasAuth: Boolean(req.body?.auth),
+      hasOption: Boolean(req.body?.optionId),
+      hasSmsCode: Boolean(req.body?.smsCode),
+      agreed: req.body?.agreed === true,
+      realOrderConfirmed: req.body?.realOrderConfirmed === true,
+      omitted: '[QUICK_ORDER_CREDENTIALS_AND_CODES_OMITTED]',
+    }
+  }
   return req.body
 }
 
@@ -54,6 +66,7 @@ function responseBodyForLog(req, body) {
   if (req.originalUrl.startsWith('/api/debug/crypto')) return '[CRYPTO_OUTPUT_OMITTED]'
   if (req.originalUrl.startsWith('/api/custom-orders')) return '[CUSTOM_ORDER_OUTPUT_OMITTED]'
   if (req.originalUrl.startsWith('/api/shop-business')) return '[SHOP_BUSINESS_OUTPUT_OMITTED]'
+  if (req.originalUrl.startsWith('/api/quick-orders')) return '[QUICK_ORDER_OUTPUT_OMITTED]'
   return body
 }
 
@@ -110,6 +123,7 @@ app.use('/api/debug', debugRouter)
 app.use('/api/activities', activitiesRouter)
 app.use('/api/custom-orders', customOrdersRouter)
 app.use('/api/shop-business', shopBusinessRouter)
+app.use('/api/quick-orders', quickOrdersRouter)
 
 if (existsSync(frontendIndex)) {
   app.use(express.static(frontendDist, { index: false }))

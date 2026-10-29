@@ -1,0 +1,14 @@
+{
+  "name": "cmcc-contract-query",
+  "version": "1.0.0",
+  "private": true,
+  "description": "北京移动二类、三类及低消等级合约统一查询服务",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check public/app.js && node --test",
+    "test": "node --test",
+    "import:type2": "node scripts/import_type2.js",
+    "import:type3": "python3 scripts/import_xls.py",
+    "import:low": "python3 scripts/import_low_contracts.py"
+  }
+}

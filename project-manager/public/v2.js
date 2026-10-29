@@ -81,6 +81,7 @@ const ACTION_LABELS = {
   "storage-clear-cache": "清理推荐缓存",
   "storage-cleanup-expired": "清理过期项",
   "storage-delete": "删除存储项",
+  "admin-delete": "删除管理员",
   rollback: "回滚",
 };
 
@@ -146,6 +147,7 @@ const state = {
   adminsData: null,
   lastUpdated: null,
   actionBusy: null,
+  credentialBusy: false,
   confirm: null,
   serviceFilters: { search: "", status: "all", capability: "all" },
   operationFilters: { status: "all", action: "all", search: "" },
@@ -156,6 +158,8 @@ const state = {
   settings: DEFAULT_SETTINGS,
   pollTimer: null,
   operationPollTimer: null,
+  focusReturnStack: [],
+  pendingFocusSelector: "",
 };
 
 function icon(name, className = "") {
@@ -264,6 +268,34 @@ function statusLabel(status) {
 
 function actionLabel(action) {
   return ACTION_LABELS[action] || action || "操作";
+}
+
+function roleLabel(role) {
+  return { owner: "所有者", operator: "运维员", viewer: "只读成员" }[role] || role || "成员";
+}
+
+function canOperateCurrentUser() {
+  return ["owner", "operator"].includes(state.session?.admin?.role);
+}
+
+function isCurrentUserOwner() {
+  return state.session?.admin?.role === "owner";
+}
+
+function disabledReason(action = "write") {
+  if (action === "owner" && !isCurrentUserOwner()) return "仅所有者可执行";
+  if (!canOperateCurrentUser()) return "当前账号为只读成员";
+  if (isOperationBusy()) return "已有运维任务正在执行";
+  return "";
+}
+
+function rememberFocus(selector) {
+  if (selector) state.focusReturnStack.push(selector);
+}
+
+function restoreFocus(selector = state.focusReturnStack.pop() || "") {
+  if (!selector) return;
+  queueMicrotask(() => document.querySelector(selector)?.focus());
 }
 
 function normalizeStateValue(input) {
@@ -589,6 +621,11 @@ function humanError(error) {
     invalid_username: "用户名需为 3-32 位字母、数字、点、横线或下划线",
     username_exists: "该管理员用户名已存在",
     password_too_short: "密码至少需要 12 位",
+    password_too_long: "密码不能超过 256 位",
+    current_password_incorrect: "当前密码不正确",
+    password_unchanged: "新密码不能与当前密码相同",
+    password_change_rate_limited: "当前密码连续输错，请稍后再试",
+    use_password_change_endpoint: "请使用“修改密码”并验证当前密码",
     owner_required: "只有 Owner 可以执行此操作",
     operator_required: "当前账号只有查看权限",
     service_scope_denied: "当前账号没有该项目权限",
@@ -642,7 +679,7 @@ async function api(path, options = {}) {
 
 function routeStateFromLocation() {
   const path = location.pathname.replace(/\/+$/, "") || "/";
-  if (path === "/v2/login") return { route: "login", drawerServiceId: null };
+  if (["/login", "/v2/login"].includes(path)) return { route: "login", drawerServiceId: null };
   const serviceMatch = path.match(/^\/v2\/services\/([^/]+)$/);
   if (serviceMatch) return { route: "services", drawerServiceId: decodeURIComponent(serviceMatch[1]) };
   const matched = ROUTES.find((route) => route.path === path || (route.id === "overview" && ["/v2.html", "/v2/"].includes(location.pathname)));
@@ -936,8 +973,126 @@ function renderEmptyState(title, detail = "") {
   `;
 }
 
-function renderSkeleton(rows = 4) {
-  return `<div class="skeleton-list" aria-label="正在加载">${Array.from({ length: rows }, () => '<span class="skeleton-line"></span>').join("")}</div>`;
+function skeletonBlock(className = "") {
+  return `<span class="skeleton-block ${className}" aria-hidden="true"></span>`;
+}
+
+function renderMetricSkeletons() {
+  return `<section class="metric-grid skeleton-metric-grid" aria-label="正在加载运行指标" aria-busy="true">${Array.from({ length: 4 }, (_, index) => `
+    <article class="metric-card skeleton-metric-card">
+      <div class="metric-copy">
+        ${skeletonBlock(`skeleton-text skeleton-label skeleton-width-${index % 2 ? "md" : "sm"}`)}
+        ${skeletonBlock(`skeleton-value skeleton-width-${index === 1 ? "lg" : "sm"}`)}
+        ${skeletonBlock(`skeleton-text skeleton-note skeleton-width-${index % 2 ? "lg" : "md"}`)}
+      </div>
+      ${skeletonBlock("skeleton-icon")}
+    </article>
+  `).join("")}</section>`;
+}
+
+function renderEventSkeleton(rows = 2) {
+  return `<div class="event-list skeleton-event-list" aria-label="正在加载当前事件" aria-busy="true">${Array.from({ length: rows }, (_, index) => `
+    <div class="event-row skeleton-event-row">
+      ${skeletonBlock("skeleton-event-icon")}
+      <div class="event-copy">
+        ${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${index % 2 ? "md" : "lg"}`)}
+        ${skeletonBlock(`skeleton-text skeleton-note skeleton-width-${index % 2 ? "lg" : "xl"}`)}
+      </div>
+      ${skeletonBlock("skeleton-action")}
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderServiceTableSkeleton(rows = 7) {
+  const desktopRows = Array.from({ length: rows }, (_, rowIndex) => `
+    <tr class="skeleton-service-row">
+      <td><span class="skeleton-service-cell">${skeletonBlock("skeleton-service-icon")}<span class="skeleton-service-copy">${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${rowIndex % 3 === 0 ? "lg" : "md"}`)}${skeletonBlock("skeleton-text skeleton-note skeleton-width-lg")}</span></span></td>
+      <td>${skeletonBlock("skeleton-pill")}</td>
+      ${Array.from({ length: 5 }, () => `<td class="cell-center">${skeletonBlock("skeleton-layer")}</td>`).join("")}
+      <td>${skeletonBlock(`skeleton-text skeleton-width-${rowIndex % 2 ? "md" : "lg"}`)}</td>
+      <td class="cell-end"><span class="skeleton-row-actions">${skeletonBlock("skeleton-button")}${skeletonBlock("skeleton-more")}</span></td>
+    </tr>
+  `).join("");
+  const mobileRows = Array.from({ length: rows }, (_, rowIndex) => `
+    <article class="service-mobile-row skeleton-mobile-service-row">
+      <div class="service-mobile-main">
+        <div class="service-mobile-header">
+          <span class="skeleton-mobile-copy">${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${rowIndex % 2 ? "md" : "lg"}`)}${skeletonBlock("skeleton-text skeleton-note skeleton-width-lg")}</span>
+          ${skeletonBlock("skeleton-pill")}
+        </div>
+        <div class="service-mobile-layers">${Array.from({ length: 4 }, () => skeletonBlock("skeleton-mini-layer")).join("")}</div>
+      </div>
+      <span class="skeleton-row-actions">${skeletonBlock("skeleton-more")}</span>
+    </article>
+  `).join("");
+  return `
+    <div class="skeleton-service-table" aria-label="正在加载服务健康状态" aria-busy="true">
+      <div class="desktop-service-table table-scroll">
+        <table class="data-table">
+          <thead><tr><th>服务</th><th>状态</th><th class="cell-center">进程</th><th class="cell-center">端口</th><th class="cell-center">应用</th><th class="cell-center">公网</th><th class="cell-center">产物</th><th>最近操作</th><th class="cell-end">操作</th></tr></thead>
+          <tbody>${desktopRows}</tbody>
+        </table>
+      </div>
+      <div class="mobile-service-list">${mobileRows}</div>
+    </div>
+  `;
+}
+
+function renderOperationSkeleton(rows = 5) {
+  return `<div class="operation-list skeleton-operation-list" aria-label="正在加载操作记录" aria-busy="true">${Array.from({ length: rows }, (_, index) => `
+    <div class="operation-row skeleton-operation-row">
+      ${skeletonBlock("skeleton-operation-indicator")}
+      <div class="operation-copy">${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${index % 2 ? "md" : "lg"}`)}${skeletonBlock("skeleton-text skeleton-note skeleton-width-xl")}</div>
+      <div class="operation-meta">${skeletonBlock("skeleton-pill")}${skeletonBlock("skeleton-text skeleton-meta")}</div>
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderReleaseSkeleton(rows = 5) {
+  return `<div class="release-list skeleton-release-list" aria-label="正在加载发布记录" aria-busy="true">${Array.from({ length: rows }, (_, index) => `
+    <div class="release-row skeleton-release-row">
+      <div class="release-copy">${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${index % 2 ? "md" : "lg"}`)}${skeletonBlock("skeleton-text skeleton-note skeleton-width-md")}</div>
+      ${skeletonBlock("skeleton-pill")}
+      <div class="release-meta">${skeletonBlock("skeleton-text skeleton-meta")}${skeletonBlock("skeleton-text skeleton-meta-short")}</div>
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderInfraSkeleton(rows = 4) {
+  return `<div class="infra-list skeleton-infra-list" aria-label="正在加载基础设施状态" aria-busy="true">${Array.from({ length: rows }, (_, index) => `
+    <div class="infra-row skeleton-infra-row">
+      ${skeletonBlock("skeleton-event-icon")}
+      <div class="infra-copy">${skeletonBlock(`skeleton-text skeleton-title skeleton-width-${index % 2 ? "md" : "sm"}`)}${skeletonBlock("skeleton-text skeleton-note skeleton-width-lg")}</div>
+      ${skeletonBlock("skeleton-pill")}
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderOverviewSkeleton() {
+  return `
+    <div class="page skeleton-page" aria-busy="true">
+      ${renderPageHeader("运行总览", "正在读取服务与基础设施状态", skeletonBlock("skeleton-header-action"))}
+      ${renderMetricSkeletons()}
+      <section class="section">
+        <div class="section-header"><div class="section-heading"><h2>当前事件</h2><p>按公网、端口、进程与配置优先级排序</p></div></div>
+        <div class="surface">${renderEventSkeleton(2)}</div>
+      </section>
+      <section class="section">
+        <div class="section-header"><div class="section-heading"><h2>服务健康矩阵</h2><p>进程、端口、应用、公网与构建产物</p></div>${skeletonBlock("skeleton-section-action")}</div>
+        <div class="surface">${renderServiceTableSkeleton(7)}</div>
+      </section>
+      <div class="split-grid">
+        <section class="section">
+          <div class="section-header"><div class="section-heading"><h2>最近操作</h2><p>服务控制与系统任务</p></div>${skeletonBlock("skeleton-section-action")}</div>
+          <div class="surface">${renderOperationSkeleton()}</div>
+        </section>
+        <section class="section">
+          <div class="section-header"><div class="section-heading"><h2>最近发布</h2><p>构建、部署与回滚结果</p></div>${skeletonBlock("skeleton-section-action")}</div>
+          <div class="surface">${renderReleaseSkeleton()}</div>
+        </section>
+      </div>
+    </div>
+  `;
 }
 
 function renderPageHeader(title, subtitle, actions = "") {
@@ -991,7 +1146,7 @@ function renderSidebar() {
     <aside class="sidebar" aria-label="Project Ops 导航">
       <a class="sidebar-brand" href="/v2" data-route="/v2">
         <span class="brand-mark">${icon("logo", "icon-lg")}</span>
-        <span class="brand-copy"><strong>Project Ops</strong><span>CMCC 管理台 V2</span></span>
+        <span class="brand-copy"><strong>项目运行工作台</strong><span>Project Ops</span></span>
       </a>
       <nav class="sidebar-nav">
         <p class="nav-label">工作台</p>
@@ -1000,10 +1155,7 @@ function renderSidebar() {
         ${renderLinks(systemRoutes)}
       </nav>
       <footer class="sidebar-footer">
-        <div class="version-switch" aria-label="版本切换">
-          <a href="/home">V1</a><span class="active">V2</span>
-        </div>
-        <div class="sidebar-meta"><span>1008086.xyz</span><span>${state.lastUpdated ? relativeTime(state.lastUpdated) : "未同步"}</span></div>
+        <div class="sidebar-meta"><span class="environment-state"><span class="environment-dot"></span>管理节点</span><span>${state.lastUpdated ? relativeTime(state.lastUpdated) : "未同步"}</span></div>
       </footer>
     </aside>
   `;
@@ -1012,6 +1164,9 @@ function renderSidebar() {
 function renderTopbar() {
   const route = routeInfo();
   const dark = state.settings.theme === "dark";
+  const admin = state.session?.admin;
+  const adminName = admin?.displayName || admin?.username || "管理员";
+  const adminInitial = adminName.trim().slice(0, 1).toUpperCase() || "管";
   return `
     <header class="topbar">
       <div class="topbar-title">
@@ -1023,37 +1178,49 @@ function renderTopbar() {
           ${state.loading.has("bootstrap") ? '<span class="spinner" aria-hidden="true"></span>' : icon("refresh")}<span class="refresh-label">刷新</span>
         </button>
         <button type="button" class="icon-button button-ghost" data-action="toggle-theme" aria-label="切换为${dark ? "浅色" : "深色"}模式">${icon(dark ? "sun" : "moon")}</button>
-        <a class="icon-button button-ghost" href="/home" aria-label="切换到 V1">${icon("arrow-left")}</a>
-        <button type="button" class="icon-button button-ghost" data-action="logout" aria-label="退出登录">${icon("logout")}</button>
+        <details class="menu account-menu">
+          <summary class="account-trigger" data-focus-id="account-password" aria-label="当前账号：${escapeHtml(adminName)}">
+            <span class="account-avatar" aria-hidden="true">${escapeHtml(adminInitial)}</span>
+            <span class="account-copy"><strong>${escapeHtml(adminName)}</strong><span>${escapeHtml(roleLabel(admin?.role))}</span></span>
+            ${icon("chevron-down")}
+          </summary>
+          <div class="menu-popover account-popover">
+            <div class="account-popover-meta"><strong>${escapeHtml(adminName)}</strong><span>${escapeHtml(admin?.username || "admin")} · ${escapeHtml(roleLabel(admin?.role))}</span></div>
+            <button type="button" data-action="change-password">${icon("lock")}修改密码</button>
+            <a href="/v2/settings" data-route="/v2/settings">${icon("settings")}账号与系统</a>
+            <button type="button" data-action="logout">${icon("logout")}退出登录</button>
+          </div>
+        </details>
       </div>
     </header>
   `;
 }
 
 function renderLogin() {
-  document.title = "登录 · Project Ops V2";
+  document.title = "登录 · CMCC 项目运行工作台";
   app.innerHTML = `
     <section class="login-page">
-      <aside class="login-aside">
-        <div class="login-brand"><span class="brand-mark">${icon("logo", "icon-lg")}</span><strong>Project Ops V2</strong></div>
-        <div class="login-aside-copy"><h1>项目运行工作台</h1><p>统一管理服务健康、发布任务与公网运行链路。</p></div>
-        <div class="login-aside-meta">project.1008086.xyz</div>
-      </aside>
-      <div class="login-main">
+      <div class="login-shell">
+        <header class="login-brand">
+          <span class="brand-mark">${icon("logo", "icon-lg")}</span>
+          <span class="login-brand-copy"><strong>项目运行工作台</strong><span>Project Ops</span></span>
+          <span class="login-environment"><span class="environment-dot"></span>内部管理</span>
+        </header>
         <form class="login-form" id="login-form">
-          <div class="login-form-header"><h2>管理员登录</h2><p>使用管理员账号进入工作台。</p></div>
+          <div class="login-form-header"><h1>登录工作台</h1><p>使用已授权的管理员账号继续。</p></div>
           <div class="form-group">
             <label for="manager-username">用户名</label>
-            <input class="field" id="manager-username" name="username" type="text" value="admin" autocomplete="username" required autofocus>
+            <div class="input-shell">${icon("user")}<input class="field" id="manager-username" name="username" type="text" value="admin" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus></div>
           </div>
           <div class="form-group">
             <label for="manager-password">密码</label>
-            <input class="field" id="manager-password" name="password" type="password" autocomplete="current-password" required>
+            <div class="input-shell">${icon("lock")}<input class="field" id="manager-password" name="password" type="password" autocomplete="current-password" required aria-describedby="caps-lock-message login-error"><button type="button" class="password-toggle" data-action="toggle-password" aria-label="显示密码">${icon("eye")}</button></div>
+            <p class="caps-lock-message" id="caps-lock-message" hidden>${icon("alert")}大写锁定已开启</p>
           </div>
           <button class="button button-primary" type="submit" data-login-submit>${icon("lock")}登录</button>
-          <p class="form-error" id="login-error" role="alert"></p>
-          <a href="/home">返回 V1 登录</a>
+          <p class="form-error" id="login-error" role="alert" hidden></p>
         </form>
+        <footer class="login-footer"><span>${icon("shield")}安全会话最长 8 小时</span><a href="/home">进入旧版工作台</a></footer>
       </div>
     </section>
   `;
@@ -1115,6 +1282,7 @@ function renderEvents(events, limit = 6) {
 function servicePrimaryAction(service) {
   const operating = operationForService(service.id);
   if (operating) return { operation: operating };
+  if (!canOperateCurrentUser()) return null;
   if (service.overallStatus === "unavailable"
     && service.layers.process.state === "fail"
     && service.capabilities.includes("start")) return { action: "start" };
@@ -1136,7 +1304,9 @@ function renderServiceMenu(service, primaryAction = "") {
         ${actions.map((action) => {
           const config = ACTIONS[action];
           const dangerClass = config.tone === "danger" ? "danger-item" : "";
-          return `<button type="button" class="${dangerClass}" data-service-action="${action}" data-service-id="${escapeHtml(service.id)}" ${busy && action !== "logs" ? "disabled" : ""}>${icon(config.icon)}${escapeHtml(config.label)}</button>`;
+          const disabled = action !== "logs" && (!canOperateCurrentUser() || busy);
+          const reason = disabled ? disabledReason() : "";
+          return `<button type="button" class="${dangerClass}" data-service-action="${action}" data-service-id="${escapeHtml(service.id)}" ${disabled ? "disabled" : ""} ${reason ? `title="${escapeHtml(reason)}"` : ""}>${icon(config.icon)}${escapeHtml(config.label)}</button>`;
         }).join("")}
       </div>
     </details>
@@ -1149,7 +1319,7 @@ function renderServiceRow(service) {
   const primaryMarkup = primary?.operation
     ? `<button type="button" class="button button-sm" data-operation-id="${escapeHtml(primary.operation.id)}">${icon("operations")}查看任务</button>`
     : primary?.action
-      ? `<button type="button" class="button button-sm ${primary.action === "start" ? "button-primary" : ""}" data-service-action="${primary.action}" data-service-id="${escapeHtml(service.id)}" ${isOperationBusy() ? "disabled" : ""}>${icon(ACTIONS[primary.action].icon)}${escapeHtml(ACTIONS[primary.action].label)}</button>`
+      ? `<button type="button" class="button button-sm ${primary.action === "start" ? "button-primary" : ""}" data-service-action="${primary.action}" data-service-id="${escapeHtml(service.id)}" ${isOperationBusy() ? "disabled" : ""} ${isOperationBusy() ? `title="${escapeHtml(disabledReason())}"` : ""}>${icon(ACTIONS[primary.action].icon)}${escapeHtml(ACTIONS[primary.action].label)}</button>`
       : "";
   return `
     <tr>
@@ -1241,7 +1411,7 @@ function renderReleaseRows(operations, limit = null) {
 
 function renderOverviewPage() {
   if (!state.initialized && state.loading.has("bootstrap")) {
-    return `<div class="page">${renderPageHeader("运行总览", "正在读取服务与基础设施状态")}${renderSkeleton(7)}</div>`;
+    return renderOverviewSkeleton();
   }
   const metrics = overviewMetrics();
   const events = deriveEvents();
@@ -1249,7 +1419,7 @@ function renderOverviewPage() {
   return `
     <div class="page">
       ${renderPageHeader("运行总览", `${formatNumber(metrics.total)} 个应用服务 · ${state.inventory?.infrastructure?.length ? `${formatNumber(state.inventory.infrastructure.length)} 类基础设施` : "运行链路巡检"}`, `
-        <button type="button" class="button button-primary" data-global-action="check-all" ${isOperationBusy() ? "disabled" : ""}>${icon("scan")}检测全部</button>
+        <button type="button" class="button button-primary" data-global-action="check-all" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon("scan")}检测全部</button>
       `)}
       ${state.errors.services ? `<div class="surface">${renderErrorState(state.errors.services)}</div>` : ""}
       ${renderCurrentOperationBanner()}
@@ -1303,7 +1473,7 @@ function renderServicesPage() {
   return `
     <div class="page">
       ${renderPageHeader("服务中心", `${formatNumber(state.services.length)} 个服务 · ${formatNumber(statusCounts.healthy || 0)} 个健康 · ${formatNumber((statusCounts.degraded || 0) + (statusCounts.unavailable || 0))} 个需处理`, `
-        <button type="button" class="button button-primary" data-global-action="check-all" ${isOperationBusy() ? "disabled" : ""}>${icon("scan")}检测全部</button>
+        <button type="button" class="button button-primary" data-global-action="check-all" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon("scan")}检测全部</button>
       `)}
       ${renderCurrentOperationBanner()}
       <div class="toolbar" aria-label="服务筛选">
@@ -1323,7 +1493,7 @@ function renderServicesPage() {
         <span class="result-count">显示 ${formatNumber(services.length)} / ${formatNumber(state.services.length)}</span>
       </div>
       <section class="surface">
-        ${state.loading.has("bootstrap") && !state.initialized ? renderSkeleton(7) : state.errors.services ? renderErrorState(state.errors.services) : renderServiceTable(services)}
+        ${state.loading.has("bootstrap") && !state.initialized ? renderServiceTableSkeleton(7) : state.errors.services ? renderErrorState(state.errors.services) : renderServiceTable(services)}
       </section>
     </div>
   `;
@@ -1359,8 +1529,8 @@ function renderReleasesPage() {
                     <span class="release-service-copy"><strong>${escapeHtml(service.name)}</strong><span>${escapeHtml(service.frontend?.dist || service.domain || service.id)}</span><span>${artifact.state === "ok" ? `产物可用${service.artifactUpdatedAt ? ` · ${relativeTime(service.artifactUpdatedAt)}` : ""}` : artifact.state === "fail" ? "产物异常" : "产物状态未知"}${latest ? ` · 最近${actionLabel(latest.action)}${statusLabel(latest.status)}` : ""}</span></span>
                   </button>
                   <div class="button-row">
-                    ${service.capabilities.includes("build") ? `<button type="button" class="button button-sm" data-service-action="build" data-service-id="${escapeHtml(service.id)}" ${isOperationBusy() ? "disabled" : ""}>${icon("build")}构建</button>` : ""}
-                    ${service.capabilities.includes("deploy") ? `<button type="button" class="button button-sm button-danger" data-service-action="deploy" data-service-id="${escapeHtml(service.id)}" ${isOperationBusy() ? "disabled" : ""}>${icon("rocket")}部署</button>` : ""}
+                    ${service.capabilities.includes("build") ? `<button type="button" class="button button-sm" data-service-action="build" data-service-id="${escapeHtml(service.id)}" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon("build")}构建</button>` : ""}
+                    ${service.capabilities.includes("deploy") ? `<button type="button" class="button button-sm button-danger" data-service-action="deploy" data-service-id="${escapeHtml(service.id)}" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon("rocket")}部署</button>` : ""}
                   </div>
                 </article>
               `;
@@ -1397,12 +1567,12 @@ function renderOperationsPage() {
   return `
     <div class="page">
       ${renderPageHeader("操作中心", `${formatNumber(state.operations.length)} 条记录 · ${running ? "当前操作锁已占用" : "全局操作锁空闲"}`, `
-        <button type="button" class="button" data-global-action="check-all" ${isOperationBusy() ? "disabled" : ""}>${icon("scan")}检测全部</button>
+        <button type="button" class="button" data-global-action="check-all" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon("scan")}检测全部</button>
       `)}
       ${renderCurrentOperationBanner(running)}
       <section class="section">
         <div class="section-header"><div class="section-heading"><h2>批量服务控制</h2><p>仅包含允许自动操作的业务服务；任务按所选顺序执行</p></div><span class="result-count">已选 ${formatNumber(selectedCount)} / ${formatNumber(bulkServices.length)}</span></div>
-        <div class="surface batch-control">
+        ${canOperateCurrentUser() ? `<div class="surface batch-control">
           <label class="batch-select-all"><input type="checkbox" id="bulk-select-all" ${allSelected ? "checked" : ""} ${bulkServices.length ? "" : "disabled"}>选择全部可自动操作服务</label>
           <div class="batch-service-list">
             ${bulkServices.map((service) => `<label class="batch-service-row"><input type="checkbox" data-bulk-service="${escapeHtml(service.id)}" ${state.selectedServices.has(service.id) ? "checked" : ""}><span><strong>${escapeHtml(service.name)}</strong><small>${escapeHtml(service.backend.pm2Name || service.id)}</small></span>${renderStatusBadge(service.overallStatus)}</label>`).join("")}
@@ -1412,7 +1582,7 @@ function renderOperationsPage() {
             <button type="button" class="button" data-global-action="restart" ${selectedCount && !isOperationBusy() ? "" : "disabled"}>${icon("restart")}重启</button>
             <button type="button" class="button button-danger" data-global-action="stop" ${selectedCount && !isOperationBusy() ? "" : "disabled"}>${icon("stop")}停止</button>
           </div>
-        </div>
+        </div>` : `<div class="surface permission-state">${icon("shield", "icon-lg")}<div><strong>当前账号为只读成员</strong><span>可以查看操作状态、阶段和脱敏输出，无法发起服务控制。</span></div></div>`}
       </section>
       <div class="toolbar" aria-label="操作筛选">
         <div class="toolbar-group">
@@ -1432,7 +1602,7 @@ function renderOperationsPage() {
       </div>
       <section class="section">
         <div class="section-header"><div class="section-heading"><h2>操作历史</h2><p>点击记录查看阶段、命令摘要和脱敏输出</p></div></div>
-        <div class="surface">${state.loading.has("bootstrap") && !state.initialized ? renderSkeleton(6) : state.errors.operations ? renderErrorState(state.errors.operations) : renderOperationRows(operations)}</div>
+        <div class="surface">${state.loading.has("bootstrap") && !state.initialized ? renderOperationSkeleton(6) : state.errors.operations ? renderErrorState(state.errors.operations) : renderOperationRows(operations)}</div>
       </section>
     </div>
   `;
@@ -1528,15 +1698,15 @@ function renderStoragePage() {
             <span class="result-count">显示 ${formatNumber(items.length)} / ${formatNumber(storage.items.length)}</span>
           </div>
           <div class="toolbar-actions">
-            <button type="button" class="button button-sm" data-storage-action="storage-clear-cache" ${isOperationBusy() ? "disabled" : ""}>${icon("trash")}清理推荐缓存</button>
-            <button type="button" class="button button-sm" data-storage-action="storage-cleanup-expired" ${isOperationBusy() ? "disabled" : ""}>${icon("clock")}清理过期项</button>
-            <button type="button" class="button button-sm button-danger" data-storage-action="storage-delete" ${!selectedCount || isOperationBusy() ? "disabled" : ""}>${icon("trash")}删除已选${selectedCount ? ` (${formatBytes(selectedSize)})` : ""}</button>
+            <button type="button" class="button button-sm" data-storage-action="storage-clear-cache" ${!isCurrentUserOwner() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason("owner"))}">${icon("trash")}清理推荐缓存</button>
+            <button type="button" class="button button-sm" data-storage-action="storage-cleanup-expired" ${!isCurrentUserOwner() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason("owner"))}">${icon("clock")}清理过期项</button>
+            <button type="button" class="button button-sm button-danger" data-storage-action="storage-delete" ${!isCurrentUserOwner() || !selectedCount || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(!isCurrentUserOwner() ? disabledReason("owner") : "")}">${icon("trash")}删除已选${selectedCount ? ` (${formatBytes(selectedSize)})` : ""}</button>
           </div>
         </div>
         <section class="surface">
           ${items.length ? `<div class="storage-list">${items.map((item) => `
             <label class="storage-row">
-              <input class="storage-checkbox" type="checkbox" data-storage-id="${escapeHtml(item.id)}" ${state.selectedStorage.has(item.id) ? "checked" : ""} ${item.removable ? "" : "disabled"} aria-label="选择 ${escapeHtml(item.label)}">
+              <input class="storage-checkbox" type="checkbox" data-storage-id="${escapeHtml(item.id)}" ${state.selectedStorage.has(item.id) ? "checked" : ""} ${item.removable && isCurrentUserOwner() ? "" : "disabled"} aria-label="选择 ${escapeHtml(item.label)}">
               <span class="storage-kind">${escapeHtml(STORAGE_TYPE_LABELS[item.type] || item.type)}</span>
               <span class="storage-copy"><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.path)}</span>${item.reason ? `<span>${escapeHtml(item.reason)}</span>` : ""}</span>
               <span class="storage-size">${formatBytes(item.size)}</span>
@@ -1607,7 +1777,7 @@ function renderAdminsSection() {
   const current = state.session?.admin;
   if (!current) return "";
   if (current.role !== "owner") {
-    return `<section class="section"><div class="section-header"><div class="section-heading"><h2>当前管理员</h2><p>${escapeHtml(current.displayName || current.username)} · ${escapeHtml(current.role)}</p></div></div><div class="surface"><div class="manifest-facts"><div class="manifest-fact"><span>用户名</span><strong>${escapeHtml(current.username)}</strong></div><div class="manifest-fact"><span>项目范围</span><strong>${current.serviceIds?.includes("*") ? "全部" : formatNumber(current.serviceIds?.length || 0)}</strong></div></div></div></section>`;
+    return `<section class="section"><div class="section-header"><div class="section-heading"><h2>当前管理员</h2><p>${escapeHtml(current.displayName || current.username)} · ${escapeHtml(roleLabel(current.role))}</p></div><button type="button" class="button button-sm" data-action="change-password" data-focus-id="settings-password">${icon("lock")}修改密码</button></div><div class="surface"><div class="manifest-facts"><div class="manifest-fact"><span>用户名</span><strong>${escapeHtml(current.username)}</strong></div><div class="manifest-fact"><span>项目范围</span><strong>${current.serviceIds?.includes("*") ? "全部" : formatNumber(current.serviceIds?.length || 0)}</strong></div></div></div></section>`;
   }
   const data = state.adminsData;
   if (state.loading.has("admins") && !data) return `<section class="section"><div class="section-header"><div class="section-heading"><h2>管理员账号</h2></div></div><div class="surface">${renderLoadingState("正在读取管理员...")}</div></section>`;
@@ -1620,12 +1790,21 @@ function renderAdminsSection() {
       <form id="admin-create-form" class="admin-create-form">
         <label><span>用户名</span><input class="field" name="username" required minlength="3" maxlength="32" autocomplete="off"></label>
         <label><span>显示名称</span><input class="field" name="displayName" maxlength="60" autocomplete="off"></label>
-        <label><span>初始密码</span><input class="field" name="password" type="password" required minlength="12" autocomplete="new-password"></label>
+        <label><span>初始密码</span><input class="field" name="password" type="password" required minlength="12" maxlength="256" autocomplete="new-password"></label>
         <label><span>角色</span><select class="select-field" name="role"><option value="operator">Operator</option><option value="viewer">Viewer</option><option value="owner">Owner</option></select></label>
         <label class="admin-scope-field"><span>项目范围</span><select class="select-field" name="serviceIds" multiple size="5">${servicesOptions}</select></label>
         <button class="button button-primary" type="submit">${icon("lock")}新增管理员</button>
       </form>
-      <div class="admin-list">${admins.map((admin) => `<div class="admin-row" data-admin-row="${escapeHtml(admin.id)}"><div class="admin-identity"><strong>${escapeHtml(admin.displayName || admin.username)}</strong><span>${escapeHtml(admin.username)} · ${escapeHtml(admin.role)} · ${admin.serviceIds?.includes("*") ? "全部项目" : `${admin.serviceIds?.length || 0} 个项目`}</span></div><span>${admin.disabled ? renderStatusBadge("stopped", "已停用") : renderStatusBadge("healthy", "可登录")}</span><span class="faint">${admin.lastLoginAt ? relativeTime(admin.lastLoginAt) : "从未登录"}</span><div class="admin-actions"><input class="field" type="password" data-admin-new-password placeholder="新密码（12 位以上）" autocomplete="new-password"><button type="button" class="button button-sm" data-admin-reset="${escapeHtml(admin.id)}">重置密码</button>${admin.id !== current.id ? `<button type="button" class="button button-sm" data-admin-toggle="${escapeHtml(admin.id)}" data-disabled="${admin.disabled ? "false" : "true"}">${admin.disabled ? "启用" : "停用"}</button><button type="button" class="icon-button button-ghost" data-admin-delete="${escapeHtml(admin.id)}" aria-label="删除 ${escapeHtml(admin.username)}">${icon("trash")}</button>` : `<span class="faint">当前账号</span>`}</div></div>`).join("")}</div>
+      <div class="admin-list">${admins.map((admin) => {
+        const isCurrent = admin.id === current.id;
+        const passwordAction = isCurrent
+          ? `<button type="button" class="button button-sm" data-action="change-password" data-focus-id="admin-row-password">${icon("lock")}修改密码</button>`
+          : `<input class="field" type="password" data-admin-new-password minlength="12" maxlength="256" placeholder="新密码（12–256 位）" autocomplete="new-password"><button type="button" class="button button-sm" data-admin-reset="${escapeHtml(admin.id)}">重置密码</button>`;
+        const accountActions = isCurrent
+          ? `<span class="faint">当前账号</span>`
+          : `<button type="button" class="button button-sm" data-admin-toggle="${escapeHtml(admin.id)}" data-disabled="${admin.disabled ? "false" : "true"}">${admin.disabled ? "启用" : "停用"}</button><button type="button" class="icon-button button-ghost" data-admin-delete="${escapeHtml(admin.id)}" aria-label="删除 ${escapeHtml(admin.username)}">${icon("trash")}</button>`;
+        return `<div class="admin-row" data-admin-row="${escapeHtml(admin.id)}"><div class="admin-identity"><strong>${escapeHtml(admin.displayName || admin.username)}</strong><span>${escapeHtml(admin.username)} · ${escapeHtml(roleLabel(admin.role))} · ${admin.serviceIds?.includes("*") ? "全部项目" : `${admin.serviceIds?.length || 0} 个项目`}</span></div><span>${admin.disabled ? renderStatusBadge("stopped", "已停用") : renderStatusBadge("healthy", "可登录")}</span><span class="faint">${admin.lastLoginAt ? relativeTime(admin.lastLoginAt) : "从未登录"}</span><div class="admin-actions">${passwordAction}${accountActions}</div></div>`;
+      }).join("")}</div>
     </div>
   </section>`;
 }
@@ -1649,7 +1828,7 @@ function renderSettingsPage() {
             <div class="surface">${inventory?.infrastructure?.length ? `<div class="infra-list">${inventory.infrastructure.map((item) => {
               const status = normalizeInfrastructureStatus(item.status);
               return `<div class="infra-row"><span class="infra-icon">${icon(infrastructureIcon(item))}</span><span class="infra-copy"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.detail || item.id)}</span></span>${renderStatusBadge(status)}</div>`;
-            }).join("")}</div>` : state.loading.has("bootstrap") ? renderSkeleton(4) : renderEmptyState("暂无基础设施状态", "后端尚未返回基础设施清单")}</div>
+            }).join("")}</div>` : state.loading.has("bootstrap") ? renderInfraSkeleton(4) : renderEmptyState("暂无基础设施状态", "后端尚未返回基础设施清单")}</div>
           </section>
 
           <section class="section">
@@ -1748,7 +1927,7 @@ function renderServiceDrawer(service) {
         </section>
       </div>
       <footer class="drawer-footer">
-        ${footerActions.map((action, index) => `<button type="button" class="button ${ACTIONS[action].tone === "danger" ? "button-danger" : (index === 0 && footerActions.length === 1) ? "button-primary" : ""}" data-service-action="${action}" data-service-id="${escapeHtml(service.id)}" ${isOperationBusy() ? "disabled" : ""}>${icon(ACTIONS[action].icon)}${escapeHtml(ACTIONS[action].label)}</button>`).join("")}
+        ${footerActions.map((action, index) => `<button type="button" class="button ${ACTIONS[action].tone === "danger" ? "button-danger" : (index === 0 && footerActions.length === 1) ? "button-primary" : ""}" data-service-action="${action}" data-service-id="${escapeHtml(service.id)}" ${!canOperateCurrentUser() || isOperationBusy() ? "disabled" : ""} title="${escapeHtml(disabledReason())}">${icon(ACTIONS[action].icon)}${escapeHtml(ACTIONS[action].label)}</button>`).join("")}
         ${renderServiceMenu(service)}
       </footer>
     </aside>
@@ -1821,6 +2000,32 @@ function renderOperationDrawer(operation) {
 function renderConfirmModal() {
   if (!state.confirm) return "";
   const confirm = state.confirm;
+  if (confirm.kind === "password-change") {
+    return `
+      <div class="modal-backdrop" data-close-modal>
+        <form class="modal password-change-modal" id="password-change-form" role="dialog" aria-modal="true" aria-labelledby="password-change-title" data-modal-panel>
+          <header class="modal-header"><div class="modal-title"><h2 id="password-change-title">修改密码</h2><p>保存后，其他设备上的登录会话将退出。</p></div><button type="button" class="icon-button button-ghost" data-close-modal aria-label="关闭修改密码">${icon("close")}</button></header>
+          <div class="modal-body password-change-fields">
+            <div class="form-group">
+              <label for="current-password">当前密码</label>
+              <div class="input-shell">${icon("lock")}<input class="field" id="current-password" name="currentPassword" type="password" autocomplete="current-password" required aria-describedby="password-change-error"><button type="button" class="password-toggle" data-action="toggle-password" data-password-target="current-password" aria-controls="current-password" aria-label="显示当前密码">${icon("eye")}</button></div>
+            </div>
+            <div class="form-group">
+              <label for="new-password">新密码</label>
+              <div class="input-shell">${icon("lock")}<input class="field" id="new-password" name="newPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="256" aria-describedby="password-change-help password-change-error"><button type="button" class="password-toggle" data-action="toggle-password" data-password-target="new-password" aria-controls="new-password" aria-label="显示新密码">${icon("eye")}</button></div>
+              <p class="field-help" id="password-change-help">12–256 位，建议使用容易记忆的长密码。</p>
+            </div>
+            <div class="form-group">
+              <label for="confirm-new-password">确认新密码</label>
+              <div class="input-shell">${icon("check")}<input class="field" id="confirm-new-password" name="confirmNewPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="256" aria-describedby="password-change-error"><button type="button" class="password-toggle" data-action="toggle-password" data-password-target="confirm-new-password" aria-controls="confirm-new-password" aria-label="显示确认密码">${icon("eye")}</button></div>
+            </div>
+            <p class="form-error" id="password-change-error" role="alert" hidden></p>
+          </div>
+          <footer class="modal-footer"><button type="button" class="button" data-close-modal>取消</button><button type="submit" class="button button-primary" data-password-change-submit>${icon("lock")}保存新密码</button></footer>
+        </form>
+      </div>
+    `;
+  }
   const service = confirm.serviceIds?.length === 1 ? serviceById(confirm.serviceIds[0]) : null;
   const action = ACTIONS[confirm.action];
   const title = confirm.title || `${action?.label || actionLabel(confirm.action)}${service ? ` · ${service.name}` : ""}`;
@@ -1864,7 +2069,7 @@ function render() {
     return;
   }
   const route = routeInfo();
-  document.title = `${route.title} · Project Ops V2`;
+  document.title = `${route.title} · CMCC 项目运行工作台`;
   const drawerService = state.drawerServiceId ? serviceById(state.drawerServiceId) : null;
   const operation = state.operationDrawerId ? operationById(state.operationDrawerId) : null;
   app.innerHTML = `
@@ -1897,15 +2102,18 @@ function openService(serviceId) {
 }
 
 function closeServiceDrawer() {
+  const selector = state.focusReturnStack.pop() || "";
   const returnPath = state.drawerReturnPath;
   state.drawerReturnPath = null;
   state.drawerServiceId = null;
   if (returnPath && returnPath !== location.pathname) {
+    state.pendingFocusSelector = selector;
     history.back();
     return;
   }
   if (/^\/v2\/services\/[^/]+/.test(location.pathname)) history.replaceState({}, "", "/v2/services");
   render();
+  restoreFocus(selector);
 }
 
 function openOperation(operationId) {
@@ -1915,6 +2123,7 @@ function openOperation(operationId) {
     showToast("未找到操作记录", operationId, "error");
     return;
   }
+  if (state.drawerServiceId) state.focusReturnStack.pop();
   state.operationDrawerId = operationId;
   state.drawerServiceId = null;
   render();
@@ -1922,8 +2131,10 @@ function openOperation(operationId) {
 }
 
 function closeOperationDrawer() {
+  const selector = state.focusReturnStack.pop() || "";
   state.operationDrawerId = null;
   render();
+  restoreFocus(selector);
 }
 
 function openServiceAction(serviceId, action) {
@@ -1942,6 +2153,10 @@ function openServiceAction(serviceId, action) {
     navigate("/v2/logs");
     return;
   }
+  if (!canOperateCurrentUser()) {
+    showToast("当前账号为只读成员", "可以查看服务状态与日志，无法执行运维操作", "warning");
+    return;
+  }
   if (isOperationBusy()) {
     showToast("操作锁已占用", "请等待当前任务完成后重试", "warning");
     return;
@@ -1956,6 +2171,10 @@ function openServiceAction(serviceId, action) {
 }
 
 function openGlobalAction(action) {
+  if (!canOperateCurrentUser()) {
+    showToast("当前账号为只读成员", "可以查看运行状态，无法发起批量操作", "warning");
+    return;
+  }
   if (isOperationBusy()) {
     showToast("操作锁已占用", "请等待当前任务完成后重试", "warning");
     return;
@@ -1990,6 +2209,10 @@ function openGlobalAction(action) {
 }
 
 function openStorageAction(action) {
+  if (!isCurrentUserOwner()) {
+    showToast("需要所有者权限", "存储清理和删除仅允许所有者执行", "warning");
+    return;
+  }
   if (!state.storage || isOperationBusy()) return;
   const selected = state.storage.items.filter((item) => state.selectedStorage.has(item.id));
   const configurations = {
@@ -2021,10 +2244,21 @@ function openStorageAction(action) {
   queueMicrotask(() => document.querySelector("#confirm-input, [data-confirm-submit]")?.focus());
 }
 
+function openPasswordChange(trigger) {
+  const focusId = trigger?.dataset.focusId || "account-password";
+  rememberFocus(`[data-focus-id="${CSS.escape(focusId)}"]`);
+  state.confirm = { kind: "password-change" };
+  document.querySelectorAll(".menu[open]").forEach((menu) => menu.removeAttribute("open"));
+  render();
+  queueMicrotask(() => document.querySelector("#current-password")?.focus());
+}
+
 function closeConfirm() {
-  if (state.actionBusy) return;
+  if (state.actionBusy || state.credentialBusy) return;
+  const selector = state.focusReturnStack.pop() || "";
   state.confirm = null;
   render();
+  restoreFocus(selector);
 }
 
 function ingestOperationResult(result, action, serviceIds) {
@@ -2131,9 +2365,23 @@ async function runGlobalAction(action, payload = {}) {
 function executeConfirm() {
   const confirm = state.confirm;
   if (!confirm) return;
+  state.focusReturnStack.pop();
   if (confirm.kind === "service") return runServiceAction(confirm.serviceIds[0], confirm.action);
   if (confirm.kind === "storage") return runGlobalAction(confirm.action, { ids: confirm.ids || [] });
+  if (confirm.kind === "admin-delete") return deleteAdmin(confirm.adminId);
   return runGlobalAction(confirm.action, { serviceIds: confirm.serviceIds || [] });
+}
+
+async function deleteAdmin(adminId) {
+  state.confirm = null;
+  try {
+    await api(`/api/v2/admins/${encodeURIComponent(adminId)}`, { method: "DELETE" });
+    await loadAdmins(true);
+    showToast("管理员已删除", "该账号的登录会话已撤销", "success");
+  } catch (error) {
+    showToast("删除失败", humanError(error), "error");
+    render();
+  }
 }
 
 async function logout() {
@@ -2164,6 +2412,25 @@ function rerenderWithFocus(inputId, caret = null) {
 }
 
 document.addEventListener("click", async (event) => {
+  const menuSummary = event.target.closest(".menu > summary");
+  if (menuSummary) {
+    const menu = menuSummary.closest(".menu");
+    document.querySelectorAll(".menu[open]").forEach((item) => {
+      if (item !== menu) item.removeAttribute("open");
+    });
+    requestAnimationFrame(() => {
+      if (!menu.open) return;
+      menu.classList.remove("menu-open-up");
+      const popover = menu.querySelector(".menu-popover");
+      if (!popover) return;
+      const rect = popover.getBoundingClientRect();
+      if (rect.bottom > window.innerHeight - 12 && menu.getBoundingClientRect().top > rect.height + 12) {
+        menu.classList.add("menu-open-up");
+      }
+    });
+    return;
+  }
+
   const routeTrigger = event.target.closest("[data-route]");
   if (routeTrigger && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
     event.preventDefault();
@@ -2200,12 +2467,14 @@ document.addEventListener("click", async (event) => {
 
   const serviceTrigger = event.target.closest("[data-open-service]");
   if (serviceTrigger) {
+    rememberFocus(`[data-open-service][data-service-id="${CSS.escape(serviceTrigger.dataset.serviceId)}"]`);
     openService(serviceTrigger.dataset.serviceId);
     return;
   }
 
   const serviceAction = event.target.closest("[data-service-action]");
   if (serviceAction && !serviceAction.disabled) {
+    rememberFocus(`[data-service-action="${CSS.escape(serviceAction.dataset.serviceAction)}"][data-service-id="${CSS.escape(serviceAction.dataset.serviceId)}"]`);
     openServiceAction(serviceAction.dataset.serviceId, serviceAction.dataset.serviceAction);
     return;
   }
@@ -2224,6 +2493,7 @@ document.addEventListener("click", async (event) => {
 
   const operationTrigger = event.target.closest("[data-operation-id]");
   if (operationTrigger) {
+    rememberFocus(`[data-operation-id="${CSS.escape(operationTrigger.dataset.operationId)}"]`);
     openOperation(operationTrigger.dataset.operationId);
     return;
   }
@@ -2243,6 +2513,7 @@ document.addEventListener("click", async (event) => {
     const row = adminReset.closest("[data-admin-row]");
     const password = row?.querySelector("[data-admin-new-password]")?.value || "";
     if (password.length < 12) { showToast("密码不符合要求", "至少输入 12 位新密码", "warning"); return; }
+    if (password.length > 256) { showToast("密码不符合要求", "新密码不能超过 256 位", "warning"); return; }
     try {
       await api(`/api/v2/admins/${encodeURIComponent(adminReset.dataset.adminReset)}`, { method: "PATCH", body: JSON.stringify({ password }) });
       row.querySelector("[data-admin-new-password]").value = "";
@@ -2253,12 +2524,21 @@ document.addEventListener("click", async (event) => {
 
   const adminDelete = event.target.closest("[data-admin-delete]");
   if (adminDelete) {
-    if (!window.confirm("删除该管理员账号？此操作会立即撤销其登录会话。")) return;
-    try {
-      await api(`/api/v2/admins/${encodeURIComponent(adminDelete.dataset.adminDelete)}`, { method: "DELETE" });
-      await loadAdmins(true);
-      showToast("管理员已删除", "", "success");
-    } catch (error) { showToast("删除失败", humanError(error), "error"); }
+    const adminId = adminDelete.dataset.adminDelete;
+    const admin = state.adminsData?.admins?.find((item) => item.id === adminId);
+    rememberFocus(`[data-admin-delete="${CSS.escape(adminId)}"]`);
+    state.confirm = {
+      kind: "admin-delete",
+      action: "admin-delete",
+      adminId,
+      title: `删除管理员 · ${admin?.displayName || admin?.username || "未命名账号"}`,
+      description: "删除后该账号将立即失去访问权限。",
+      impacts: ["立即撤销该管理员的全部登录会话", "保留该账号曾执行的操作审计记录", "删除后无法恢复"],
+      tone: "danger",
+      expected: admin?.username || "删除管理员",
+    };
+    render();
+    queueMicrotask(() => document.querySelector("#confirm-input")?.focus());
     return;
   }
 
@@ -2269,6 +2549,18 @@ document.addEventListener("click", async (event) => {
     else if (action === "refresh-admins") loadAdmins(true);
     else if (action === "refresh-logs") loadLogs(true);
     else if (action === "refresh-storage") loadStorage(true);
+    else if (action === "change-password") openPasswordChange(actionTrigger);
+    else if (action === "toggle-password") {
+      const targetId = actionTrigger.dataset.passwordTarget || "manager-password";
+      const password = document.querySelector(`#${CSS.escape(targetId)}`);
+      if (!password) return;
+      const reveal = password.type === "password";
+      password.type = reveal ? "text" : "password";
+      const fieldName = actionTrigger.closest(".form-group")?.querySelector("label")?.textContent?.trim() || "密码";
+      actionTrigger.setAttribute("aria-label", `${reveal ? "隐藏" : "显示"}${fieldName}`);
+      actionTrigger.innerHTML = icon(reveal ? "eye-off" : "eye");
+      password.focus();
+    }
     else if (action === "toggle-theme") {
       applyTheme(state.settings.theme === "dark" ? "light" : "dark");
       render();
@@ -2285,7 +2577,72 @@ document.addEventListener("click", async (event) => {
   if (!event.target.closest(".menu")) document.querySelectorAll(".menu[open]").forEach((menu) => menu.removeAttribute("open"));
 });
 
+function showPasswordChangeError(form, message, fieldIds = []) {
+  const error = form.querySelector("#password-change-error");
+  if (error) {
+    error.textContent = message;
+    error.hidden = false;
+  }
+  for (const id of fieldIds) form.querySelector(`#${CSS.escape(id)}`)?.setAttribute("aria-invalid", "true");
+  const firstField = fieldIds.length ? form.querySelector(`#${CSS.escape(fieldIds[0])}`) : null;
+  firstField?.focus();
+  firstField?.select();
+}
+
 document.addEventListener("submit", async (event) => {
+  if (event.target.id === "password-change-form") {
+    event.preventDefault();
+    if (state.credentialBusy) return;
+    const form = event.target;
+    const currentPassword = form.elements.currentPassword.value;
+    const newPassword = form.elements.newPassword.value;
+    const confirmNewPassword = form.elements.confirmNewPassword.value;
+    if (newPassword.length < 12) {
+      showPasswordChangeError(form, "新密码至少需要 12 位", ["new-password"]);
+      return;
+    }
+    if (newPassword.length > 256) {
+      showPasswordChangeError(form, "新密码不能超过 256 位", ["new-password"]);
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      showPasswordChangeError(form, "两次输入的新密码不一致", ["confirm-new-password"]);
+      return;
+    }
+
+    const button = form.querySelector("[data-password-change-submit]");
+    state.credentialBusy = true;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner" aria-hidden="true"></span>保存中';
+    try {
+      const result = await api("/api/v2/account/password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const selector = state.focusReturnStack.pop() || "";
+      state.session = { ...(state.session || {}), admin: result.admin || state.session?.admin };
+      state.confirm = null;
+      state.credentialBusy = false;
+      render();
+      restoreFocus(selector);
+      const revoked = Number(result.revokedSessions || 0);
+      showToast("密码已修改", revoked ? `已撤销其他设备上的 ${formatNumber(revoked)} 个会话` : "当前设备保持登录", "success");
+    } catch (error) {
+      state.credentialBusy = false;
+      button.disabled = false;
+      button.innerHTML = `${icon("lock")}保存新密码`;
+      const attemptsRemaining = Number(error.data?.attemptsRemaining);
+      const retryAfter = Number(error.data?.retryAfter);
+      const detail = Number.isFinite(attemptsRemaining)
+        ? `${humanError(error)}，还可尝试 ${attemptsRemaining} 次`
+        : Number.isFinite(retryAfter)
+          ? `${humanError(error)}（约 ${Math.ceil(retryAfter / 60)} 分钟后重试）`
+          : humanError(error);
+      const currentPasswordError = ["current_password_incorrect", "password_change_rate_limited"].includes(error.code);
+      showPasswordChangeError(form, detail, [currentPasswordError ? "current-password" : "new-password"]);
+    }
+    return;
+  }
   if (event.target.id === "confirm-form") {
     event.preventDefault();
     const input = event.target.querySelector("#confirm-input");
@@ -2314,6 +2671,8 @@ document.addEventListener("submit", async (event) => {
   button.disabled = true;
   button.innerHTML = '<span class="spinner" aria-hidden="true"></span>登录中';
   errorMessage.textContent = "";
+  errorMessage.hidden = true;
+  event.target.elements.password.removeAttribute("aria-invalid");
   try {
     await api("/api/login", { method: "POST", body: JSON.stringify({ username, password }) });
     const next = new URLSearchParams(location.search).get("next");
@@ -2325,13 +2684,39 @@ document.addEventListener("submit", async (event) => {
     render();
     await bootstrap({ force: true });
   } catch (error) {
-    errorMessage.textContent = humanError(error);
+    const attemptsRemaining = Number(error.data?.attemptsRemaining);
+    const retryAfter = Number(error.data?.retryAfter);
+    errorMessage.textContent = Number.isFinite(attemptsRemaining)
+      ? `${humanError(error)}，还可尝试 ${attemptsRemaining} 次`
+      : Number.isFinite(retryAfter)
+        ? `${humanError(error)}（约 ${Math.ceil(retryAfter / 60)} 分钟）`
+        : humanError(error);
+    errorMessage.hidden = false;
+    event.target.elements.password.setAttribute("aria-invalid", "true");
+    event.target.elements.password.focus();
+    event.target.elements.password.select();
     button.disabled = false;
     button.innerHTML = `${icon("lock")}登录`;
   }
 });
 
 document.addEventListener("input", (event) => {
+  if (["current-password", "new-password", "confirm-new-password"].includes(event.target.id)) {
+    event.target.removeAttribute("aria-invalid");
+    const error = document.querySelector("#password-change-error");
+    if (error) {
+      error.hidden = true;
+      error.textContent = "";
+    }
+  }
+  if (["manager-username", "manager-password"].includes(event.target.id)) {
+    event.target.removeAttribute("aria-invalid");
+    const error = document.querySelector("#login-error");
+    if (error) {
+      error.hidden = true;
+      error.textContent = "";
+    }
+  }
   if (event.target.id === "confirm-input") {
     const submit = document.querySelector("[data-confirm-submit]");
     if (submit) submit.disabled = event.target.value !== event.target.dataset.confirmExpected;
@@ -2399,6 +2784,10 @@ document.addEventListener("change", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (event.target.id === "manager-password") {
+    const message = document.querySelector("#caps-lock-message");
+    if (message) message.hidden = !event.getModifierState?.("CapsLock");
+  }
   if (event.key !== "Escape") return;
   if (state.confirm) closeConfirm();
   else if (state.operationDrawerId) closeOperationDrawer();
@@ -2407,6 +2796,12 @@ document.addEventListener("keydown", (event) => {
     state.navOpen = false;
     render();
   }
+});
+
+document.addEventListener("keyup", (event) => {
+  if (event.target.id !== "manager-password") return;
+  const message = document.querySelector("#caps-lock-message");
+  if (message) message.hidden = !event.getModifierState?.("CapsLock");
 });
 
 window.addEventListener("popstate", () => {
@@ -2418,6 +2813,9 @@ window.addEventListener("popstate", () => {
   state.confirm = null;
   state.navOpen = false;
   render();
+  const pendingFocus = state.pendingFocusSelector;
+  state.pendingFocusSelector = "";
+  restoreFocus(pendingFocus);
   if (state.route !== "login") loadRouteData(false);
 });
 

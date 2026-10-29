@@ -1,0 +1,308 @@
+﻿编号,业务域,解析后地址,原始地址,方法,加密,证据等级,前端函数,已见调用字段,声明位置,HAR条目,字段状态
+API-001,页面配置渠道与公共能力,/h/act/rest/v1/operate/encrptionphone,rest/v1/operate/encrptionphone,POST,普通,C,直接调用,,APP:1225,,调用业务 schema 待补齐；不能推断空请求
+API-002,页面配置渠道与公共能力,/h/act/rest/v1/businessTree/adInfoQry,rest/v1/businessTree/adInfoQry,POST,独立 DES,A,直接调用,"encryptStr,secretid",APP:2408,4,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-003,登录认证与安全辅助,/h/act/rest/v1/l/login4app4sec,rest/v1/l/login4app4sec,POST,AES,C,jtappLogin4app4sec,token,APP:6789,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-004,登录认证与安全辅助,/h/act/rest/v1/checkLogin,rest/v1/checkLogin,POST,AES,C,checkLogin,,APP:6799,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-005,登录认证与安全辅助,/h/act/rest/v1/getRsaSign,rest/v1/getRsaSign,POST,普通,C,getRsaSign,presign,APP:6810,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-006,登录认证与安全辅助,/h/act/rest/v1/uniTokenValidate4Wap,rest/v1/uniTokenValidate4Wap,POST,普通,C,uniTokenValidate4Wap,"token,userInformation",APP:6819,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-007,登录认证与安全辅助,/h/act/rest/v1/moss/sendSmsCode4Wap,rest/v1/moss/sendSmsCode4Wap,POST,普通,C,postSmsCheck,,APP:6828,,调用业务 schema 待补齐；不能推断空请求
+API-008,登录认证与安全辅助,/h/act/rest/v1/randomPwd/sendRandomPwd,rest/v1/randomPwd/sendRandomPwd,POST,AES,C,postSmsCheck1,,APP:6838,,调用业务 schema 待补齐；不能推断空请求
+API-009,登录认证与安全辅助,/h/act/rest/v1/moss/login4Wap,rest/v1/moss/login4Wap,POST,AES,C,login4Wap,,APP:6849,,调用业务 schema 待补齐；不能推断空请求
+API-010,登录认证与安全辅助,/h/act/rest/v1/randomPwd/vailidRandomPwd,rest/v1/randomPwd/vailidRandomPwd,POST,AES,C,postSmsCodeCheck,,APP:6859,,调用业务 schema 待补齐；不能推断空请求
+API-011,页面配置渠道与公共能力,/h/act/rest/v1/operate/qyMarketCfm,rest/v1/operate/qyMarketCfm,POST,普通,C,qyMarketCfm,,APP:6870,,调用业务 schema 待补齐；不能推断空请求
+API-012,页面配置渠道与公共能力,/h/act/rest/v1/getHY/getHYSign,rest/v1/getHY/getHYSign,POST,普通,C,shareSign,url,APP:6879,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-013,页面配置渠道与公共能力,/h/act/rest/smartshop/userRest/mini/miniRoutScheme,rest/smartshop/userRest/mini/miniRoutScheme,POST,普通,C,miniRoutScheme,,APP:6897,,调用业务 schema 待补齐；不能推断空请求
+API-014,订单充值与支付,/h/act/rest/v1/order/currencyOrderList,rest/v1/order/currencyOrderList,POST,普通,C,currencyOrderList,,APP:6906,,调用业务 schema 待补齐；不能推断空请求
+API-015,订单充值与支付,/h/act/rest/v1/order/currencyOrderDetail,rest/v1/order/currencyOrderDetail,POST,普通,C,currencyOrderDetail,,APP:6915,,调用业务 schema 待补齐；不能推断空请求
+API-016,订单充值与支付,/h/act/rest/v1/payfee/qrybank,rest/v1/payfee/qrybank,POST,普通,C,"qryPayway,postqueryPayway",phoneNo,APP:6924; APP:7972,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-017,订单充值与支付,/h/act/rest/v1/payfee/validphone,rest/v1/payfee/validphone,POST,普通,C,postpayValid,"pay_way,phoneNo,targetFee",APP:6933,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-018,订单充值与支付,/h/act/rest/v1/payfee/createorder,rest/v1/payfee/createorder,POST,普通,C,postpayCfm,,APP:6942,,调用业务 schema 待补齐；不能推断空请求
+API-019,订单充值与支付,/h/act/rest/v1/payfee/orderquery,rest/v1/payfee/orderquery,POST,普通,C,"postqueryOrder,orderquery",,APP:6952; APP:8721,,调用业务 schema 待补齐；不能推断空请求
+API-020,订单充值与支付,/h/act/rest/v1/confirmlog/qryConfirmLog,rest/v1/confirmlog/qryConfirmLog,POST,普通,C,qryConfirmLog,,APP:6961,,调用业务 schema 待补齐；不能推断空请求
+API-021,账户通信与已订业务,/h/act/rest/v1/gprs/qryLimitFlagRest,rest/v1/gprs/qryLimitFlagRest,POST,普通,C,qryLimitSpeedInfo1,,APP:6970,,调用业务 schema 待补齐；不能推断空请求
+API-022,页面配置渠道与公共能力,/h/act/rest/v1/operate/flowprdchage/flowAreaChangeRest,rest/v1/operate/flowprdchage/flowAreaChangeRest,POST,普通,C,postflowChangeRest,,APP:6980,,调用业务 schema 待补齐；不能推断空请求
+API-023,权益与内容订购,/h/act/rest/v1/acceptance/P4000CfmBCoNewRest,rest/v1/acceptance/P4000CfmBCoNewRest,POST,普通,C,P4000CfmBCoNewRest1,,APP:6991,,调用业务 schema 待补齐；不能推断空请求
+API-024,页面配置渠道与公共能力,/h/act/rest/v1/operate/mainprdchage/mainChangeRest,rest/v1/operate/mainprdchage/mainChangeRest,POST,普通,C,postmainChangeRest,,APP:7001,,调用业务 schema 待补齐；不能推断空请求
+API-025,页面配置渠道与公共能力,/h/act/rest/v1/index/t,rest/v1/index/t,POST,普通,C,keyt,,APP:7010,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-026,订单充值与支付,/h/act/rest/v1/payfee/qrybanknew,rest/v1/payfee/qrybanknew,POST,普通,C,qryPaywayNew,,APP:7019,,调用业务 schema 待补齐；不能推断空请求
+API-027,登录认证与安全辅助,/h/act/rest/v1/moss/logout4Wap,rest/v1/moss/logout4Wap,POST,普通,C,logout,,APP:7028,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-028,家庭宽带与智家,/h/act/rest/v1/family/getSingleRealToken,rest/v1/family/getSingleRealToken,POST,普通,C,GetSingleToken,,APP:7037,,调用业务 schema 待补齐；不能推断空请求
+API-029,订单充值与支付,/h/act/rest/v1/payfee/createordernew,rest/v1/payfee/createordernew,POST,普通,C,createordernew,"orderId,payWay,phoneNo,returnUrl,tradeId",APP:7046,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-030,家庭宽带与智家,/h/act/rest/v1/kd4basic/orderInfoRead,rest/v1/kd4basic/orderInfoRead,POST,普通,C,orderInfoRead,,APP:7055,,调用业务 schema 待补齐；不能推断空请求
+API-031,家庭宽带与智家,/h/act/rest/v1/kd4basic/orderInfoDel,rest/v1/kd4basic/orderInfoDel,POST,普通,C,orderInfoDel,,APP:7064,,调用业务 schema 待补齐；不能推断空请求
+API-032,家庭宽带与智家,/h/act/rest/v1/kd4basic/messageInfo,rest/v1/kd4basic/messageInfo,POST,普通,C,messageInfo,,APP:7074,,调用业务 schema 待补齐；不能推断空请求
+API-033,登录认证与安全辅助,/h/act/rest/v1/l/t,rest/v1/l/t,POST,AES,C,thirdInit,"appkey,token",APP:7084,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-034,企业物联网与预约,/h/act/rest/v1/third/thirdChannelQry,rest/v1/third/thirdChannelQry,POST,AES,C,qryThirdChannel,,APP:7095,,调用业务 schema 待补齐；不能推断空请求
+API-035,企业物联网与预约,/h/act/rest/v1/groupBill/queryGroupInfo,rest/v1/groupBill/queryGroupInfo,POST,普通,C,queryGroupInfo,,APP:7106,,调用业务 schema 待补齐；不能推断空请求
+API-036,企业物联网与预约,/h/act/rest/v1/groupBill/queryGroupWorkInfo,rest/v1/groupBill/queryGroupWorkInfo,POST,普通,C,queryGroupWorkInfo,,APP:7117,,调用业务 schema 待补齐；不能推断空请求
+API-037,企业物联网与预约,/h/act/rest/v1/groupBill/qryGrpUsrPrd,rest/v1/groupBill/qryGrpUsrPrd,POST,普通,C,qryGrpUsrPrd,,APP:7127,,调用业务 schema 待补齐；不能推断空请求
+API-038,企业物联网与预约,/h/act/rest/v1/groupBill/queryBillInfo,rest/v1/groupBill/queryBillInfo,POST,普通,C,queryBillInfo,,APP:7138,,调用业务 schema 待补齐；不能推断空请求
+API-039,企业物联网与预约,/h/act/rest/v1/groupBill/qryBillOpener,rest/v1/groupBill/qryBillOpener,POST,普通,C,qryBillOpener,,APP:7149,,调用业务 schema 待补齐；不能推断空请求
+API-040,企业物联网与预约,/h/act/rest/v1/groupBill/billOpener,rest/v1/groupBill/billOpener,POST,普通,C,billOpener,,APP:7159,,调用业务 schema 待补齐；不能推断空请求
+API-041,企业物联网与预约,/h/act/rest/v1/groupBill/queryCommonEmail,rest/v1/groupBill/queryCommonEmail,POST,普通,C,queryCommonEmail,,APP:7169,,调用业务 schema 待补齐；不能推断空请求
+API-042,企业物联网与预约,/h/act/rest/v1/groupBill/pushBill,rest/v1/groupBill/pushBill,POST,普通,C,pushBill,,APP:7179,,调用业务 schema 待补齐；不能推断空请求
+API-043,企业物联网与预约,/h/act/rest/v1/groupBill/queryBillInfoByDate,rest/v1/groupBill/queryBillInfoByDate,POST,普通,C,queryBillInfoByDate,,APP:7189,,调用业务 schema 待补齐；不能推断空请求
+API-044,企业物联网与预约,/h/act/rest/v1/third/workNoQry,rest/v1/third/workNoQry,POST,普通,C,workNoQry,,APP:7199,,调用业务 schema 待补齐；不能推断空请求
+API-045,家庭宽带与智家,/h/act/rest/v1/kdup/qrykdinfo4yq,rest/v1/kdup/qrykdinfo4yq,POST,普通,C,qrykdinfo4yq,,APP:7208,,调用业务 schema 待补齐；不能推断空请求
+API-046,家庭宽带与智家,/h/act/rest/v1/kdup/chkkdinfo4yq,rest/v1/kdup/chkkdinfo4yq,POST,普通,C,chkkdinfo4yq,,APP:7218,,调用业务 schema 待补齐；不能推断空请求
+API-047,家庭宽带与智家,/h/act/rest/v1/kdup/upkdinfo4yq,rest/v1/kdup/upkdinfo4yq,POST,普通,C,upkdinfo4yq,,APP:7228,,调用业务 schema 待补齐；不能推断空请求
+API-048,登录认证与安全辅助,/h/act/rest/v1/l/a,rest/v1/l/a,POST,AES,C,TestloginH5,,APP:7238,,调用业务 schema 待补齐；不能推断空请求
+API-049,家庭宽带与智家,/h/act/rest/v1/family/qryBindInfo,rest/v1/family/qryBindInfo,POST,AES,C,sceneKdInfoQry,,APP:7249,,调用业务 schema 待补齐；不能推断空请求
+API-050,家庭宽带与智家,/h/act/rest/v1/kdup/kdUpChkNewRest,rest/v1/kdup/kdUpChkNewRest,POST,AES,C,kdUpChkNewRest,,APP:7260,,调用业务 schema 待补齐；不能推断空请求
+API-051,家庭宽带与智家,/h/act/rest/v1/kdup/kdUpCfmNewRest,rest/v1/kdup/kdUpCfmNewRest,POST,AES,C,kdUpCfmNewRest,,APP:7272,,调用业务 schema 待补齐；不能推断空请求
+API-052,页面配置渠道与公共能力,/h/act/rest/v1/nonProfit/NonProfitInfoQry,rest/v1/nonProfit/NonProfitInfoQry,POST,AES,C,"getDetail,getInfo",,APP:7283; APP:7311,,调用业务 schema 待补齐；不能推断空请求
+API-053,页面配置渠道与公共能力,/h/act/rest/v1/common/GetSystemTimeRest,rest/v1/common/GetSystemTimeRest,POST,普通,C,GetSystemTimeRest,,APP:7293,,调用业务 schema 待补齐；不能推断空请求
+API-054,页面配置渠道与公共能力,/h/act/rest/v1/nonProfit/pageViewCount,rest/v1/nonProfit/pageViewCount,POST,普通,C,insertViewCount,,APP:7302,,调用业务 schema 待补齐；不能推断空请求
+API-055,页面配置渠道与公共能力,/h/act/rest/v1/common/GetTimeDataRest,rest/v1/common/GetTimeDataRest,POST,普通,C,GetTimeDataRest,,APP:7321,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-056,账户通信与已订业务,/h/act/rest/v1/xiaohe/userIdQry,rest/v1/xiaohe/userIdQry,POST,AES,C,userIdQry,,APP:7338,,调用业务 schema 待补齐；不能推断空请求
+API-057,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryAllUserProdInfoPages,rest/v1/xiaohe/qryAllUserProdInfoPages,POST,AES,C,qryAllUserProdInfoPages,,APP:7348,,调用业务 schema 待补齐；不能推断空请求
+API-058,账户通信与已订业务,/h/act/rest/v1/xiaohe/feeQuery,rest/v1/xiaohe/feeQuery,POST,AES,C,feeQuery,,APP:7358,,调用业务 schema 待补齐；不能推断空请求
+API-059,账户通信与已订业务,/h/act/rest/v1/xiaohe/freeMinQry,rest/v1/xiaohe/freeMinQry,POST,AES,C,freeMinQry,,APP:7368,,调用业务 schema 待补齐；不能推断空请求
+API-060,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryUserPrc,rest/v1/xiaohe/qryUserPrc,POST,AES,C,qryUserPrc,,APP:7378,,调用业务 schema 待补齐；不能推断空请求
+API-061,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryScoreDetail,rest/v1/xiaohe/qryScoreDetail,POST,AES,C,qryScoreDetail,,APP:7388,,调用业务 schema 待补齐；不能推断空请求
+API-062,账户通信与已订业务,/h/act/rest/v1/xiaohe/familyMemInfoQry,rest/v1/xiaohe/familyMemInfoQry,POST,AES,C,familyInfoQry,,APP:7398,,调用业务 schema 待补齐；不能推断空请求
+API-063,账户通信与已订业务,/h/act/rest/v1/xiaohe/dataTeamMbrQry,rest/v1/xiaohe/dataTeamMbrQry,POST,AES,C,dataTeamMbrQry,,APP:7408,,调用业务 schema 待补齐；不能推断空请求
+API-064,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryCoinDetails,rest/v1/xiaohe/qryCoinDetails,POST,AES,C,qryCoinDetails,,APP:7418,,调用业务 schema 待补齐；不能推断空请求
+API-065,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryBindUserInfo,rest/v1/xiaohe/qryBindUserInfo,POST,AES,C,qryBindUserInfo,,APP:7428,,调用业务 schema 待补齐；不能推断空请求
+API-066,账户通信与已订业务,/h/act/rest/v1/xiaohe/balanceFeeQry,rest/v1/xiaohe/balanceFeeQry,POST,AES,C,balanceFeeQry,,APP:7438,,调用业务 schema 待补齐；不能推断空请求
+API-067,账户通信与已订业务,/h/act/rest/v1/xiaohe/userAccumulateQry,rest/v1/xiaohe/userAccumulateQry,POST,AES,C,userAccumulateQry,,APP:7448,,调用业务 schema 待补齐；不能推断空请求
+API-068,账户通信与已订业务,/h/act/rest/v1/xiaohe/iotUserPrcQry,rest/v1/xiaohe/iotUserPrcQry,POST,AES,C,iotUserPrcQry,,APP:7458,,调用业务 schema 待补齐；不能推断空请求
+API-069,账户通信与已订业务,/h/act/rest/v1/xiaohe/iotFlowQry,rest/v1/xiaohe/iotFlowQry,POST,AES,C,iotFlowQry,,APP:7468,,调用业务 schema 待补齐；不能推断空请求
+API-070,账户通信与已订业务,/h/act/rest/v1/xiaohe/fkUntyingQuery,rest/v1/xiaohe/fkUntyingQuery,POST,AES,C,fkUntyingQuery,,APP:7478,,调用业务 schema 待补齐；不能推断空请求
+API-071,账户通信与已订业务,/h/act/rest/v1/userorderinfo/qryUserOrderInfo,rest/v1/userorderinfo/qryUserOrderInfo,POST,AES,C,postUserBussData,,APP:7488,,调用业务 schema 待补齐；不能推断空请求
+API-072,账户通信与已订业务,/h/act/rest/v1/userorderinfo/qryUserOrderDetail,rest/v1/userorderinfo/qryUserOrderDetail,POST,普通,C,prodPrcDetail,,APP:7498,,调用业务 schema 待补齐；不能推断空请求
+API-073,账户通信与已订业务,/h/act/rest/v1/prod/unSubScribeOrder,rest/v1/prod/unSubScribeOrder,POST,普通,C,postCancelBuss,,APP:7507,,调用业务 schema 待补齐；不能推断空请求
+API-074,账户通信与已订业务,/h/act/rest/v1/batch3/getActRecordInfo,rest/v1/batch3/getActRecordInfo,POST,AES,C,getActRecordInfo,,APP:7517,,调用业务 schema 待补齐；不能推断空请求
+API-075,账户通信与已订业务,/h/act/rest/v1/batch3/qryAttribution,rest/v1/batch3/qryAttribution,POST,AES,C,qryAttribution,,APP:7528,,调用业务 schema 待补齐；不能推断空请求
+API-076,家庭宽带与智家,/h/act/rest/v1/famGrpPrc/qry,rest/v1/famGrpPrc/qry,POST,普通,C,qryFamGrpPrc,,APP:7539,,调用业务 schema 待补齐；不能推断空请求
+API-077,账户通信与已订业务,/h/act/rest/v1/opsAttr/qry,rest/v1/opsAttr/qry,POST,普通,C,qryOpsAttr,,APP:7549,,调用业务 schema 待补齐；不能推断空请求
+API-078,企业物联网与预约,/h/act/rest/v1/mbr/check,rest/v1/mbr/check,POST,普通,C,mbrCheck,,APP:7559,,调用业务 schema 待补齐；不能推断空请求
+API-079,企业物联网与预约,/h/act/rest/v1/mbr/smsCode/check,rest/v1/mbr/smsCode/check,POST,普通,C,mbrSmsCodeCheck,,APP:7569,,调用业务 schema 待补齐；不能推断空请求
+API-080,家庭宽带与智家,/h/act/rest/v1/family/billPrint,rest/v1/family/billPrint,POST,AES,C,billPrint,,APP:7579,,调用业务 schema 待补齐；不能推断空请求
+API-081,企业物联网与预约,/h/act/rest/v1/aizhi/getAttachment,rest/v1/aizhi/getAttachment,POST,AES,C,getAttachment,,APP:7590,,调用业务 schema 待补齐；不能推断空请求
+API-082,账户通信与已订业务,/h/act/rest/v1/batch3/qryPubInfoByUser,rest/v1/batch3/qryPubInfoByUser,POST,AES,C,qryPubInfoByUser,,APP:7601,,调用业务 schema 待补齐；不能推断空请求
+API-083,账户通信与已订业务,/h/act/rest/v1/batch3/sp1108CfmRest,rest/v1/batch3/sp1108CfmRest,POST,AES,C,sp1108CfmRest,,APP:7612,,调用业务 schema 待补齐；不能推断空请求
+API-084,家庭宽带与智家,/h/act/rest/v1/qry/famGrpInfoAllQry,rest/v1/qry/famGrpInfoAllQry,POST,AES,C,famGrpInfoAllQry,,APP:7623,,调用业务 schema 待补齐；不能推断空请求
+API-085,账户通信与已订业务,/h/act/rest/v1/chk/custName,rest/v1/chk/custName,POST,普通,C,checkCustName,,APP:7634,,调用业务 schema 待补齐；不能推断空请求
+API-086,家庭宽带与智家,/h/act/rest/v1/family/pDJTOpenReturnRest,rest/v1/family/pDJTOpenReturnRest,POST,AES,C,queryMoney,,APP:7644,,调用业务 schema 待补齐；不能推断空请求
+API-087,家庭宽带与智家,/h/act/rest/v1/family/familyBusiOrderNewSubmit,rest/v1/family/familyBusiOrderNewSubmit,POST,AES,C,generateUnPayOrder,,APP:7655,,调用业务 schema 待补齐；不能推断空请求
+API-088,金币账户与邀请,/h/act/rest/v1/coinActivity/CoinDetailsQryRest,rest/v1/coinActivity/CoinDetailsQryRest,POST,普通,C,CoinDetailsQryRest,,APP:7667,,调用业务 schema 待补齐；不能推断空请求
+API-089,金币账户与邀请,/h/act/rest/v1/goldCoinGift/giftRecordQry,rest/v1/goldCoinGift/giftRecordQry,POST,普通,C,giftRecordQry,,APP:7677,,调用业务 schema 待补齐；不能推断空请求
+API-090,账户通信与已订业务,/h/act/rest/v1/user/feequery,rest/v1/user/feequery,POST,普通,C,postFeequeryData,,APP:7686,,调用业务 schema 待补齐；不能推断空请求
+API-091,金币账户与邀请,/h/act/rest/v1/goldActice/QryDeadCoinListRest,rest/v1/goldActice/QryDeadCoinListRest,POST,普通,C,qryGoldCoinDateDetail,,APP:7695,,调用业务 schema 待补齐；不能推断空请求
+API-092,金币账户与邀请,/h/act/rest/v1/goldCoinGift/ReCheck,rest/v1/goldCoinGift/ReCheck,POST,AES,C,ReCheck,,APP:7704,,调用业务 schema 待补齐；不能推断空请求
+API-093,金币账户与邀请,/h/act/rest/v1/goldCoinGift/giftCfm,rest/v1/goldCoinGift/giftCfm,POST,普通,C,giftCfm,,APP:7714,,调用业务 schema 待补齐；不能推断空请求
+API-094,家庭宽带与智家,/h/act/rest/v1/wifirouter/qryrouterorder,rest/v1/wifirouter/qryrouterorder,POST,AES,C,qryrouterorder,,APP:7723,,调用业务 schema 待补齐；不能推断空请求
+API-095,金币账户与邀请,/h/act/rest/v1/goldActice/QryFreezeCoinRest,rest/v1/goldActice/QryFreezeCoinRest,POST,普通,C,QryFreezeCoinRest,,APP:7734,,调用业务 schema 待补齐；不能推断空请求
+API-096,账户通信与已订业务,/h/act/rest/v1/cust/level,rest/v1/cust/level,GET,普通,C,postgrowthLevel,,APP:7744,,调用业务 schema 待补齐；不能推断空请求
+API-097,企业物联网与预约,/h/act/rest/v1/iotorder/getsmscode,rest/v1/iotorder/getsmscode,POST,AES,C,getsmscode,,APP:7753,,调用业务 schema 待补齐；不能推断空请求
+API-098,企业物联网与预约,/h/act/rest/v1/iotorder/chksmscode,rest/v1/iotorder/chksmscode,POST,AES,C,chksmscode,,APP:7764,,调用业务 schema 待补齐；不能推断空请求
+API-099,企业物联网与预约,/h/act/rest/v1/iotorder/qrythrowinfo,rest/v1/iotorder/qrythrowinfo,POST,AES,C,qrythrowinfo,,APP:7775,,调用业务 schema 待补齐；不能推断空请求
+API-100,企业物联网与预约,/h/act/rest/v1/iotorder/qrymodelinfo,rest/v1/iotorder/qrymodelinfo,POST,AES,C,qrymodelinfo,,APP:7786,,调用业务 schema 待补齐；不能推断空请求
+API-101,企业物联网与预约,/h/act/rest/v1/iotorder/downloadfile,rest/v1/iotorder/downloadfile,POST,AES,C,downloadfile,,APP:7797,,调用业务 schema 待补齐；不能推断空请求
+API-102,企业物联网与预约,/h/act/rest/v1/iotorder/qrydetailinfo,rest/v1/iotorder/qrydetailinfo,POST,AES,C,qrydetailinfo,,APP:7808,,调用业务 schema 待补齐；不能推断空请求
+API-103,企业物联网与预约,/h/act/rest/v1/iotorder/uploadattach,rest/v1/iotorder/uploadattach,POST,AES,C,uploadattach,,APP:7819,,调用业务 schema 待补齐；不能推断空请求
+API-104,企业物联网与预约,/h/act/rest/v1/iotorder/getseq,rest/v1/iotorder/getseq,POST,AES,C,getseq,,APP:7830,,调用业务 schema 待补齐；不能推断空请求
+API-105,企业物联网与预约,/h/act/rest/v1/iotorder/createorder,rest/v1/iotorder/createorder,POST,AES,C,createorder,,APP:7841,,调用业务 schema 待补齐；不能推断空请求
+API-106,家庭宽带与智家,/h/act/rest/v1/kd4basic/qryKDInstallInfo,rest/v1/kd4basic/qryKDInstallInfo,POST,普通,C,qryKDInstallInfo,,APP:7852,,调用业务 schema 待补齐；不能推断空请求
+API-107,家庭宽带与智家,/h/act/rest/v1/addr/qry,rest/v1/addr/qry,POST,普通,C,mbrdsqry,,APP:7862,,调用业务 schema 待补齐；不能推断空请求
+API-108,账户通信与已订业务,/h/act/rest/v1/xiaohe/qryAttribution,rest/v1/xiaohe/qryAttribution,POST,AES,C,qryAttributionXH,,APP:7872,,调用业务 schema 待补齐；不能推断空请求
+API-109,账户通信与已订业务,/h/act/rest/v1/batch3/qryVoiceDetails,rest/v1/batch3/qryVoiceDetails,POST,AES,C,qryVoiceDetails,,APP:7883,,调用业务 schema 待补齐；不能推断空请求
+API-110,企业物联网与预约,/h/act/rest/v1/bookPhoneNo/check,rest/v1/bookPhoneNo/check,POST,AES,C,checkBookPhoneNo,,APP:7893,,调用业务 schema 待补齐；不能推断空请求
+API-111,企业物联网与预约,/h/act/rest/v1/bookPhoneNo/add,rest/v1/bookPhoneNo/add,POST,AES,C,addBookPhoneNo,,APP:7904,,调用业务 schema 待补齐；不能推断空请求
+API-112,登录认证与安全辅助,/h/act/rest/v1/moss/GetToken4Wap,rest/v1/moss/GetToken4Wap,POST,普通,C,GetToken4Wap,,APP:7915,,调用业务 schema 待补齐；不能推断空请求
+API-113,页面配置渠道与公共能力,/h/act/rest/v1/operate/qianliyanCheck,rest/v1/operate/qianliyanCheck,POST,普通,C,qianliyanCheck,,APP:7924,,调用业务 schema 待补齐；不能推断空请求
+API-114,页面配置渠道与公共能力,/h/act/rest/v1/operate/qianliyanCfm,rest/v1/operate/qianliyanCfm,POST,普通,C,qianliyanCfm,,APP:7934,,调用业务 schema 待补齐；不能推断空请求
+API-115,权益与内容订购,/h/act/rest/v1/5gzw/qryPrcInfoBySerialNo,rest/v1/5gzw/qryPrcInfoBySerialNo,POST,普通,C,qryPrcInfoBySerialNo,,APP:7944,,调用业务 schema 待补齐；不能推断空请求
+API-116,权益与内容订购,/h/act/rest/v1/5gzw/p4000CfmBC,rest/v1/5gzw/p4000CfmBC,POST,普通,C,p4000CfmBC,,APP:7953,,调用业务 schema 待补齐；不能推断空请求
+API-117,金币商城与运营,/h/act/rest/v1/ranking/query,rest/v1/ranking/query,POST,普通,C,queryRank,,APP:7962; APP:8212,,调用业务 schema 待补齐；不能推断空请求
+API-118,订单充值与支付,/h/act/rest/v1/rechargeCard/queryPublicKey,rest/v1/rechargeCard/queryPublicKey,POST,普通,C,postPublicKey,,APP:7981,,调用业务 schema 待补齐；不能推断空请求
+API-119,订单充值与支付,/h/act/rest/v1/rechargeCard/rechargeCardPay,rest/v1/rechargeCard/rechargeCardPay,POST,普通,C,postpayCard,,APP:7990,,调用业务 schema 待补齐；不能推断空请求
+API-120,订单充值与支付,/h/act/rest/v1/payfee/makeOrder,rest/v1/payfee/makeOrder,POST,普通,C,makeOrder,,APP:7999,,调用业务 schema 待补齐；不能推断空请求
+API-121,页面配置渠道与公共能力,/h/act/rest/v1/common/qryCompanyTaxInfo,rest/v1/common/qryCompanyTaxInfo,POST,普通,C,postInvoice,,APP:8008,,调用业务 schema 待补齐；不能推断空请求
+API-122,订单充值与支付,/h/act/rest/v1/advanceorder/QueryUniPreOrder,rest/v1/advanceorder/QueryUniPreOrder,POST,普通,C,queryPrepareOrder,,APP:8018,,调用业务 schema 待补齐；不能推断空请求
+API-123,订单充值与支付,/h/act/rest/v1/advanceorder/orderItemForce,rest/v1/advanceorder/orderItemForce,POST,普通,C,cancelPrepareOrder,,APP:8029,,调用业务 schema 待补齐；不能推断空请求
+API-124,订单充值与支付,/h/act/rest/v1/advanceorder/paymentNoticeService,rest/v1/advanceorder/paymentNoticeService,POST,普通,C,prepareOrderNotice,,APP:8040,,调用业务 schema 待补齐；不能推断空请求
+API-125,订单充值与支付,/h/act/rest/v1/advanceorder/checkService,rest/v1/advanceorder/checkService,POST,普通,C,chkPrepareOrder,,APP:8050,,调用业务 schema 待补齐；不能推断空请求
+API-126,订单充值与支付,/h/act/rest/v1/advanceorder/payAdvanceOrder,rest/v1/advanceorder/payAdvanceOrder,POST,普通,C,prepareOrderPay,,APP:8061,,调用业务 schema 待补齐；不能推断空请求
+API-127,订单充值与支付,/h/act/rest/v1/payfee/qryPayOrderState,rest/v1/payfee/qryPayOrderState,POST,普通,C,qryPayOrderState,,APP:8071,,调用业务 schema 待补齐；不能推断空请求
+API-128,金币账户与邀请,/h/act/rest/v1/activity/ChkInvitedFriendListRest,rest/v1/activity/ChkInvitedFriendListRest,POST,普通,C,ChkInvitedFriendListRest,,APP:8082,,调用业务 schema 待补齐；不能推断空请求
+API-129,金币账户与邀请,/h/act/rest/v1/goldActice/ExchangeRest,rest/v1/goldActice/ExchangeRest,POST,普通,C,exchangeCoin,,APP:8092,,调用业务 schema 待补齐；不能推断空请求
+API-130,金币账户与邀请,/h/act/rest/v1/goldActice/queryGoodsRest,rest/v1/goldActice/queryGoodsRest,POST,普通,C,queryGoodsRest,,APP:8102,,调用业务 schema 待补齐；不能推断空请求
+API-131,金币账户与邀请,/h/act/rest/v1/coinActivity/ReferenceDetailQryRest,rest/v1/coinActivity/ReferenceDetailQryRest,POST,普通,C,ReferenceDetailQryRest,,APP:8112,,调用业务 schema 待补齐；不能推断空请求
+API-132,金币账户与邀请,/h/act/rest/v1/goldCoin/removeInviteRest,rest/v1/goldCoin/removeInviteRest,POST,普通,C,removeInviteRest,,APP:8122,,调用业务 schema 待补齐；不能推断空请求
+API-133,金币账户与邀请,/h/act/rest/v1/activity/goldCoinReceive,rest/v1/activity/goldCoinReceive,POST,AES,C,goldCoinReceive,,APP:8132,,调用业务 schema 待补齐；不能推断空请求
+API-134,金币账户与邀请,/h/act/rest/v1/goldCoin/startActivity,rest/v1/goldCoin/startActivity,POST,普通,C,startActivity,,APP:8143,,调用业务 schema 待补齐；不能推断空请求
+API-135,金币账户与邀请,/h/act/rest/v1/goldCoin/coinAddInvite,rest/v1/goldCoin/coinAddInvite,POST,普通,C,coinAddInvite,,APP:8153,,调用业务 schema 待补齐；不能推断空请求
+API-136,金币账户与邀请,/h/act/rest/v1/invication/init,rest/v1/invication/init,POST,普通,C,postInviteInit,,APP:8163,,调用业务 schema 待补齐；不能推断空请求
+API-137,金币账户与邀请,/h/act/rest/v1/activity/QryInvitedFriendListRest,rest/v1/activity/QryInvitedFriendListRest,POST,普通,C,QryInvitedFriendListRest,,APP:8173,,调用业务 schema 待补齐；不能推断空请求
+API-138,权益与内容订购,/h/act/rest/v1/productCombo/info,rest/v1/productCombo/info,POST,普通,C,productComboInfo,,APP:8182,,调用业务 schema 待补齐；不能推断空请求
+API-139,权益与内容订购,/h/act/rest/v1/productCombo/S4035IntChk,rest/v1/productCombo/S4035IntChk,POST,普通,C,productComboChk,,APP:8192,,调用业务 schema 待补齐；不能推断空请求
+API-140,权益与内容订购,/h/act/rest/v1/productCombo/S4035Cfm,rest/v1/productCombo/S4035Cfm,POST,普通,C,productComboCfm,,APP:8202,,调用业务 schema 待补齐；不能推断空请求
+API-141,活动问卷与评价,/h/act/rest/v1/maintain/qry,rest/v1/maintain/qry,POST,普通,C,maintainQry,,APP:8222,,调用业务 schema 待补齐；不能推断空请求
+API-142,活动问卷与评价,/h/act/rest/v1/maintain/answer,rest/v1/maintain/answer,POST,AES,C,maintainSub,,APP:8232,,调用业务 schema 待补齐；不能推断空请求
+API-143,活动问卷与评价,/h/act/rest/v1/maintain/cfm,rest/v1/maintain/cfm,POST,普通,C,maintainCfm,,APP:8243,,调用业务 schema 待补齐；不能推断空请求
+API-144,活动问卷与评价,/h/act/rest/v1/busiEvaluation/query,rest/v1/busiEvaluation/query,POST,普通,C,busiEvaluationQry,,APP:8253,,调用业务 schema 待补齐；不能推断空请求
+API-145,活动问卷与评价,/h/act/rest/v1/busiEvaluation/submit,rest/v1/busiEvaluation/submit,POST,AES,C,busiEvaluationSub,,APP:8263,,调用业务 schema 待补齐；不能推断空请求
+API-146,提醒服务与客服,/h/act/rest/v1/feeawoke/qryfeeawokeinfo,rest/v1/feeawoke/qryfeeawokeinfo,POST,普通,C,qryfeeawokeinfo,,APP:8274,,调用业务 schema 待补齐；不能推断空请求
+API-147,提醒服务与客服,/h/act/rest/v1/feeawoke/cfmfeeawokeinfo,rest/v1/feeawoke/cfmfeeawokeinfo,POST,普通,C,cfmfeeawokeinfo,,APP:8284,,调用业务 schema 待补齐；不能推断空请求
+API-148,提醒服务与客服,/h/act/rest/v1/flowremind/qryflowremindinfo,rest/v1/flowremind/qryflowremindinfo,POST,AES,C,qryflowremindinfo,,APP:8294,,调用业务 schema 待补齐；不能推断空请求
+API-149,提醒服务与客服,/h/act/rest/v1/flowremind/cfmflowremindinfo,rest/v1/flowremind/cfmflowremindinfo,POST,AES,C,cfmflowremindinfo,,APP:8305,,调用业务 schema 待补齐；不能推断空请求
+API-150,账户通信与已订业务,/h/act/rest/v1/prc/sUserPrcHQryB,rest/v1/prc/sUserPrcHQryB,POST,AES,C,prodPrcInfo,,APP:8316,,调用业务 schema 待补齐；不能推断空请求
+API-151,家庭宽带与智家,/h/act/rest/v1/homecircle/qryMembers,rest/v1/homecircle/qryMembers,POST,AES,C,qryMembers,,APP:8326,,调用业务 schema 待补齐；不能推断空请求
+API-152,家庭宽带与智家,/h/act/rest/v1/homecircle/delMember,rest/v1/homecircle/delMember,POST,AES,C,delMember,,APP:8337,,调用业务 schema 待补齐；不能推断空请求
+API-153,家庭宽带与智家,/h/act/rest/v1/homecircle/updMember,rest/v1/homecircle/updMember,POST,AES,C,updMember,,APP:8348,,调用业务 schema 待补齐；不能推断空请求
+API-154,家庭宽带与智家,/h/act/rest/v1/homecircle/addMember,rest/v1/homecircle/addMember,POST,AES,C,addMember,,APP:8359,,调用业务 schema 待补齐；不能推断空请求
+API-155,家庭宽带与智家,/h/act/rest/v1/homecircle/qryBindList,rest/v1/homecircle/qryBindList,POST,AES,C,qryBindList,,APP:8370,,调用业务 schema 待补齐；不能推断空请求
+API-156,家庭宽带与智家,/h/act/rest/v1/homecircle/batchAddMember,rest/v1/homecircle/batchAddMember,POST,AES,C,batchAddMember,,APP:8381,,调用业务 schema 待补齐；不能推断空请求
+API-157,订单充值与支付,/h/act/rest/v1/payment/orderquery,rest/v1/payment/orderquery,POST,普通,C,postpayFont,,APP:8392,,调用业务 schema 待补齐；不能推断空请求
+API-158,权益与内容订购,/h/act/rest/v1/cloudPhone/qryPrcInfoBySerialNo,rest/v1/cloudPhone/qryPrcInfoBySerialNo,POST,普通,C,qryPrcInfo,,APP:8402,,调用业务 schema 待补齐；不能推断空请求
+API-159,权益与内容订购,/h/act/rest/v1/cloudPhone/p4000CfmBC,rest/v1/cloudPhone/p4000CfmBC,POST,普通,C,subCloud,,APP:8411,,调用业务 schema 待补齐；不能推断空请求
+API-160,金币商城与运营,/h/act/rest/v1/Newconpous/acceptConpons,rest/v1/Newconpous/acceptConpons,POST,普通,C,acceptConponsNew,"flag,serialNumber",APP:8420,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-161,登录认证与安全辅助,/h/act/rest/v1/smsver/sendSmsCodeNew,rest/v1/smsver/sendSmsCodeNew,POST,AES,C,getSmsCodeSmsver,"actId,actType,busiId,busiName,busiType,channelId,effDate,isSensitive,meansId,prcId,prodDesc,sendType",APP:8430,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-162,登录认证与安全辅助,/h/act/rest/v1/smsver/chkSmsCodeNew,rest/v1/smsver/chkSmsCodeNew,POST,AES,C,chkSmsCodeSmsver,"busiType,isSensitive,smsCode,uuid",APP:8441,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-163,登录认证与安全辅助,/h/act/rest/v1/sensitive/qryTag,rest/v1/sensitive/qryTag,POST,AES,C,qrySensitiveTag,busiType,APP:8452,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-164,提醒服务与客服,/h/act/rest/v1/custvoice/createorder,rest/v1/custvoice/createorder,POST,AES,C,cuscreateorder,,APP:8463,,调用业务 schema 待补齐；不能推断空请求
+API-165,提醒服务与客服,/h/act/rest/v1/custvoice/qryTaskList,rest/v1/custvoice/qryTaskList,POST,普通,C,qryTaskList,,APP:8474,,调用业务 schema 待补齐；不能推断空请求
+API-166,提醒服务与客服,/h/act/rest/v1/custvoice/qryFlowTrac,rest/v1/custvoice/qryFlowTrac,POST,普通,C,qryFlowTrac,,APP:8484,,调用业务 schema 待补齐；不能推断空请求
+API-167,页面配置渠道与公共能力,/h/act/rest/v1/whitepage,rest/v1/whitepage,POST,普通,C,jtWhitepage,,APP:8494,,调用业务 schema 待补齐；不能推断空请求
+API-168,登录认证与安全辅助,/h/act/rest/v1/moss/unitokenValidate4Wap,rest/v1/moss/unitokenValidate4Wap,POST,普通,C,loginSSO,"login,token,tokentype,url",APP:8503,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-169,企业物联网与预约,/h/act/rest/v1/iotorder/whiteList,rest/v1/iotorder/whiteList,POST,AES,C,qryWhiteList,,APP:8512,,调用业务 schema 待补齐；不能推断空请求
+API-170,企业物联网与预约,/h/act/rest/v1/iotorder/changeWhite,rest/v1/iotorder/changeWhite,POST,普通,C,changeWhite,,APP:8522,,调用业务 schema 待补齐；不能推断空请求
+API-171,金币商城与运营,/h/act/rest/v1/gold/exchange/QryVipLevel,rest/v1/gold/exchange/QryVipLevel,POST,普通,C,goldQryVipLevel,,APP:8531,,调用业务 schema 待补齐；不能推断空请求
+API-172,金币商城与运营,/h/act/rest/v1/gold/exchange/QryNotice,rest/v1/gold/exchange/QryNotice,POST,普通,C,goldQryNotice,,APP:8541,,调用业务 schema 待补齐；不能推断空请求
+API-173,金币商城与运营,/h/act/rest/v1/gold/exchange/QryRecommend,rest/v1/gold/exchange/QryRecommend,POST,普通,C,goldQryRecommend,,APP:8551,,调用业务 schema 待补齐；不能推断空请求
+API-174,金币商城与运营,/h/act/rest/v1/gold/exchange/QryExchangeRule,rest/v1/gold/exchange/QryExchangeRule,POST,普通,C,goldQryExchangeRule,,APP:8561,,调用业务 schema 待补齐；不能推断空请求
+API-175,金币商城与运营,/h/act/rest/v1/gold/exchange/QryGoldGoodsList,rest/v1/gold/exchange/QryGoldGoodsList,POST,普通,C,goldQryGoldGoodsList,,APP:8571,,调用业务 schema 待补齐；不能推断空请求
+API-176,金币商城与运营,/h/act/rest/v1/gold/exchange/QryGoodsLeft,rest/v1/gold/exchange/QryGoodsLeft,POST,普通,C,goldQryGoodsLeft,,APP:8581,,调用业务 schema 待补齐；不能推断空请求
+API-177,金币商城与运营,/h/act/rest/v1/gold/exchange/QryGoodsInfo,rest/v1/gold/exchange/QryGoodsInfo,POST,普通,C,goldQryGoodsInfo,,APP:8591,,调用业务 schema 待补齐；不能推断空请求
+API-178,金币商城与运营,/h/act/rest/v1/gold/exchange/checkRule,rest/v1/gold/exchange/checkRule,POST,普通,C,goldCheckRule,,APP:8601,,调用业务 schema 待补齐；不能推断空请求
+API-179,金币商城与运营,/h/act/rest/v1/gold/exchange/getObjectCfm,rest/v1/gold/exchange/getObjectCfm,POST,普通,C,goldGetObjectCfm,,APP:8611,,调用业务 schema 待补齐；不能推断空请求
+API-180,金币商城与运营,/h/act/rest/v1/gold/exchange/saveAddress,rest/v1/gold/exchange/saveAddress,POST,AES,C,goldSaveAddress,,APP:8621,,调用业务 schema 待补齐；不能推断空请求
+API-181,金币商城与运营,/h/act/rest/v1/gold/exchange/growthCfm,rest/v1/gold/exchange/growthCfm,POST,普通,C,goldGrowthCfm,,APP:8632,,调用业务 schema 待补齐；不能推断空请求
+API-182,金币商城与运营,/h/act/rest/v1/gold/exchange/qryOrderList,rest/v1/gold/exchange/qryOrderList,POST,普通,C,goldQryOrderList,,APP:8642,,调用业务 schema 待补齐；不能推断空请求
+API-183,金币商城与运营,/h/act/rest/v1/gold/exchange/qryLogisticsId,rest/v1/gold/exchange/qryLogisticsId,POST,普通,C,goldQryLogisticsId,,APP:8652,,调用业务 schema 待补齐；不能推断空请求
+API-184,金币商城与运营,/h/act/rest/v1/cardarea/qrydeliveryaddress,rest/v1/cardarea/qrydeliveryaddress,POST,普通,C,qrydeliveryaddress,,APP:8662,,调用业务 schema 待补齐；不能推断空请求
+API-185,提醒服务与客服,/h/act/rest/v1/robot/robotOnline,rest/v1/robot/robotOnline,GET,普通,C,robotOnline,,APP:8671,,调用业务 schema 待补齐；不能推断空请求
+API-186,登录认证与安全辅助,/h/act/rest/v1/wapLogin/login,rest/v1/wapLogin/login,POST,AES,C,wapLogin,"busiInfo,pubInfo",APP:8680,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-187,登录认证与安全辅助,/h/act/rest/v1/wapLogin/checkLogin,rest/v1/wapLogin/checkLogin,POST,AES,B,checkLoginNew,"busiInfo,pubInfo",APP:8690,8,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-188,页面配置渠道与公共能力,/h/act/rest/v1/groupPay/groupPayChk,rest/v1/groupPay/groupPayChk,POST,普通,C,groupPayChk,,APP:8701,,调用业务 schema 待补齐；不能推断空请求
+API-189,页面配置渠道与公共能力,/h/act/rest/v1/groupPay/groupPayCfm,rest/v1/groupPay/groupPayCfm,POST,普通,C,groupPayCfm,,APP:8711,,调用业务 schema 待补齐；不能推断空请求
+API-190,金币商城与运营,/h/act/rest/v1/gold/exchange/qryExchangeOrder,rest/v1/gold/exchange/qryExchangeOrder,POST,普通,C,qryExchangeOrder,,APP:8730,,调用业务 schema 待补齐；不能推断空请求
+API-191,金币商城与运营,/h/act/rest/v1/gold/exchange/qryGoldGoodsListTest,rest/v1/gold/exchange/qryGoldGoodsListTest,POST,普通,C,qryGoldGoodsListTest,,APP:8739,,调用业务 schema 待补齐；不能推断空请求
+API-192,金币商城与运营,/h/act/rest/v1/gold/exchange/qryGoodsInfoTestRest,rest/v1/gold/exchange/qryGoodsInfoTestRest,POST,普通,C,qryGoodsInfoTestRest,,APP:8748,,调用业务 schema 待补齐；不能推断空请求
+API-193,金币商城与运营,/h/act/rest/v1/gold/exchange/checkRuleTest,rest/v1/gold/exchange/checkRuleTest,POST,普通,C,checkRuleTest,,APP:8757,,调用业务 schema 待补齐；不能推断空请求
+API-194,金币商城与运营,/h/act/rest/v1/gold/exchange/getObjectCfmTest,rest/v1/gold/exchange/getObjectCfmTest,POST,普通,C,getObjectCfmTest,,APP:8766,,调用业务 schema 待补齐；不能推断空请求
+API-195,家庭宽带与智家,/h/act/rest/v1/family/familycircle/famTeamInfoQry,rest/v1/family/familycircle/famTeamInfoQry,POST,AES,C,famTeamInfoQry,,APP:8775,,调用业务 schema 待补齐；不能推断空请求
+API-196,金币账户与邀请,/h/act/rest/v1/goldBill/qryMonthBill,rest/v1/goldBill/qryMonthBill,POST,普通,C,qryMonthBill,,APP:8786,,调用业务 schema 待补齐；不能推断空请求
+API-197,金币账户与邀请,/h/act/rest/v1/goldBill/qryRankInfo,rest/v1/goldBill/qryRankInfo,POST,普通,C,qryRankInfo,,APP:8796,,调用业务 schema 待补齐；不能推断空请求
+API-198,活动问卷与评价,/h/act/rest/v1/qing/qryUserRole,rest/v1/qing/qryUserRole,POST,AES,C,qryUserRole,,APP:8806,,调用业务 schema 待补齐；不能推断空请求
+API-199,活动问卷与评价,/h/act/rest/v1/qing/chooseUserRole,rest/v1/qing/chooseUserRole,POST,AES,C,chooseUserRole,,APP:8817,,调用业务 schema 待补齐；不能推断空请求
+API-200,活动问卷与评价,/h/act/rest/v1/qing/qryQuestionByRole,rest/v1/qing/qryQuestionByRole,POST,AES,C,qryQuestionByRole,,APP:8828,,调用业务 schema 待补齐；不能推断空请求
+API-201,活动问卷与评价,/h/act/rest/v1/qing/subAnswer,rest/v1/qing/subAnswer,POST,AES,C,subAnswer,,APP:8839,,调用业务 schema 待补齐；不能推断空请求
+API-202,活动问卷与评价,/h/act/rest/v1/qing/qryLeftTimes,rest/v1/qing/qryLeftTimes,POST,AES,C,qryLeftTimes,,APP:8850,,调用业务 schema 待补齐；不能推断空请求
+API-203,活动问卷与评价,/h/act/rest/v1/qing/lottery,rest/v1/qing/lottery,POST,AES,C,lotteryQing,,APP:8861,,调用业务 schema 待补齐；不能推断空请求
+API-204,活动问卷与评价,/h/act/rest/v1/qing/qryLotteryInfo,rest/v1/qing/qryLotteryInfo,POST,AES,C,qryLotteryInfo,,APP:8872,,调用业务 schema 待补齐；不能推断空请求
+API-205,活动问卷与评价,/h/act/rest/v1/qing/receive,rest/v1/qing/receive,POST,AES,C,receiveQing,,APP:8883,,调用业务 schema 待补齐；不能推断空请求
+API-206,活动问卷与评价,/h/act/rest/v1/act/questionnaireQry,rest/v1/act/questionnaireQry,POST,普通,C,questionnaireQry,,APP:8894,,调用业务 schema 待补齐；不能推断空请求
+API-207,活动问卷与评价,/h/act/rest/v1/act/questionnaireSubmit,rest/v1/act/questionnaireSubmit,POST,普通,C,questionnaireSubmit,,APP:8904,,调用业务 schema 待补齐；不能推断空请求
+API-208,账户通信与已订业务,/h/act/rest/v1/fee/iFreeMinQrySvcRest,rest/v1/fee/iFreeMinQrySvcRest,POST,AES,C,iFreeMinQrySvcRest,,APP:8914,,调用业务 schema 待补齐；不能推断空请求
+API-209,提醒服务与客服,/h/act/rest/v1/linglong/status,rest/v1/linglong/status,POST,普通,C,linglongStatus,,APP:8925,,调用业务 schema 待补齐；不能推断空请求
+API-210,提醒服务与客服,/h/act/rest/v1/restrictStatus/qry,rest/v1/restrictStatus/qry,POST,普通,C,restrictStatusQry,,APP:8935,,调用业务 schema 待补齐；不能推断空请求
+API-211,提醒服务与客服,/h/act/rest/v1/linglong/qry,rest/v1/linglong/qry,POST,普通,C,linglongQry,,APP:8945,,调用业务 schema 待补齐；不能推断空请求
+API-212,提醒服务与客服,/h/act/rest/v1/linglong/count,rest/v1/linglong/count,POST,普通,C,linglongCount,,APP:8955,,调用业务 schema 待补齐；不能推断空请求
+API-213,提醒服务与客服,/h/act/rest/v1/linglongComment/add,rest/v1/linglongComment/add,POST,普通,C,linglongCommentAdd,,APP:8965,,调用业务 schema 待补齐；不能推断空请求
+API-214,提醒服务与客服,/h/act/rest/v1/linglong/gainCoin,rest/v1/linglong/gainCoin,POST,普通,C,linglongGainCoin,,APP:8975,,调用业务 schema 待补齐；不能推断空请求
+API-215,金币账户与邀请,/h/act/rest/v1/goldActice/qryGoldCoinStock,rest/v1/goldActice/qryGoldCoinStock,POST,普通,C,qryGoldCoinStock,,APP:8985,,调用业务 schema 待补齐；不能推断空请求
+API-216,页面配置渠道与公共能力,/h/act/rest/v1/tip/qryAvaliableTip,rest/v1/tip/qryAvaliableTip,POST,AES,B,qryAvaliableTip,"tipBusiType,userId",APP:8994,7,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-217,页面配置渠道与公共能力,/h/act/rest/v1/tip/submitShowLog,rest/v1/tip/submitShowLog,POST,AES,C,submitShowLog,"tipBusiType,tipId,userId",APP:9004,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-218,金币账户与邀请,/h/act/rest/v1/goldActice/checkShowTip,rest/v1/goldActice/checkShowTip,POST,普通,C,checkShowTip,,APP:9014,,调用业务 schema 待补齐；不能推断空请求
+API-219,金币账户与邀请,/h/act/rest/v1/goldActice/submitShowTipLog,rest/v1/goldActice/submitShowTipLog,POST,普通,C,submitShowTipLog,,APP:9023,,调用业务 schema 待补齐；不能推断空请求
+API-220,活动问卷与评价,/h/act/rest/v1/assistact/qryActProgress,rest/v1/assistact/qryActProgress,POST,AES,C,qryActProgress,,APP:9032,,调用业务 schema 待补齐；不能推断空请求
+API-221,活动问卷与评价,/h/act/rest/v1/assistact/participateAct,rest/v1/assistact/participateAct,POST,AES,C,participateAct,,APP:9043,,调用业务 schema 待补齐；不能推断空请求
+API-222,活动问卷与评价,/h/act/rest/v1/assistact/initInvite,rest/v1/assistact/initInvite,POST,AES,C,initInvite,,APP:9054,,调用业务 schema 待补齐；不能推断空请求
+API-223,权益与内容订购,/h/act/rest/v1/sportsact/qrySportsPrcList,rest/v1/sportsact/qrySportsPrcList,POST,AES,C,qrySportsPrcList,,APP:9065,,调用业务 schema 待补齐；不能推断空请求
+API-224,权益与内容订购,/h/act/rest/v1/sportsact/submitPrcOrder,rest/v1/sportsact/submitPrcOrder,POST,AES,C,submitPrcOrder,,APP:9076,,调用业务 schema 待补齐；不能推断空请求
+API-225,账户通信与已订业务,/h/act/rest/v1/cappingRule/qryPackageInfo,rest/v1/cappingRule/qryPackageInfo,POST,AES,C,qryPackageInfo,,APP:9087,,调用业务 schema 待补齐；不能推断空请求
+API-226,账户通信与已订业务,/h/act/rest/v1/cappingRule/qryRules,rest/v1/cappingRule/qryRules,POST,AES,C,qryRules,,APP:9098,,调用业务 schema 待补齐；不能推断空请求
+API-227,账户通信与已订业务,/h/act/rest/v1/cappingRule/qryFlowPackageInfo,rest/v1/cappingRule/qryFlowPackageInfo,POST,AES,C,qryFlowPackageInfo,,APP:9109,,调用业务 schema 待补齐；不能推断空请求
+API-228,活动问卷与评价,/h/act/rest/v1/maintain/qryGridManagerInfo,rest/v1/maintain/qryGridManagerInfo,POST,AES,C,qryGridManagerInfo,,APP:9120,,调用业务 schema 待补齐；不能推断空请求
+API-229,金币商城与运营,/h/act/rest/v1/goldAct/qryCloudsInfo,rest/v1/goldAct/qryCloudsInfo,POST,AES,C,qryCloudsInfo,,APP:9131,,调用业务 schema 待补齐；不能推断空请求
+API-230,金币商城与运营,/h/act/rest/v1/goldAct/qryWaterfallInfo,rest/v1/goldAct/qryWaterfallInfo,POST,AES,C,qryWaterfallInfo,,APP:9141,,调用业务 schema 待补齐；不能推断空请求
+API-231,金币商城与运营,/h/act/rest/v1/goldAct/qryCarouselInfo,rest/v1/goldAct/qryCarouselInfo,POST,AES,C,qryCarouselInfo,,APP:9151,,调用业务 schema 待补齐；不能推断空请求
+API-232,金币商城与运营,/h/act/rest/v1/goldAct/qryWindowInfo,rest/v1/goldAct/qryWindowInfo,POST,AES,C,qryWindowInfo,,APP:9162,,调用业务 schema 待补齐；不能推断空请求
+API-233,金币商城与运营,/h/act/rest/v1/member/discount,rest/v1/member/discount,POST,普通,C,goldDiscount,,APP:9173,,调用业务 schema 待补齐；不能推断空请求
+API-234,活动问卷与评价,/h/act/rest/v1/dxhy/qryDxActRecordInfo,rest/v1/dxhy/qryDxActRecordInfo,POST,AES,C,qryDxActRecordInfo,,APP:9183,,调用业务 schema 待补齐；不能推断空请求
+API-235,活动问卷与评价,/h/act/rest/v1/dxhy/qryDxActListInfo,rest/v1/dxhy/qryDxActListInfo,POST,AES,C,qryDxActListInfo,,APP:9194,,调用业务 schema 待补齐；不能推断空请求
+API-236,活动问卷与评价,/h/act/rest/v1/dxhy/dxActOrderCfm,rest/v1/dxhy/dxActOrderCfm,POST,AES,C,dxActOrderCfm,,APP:9205,,调用业务 schema 待补齐；不能推断空请求
+API-237,活动问卷与评价,/h/act/rest/v1/douyin/qryDyOrderInfo,rest/v1/douyin/qryDyOrderInfo,POST,AES,C,qryDyOrderInfo,,APP:9216,,调用业务 schema 待补齐；不能推断空请求
+API-238,活动问卷与评价,/h/act/rest/v1/douyin/dyOrderActChk,rest/v1/douyin/dyOrderActChk,POST,AES,C,dyOrderActChk,,APP:9227,,调用业务 schema 待补齐；不能推断空请求
+API-239,活动问卷与评价,/h/act/rest/v1/douyin/dyOrderActCfm,rest/v1/douyin/dyOrderActCfm,POST,AES,C,dyOrderActCfm,,APP:9238,,调用业务 schema 待补齐；不能推断空请求
+API-240,活动问卷与评价,/h/act/rest/v1/feedback/qryList,rest/v1/feedback/qryList,POST,AES,C,feedbackQryList,,APP:9249,,调用业务 schema 待补齐；不能推断空请求
+API-241,活动问卷与评价,/h/act/rest/v1/feedback/submit,rest/v1/feedback/submit,POST,AES,C,feedbackSubmit,,APP:9260,,调用业务 schema 待补齐；不能推断空请求
+API-242,登录认证与安全辅助,/h/act/rest/v1/changeablecaptcha/qry,rest/v1/changeablecaptcha/qry,POST,普通,C,changeablecaptchaQry,,APP:9271,,调用业务 schema 待补齐；不能推断空请求
+API-243,订单充值与支付,/h/act/rest/v1/paygiftfee/qryadvanceorder,rest/v1/paygiftfee/qryadvanceorder,POST,AES,C,qryadvanceorder,,APP:9280,,调用业务 schema 待补齐；不能推断空请求
+API-244,订单充值与支付,/h/act/rest/v1/paygiftfee/giftactcheck,rest/v1/paygiftfee/giftactcheck,POST,AES,C,giftactcheck,,APP:9291,,调用业务 schema 待补齐；不能推断空请求
+API-245,订单充值与支付,/h/act/rest/v1/paygiftfee/createorder,rest/v1/paygiftfee/createorder,POST,AES,C,paygiftfeeCreateorder,,APP:9302,,调用业务 schema 待补齐；不能推断空请求
+API-246,订单充值与支付,/h/act/rest/v1/paygiftfee/canceladvanceorder,rest/v1/paygiftfee/canceladvanceorder,POST,AES,C,canceladvanceorder,,APP:9313,,调用业务 schema 待补齐；不能推断空请求
+API-247,订单充值与支付,/h/act/rest/v1/paygiftfee/createpayorder,rest/v1/paygiftfee/createpayorder,POST,AES,C,createpayorder,,APP:9324,,调用业务 schema 待补齐；不能推断空请求
+API-248,订单充值与支付,/h/act/rest/v1/paygiftfee/qrypaystatus,rest/v1/paygiftfee/qrypaystatus,POST,AES,C,qrypaystatus,,APP:9335,,调用业务 schema 待补齐；不能推断空请求
+API-249,活动问卷与评价,/h/act/rest/v1/maintain/qrcode,rest/v1/maintain/qrcode,POST,AES,C,qrcode,,APP:9346,,调用业务 schema 待补齐；不能推断空请求
+API-250,活动问卷与评价,/h/act/rest/v1/nstwd/qryNstwdAct,rest/v1/nstwd/qryNstwdAct,POST,AES,C,qryNstwdAct,,APP:9357,,调用业务 schema 待补齐；不能推断空请求
+API-251,活动问卷与评价,/h/act/rest/v1/nstwd/nstwdActCfm,rest/v1/nstwd/nstwdActCfm,POST,AES,C,nstwdActCfm,,APP:9368,,调用业务 schema 待补齐；不能推断空请求
+API-252,活动问卷与评价,/h/act/rest/v1/ajact/checklogin,rest/v1/ajact/checklogin,POST,AES,C,checkAjactLogin,,APP:9379,,调用业务 schema 待补齐；不能推断空请求
+API-253,活动问卷与评价,/h/act/rest/v1/ajact/checkUserRights,rest/v1/ajact/checkUserRights,POST,AES,C,checkUserRights,,APP:9390,,调用业务 schema 待补齐；不能推断空请求
+API-254,活动问卷与评价,/h/act/rest/v1/ajact/submitAct,rest/v1/ajact/submitAct,POST,AES,C,submitAct,,APP:9401,,调用业务 schema 待补齐；不能推断空请求
+API-255,登录认证与安全辅助,/h/act/rest/v1/page/validate,rest/v1/page/validate,POST,普通,C,pageValidate,,APP:9412,,调用业务 schema 待补齐；不能推断空请求
+API-256,页面配置渠道与公共能力,/h/act/rest/v1/rsakey/getRsaPubKey,rest/v1/rsakey/getRsaPubKey,POST,普通,A,getRsaPubKey,,APP:9422,6,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-257,页面配置渠道与公共能力,/h/act/rest/v1/app/popup/config,rest/v1/app/popup/config,POST,AES,B,qryAppConfig,pageUrl,APP:9432,3,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-258,页面配置渠道与公共能力,/h/act/rest/v1/app/popup/behavior,rest/v1/app/popup/behavior,POST,AES,C,sendBehavior,"behaviorType,id,pageUrl",APP:9442,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-259,企业物联网与预约,/h/act/rest/v1/booking/healthVoiceRemoteController,rest/v1/booking/healthVoiceRemoteController,POST,AES,C,healthVoiceRemoteController,,APP:9452,,调用业务 schema 待补齐；不能推断空请求
+API-260,企业物联网与预约,/h/act/rest/v1/billqry/cmiotCustWarnAwoke,rest/v1/billqry/cmiotCustWarnAwoke,POST,AES,C,cmiotCustWarnAwoke,,APP:9462,,调用业务 schema 待补齐；不能推断空请求
+API-261,金币账户与邀请,/h/act/rest/v1/goldActice/QryGainCoinListRest,rest/v1/goldActice/QryGainCoinListRest,POST,AES,C,qryGoldCoinGetDetail,,APP:9472,,调用业务 schema 待补齐；不能推断空请求
+API-262,金币账户与邀请,/h/act/rest/v1/goldActice/qryGainCoinHisListRest,rest/v1/goldActice/qryGainCoinHisListRest,POST,普通,C,qryGainCoinHisListRest,,APP:9482,,调用业务 schema 待补齐；不能推断空请求
+API-263,金币账户与邀请,/h/act/rest/v1/activity/goldexchangedetailqry,rest/v1/activity/goldexchangedetailqry,POST,普通,C,goldexchangedetailqry,,APP:9491,,调用业务 schema 待补齐；不能推断空请求
+API-264,金币账户与邀请,/h/act/rest/v1/goldActice/qryGoldExchangeHis,rest/v1/goldActice/qryGoldExchangeHis,POST,普通,C,qryGoldExchangeHis,,APP:9500,,调用业务 schema 待补齐；不能推断空请求
+API-265,金币账户与邀请,/h/act/rest/v1/goldCoinGift/giftRecordList,rest/v1/goldCoinGift/giftRecordList,POST,普通,C,giftRecordList,,APP:9509,,调用业务 schema 待补齐；不能推断空请求
+API-266,账户通信与已订业务,/h/act/rest/v1/mcenter/goldsQueryRest,rest/v1/mcenter/goldsQueryRest,POST,普通,C,goldsQueryRest,,APP:9519,,调用业务 schema 待补齐；不能推断空请求
+API-267,金币账户与邀请,/h/act/rest/v1/goldActice/QryGainCoinListManager,rest/v1/goldActice/QryGainCoinListManager,POST,AES,C,qryGoldCoinGetDetailManager,,APP:9528,,调用业务 schema 待补齐；不能推断空请求
+API-268,金币账户与邀请,/h/act/rest/v1/goldActice/qryGainCoinHisListManager,rest/v1/goldActice/qryGainCoinHisListManager,POST,AES,C,qryGainCoinHisListManager,,APP:9538,,调用业务 schema 待补齐；不能推断空请求
+API-269,金币账户与邀请,/h/act/rest/v1/activity/goldexchangedetailManager,rest/v1/activity/goldexchangedetailManager,POST,AES,C,goldexchangedetailManager,,APP:9548,,调用业务 schema 待补齐；不能推断空请求
+API-270,金币账户与邀请,/h/act/rest/v1/goldActice/qryGoldExchangeHisManager,rest/v1/goldActice/qryGoldExchangeHisManager,POST,AES,C,qryGoldExchangeHisManager,,APP:9558,,调用业务 schema 待补齐；不能推断空请求
+API-271,金币账户与邀请,/h/act/rest/v1/goldActice/QryDeadCoinListManager,rest/v1/goldActice/QryDeadCoinListManager,POST,AES,C,qryGoldCoinDateDetailManager,,APP:9568,,调用业务 schema 待补齐；不能推断空请求
+API-272,金币账户与邀请,/h/act/rest/v1/coinActivity/CoinDetailsQryManager,rest/v1/coinActivity/CoinDetailsQryManager,POST,AES,C,CoinDetailsQryManager,,APP:9580,,调用业务 schema 待补齐；不能推断空请求
+API-273,金币账户与邀请,/h/act/rest/v1/goldActice/QryFreezeCoinManager,rest/v1/goldActice/QryFreezeCoinManager,POST,AES,C,QryFreezeCoinManager,,APP:9591,,调用业务 schema 待补齐；不能推断空请求
+API-274,账户通信与已订业务,/h/act/rest/v1/cust/levelManager,rest/v1/cust/levelManager,POST,AES,C,postgrowthLevelManager,,APP:9602,,调用业务 schema 待补齐；不能推断空请求
+API-275,权益与内容订购,/h/act/rest/v1/equity/checkRole,rest/v1/equity/checkRole,POST,AES,C,checkEquityRole,,APP:9613,,调用业务 schema 待补齐；不能推断空请求
+API-276,权益与内容订购,/h/act/rest/v1/equity/queryGroupEquity,rest/v1/equity/queryGroupEquity,POST,AES,C,queryGroupEquity,,APP:9624,,调用业务 schema 待补齐；不能推断空请求
+API-277,权益与内容订购,/h/act/rest/v1/equity/queryOperationDetail,rest/v1/equity/queryOperationDetail,POST,AES,C,queryOperationDetail,,APP:9635,,调用业务 schema 待补齐；不能推断空请求
+API-278,权益与内容订购,/h/act/rest/v1/equity/check,rest/v1/equity/check,POST,AES,C,queryEquityCheck,,APP:9646,,调用业务 schema 待补齐；不能推断空请求
+API-279,权益与内容订购,/h/act/rest/v1/equity/distribute,rest/v1/equity/distribute,POST,AES,C,distributeEquity,,APP:9657,,调用业务 schema 待补齐；不能推断空请求
+API-280,权益与内容订购,/h/act/rest/v1/equity/exchange2BApply,rest/v1/equity/exchange2BApply,POST,AES,C,exchange2BApply,,APP:9668,,调用业务 schema 待补齐；不能推断空请求
+API-281,权益与内容订购,/h/act/rest/v1/equity/exchange2C,rest/v1/equity/exchange2C,POST,AES,C,exchange2C,,APP:9679,,调用业务 schema 待补齐；不能推断空请求
+API-282,权益与内容订购,/h/act/rest/v1/qqt5ga/qryUserQualification,rest/v1/qqt5ga/qryUserQualification,POST,AES,B,qqt5gaQryUserQualification,,APP:9689,5,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-283,权益与内容订购,/h/act/rest/v1/qqt5ga/submitPrcOrder,rest/v1/qqt5ga/submitPrcOrder,POST,AES,C,qqt5gaSubmitPrcOrder,,APP:9700,,仅记录调用点可见字段，类型、必填、枚举、返回完整模型待确认
+API-284,权益与内容订购,/h/act/rest/v1/flowact/receiveFlows,rest/v1/flowact/receiveFlows,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-285,权益与内容订购,/h/act/rest/v1/flowact/submitPrcOrder,rest/v1/flowact/submitPrcOrder,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-286,家庭宽带与智家,/h/act/rest/v1/kd4basic/updorderinfo,rest/v1/kd4basic/updorderinfo,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-287,家庭宽带与智家,/h/act/rest/v1/kdStopResume/submit,rest/v1/kdStopResume/submit,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-288,页面配置渠道与公共能力,/h/act/rest/v1/operate/resetServPassword,rest/v1/operate/resetServPassword,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-289,家庭宽带与智家,/h/act/rest/v1/familynet/createFamByMemList,rest/v1/familynet/createFamByMemList,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-290,家庭宽带与智家,/h/act/rest/v1/familynet/submitFamAct,rest/v1/familynet/submitFamAct,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-291,家庭宽带与智家,/h/act/rest/v1/familynet/createFam,rest/v1/familynet/createFam,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-292,家庭宽带与智家,/h/act/rest/v1/familynet/ChangeProdPrcidRest,rest/v1/familynet/ChangeProdPrcidRest,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-293,活动问卷与评价,/h/act/rest/v1/anniversaryAct/submitNetAgeAct,rest/v1/anniversaryAct/submitNetAgeAct,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-294,活动问卷与评价,/h/act/rest/v1/anniversaryAct/submitBroadbandAct,rest/v1/anniversaryAct/submitBroadbandAct,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-295,活动问卷与评价,/h/act/rest/v1/anniversaryAct/chkBroadbandAct,rest/v1/anniversaryAct/chkBroadbandAct,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-296,权益与内容订购,/h/act/rest/v1/gotone/ddactcfm,rest/v1/gotone/ddactcfm,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-297,权益与内容订购,/h/act/rest/v1/qjftoc/submit,rest/v1/qjftoc/submit,未定,未定,D,字符串引用,,APP:72,,调用业务 schema 待补齐；不能推断空请求
+API-298,登录认证与安全辅助,/h/act/rest/v1/simlogin/qryLoginById,rest/v1/simlogin/qryLoginById,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-299,登录认证与安全辅助,/h/act/rest/v1/moss/JTlogin4Wap,rest/v1/moss/JTlogin4Wap,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-300,页面配置渠道与公共能力,/h/act/rest/v1/open/receiveNo/ZnqhGetNo,rest/v1/open/receiveNo/ZnqhGetNo,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-301,登录认证与安全辅助,/h/act/rest/v1/smsTokenValidate4Wap,rest/v1/smsTokenValidate4Wap,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-302,登录认证与安全辅助,/h/act/rest/v1/uniTokenValidate4Hsh,rest/v1/uniTokenValidate4Hsh,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-303,登录认证与安全辅助,/h/act/rest/v1/l/o,rest/v1/l/o,未定,未定,D,字符串引用,,APP:1246,,调用业务 schema 待补齐；不能推断空请求
+API-304,页面配置渠道与公共能力,/h/rest/v1/operateCSDdata/spageOperationCSDRest,//wap.sx.10086.cn/h/rest/v1/operateCSDdata/spageOperationCSDRest,未定,未定,D,字符串引用,,APP:6145,,调用业务 schema 待补齐；不能推断空请求
+API-305,权益与内容订购,/h/act/rest/v1/airrights/receiveRights,rest/v1/airrights/receiveRights,未定,未定,D,字符串引用,,APP:9858,,调用业务 schema 待补齐；不能推断空请求
+API-306,登录认证与安全辅助,/h/market/rest/v1/wapLogin/login,/h/market/rest/v1/wapLogin/login,POST,AES,B,HAR观察,,,26,调用业务 schema 待补齐；不能推断空请求
+API-307,登录认证与安全辅助,/h/market/rest/v1/wapLogin/sendSmsCode,/h/market/rest/v1/wapLogin/sendSmsCode,POST,AES,B,HAR观察,,,27,调用业务 schema 待补齐；不能推断空请求

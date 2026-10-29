@@ -127,7 +127,7 @@
       "domains": ["rights.1008086.xyz"],
       "healthPath": "/api/health",
       "allowedStatus": [200],
-      "dependencies": ["pm2", "nginx", "cloudflare-main"],
+      "dependencies": ["pm2", "bmcc-tunnel"],
       "capabilities": ["start", "stop", "restart", "build", "deploy", "check", "logs"],
       "build": {
         "cwd": "bj-cmcc-qy/frontend",
@@ -155,6 +155,30 @@
       "capabilities": ["start", "stop", "restart", "check", "logs"],
       "build": null,
       "test": null,
+      "protected": false,
+      "exposure": "public"
+    },
+    {
+      "id": "contract3",
+      "name": "北京移动合约查询",
+      "description": "二类合约、三类合约及低消方案全球通等级统一查询服务",
+      "group": "business",
+      "kind": "application",
+      "directory": "contract3-query",
+      "runtime": "node",
+      "pm2Name": "contract3-query",
+      "port": 3002,
+      "domains": ["contracts.1008086.xyz", "contract3.1008086.xyz"],
+      "healthPath": "/api/health",
+      "allowedStatus": [200],
+      "dependencies": ["pm2", "bmcc-tunnel"],
+      "capabilities": ["start", "stop", "restart", "test", "check", "logs"],
+      "build": null,
+      "test": {
+        "cwd": "contract3-query",
+        "command": ["npm", "test"],
+        "requiredForDeploy": true
+      },
       "protected": false,
       "exposure": "public"
     },
@@ -332,6 +356,34 @@
       "exposure": "restricted-pending-auth"
     },
     {
+      "id": "tools",
+      "name": "Tools 工具工作台",
+      "description": "链接拼接、二维码、AES 与文本处理工具",
+      "group": "business",
+      "kind": "application",
+      "directory": "tools-workbench",
+      "runtime": "node",
+      "pm2Name": "tools-workbench",
+      "port": 4177,
+      "domains": ["tools.1008086.xyz"],
+      "healthPath": "/api/health",
+      "allowedStatus": [200],
+      "dependencies": ["pm2", "bmcc-tunnel"],
+      "capabilities": ["start", "stop", "restart", "build", "test", "deploy", "check", "logs"],
+      "build": {
+        "cwd": "tools-workbench",
+        "command": ["npm", "run", "build"],
+        "artifact": "tools-workbench/dist/index.html"
+      },
+      "test": {
+        "cwd": "tools-workbench",
+        "command": ["npm", "test"],
+        "requiredForDeploy": true
+      },
+      "protected": false,
+      "exposure": "public"
+    },
+    {
       "id": "project",
       "name": "Project Ops",
       "description": "项目管理与运维控制台",
@@ -485,7 +537,7 @@
     {
       "id": "bmcc-tunnel",
       "name": "BMCC Tunnel",
-      "description": "BMCC 与快捷入口公网隧道进程",
+      "description": "BMCC、快捷入口与北京移动合约查询公网隧道进程",
       "group": "platform",
       "kind": "infrastructure",
       "directory": ".",
@@ -494,7 +546,10 @@
       "port": null,
       "domains": [
         "bmcc.1008086.xyz",
-        "bjcmcc.1008086.xyz"
+        "bjcmcc.1008086.xyz",
+        "contracts.1008086.xyz",
+        "contract3.1008086.xyz",
+        "tools.1008086.xyz"
       ],
       "healthPath": null,
       "allowedStatus": [],

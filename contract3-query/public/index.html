@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>北京移动合约查询</title>
+  <link rel="stylesheet" href="/styles.css?v=20260724-4">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <span class="brand-mark" aria-hidden="true">合</span>
+      <div>
+        <h1>北京移动合约查询</h1>
+        <p id="source-meta">数据加载中</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="summary" aria-live="polite">
+        <span><strong id="result-count">-</strong> 条结果</span>
+        <span><strong id="total-count">-</strong> 条当前数据</span>
+      </div>
+      <a class="service-link" href="https://arpu.1008086.xyz/">ARPU 查询 <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </header>
+
+  <main>
+    <div class="dataset-tabs" role="tablist" aria-label="合约数据类型">
+      <button class="dataset-tab" type="button" role="tab" data-type="2" aria-selected="true">
+        二类合约 <span data-count="2">-</span>
+      </button>
+      <button class="dataset-tab" type="button" role="tab" data-type="3" aria-selected="false">
+        三类合约 <span data-count="3">-</span>
+      </button>
+      <button class="dataset-tab" type="button" role="tab" data-type="low" aria-selected="false">
+        低消方案等级 <span data-count="low">-</span>
+      </button>
+    </div>
+
+    <form id="filters" class="toolbar" role="search">
+      <label class="search-field">
+        <span class="sr-only">搜索当前数据</span>
+        <input id="query" name="q" type="search" placeholder="搜索合约编码、名称或关键词" autocomplete="off">
+      </label>
+      <label id="primary-filter-wrap">
+        <span id="primary-filter-label" class="field-label">ID 前缀</span>
+        <select id="primary-filter"></select>
+      </label>
+      <label id="secondary-filter-wrap">
+        <span id="secondary-filter-label" class="field-label">分类</span>
+        <select id="secondary-filter"></select>
+      </label>
+      <label>
+        <span class="field-label">每页</span>
+        <select id="page-size" name="pageSize">
+          <option value="25">25 条</option>
+          <option value="50" selected>50 条</option>
+          <option value="100">100 条</option>
+          <option value="200">200 条</option>
+        </select>
+      </label>
+      <button id="reset" class="button secondary" type="button">重置</button>
+      <button id="export" class="button primary" type="button">导出 CSV</button>
+    </form>
+
+    <section class="table-region" aria-labelledby="table-title">
+      <div class="table-heading">
+        <h2 id="table-title">合约清单</h2>
+        <span id="page-status">第 - 页</span>
+      </div>
+      <div class="table-scroll">
+        <table id="results-table">
+          <thead><tr id="table-headers"></tr></thead>
+          <tbody id="results"></tbody>
+        </table>
+        <div id="empty" class="empty" hidden>没有匹配的记录</div>
+        <div id="loading" class="loading">正在加载</div>
+      </div>
+      <nav class="pagination" aria-label="结果分页">
+        <button id="previous" class="icon-button" type="button" title="上一页" aria-label="上一页">&lsaquo;</button>
+        <span id="page-range">-</span>
+        <button id="next" class="icon-button" type="button" title="下一页" aria-label="下一页">&rsaquo;</button>
+      </nav>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/app.js?v=20260724-4" defer></script>
+</body>
+</html>

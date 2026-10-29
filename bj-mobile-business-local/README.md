@@ -14,6 +14,8 @@
 - 本地导入 HAR、JSON 或 TXT 中的请求参数和响应值进行解密。
 - 使用 `shop.10086.cn` 登录 Cookie 查询商城已订业务，并按短信验证码确认退订。
 - 按商城固定 AES-CBC 双层 Base64 协议加密或解密 `inParam`、`msgId`、`outParam` 和手机号路径。
+- 在统一快捷订购工作台办理 xyw.bj 新业务、北移、中移商城、网格通和家庭云电脑业务。
+- 通过两段式短信流程办理“咪咕视频会员年包合约”：先验证登录号码，再独立确认真实订购。
 
 ## 启动
 
@@ -67,6 +69,14 @@ POST /api/custom-orders/submit
 POST /api/custom-orders/:orderId/sms/send
 POST /api/custom-orders/:orderId/sms/verify
 POST /api/debug/crypto/transform
+GET  /api/quick-orders/catalog
+POST /api/quick-orders/sessions
+POST /api/quick-orders/sessions/:id/auth/sms/send
+POST /api/quick-orders/sessions/:id/auth/verify
+POST /api/quick-orders/sessions/:id/prepare
+POST /api/quick-orders/sessions/:id/select
+POST /api/quick-orders/sessions/:id/sms/send
+POST /api/quick-orders/sessions/:id/confirm
 ```
 
 商城查询、退订接口、字段、密钥、加解密协议和页面设计见 `docs/SHOP_BUSINESS_QUERY_DESIGN.md`。
@@ -74,6 +84,10 @@ POST /api/debug/crypto/transform
 活动配置位于 `backend/activities/`。1000M 优享活动的接口、字段、业务规则、加密协议和扩展配置说明见 `docs/ACTIVITY_SUBSCRIPTION_DESIGN.md`。
 
 承诺低消权益回馈版示例、统一订购字段、短信确认状态机、自定义办理 API 和 HAR 解密边界见 `docs/CUSTOM_PRODUCT_ORDER_DESIGN.md`。
+
+家庭云电脑两档产品、App Token 认证、营销平台接口、字段、业务码、订购状态机和本地联调说明见 `docs/云电脑订购流程及接口说明.md`。
+
+xyw.bj 咪咕视频会员年包的短信登录、活动资格、产品确认、订购短信和最终受理协议见 `docs/xyw新业务订购流程及接口说明.md`。
 
 ## 移动侧接口链路
 

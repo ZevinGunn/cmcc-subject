@@ -18,8 +18,9 @@ function redactValue(key, value) {
     name.includes('key') ||
     name.includes('secret') ||
     name.includes('captcha') ||
+    name.includes('encipherparam') ||
     (name !== 'errorcode' &&
-      (name === 'code' || name === 'inputcode' || name === 'randomcode' || name.includes('smscode') || name.includes('verificationcode'))) ||
+      (name === 'code' || name === 'inputcode' || name === 'randomcode' || name.includes('smscode') || name.includes('verifycode') || name.includes('verificationcode'))) ||
     name.includes('identity') ||
     name.includes('idcard') ||
     name === 'id' ||

@@ -10,9 +10,9 @@ offerOrderRouter.use(requireSession);
 
 offerOrderRouter.post("/sms/need", async (req, res) => {
   try {
-    const offerId = cleanOfferId(req.body?.offerId);
-    if (!offerId) return fail(res, "请输入 offerId");
-    ok(res, await queryOfferNeedSms(req.session, offerId));
+    const offerConfig = cleanOfferConfig(req.body);
+    if (!offerConfig.offerId) return fail(res, "请输入 offerId");
+    ok(res, await queryOfferNeedSms(req.session, offerConfig));
   } catch (error) {
     fail(res, error.message, 500);
   }
@@ -20,9 +20,9 @@ offerOrderRouter.post("/sms/need", async (req, res) => {
 
 offerOrderRouter.post("/sms/send", async (req, res) => {
   try {
-    const offerId = cleanOfferId(req.body?.offerId);
-    if (!offerId) return fail(res, "请输入 offerId");
-    ok(res, await sendOfferConfirmSms(req.session, offerId));
+    const offerConfig = cleanOfferConfig(req.body);
+    if (!offerConfig.offerId) return fail(res, "请输入 offerId");
+    ok(res, await sendOfferConfirmSms(req.session, offerConfig));
   } catch (error) {
     fail(res, error.message, 500);
   }
@@ -33,17 +33,17 @@ offerOrderRouter.post("/submit", async (req, res) => {
   try {
     const { confirmed } = req.body || {};
     if (confirmed !== true) return fail(res, "订购需要 confirmed=true 二次确认");
-    const offerId = cleanOfferId(req.body?.offerId);
-    if (!offerId) return fail(res, "请输入 offerId");
+    const offerConfig = cleanOfferConfig(req.body);
+    if (!offerConfig.offerId) return fail(res, "请输入 offerId");
 
     logContext = {
-      offerId,
+      ...offerConfig,
       businessName: cleanText(req.body?.businessName),
       verifyCode: cleanText(req.body?.verifyCode)
     };
 
     const result = await submitOfferOrder(req.session, {
-      offerId,
+      ...offerConfig,
       verifyCode: logContext.verifyCode
     });
 
@@ -58,11 +58,18 @@ offerOrderRouter.post("/submit", async (req, res) => {
 });
 
 function cleanOfferId(value) {
-  return String(value || "").trim();
+  return String(value ?? "").trim();
 }
 
 function cleanText(value) {
-  return String(value || "").trim();
+  return String(value ?? "").trim();
+}
+
+function cleanOfferConfig(body = {}) {
+  return {
+    offerId: cleanOfferId(body?.offerId),
+    offerType: cleanText(body?.offerType)
+  };
 }
 
 function buildSubmitLog(req, context, result, error = null) {
@@ -74,6 +81,7 @@ function buildSubmitLog(req, context, result, error = null) {
     maskedPhone: maskPhone(phoneNo),
     businessName: context.businessName,
     offerId: context.offerId,
+    offerType: context.offerType,
     verifyCode: context.verifyCode,
     success,
     resultCode: error ? "EXCEPTION" : result?.resultCode || "",

@@ -47,7 +47,7 @@ check_tunnel_config() {
   local id="$1"
   local label="$2"
   local config="$3"
-  local expected actual
+  local expected actual invalid_origins
 
   if [ ! -r "$config" ]; then
     bad "$label 配置不存在或不可读：$config"
@@ -73,6 +73,21 @@ check_tunnel_config() {
     bad "$label 域名与 services.json 不一致（${config}）"
     printf '  manifest:\n%s\n  config:\n%s\n' "$expected" "$actual" >&2
     failures=$((failures + 1))
+  fi
+
+  invalid_origins="$(awk '
+    $2 == "hostname:" { hostname=$3; next }
+    $1 == "service:" && hostname != "" {
+      if ($2 != "http://127.0.0.1:80") print hostname " -> " $2
+      hostname=""
+    }
+  ' "$config")"
+  if [ -n "$invalid_origins" ]; then
+    bad "$label 存在绕过 Nginx 网关的源站路由"
+    printf '%s\n' "$invalid_origins" >&2
+    failures=$((failures + 1))
+  else
+    ok "$label 所有域名均通过 127.0.0.1:80 网关"
   fi
 }
 

@@ -2,6 +2,10 @@
   <main class="business-page">
     <section class="business-hero">
       <div class="hero-actions">
+        <button type="button" @click="$emit('open-quick-order')">
+          <ShoppingCart :size="16" />
+          快捷订购
+        </button>
         <button type="button" @click="$emit('open-activities')">
           <TicketCheck :size="16" />
           活动办理
@@ -104,8 +108,7 @@
       v-if="pendingBusiness"
       :message="confirmMessage"
       :loading="unsubscribing"
-      :needs-code="pendingNeedsCode"
-      :initial-code="pendingInitialCode"
+      :initial-parameters="pendingParameters"
       @cancel="pendingBusiness = null"
       @confirm="confirmUnsubscribe"
     />
@@ -123,7 +126,7 @@
 </template>
 
 <script setup>
-import { CalendarDays, Search, TicketCheck } from 'lucide-vue-next'
+import { CalendarDays, Search, ShoppingCart, TicketCheck } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import BusinessDetailDrawer from '../components/BusinessDetailDrawer.vue'
 import BusinessItem from '../components/BusinessItem.vue'
@@ -140,7 +143,7 @@ import {
   switchAccount,
 } from '../stores/session'
 
-const emit = defineEmits(['logout', 'login-new', 'open-activities'])
+const emit = defineEmits(['logout', 'login-new', 'open-activities', 'open-quick-order'])
 
 const activeTab = ref(sessionState.activeTab || 'valueAdded')
 const categories = ref(sessionState.businessCache?.categories || { base: [], package: [], valueAdded: [] })
@@ -159,13 +162,14 @@ const maskedMobile = computed(() => maskMobile(sessionState.userInfo?.mobile || 
 const brandLabel = computed(() => sessionState.userInfo?.brand || '北京移动')
 const recentMonths = computed(() => buildMonths(5))
 const pickerMonths = computed(() => buildMonths(13))
-const pendingInitialCode = computed(() => businessCode(pendingBusiness.value))
-const pendingNeedsCode = computed(() => Boolean(pendingBusiness.value && !pendingInitialCode.value))
+const pendingParameters = computed(() => ({
+  phoneNum: String(sessionState.userInfo?.mobile || sessionState.phone || '').trim(),
+  brand: String(sessionState.userInfo?.brand || '').trim(),
+  field1: businessCode(pendingBusiness.value),
+}))
 const confirmMessage = computed(() => {
   const name = pendingBusiness.value?.name || '当前业务'
-  return pendingNeedsCode.value
-    ? `“${name}”缺少 ywCode/offerId，请输入 ywCode 后继续退订。`
-    : `确定退订“${name}”？`
+  return `请确认“${name}”本次退订提交的接口参数。`
 })
 
 function currentMonth() {
@@ -196,7 +200,7 @@ function formatAccountPhone(account) {
 }
 
 function businessCode(item) {
-  return String(item?.ywCode || item?.ywcode || item?.offerId || item?.offerid || item?.code || '').trim()
+  return String(item?.unsubscribeCode || item?.ywCode || item?.ywcode || item?.offerId || item?.offerid || item?.code || '').trim()
 }
 
 function showMessage(message, type = 'info', title = '提示') {
@@ -265,18 +269,22 @@ function openDetail(item) {
   detailItem.value = item
 }
 
-async function confirmUnsubscribe(manualCode = '') {
+async function confirmUnsubscribe(parameters = {}) {
   if (!pendingBusiness.value) return
-  const code = businessCode(pendingBusiness.value) || String(manualCode || '').trim()
-  if (!code) {
-    showMessage('请输入 ywCode 后再退订。', 'error')
+  const phoneNum = String(parameters.phoneNum || '').trim()
+  const brand = String(parameters.brand || '').trim()
+  const field1 = String(parameters.field1 || '').trim()
+  if (!phoneNum || !brand || !field1) {
+    showMessage('phoneNum、brand 和 field1 均不能为空。', 'error')
     return
   }
   const business = {
     ...pendingBusiness.value,
-    ywCode: code,
-    offerId: pendingBusiness.value.offerId || code,
-    code,
+    phoneNum,
+    brand,
+    field1,
+    unsubscribeCode: field1,
+    code: field1,
   }
   unsubscribing.value = true
   try {

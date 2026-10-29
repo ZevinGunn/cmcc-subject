@@ -44,11 +44,11 @@ export function loadPlusPackages() {
 export function couponEnough(coupon, right, certificateId) {
   if (!coupon || !right) return false;
   const certificateList = right.raw?.certificateList || right.certificateList || [];
-  const need = Number(right.certificateNum || right.exchangeNum || 0);
+  const need = Number(right.certificateNum ?? right.exchangeNum ?? 0);
   if (!certificateList.length) return Number(coupon.universalCouponCanUseNum || 0) >= need;
 
   return certificateList.some((cert) => {
-    const exchangeNum = Number(cert.exchangeNum || 0);
+    const exchangeNum = Number(cert.exchangeNum ?? 0);
     if (cert.certificateType === "1001") return Number(coupon.universalCouponCanUseNum || 0) >= exchangeNum;
     if (cert.certificateType === "1002") {
       const certId = certificateId || cert.certificateId;
@@ -58,4 +58,3 @@ export function couponEnough(coupon, right, certificateId) {
     return false;
   });
 }
-

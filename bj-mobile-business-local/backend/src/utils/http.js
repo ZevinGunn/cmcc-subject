@@ -1,6 +1,7 @@
 import axios from 'axios'
 import http from 'node:http'
 import https from 'node:https'
+import { constants as cryptoConstants } from 'node:crypto'
 import { setDefaultResultOrder } from 'node:dns'
 import { getCookieHeader, setCookiesFromResponse } from './cookieJar.js'
 import { createRequestId, logEvent, sanitize } from './logger.js'
@@ -13,6 +14,11 @@ try {
 
 const httpAgent = new http.Agent({ keepAlive: false })
 const httpsAgent = new https.Agent({ keepAlive: false, maxCachedSessions: 0 })
+const legacyHttpsAgent = new https.Agent({
+  keepAlive: false,
+  maxCachedSessions: 0,
+  secureOptions: cryptoConstants.SSL_OP_LEGACY_SERVER_CONNECT,
+})
 const RETRYABLE_CODES = new Set(['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'ECONNABORTED'])
 const RETRYABLE_MESSAGES = ['Client network socket disconnected before secure TLS connection was established']
 
@@ -26,6 +32,7 @@ export async function requestWithJar({
   includeCookies = true,
   timeout = 30000,
   maxAttempts = 3,
+  allowLegacyRenegotiation = false,
 }) {
   const cookie = includeCookies && jar ? await getCookieHeader(jar, url) : ''
   const requestId = createRequestId()
@@ -33,9 +40,9 @@ export async function requestWithJar({
   await logEvent('external:request', {
     requestId,
     method,
-    url,
+    url: sanitizeExternalUrl(url),
     headers: {
-      ...headers,
+      ...sanitizeExternalHeaders(headers),
       Cookie: cookie ? `[COOKIE len=${cookie.length}]` : '',
     },
     data: summarizePayload(data),
@@ -60,7 +67,7 @@ export async function requestWithJar({
       responseType,
       timeout,
       httpAgent,
-      httpsAgent,
+      httpsAgent: allowLegacyRenegotiation ? legacyHttpsAgent : httpsAgent,
       proxy: false,
       maxRedirects: 0,
       validateStatus: () => true,
@@ -71,7 +78,7 @@ export async function requestWithJar({
   await logEvent('external:response', {
     requestId,
     method,
-    url,
+    url: sanitizeExternalUrl(url),
     status: res.status,
     durationMs: Date.now() - startedAt,
     headers: {
@@ -82,6 +89,17 @@ export async function requestWithJar({
     data: summarizePayload(res.data),
   })
   return res
+}
+
+function sanitizeExternalHeaders(headers) {
+  const output = { ...headers }
+  for (const [name, value] of Object.entries(output)) {
+    if (/^referer$/i.test(name)) output[name] = sanitizeExternalUrl(value)
+    else if (/(?:authorization|cookie|token|secret|signature|api[-_]?key)/i.test(name)) {
+      output[name] = value ? `[REDACTED len=${String(value).length}]` : ''
+    }
+  }
+  return output
 }
 
 async function requestWithRetry({ requestId, startedAt, axiosConfig, maxAttempts }) {
@@ -97,7 +115,7 @@ async function requestWithRetry({ requestId, startedAt, axiosConfig, maxAttempts
         attempt,
         maxAttempts,
         method: axiosConfig.method,
-        url: axiosConfig.url,
+        url: sanitizeExternalUrl(axiosConfig.url),
         durationMs: Date.now() - startedAt,
         code: error?.code || '',
         message: error instanceof Error ? error.message : String(error),
@@ -106,6 +124,22 @@ async function requestWithRetry({ requestId, startedAt, axiosConfig, maxAttempts
     }
   }
   throw lastError
+}
+
+const SENSITIVE_QUERY_NAMES = /(?:token|cookie|authorization|code|sms|captcha|mobile|phone|account|nbc|emp|key|password|ticket|artifact)/i
+
+export function sanitizeExternalUrl(value) {
+  try {
+    const url = new URL(String(value || ''))
+    for (const [name, item] of url.searchParams) {
+      if (SENSITIVE_QUERY_NAMES.test(name)) {
+        url.searchParams.set(name, item ? `[REDACTED len=${item.length}]` : '')
+      }
+    }
+    return url.toString()
+  } catch {
+    return String(value || '').replace(/([?&][^=]*(?:token|code|sms|phone|mobile|nbc|key)[^=]*)=[^&#]*/gi, '$1=[REDACTED]')
+  }
 }
 
 function isRetryableNetworkError(error) {
@@ -120,7 +154,13 @@ function sleep(ms) {
 function summarizePayload(value) {
   if (Buffer.isBuffer(value)) return `[Buffer len=${value.length}]`
   if (value instanceof ArrayBuffer) return `[ArrayBuffer len=${value.byteLength}]`
-  if (typeof value === 'string') return value.length > 1000 ? `${value.slice(0, 1000)}...[TRUNCATED len=${value.length}]` : sanitize(value)
+  if (typeof value === 'string') {
+    try {
+      return sanitize(JSON.parse(value))
+    } catch {
+      return value.length > 1000 ? `${value.slice(0, 1000)}...[TRUNCATED len=${value.length}]` : value
+    }
+  }
   if (value === undefined) return undefined
   return sanitize(value)
 }

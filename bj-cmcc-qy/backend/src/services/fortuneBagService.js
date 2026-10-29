@@ -1,15 +1,51 @@
 import { clientFor } from "../bmccClient.js";
 import { attrValue, normalizeRight } from "./rightsCatalog.js";
 import { queryCouponSummary, summarizeCoupon } from "./couponService.js";
-import { queryAllOrders, queryCertificateCodes } from "./orderService.js";
+import { queryAllOrders, queryCertificateCodes, resolveOrderOfferId } from "./orderService.js";
+import { queryRightDetail } from "./rightsService.js";
 
 export const UNIVERSAL_CERTIFICATE_ID = "1387830401690525697";
 
 const DEFAULT_NOT_IN_AREAS = ["PLUS_19_BLACKLIST"];
-const HIDDEN_RIGHTS_NBRS = new Set(["QY1765335520502"]);
-const ZERO_COST_RIGHTS_ALLOWED_PHONES = new Set(["15210334812"]);
 const SYNC_EXCHANGE_OFFER_IDS = new Set(["111602045440", "111602045605", "111602052831"]);
 const SYNC_EXCHANGE_NAME_PATTERN = /稻香村|苏禾/;
+const PUBLIC_ZERO_COST_RIGHTS = [
+  createPublicZeroCostRight({
+    legalRightsNbr: "QY1765335520502",
+    legalRightsName: "稻香村20元消费券",
+    legalRightsDesc: "稻香村20元消费券",
+    offerId: "111602052831",
+    legalRightsSubordinate: "1200",
+    legalRightsType: "1126",
+    statusCd: "1200",
+    goodsName: "消费券",
+    goodsAttr: "20元",
+    receiveMode: "1400",
+    img: "/rights/202512/205fcd9c-e3ff-4011-8441-17c3a75c530a - 稻香村 1.png",
+    instructions: "订购成功后，点击【立即查看】按钮，显示核销二维码；仅适用于门店列表中的门店。",
+    partnerName: "北京南山拓谱科技有限公司",
+    canExchangeTimes: "5",
+    canSaleTimes: "5"
+  }),
+  createPublicZeroCostRight({
+    legalRightsNbr: "QY1765338097429",
+    legalRightsName: "物美超市20元通用消费券",
+    legalRightsDesc: "物美超市20元通用消费券",
+    offerId: "111602052832",
+    legalRightsSubordinate: "1200",
+    legalRightsType: "1126",
+    statusCd: "1000",
+    goodsName: "通用消费券",
+    goodsAttr: "20元",
+    receiveMode: "1500",
+    img: "/rights/202512/8e7553d6-5d7b-4dfb-b4a2-61eb5c2d743d-wumei.png",
+    instructions: "订购成功后，在订单页点击“存入卡包”，跳转北京移动权益站小程序绑定手机号；小程序拉起失败时可复制订单编码手动兑换。",
+    partnerName: "巨澄（北京）文化传媒有限公司",
+    canExchangeTimes: "6",
+    canSaleTimes: "6"
+  })
+];
+const PUBLIC_ZERO_COST_RIGHTS_NBRS = new Set(PUBLIC_ZERO_COST_RIGHTS.map((item) => item.legalRightsNbr));
 const ORDER_POLL_ATTEMPTS = 8;
 const ORDER_POLL_INTERVAL_MS = 1800;
 
@@ -27,10 +63,12 @@ export async function queryFortuneBag(session, query = {}) {
   const result = await clientFor(session).invoke("COUPON_INFO_QRY", body);
   const list = Array.isArray(result.data?.legalRightsList) ? result.data.legalRightsList : [];
   const visibleList = list.filter((item) => shouldExposeRight(session, item));
+  const normalizedItems = visibleList.map(normalizeFortuneRight);
+  const pinnedRights = await resolvePublicZeroCostRights(session, normalizedItems, query.legalRightsName);
   return {
     result,
     summary: summarizeCoupon(result.data || {}),
-    items: visibleList.map(normalizeFortuneRight)
+    items: mergePublicZeroCostRights(normalizedItems, pinnedRights)
   };
 }
 
@@ -45,7 +83,10 @@ export async function batchExchange(session, items = []) {
   const couponResult = await queryCouponSummary(session);
   const coupon = summarizeCoupon(couponResult.data || {});
   const max = coupon.universalCanUse + coupon.exclusiveCanUse;
-  const total = items.reduce((sum, item) => sum + Number(item.quantity || 1) * Number(item.certificateNum || item.exchangeNum || 1), 0);
+  const total = items.reduce(
+    (sum, item) => sum + Number(item.quantity || 1) * exchangeCost(item),
+    0
+  );
   if (total > max) {
     return {
       resultCode: "-1",
@@ -72,9 +113,15 @@ export async function batchExchange(session, items = []) {
 }
 
 export async function syncExchangeOne(session, item = {}, options = {}) {
-  const couponResult = await queryCouponSummary(session);
-  const requestBody = buildExchangeBody(item, summarizeCoupon(couponResult.data || {}));
-  if (!requestBody.offerId || !requestBody.rightCode || !requestBody.rightId) {
+  const usePublicZeroCostFallback = isPublicZeroCostRight(item) && !(item.rightId || item.legalRightsId);
+  const requestBody = usePublicZeroCostFallback
+    ? buildPublicZeroCostExchangeBody(session, item)
+    : buildExchangeBody(item, summarizeCoupon((await queryCouponSummary(session)).data || {}));
+  if (
+    !requestBody.offerId ||
+    !requestBody.rightCode ||
+    (usePublicZeroCostFallback ? !requestBody.accNbr : !requestBody.rightId)
+  ) {
     return {
       resultCode: "-1",
       resultMsg: "兑换参数不完整",
@@ -88,7 +135,11 @@ export async function syncExchangeOne(session, item = {}, options = {}) {
   }
 
   const startedAt = Date.now();
-  const exchangeResponse = await clientFor(session).invoke("COUPON_OPEN_TEL_FEE_AUTH", requestBody, { showToast: true });
+  const exchangeResponse = await clientFor(session).invoke(
+    usePublicZeroCostFallback ? "INNER_OPEN_TEL_FEE_AUTH" : "COUPON_OPEN_TEL_FEE_AUTH",
+    requestBody,
+    { showToast: true }
+  );
   if (!isSuccessResult(exchangeResponse)) {
     return {
       resultCode: exchangeResponse.resultCode || "-1",
@@ -174,17 +225,23 @@ export function normalizeFortuneRight(item = {}) {
   };
 }
 
-function shouldExposeRight(session, item = {}) {
-  if (HIDDEN_RIGHTS_NBRS.has(item?.legalRightsNbr || item?.rightCode || "")) return false;
-  if (canViewZeroCostRights(session)) return true;
-  return rightCost(item) !== 0;
+export function mergePublicZeroCostRights(items = [], pinnedRights = PUBLIC_ZERO_COST_RIGHTS) {
+  const pinnedCodes = new Set(pinnedRights.map((item) => item.legalRightsNbr));
+  return [
+    ...pinnedRights,
+    ...items.filter((item) => !pinnedCodes.has(item.legalRightsNbr || item.rightCode || ""))
+  ];
 }
 
-function canViewZeroCostRights(session) {
-  return ZERO_COST_RIGHTS_ALLOWED_PHONES.has(String(session?.userInfo?.phoneNo || ""));
+export function shouldExposeRight(session, item = {}) {
+  return Boolean(item && typeof item === "object");
 }
 
-function rightCost(item = {}) {
+export function isPublicZeroCostRight(item = {}) {
+  return PUBLIC_ZERO_COST_RIGHTS_NBRS.has(item.legalRightsNbr || item.rightCode || "");
+}
+
+export function exchangeCost(item = {}) {
   return Number(item.certificateNum ?? item.exchangeNum ?? 0);
 }
 
@@ -214,7 +271,7 @@ export function normalizeOrder(order = {}) {
     legalRightsNbr: order.legalRightsNbr || "",
     date: order.date || "",
     statusCd: order.statusCd || "",
-    offerId: order.offerId || attrValueFromOrder(order, "offerId"),
+    offerId: resolveOrderOfferId(order),
     receiveMode: attrValueFromOrder(order, "receiveMode"),
     img: attrValueFromOrder(order, "img_330_182"),
     raw: order
@@ -258,7 +315,7 @@ function isSuccessResult(result = {}) {
   return code === "0" || code === "000000";
 }
 
-function buildExchangeBody(item = {}, coupon = {}) {
+export function buildExchangeBody(item = {}, coupon = {}) {
   const certificate = resolveCertificate(item, coupon);
   return {
     offerId: item.offerId,
@@ -267,6 +324,15 @@ function buildExchangeBody(item = {}, coupon = {}) {
     certificateId: certificate.certificateId,
     certificateNum: certificate.certificateNum,
     checkSwitch: false
+  };
+}
+
+export function buildPublicZeroCostExchangeBody(session, item = {}) {
+  return {
+    accNbr: session?.userInfo?.phoneNo || item.accNbr || "",
+    offerId: item.offerId,
+    rightCode: item.rightCode || item.legalRightsNbr,
+    memberLevelCode: item.memberLevelCode || "1"
   };
 }
 
@@ -281,7 +347,10 @@ function resolveCertificate(item = {}, coupon = {}) {
     if (certificate?.certificateId) {
       return {
         certificateId: certificate.certificateId,
-        certificateNum: Number(item.certificateNum || certificate.exchangeNum || item.exchangeNum || 1)
+        certificateNum: exchangeCost({
+          certificateNum: item.certificateNum,
+          exchangeNum: certificate.exchangeNum ?? item.exchangeNum ?? 1
+        })
       };
     }
     throw new Error("未找到可用的专属兑换券");
@@ -291,12 +360,94 @@ function resolveCertificate(item = {}, coupon = {}) {
     certificateList(item).find((row) => row.certificateType === "1001" || row.certificateId === UNIVERSAL_CERTIFICATE_ID) || {};
   return {
     certificateId: UNIVERSAL_CERTIFICATE_ID,
-    certificateNum: Number(item.certificateNum || universalCertificate.exchangeNum || item.exchangeNum || 1)
+    certificateNum: exchangeCost({
+      certificateNum: item.certificateNum,
+      exchangeNum: universalCertificate.exchangeNum ?? item.exchangeNum ?? 1
+    })
   };
 }
 
 function certificateList(item = {}) {
   return item.certificateList || item.raw?.certificateList || [];
+}
+
+async function resolvePublicZeroCostRights(session, items, keyword = "") {
+  const normalizedKeyword = String(keyword || "").trim().toLowerCase();
+  const candidates = PUBLIC_ZERO_COST_RIGHTS.filter((item) =>
+    !normalizedKeyword || `${item.legalRightsName} ${item.legalRightsDesc} ${item.legalRightsNbr} ${item.offerId}`.toLowerCase().includes(normalizedKeyword)
+  );
+
+  return Promise.all(
+    candidates.map(async (fixedItem) => {
+      const listedItem = items.find((item) => item.legalRightsNbr === fixedItem.legalRightsNbr);
+      if (listedItem) return mergePublicZeroCostRight(fixedItem, listedItem);
+      try {
+        const detail = await queryRightDetail(session, fixedItem.legalRightsNbr);
+        if (detail?.item) return mergePublicZeroCostRight(fixedItem, detail.item);
+      } catch {
+        // The two public rights can use the existing quick exchange ability without rightId.
+      }
+      return { ...fixedItem, exchangeAvailable: true };
+    })
+  );
+}
+
+function mergePublicZeroCostRight(fixedItem, liveItem) {
+  return {
+    ...fixedItem,
+    ...liveItem,
+    legalRightsName: fixedItem.legalRightsName,
+    legalRightsDesc: fixedItem.legalRightsDesc,
+    offerId: fixedItem.offerId,
+    exchangeNum: 0,
+    certificateNum: 0,
+    certificateList: fixedItem.certificateList,
+    img: liveItem.img || fixedItem.img,
+    raw: { ...fixedItem.raw, ...(liveItem.raw || {}) },
+    exchangeMode: "sync",
+    syncExchange: true,
+    publicZeroCost: true,
+    exchangeAvailable: true
+  };
+}
+
+function createPublicZeroCostRight(config) {
+  const certificateList = [
+    {
+      certificateId: UNIVERSAL_CERTIFICATE_ID,
+      certificateType: "1001",
+      exchangeNum: 0
+    }
+  ];
+  const raw = {
+    ...config,
+    exchangeNum: 0,
+    certificateNum: 0,
+    certificateList,
+    relatedPeriodic: "0",
+    memberPackageLevel: "1000",
+    legalRightsAttrs: [
+      { attrNbr: "offerId", attrValue: config.offerId },
+      { attrNbr: "receiveMode", attrValue: config.receiveMode },
+      { attrNbr: "vipPrice", attrValue: "0" },
+      { attrNbr: "instructions", attrValue: config.instructions },
+      { attrNbr: "partnerName", attrValue: config.partnerName },
+      { attrNbr: "canExchangeTimes", attrValue: config.canExchangeTimes },
+      { attrNbr: "canSaleTimes", attrValue: config.canSaleTimes },
+      { attrNbr: "img_330_182", attrValue: config.img }
+    ]
+  };
+  return {
+    ...normalizeFortuneRight(raw),
+    exchangeNum: 0,
+    certificateNum: 0,
+    certificateList,
+    exchangeMode: "sync",
+    syncExchange: true,
+    publicZeroCost: true,
+    exchangeAvailable: true,
+    pinned: true
+  };
 }
 
 async function waitForOrder(session, item, startedAt, options = {}) {

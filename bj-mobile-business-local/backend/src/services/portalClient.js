@@ -16,7 +16,7 @@ import {
 
 const MAX_WAF_REDIRECTS = 3
 
-function portalHeaders(session, extra = {}) {
+function portalHeaders(session, extra = {}, refererPath = '/nwt/portal/packageQuery?ssotouch2017=0') {
   const traceId = randomUUID().replaceAll('-', '')
   const traceContext = randomBytes(16).toString('hex')
   const spanId = randomBytes(8).toString('hex')
@@ -26,7 +26,7 @@ function portalHeaders(session, extra = {}) {
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'Content-Type': 'application/json;charset=UTF-8',
     Origin: config.portalOrigin,
-    Referer: `${config.portalOrigin}/nwt/portal/packageQuery?ssotouch2017=0`,
+    Referer: new URL(refererPath, config.portalOrigin).toString(),
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',
@@ -134,12 +134,12 @@ export async function initPortalKey(session, options = {}) {
   }
 }
 
-async function portalPost(session, path, data = {}) {
-  return portalRequest(session, { method: 'POST', path, data })
+async function portalPost(session, path, data = {}, options = {}) {
+  return portalRequest(session, { method: 'POST', path, data, ...options })
 }
 
-async function portalGet(session, path, params = {}, clearQuery = {}) {
-  return portalRequest(session, { method: 'GET', path, params, clearQuery })
+async function portalGet(session, path, params = {}, clearQuery = {}, options = {}) {
+  return portalRequest(session, { method: 'GET', path, params, clearQuery, ...options })
 }
 
 async function portalRequest(session, request) {
@@ -191,17 +191,21 @@ export async function executePortalActivityStep(session, step) {
   if (!/^\/portal-bff\/api\/[A-Za-z0-9._/-]+$/.test(step?.path || '')) {
     return { ok: false, message: '活动接口路径不在允许范围内', errorCode: 'ACTIVITY_PATH_NOT_ALLOWED' }
   }
+  const refererPath = step?.refererPath || '/nwt/portal/packageQuery?ssotouch2017=0'
+  if (!/^\/nwt\/portal\/[A-Za-z0-9._/?=&-]+$/.test(refererPath)) {
+    return { ok: false, message: '活动来源页不在允许范围内', errorCode: 'ACTIVITY_REFERER_NOT_ALLOWED' }
+  }
   const query = new URLSearchParams()
   for (const [key, value] of Object.entries(step.query || {})) {
     if (value !== undefined && value !== null && String(value) !== '') query.set(key, String(value))
   }
   if (method === 'GET') {
     return step.queryMode === 'clear'
-      ? portalGet(session, step.path, {}, step.query || {})
-      : portalGet(session, step.path, step.query || {})
+      ? portalGet(session, step.path, {}, step.query || {}, { refererPath })
+      : portalGet(session, step.path, step.query || {}, {}, { refererPath })
   }
   const path = query.size ? `${step.path}?${query.toString()}` : step.path
-  return portalPost(session, path, step.body || {})
+  return portalPost(session, path, step.body || {}, { refererPath })
 }
 
 export function serializePortalQuery(query = {}) {
@@ -235,7 +239,7 @@ async function encryptedPortalRequest(session, request) {
     headers: portalHeaders(session, {
       'X-DATA-TOKEN': session.dataToken,
       'X-REPLAY-VERSION': replayVersion,
-    }),
+    }, request.refererPath),
     data: request.method === 'POST' ? JSON.stringify(encryptPortalBody(request.data || {}, session.portalKey)) : undefined,
   })
   if (res.status >= 300 && res.status < 400) {
@@ -405,7 +409,7 @@ export async function queryPackage(session, options = '') {
   if (!result.ok) return result
   return {
     ...result,
-    data: normalizePackageData(result.data),
+    data: normalizePackageData(result.data, pageVersion),
   }
 }
 
@@ -414,23 +418,16 @@ export async function unsubscribePackage(session, business) {
     const info = await getOnlineUserInfo(session)
     if (!info.ok) return info
   }
-  const ywCode = firstString(business, ['ywCode', 'ywcode', 'offerId', 'offerid', 'code'])
-  const index = firstString(business, ['field1', 'originalIndex', 'xh', 'index'])
-  if (!ywCode) {
+  const payload = buildUnsubscribePayload(session, business)
+  if (!payload.field1) {
     return {
       ok: false,
       data: null,
-      raw: { missing: 'ywCode' },
+      raw: { missing: 'field1' },
       status: 0,
-      message: '当前业务缺少 ywCode/offerId，请输入 ywCode 后再退订',
-      errorCode: 'MISSING_YWCODE',
+      message: '当前业务缺少退订业务编码，请输入 ywCode/offerId 后再退订',
+      errorCode: 'MISSING_UNSUBSCRIBE_CODE',
     }
-  }
-  const payload = {
-    phoneNum: firstString(business, ['phoneNum', 'mobile', 'phone']) || String(session.userInfo?.mobile || '').trim(),
-    brand: firstString(business, ['brand', 'brandName']) || session.userInfo?.brand || '',
-    field1: index,
-    ywCode,
   }
   await logEvent('portal:unsubscribe:payload', {
     sessionId: session.id,
@@ -438,11 +435,29 @@ export async function unsubscribePackage(session, business) {
     name: business?.name || business?.ywName || business?.offerName || business?.busiName || '',
     hasPhoneNum: Boolean(payload.phoneNum),
     hasBrand: Boolean(payload.brand),
-    field1: payload.field1,
-    ywCode: payload.ywCode,
+    businessCode: payload.field1,
   })
   const result = await portalPost(session, '/portal-bff/api/packageQuery/v1.0/unsubscribe', payload)
-  const data = result.data || {}
+  return {
+    ...result,
+    data: normalizeUnsubscribeResult(result.data),
+  }
+}
+
+export function buildUnsubscribePayload(session, business = {}) {
+  const raw = business?.raw && typeof business.raw === 'object' ? business.raw : {}
+  const businessCode =
+    firstString(business, ['unsubscribeCode']) ||
+    firstString(raw, ['ywCode', 'ywcode', 'offerId', 'offerid']) ||
+    firstString(business, ['ywCode', 'ywcode', 'offerId', 'offerid', 'code'])
+  return {
+    phoneNum: firstString(business, ['phoneNum', 'mobile', 'phone']) || String(session?.userInfo?.mobile || '').trim(),
+    brand: firstString(business, ['brand', 'brandName']) || session?.userInfo?.brand || '',
+    field1: businessCode,
+  }
+}
+
+export function normalizeUnsubscribeResult(data = {}) {
   const resultText = firstString(data, ['resMsg', 'message', 'desc', 'resType', 'code'])
   const success =
     data.success === true ||
@@ -451,25 +466,22 @@ export async function unsubscribePackage(session, business) {
     data.code === '0000' ||
     data.code === 'bizSuccess'
   return {
-    ...result,
-    data: {
-      success,
-      message: resultText || (success ? '退订成功' : '退订失败'),
-      raw: data,
-    },
+    success,
+    message: resultText || (success ? '退订成功' : '退订失败'),
+    raw: data,
   }
 }
 
-function normalizePackageData(data = {}) {
+export function normalizePackageData(data = {}, pageVersion = '') {
   const baseRaw = Array.isArray(data.ywztShowList) ? data.ywztShowList : []
   const packageRaw = Array.isArray(data.tcShowList) ? data.tcShowList : []
   const valueAddedRaw = Array.isArray(data.mwywList) ? data.mwywList : []
   return {
     raw: data,
     categories: {
-      base: baseRaw.map((item, index) => normalizeBusinessItem(item, index, 'base')),
-      package: packageRaw.map((item, index) => normalizeBusinessItem(item, index, 'package')),
-      valueAdded: valueAddedRaw.map((item, index) => normalizeBusinessItem(item, index, 'valueAdded')),
+      base: baseRaw.map((item, index) => normalizeBusinessItem(item, index, 'base', pageVersion)),
+      package: packageRaw.map((item, index) => normalizeBusinessItem(item, index, 'package', pageVersion)),
+      valueAdded: valueAddedRaw.map((item, index) => normalizeBusinessItem(item, index, 'valueAdded', pageVersion)),
     },
   }
 }
@@ -489,7 +501,7 @@ function normalizeMonthInput(value) {
   return ''
 }
 
-function normalizeBusinessItem(item, index, category) {
+function normalizeBusinessItem(item, index, category, pageVersion = '') {
   const isPackage = category === 'package'
   const isValueAdded = category === 'valueAdded'
   const name =
@@ -503,6 +515,7 @@ function normalizeBusinessItem(item, index, category) {
     ) || `业务 ${index + 1}`
   const offerId = firstString(item, ['offerId', 'offerid'])
   const ywCode = firstString(item, ['ywCode', 'ywcode'])
+  const unsubscribeCode = pageVersion === 'oldPage' && isValueAdded ? String(index + 1) : ywCode || offerId
   const effectiveDate = firstString(item, [
     'effectiveDate',
     'effectBeginTime',
@@ -520,7 +533,8 @@ function normalizeBusinessItem(item, index, category) {
     id: `${category}-${index}`,
     category,
     originalIndex: index,
-    field1: firstString(item, ['field1', 'xh']) || String(index),
+    field1: unsubscribeCode,
+    unsubscribeCode,
     xh: firstString(item, ['xh']),
     name,
     effectiveDate: formatDate(effectiveDate),

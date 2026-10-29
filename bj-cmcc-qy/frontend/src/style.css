@@ -691,6 +691,7 @@ label span {
   font-size: 12px;
   line-height: 1.25;
   color: #69768c;
+  overflow-wrap: anywhere;
 }
 
 .right-actions {
@@ -1782,7 +1783,65 @@ label span {
 }
 
 .offer-order-grid {
-  grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 1fr) minmax(150px, 0.8fr);
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(180px, 0.65fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.offer-config-block,
+.offer-config-row label {
+  min-width: 0;
+}
+
+.offer-config-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 7px;
+  align-items: end;
+}
+
+.offer-config-button {
+  min-height: 40px;
+  padding: 0 10px;
+}
+
+.selected-offer-summary {
+  display: flex;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  color: #65748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.selected-offer-summary span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.selected-offer-summary strong {
+  margin-right: 6px;
+  color: #354258;
+}
+
+.custom-offer-editor {
+  margin-top: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #e4ebf5;
+  border-bottom: 1px solid #e4ebf5;
+  background: #fbfcfe;
+}
+
+.custom-offer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(150px, 0.75fr);
+  gap: 10px;
+}
+
+.custom-offer-actions {
+  margin-top: 10px;
 }
 
 .offer-order-actions {
@@ -2012,9 +2071,23 @@ label span {
   }
 
   .login-grid,
+  .offer-order-grid,
+  .custom-offer-grid,
   .dashboard,
   .plus99-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .offer-config-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .offer-config-row label {
+    grid-column: 1 / -1;
+  }
+
+  .offer-config-button {
+    width: 100%;
   }
 
   .plus99-access-row,
