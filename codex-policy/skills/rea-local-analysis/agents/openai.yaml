@@ -1,0 +1,6 @@
+interface:
+  display_name: "本机 REA 逆向分析"
+  short_description: "连接本地 REA 与 Android 工具链，保存可复核证据并复用分析经验"
+  default_prompt: "使用 $rea-local-analysis 分析这个发布产物，追踪目标功能并给出可复核证据与尚未验证的部分。"
+policy:
+  allow_implicit_invocation: true

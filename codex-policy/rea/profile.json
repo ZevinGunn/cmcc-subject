@@ -1,0 +1,10 @@
+{
+  "runtime": "/Users/ZevinGunn/.nvm/versions/node/v22.23.4/bin/node",
+  "entrypoint": "/Users/ZevinGunn/CMCC-PROJECT/参考工具/rea/scripts/rea.mjs",
+  "environment": {
+    "DEVELOPER_DIR": "/Library/Developer/CommandLineTools",
+    "JAVA_HOME": "/Users/ZevinGunn/.cache/cmcc-clients/jdk/Contents/Home",
+    "REA_JADX_MCP_JAR": "/Users/ZevinGunn/.local/share/rea/android/jadx-headless-mcp-0.7.1-all.jar"
+  },
+  "jadxSha256": "6e5eacf500b64292bfb73c49797c1958f6ee44646e43e868039ae7feb573ff75"
+}
