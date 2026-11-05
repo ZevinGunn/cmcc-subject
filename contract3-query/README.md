@@ -78,6 +78,30 @@ npm run import:xlsx -- --source-dir '/实际源文件目录' --grid-only
 - `GET /api/grid-catalog/detail?id=A1000494`
 - `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 
+## 资费快捷查询与变化提醒
+
+“资费快捷查询”读取中国移动资费公示专区的公开接口，默认查询北京市资费。数据按资费编号去重，并保留个人/政企、全网/本省、套餐/加装包/营销活动/港澳台国际资费等归属信息。查询页支持关键词、资费范围、资费类型、在售状态和版本变化筛选；打开“查看资费详情”可查看适用对象、区域、渠道、资源及补充说明。
+
+服务启动后立即执行一次同步，之后每 2 小时执行一次。每次成功同步会把上一份成功数据保存为 `data/tariffs-previous.json`，跨自然日时另存前一天快照 `data/tariffs-yesterday.json`，当前数据保存为 `data/tariffs-current.json`，最近一次新增、消失/下架、上架下架日期变化和资费内容变化保存为 `data/tariffs-change-log.json`。上游响应不完整或网络失败时保留旧快照，不覆盖本地数据，也不发送误报。
+
+首次同步只建立基线，不推送通知。后续同步比较资费是否存在、上架日期、下架日期和资费内容字段；变化摘要通过已有 PushPlus 服务发送，推送只包含变化数量和查询入口提示，详细差异在页面的“新增资费”“消失/下架资费”“内容或日期变更”中查看。
+
+可用环境变量：
+
+```bash
+TARIFF_PROVINCE=北京市
+TARIFF_SYNC_INTERVAL_MS=7200000
+PUSHPLUS_TOKEN=仅在运行环境配置
+PUSHPLUS_ENABLED=1
+```
+
+未配置 PushPlus 时仍会保存快照并提供页面查询。令牌也会兼容读取 `../qqtlocal-rights/.env`，任何令牌、Cookie、HAR、压缩包和运行快照都不会提交到 Git。
+
+接口：
+
+- `GET /api/tariffs?view=current|added|removed|changed&q=关键词&status=online|pending|offline&range=北京资费&tariffType=套餐&page=1&pageSize=50`
+- `GET /api/tariffs/status`
+
 网格通资费知识库接口：
 
 - `GET /api/grid-catalog?q=关键词&status=ok&page=1&pageSize=30`

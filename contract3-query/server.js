@@ -3,6 +3,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { URL } = require("node:url");
 const { createGridCatalog } = require("./grid-catalog");
+const { createTariffStore, statusFor } = require("./tariff-store");
+const { createTariffMonitor } = require("./tariff-sync");
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 3002);
@@ -10,6 +12,7 @@ const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const gridCatalog = createGridCatalog();
+const tariffStore = createTariffStore({ dataDir: DATA_DIR });
 
 const STATIC_FILES = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -220,13 +223,16 @@ function positiveInteger(value, fallback, maximum) {
 }
 
 function catalogSummary() {
-  return Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, {
+  const catalogs = Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, {
     key: dataset.key,
     label: dataset.label,
     total: dataset.items.length,
     meta: dataset.meta,
     comparison: dataset.comparison,
   }]));
+  const tariffs = tariffData();
+  catalogs.tariff = { key: "tariff", label: "资费快捷查询", total: tariffs.items.length, meta: tariffs.meta };
+  return catalogs;
 }
 
 function resolveDataset(searchParams) {
@@ -351,6 +357,66 @@ function sendCsv(res, searchParams, method) {
   send(res, 200, csv, "text/csv; charset=utf-8", method);
 }
 
+function tariffData() {
+  const stored = tariffStore.load();
+  const all = (stored.current || []).map((item) => ({ ...item, status: statusFor(item) }));
+  return {
+    items: all,
+    changes: stored.changes || [],
+    meta: stored.meta || { province: process.env.TARIFF_PROVINCE || "北京市", updatedAt: "", count: all.length, baseline: true },
+  };
+}
+
+function tariffQuery(searchParams) {
+  const data = tariffData();
+  const query = (searchParams.get("q") || "").trim().toLocaleLowerCase("zh-CN");
+  const terms = query.split(/\s+/).filter(Boolean);
+  const status = searchParams.get("status") || "";
+  const category = searchParams.get("category") || "";
+  const range = searchParams.get("range") || "";
+  const tariffType = searchParams.get("tariffType") || "";
+  const view = ["current", "added", "removed", "changed"].includes(searchParams.get("view")) ? searchParams.get("view") : "current";
+  const source = view === "current" ? data.items : data.changes.filter((item) => item.changeStatus === (view === "added" ? "added" : view === "removed" ? "removed" : "changed"));
+  const filtered = source.filter((item) => {
+    if (status && item.status !== status) return false;
+    if (category && !(item.categories || []).includes(category)) return false;
+    if (range && !(item.rangeTabs || []).includes(range)) return false;
+    if (tariffType && !(item.tariffTypes || []).includes(tariffType)) return false;
+    const text = JSON.stringify(item).toLocaleLowerCase("zh-CN");
+    return terms.every((term) => text.includes(term));
+  });
+  const pageSize = positiveInteger(searchParams.get("pageSize"), 50, 200);
+  const page = positiveInteger(searchParams.get("page"), 1, 100000);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  return {
+    data, view, query, status, category, range, tariffType, filtered, page: currentPage, pageSize, totalPages,
+    items: filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+  };
+}
+
+function tariffCatalog(data) {
+  const collect = (field) => [...new Set(data.items.flatMap((item) => Array.isArray(item[field]) ? item[field] : []))]
+    .sort((a, b) => String(a).localeCompare(String(b), "zh-CN"));
+  return { categories: collect("categories"), ranges: collect("rangeTabs"), tariffTypes: collect("tariffTypes"), statuses: ["online", "pending", "offline"] };
+}
+
+function sendTariffs(res, searchParams, method) {
+  const result = tariffQuery(searchParams);
+  return sendJson(res, 200, {
+    type: "tariff", label: "中国移动资费公示专区", view: result.view,
+    viewLabel: ({ current: "当前资费", added: "新增资费", removed: "消失/下架资费", changed: "内容或日期变更" })[result.view],
+    meta: result.data.meta, catalogs: { ...catalogSummary(), tariff: { key: "tariff", label: "资费快捷查询", total: result.data.items.length, meta: result.data.meta } }, catalog: tariffCatalog(result.data), filters: { categories: tariffCatalog(result.data).categories, ranges: tariffCatalog(result.data).ranges, tariffTypes: tariffCatalog(result.data).tariffTypes }, changes: {
+      added: result.data.changes.filter((item) => item.changeStatus === "added").length,
+      removed: result.data.changes.filter((item) => item.changeStatus === "removed").length,
+      changed: result.data.changes.filter((item) => item.changeStatus === "changed").length,
+    },
+    activeFilters: { status: result.status, category: result.category, range: result.range, tariffType: result.tariffType },
+    query: result.query, page: result.page, pageSize: result.pageSize, total: result.filtered.length, totalPages: result.totalPages,
+    items: result.items, lastChanges: result.data.changes.slice(0, 20),
+  }, method);
+}
+
 function serveStatic(res, pathname, method) {
   const target = STATIC_FILES.get(pathname);
   if (!target) return false;
@@ -364,7 +430,7 @@ function serveStatic(res, pathname, method) {
   return true;
 }
 
-function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCatalog } = {}) {
+function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCatalog, tariffMonitor = null } = {}) {
   return http.createServer(async (req, res) => {
     const method = req.method || "GET";
 
@@ -388,17 +454,26 @@ function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCat
     }
 
     if (requestUrl.pathname === "/api/health") {
+      const tariffs = tariffData();
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261106-grid-clean-links-1",
+        version: "20261106-tariff-query-1",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
+        tariff: { province: tariffs.meta.province, updatedAt: tariffs.meta.updatedAt, count: tariffs.items.length, changes: tariffs.changes.length },
         gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
         uptimeSeconds: Math.floor(process.uptime()),
       }, method);
     }
     if (requestUrl.pathname === "/api/catalogs") {
       return sendJson(res, 200, { catalogs: catalogSummary() }, method);
+    }
+    if (requestUrl.pathname === "/api/tariffs") {
+      return sendTariffs(res, requestUrl.searchParams, method);
+    }
+    if (requestUrl.pathname === "/api/tariffs/status") {
+      const data = tariffData();
+      return sendJson(res, 200, { meta: data.meta, changes: data.changes.slice(0, 20), catalog: tariffCatalog(data) }, method);
     }
     if (["/api/contracts", "/api/contracts.csv"].includes(requestUrl.pathname)) {
       try {
@@ -434,10 +509,12 @@ function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCat
 }
 
 if (require.main === module) {
-  createApp().listen(PORT, HOST, () => {
+  const monitor = createTariffMonitor({ store: tariffStore });
+  monitor.start();
+  createApp({ tariffMonitor: monitor }).listen(PORT, HOST, () => {
     const counts = Object.values(datasets).map((dataset) => `${dataset.label}:${dataset.items.length}`).join(" ");
     console.log(`contract-query listening on http://${HOST}:${PORT} (${counts})`);
   });
 }
 
-module.exports = { createApp, datasets, queryDataset, validateGridLinks, contractPrice, contractCategory };
+module.exports = { createApp, datasets, queryDataset, validateGridLinks, contractPrice, contractCategory, tariffData, tariffQuery, tariffStore };

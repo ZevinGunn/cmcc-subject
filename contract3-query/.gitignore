@@ -1,5 +1,9 @@
 data/grid-catalog.sqlite*
 data/grid-admin.local.json
 data/grid-exports/
+data/tariffs-current.json
+data/tariffs-previous.json
+data/tariffs-yesterday.json
+data/tariffs-change-log.json
 __pycache__/
 scripts/__pycache__/

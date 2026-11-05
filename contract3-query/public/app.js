@@ -7,6 +7,8 @@ const elements = {
   secondaryWrap: document.getElementById("secondary-filter-wrap"),
   secondaryLabel: document.getElementById("secondary-filter-label"),
   secondary: document.getElementById("secondary-filter"),
+  statusWrap: document.getElementById("status-filter-wrap"),
+  status: document.getElementById("status-filter"),
   pageSize: document.getElementById("page-size"),
   priceFilters: document.getElementById("price-filters"),
   minPrice: document.getElementById("min-price"),
@@ -81,6 +83,9 @@ const state = {
   query: params.get("q") || "",
   prefix: params.get("prefix") || "",
   category: params.get("category") || "",
+  range: params.get("range") || "",
+  tariffType: params.get("tariffType") || "",
+  tariffStatus: params.get("status") || "",
   grade: params.get("grade") || "",
   minPrice: params.get("minPrice") || "",
   maxPrice: params.get("maxPrice") || "",
@@ -406,6 +411,9 @@ function syncUrl() {
   if (state.query) next.set("q", state.query);
   if (state.prefix) next.set("prefix", state.prefix);
   if (state.category) next.set("category", state.category);
+  if (state.range) next.set("range", state.range);
+  if (state.tariffType) next.set("tariffType", state.tariffType);
+  if (state.tariffStatus) next.set("status", state.tariffStatus);
   if (state.grade) next.set("grade", state.grade);
   if (state.minPrice !== "") next.set("minPrice", state.minPrice);
   if (state.maxPrice !== "") next.set("maxPrice", state.maxPrice);
@@ -439,11 +447,28 @@ function selectOptions(select, values, emptyLabel, activeValue) {
 }
 
 function configureFilters(filters) {
-  elements.priceFilters.hidden = state.type === "grid";
-  elements.priceFilters.disabled = state.type === "grid";
+  elements.export.hidden = state.type === "tariff";
+  if (state.type === "tariff") {
+    elements.statusWrap.removeAttribute("hidden");
+    selectOptions(elements.status, ["online", "pending", "offline"], "全部状态", state.tariffStatus);
+    for (const option of elements.status.options) option.textContent = ({ online: "在售", pending: "待上架", offline: "已下架" })[option.value] || option.textContent;
+  } else {
+    elements.statusWrap.setAttribute("hidden", "");
+  }
+  elements.priceFilters.hidden = state.type === "grid" || state.type === "tariff";
+  elements.priceFilters.disabled = state.type === "grid" || state.type === "tariff";
   if (state.type === "grid") {
     elements.primaryWrap.hidden = true;
     elements.secondaryWrap.hidden = true;
+    return;
+  }
+  if (state.type === "tariff") {
+    elements.primaryWrap.hidden = false;
+    elements.primaryLabel.textContent = "资费范围";
+    selectOptions(elements.primary, filters.ranges || [], "全部范围", state.range);
+    elements.secondaryWrap.hidden = false;
+    elements.secondaryLabel.textContent = "资费类型";
+    selectOptions(elements.secondary, filters.tariffTypes || [], "全部类型", state.tariffType);
     return;
   }
   elements.secondaryWrap.hidden = false;
@@ -480,7 +505,12 @@ function renderTabs(catalogs) {
 }
 
 function renderComparison(payload) {
-  const comparison = payload.comparison;
+  const comparison = payload.comparison || (state.type === "tariff" ? { counts: {
+    current: payload.meta?.count || 0,
+    added: payload.changes?.added || 0,
+    removed: payload.changes?.removed || 0,
+    changed: payload.changes?.changed || 0,
+  } } : null);
   elements.comparison.hidden = !comparison;
   if (comparison) {
     for (const button of elements.views) {
@@ -564,6 +594,9 @@ function gradeClass(grade) {
 }
 
 function cellValue(item, key) {
+  if (state.type === "tariff" && key === "status") return ({ online: "在售", pending: "待上架", offline: "已下架" })[item.status] || item.status || "-";
+  if (state.type === "tariff" && ["onlineRaw", "offlineRaw"].includes(key)) return item[key] || "-";
+  if (state.type === "tariff" && key === "price") return item.price || "-";
   if (key === "price") return item.price == null ? "-" : item.price.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
   if (key === "validity") return [item.start, item.end].filter(Boolean).join(" 至 ") || "-";
   if (key === "duration") return item.duration || "-";
@@ -572,7 +605,9 @@ function cellValue(item, key) {
 
 function renderRows(items) {
   const fragment = document.createDocumentFragment();
-  for (const item of items) {
+  for (const [index, originalItem] of items.entries()) {
+    let item = originalItem;
+    if (state.type === "tariff") item = { row: index + 1, ...item };
     const row = document.createElement("tr");
     for (const column of tableSchemas[state.type]) {
       const cell = document.createElement("td");
@@ -628,7 +663,33 @@ function renderRows(items) {
           }
           cell.append(details);
         }
-        if (state.type !== "grid") {
+        if (state.type === "tariff") {
+          const summary = document.createElement("small");
+          summary.className = "mobile-summary";
+          summary.textContent = [
+            (item.categories || []).join(" / "),
+            (item.rangeTabs || []).join(" / "),
+            (item.tariffTypes || []).join(" / "),
+          ].filter(Boolean).join(" · ");
+          if (summary.textContent) cell.append(summary);
+          const details = document.createElement("details");
+          details.className = "row-details";
+          const detailsSummary = document.createElement("summary");
+          detailsSummary.textContent = "查看资费详情";
+          const detailsText = document.createElement("p");
+          const resources = (item.resources || []).map((resource) => resource.label + "：" + resource.value).join("\n");
+          detailsText.textContent = [
+            "适用对象：" + (item.scope || "未标注"),
+            "适用区域：" + (item.region || "未标注"),
+            "销售渠道：" + (item.channel || "未标注"),
+            resources ? "资源：" + resources : "",
+            item.extraService ? "其他服务：" + item.extraService : "",
+            item.extraNote ? "说明：" + item.extraNote : "",
+          ].filter(Boolean).join("\n");
+          details.append(detailsSummary, detailsText);
+          cell.append(details);
+        }
+        if (state.type !== "grid" && state.type !== "tariff") {
           const summary = document.createElement("small");
           summary.className = "mobile-summary";
           const values = [
@@ -686,6 +747,9 @@ function activeQueryParams(includePage = true) {
   if (state.query) query.set("q", state.query);
   if (state.prefix) query.set("prefix", state.prefix);
   if (state.category) query.set("category", state.category);
+  if (state.range) query.set("range", state.range);
+  if (state.tariffType) query.set("tariffType", state.tariffType);
+  if (state.tariffStatus) query.set("status", state.tariffStatus);
   if (state.grade) query.set("grade", state.grade);
   if (state.minPrice !== "") query.set("minPrice", state.minPrice);
   if (state.maxPrice !== "") query.set("maxPrice", state.maxPrice);
@@ -698,6 +762,10 @@ function activeQueryParams(includePage = true) {
 }
 
 async function loadContracts() {
+  if (state.type === "tariff") {
+    await loadTariffs();
+    return;
+  }
   syncGridMode();
   if (knowledgeModeActive()) {
     await loadKnowledge();
@@ -758,6 +826,9 @@ async function loadContracts() {
 function resetDatasetFilters() {
   state.prefix = "";
   state.category = "";
+  state.range = "";
+  state.tariffType = "";
+  state.tariffStatus = "";
   state.grade = "";
   state.minPrice = "";
   state.maxPrice = "";
@@ -781,6 +852,51 @@ function applySearch() {
   loadContracts();
 }
 const search = debounce(applySearch);
+
+async function loadTariffs() {
+  state.controller?.abort();
+  const controller = new AbortController();
+  state.controller = controller;
+  setLoading(true);
+  try {
+    const params = new URLSearchParams({ view: state.view, page: String(state.page), pageSize: String(state.pageSize) });
+    if (state.query) params.set("q", state.query);
+    if (state.range) params.set("range", state.range);
+    if (state.tariffType) params.set("tariffType", state.tariffType);
+    if (state.tariffStatus) params.set("status", state.tariffStatus);
+    const response = await fetch("/api/tariffs?" + params, { signal: controller.signal, cache: "no-store" });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const payload = await response.json();
+    if (controller !== state.controller) return;
+    state.page = payload.page;
+    state.totalPages = payload.totalPages;
+    renderTabs(payload.catalogs);
+    renderComparison(payload);
+    configureFilters(payload.filters);
+    renderHeaders();
+    renderRows(payload.items);
+    elements.resultCount.textContent = payload.total.toLocaleString("zh-CN");
+    elements.filteredTotal.textContent = "共 " + payload.total.toLocaleString("zh-CN") + " 条";
+    elements.totalCount.textContent = (payload.meta.count || 0).toLocaleString("zh-CN");
+    elements.tableTitle.textContent = payload.label + " · " + payload.viewLabel;
+    elements.pageStatus.textContent = "第 " + payload.page + " / " + payload.totalPages + " 页";
+    const first = payload.total ? (payload.page - 1) * payload.pageSize + 1 : 0;
+    const last = payload.total ? first + payload.items.length - 1 : 0;
+    elements.pageRange.textContent = first.toLocaleString("zh-CN") + " - " + last.toLocaleString("zh-CN");
+    elements.previous.disabled = payload.page <= 1;
+    elements.next.disabled = payload.page >= payload.totalPages;
+    elements.empty.textContent = payload.total ? "没有匹配的记录" : (payload.meta.updatedAt ? "当前没有匹配的资费" : "资费尚未完成首次同步，请稍后刷新");
+    elements.empty.hidden = payload.items.length !== 0;
+    syncUrl();
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    elements.empty.textContent = "资费数据加载失败，请稍后重试";
+    elements.empty.hidden = false;
+    showToast("资费查询服务暂时不可用");
+  } finally {
+    if (controller === state.controller) setLoading(false);
+  }
+}
 
 for (const tab of elements.tabs) {
   tab.addEventListener("click", () => {
@@ -851,13 +967,20 @@ elements.priceSort.addEventListener("change", () => {
   applySearch();
 });
 elements.primary.addEventListener("change", () => {
-  if (state.type === "low") state.grade = elements.primary.value;
+  if (state.type === "tariff") state.range = elements.primary.value;
+  else if (state.type === "low") state.grade = elements.primary.value;
   else state.prefix = elements.primary.value;
   state.page = 1;
   loadContracts();
 });
 elements.secondary.addEventListener("change", () => {
-  state.category = elements.secondary.value;
+  if (state.type === "tariff") state.tariffType = elements.secondary.value;
+  else state.category = elements.secondary.value;
+  state.page = 1;
+  loadContracts();
+});
+elements.status.addEventListener("change", () => {
+  state.tariffStatus = elements.status.value;
   state.page = 1;
   loadContracts();
 });

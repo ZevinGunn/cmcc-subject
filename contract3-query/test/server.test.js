@@ -52,7 +52,8 @@ test("health and catalog endpoints report the unified service", async () => {
     assert.equal(body.ok, true);
     assert.equal(body.service, "contract-query");
     assert.deepEqual(body.records, { "2": 2043, "3": 1567, low: 819, grid: 358 });
-    assert.equal(body.version, "20261106-grid-clean-links-1");
+    assert.equal(body.version, "20261106-tariff-query-1");
+    assert.equal(body.tariff.count, datasets.tariff?.items?.length || body.tariff.count);
     assert.equal(body.gridLinks.total, 358);
 
     const catalogsResponse = await fetch(`${origin}/api/catalogs`);
