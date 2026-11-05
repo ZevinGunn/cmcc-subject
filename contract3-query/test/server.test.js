@@ -48,7 +48,7 @@ test("health and catalog endpoints report the unified service", async () => {
     assert.equal(body.ok, true);
     assert.equal(body.service, "contract-query");
     assert.deepEqual(body.records, { "2": 2043, "3": 1567, low: 819, grid: 358 });
-    assert.equal(body.version, "20261106-category-query-1");
+    assert.equal(body.version, "20261106-grid-clean-links-1");
     assert.equal(body.gridLinks.total, 358);
 
     const catalogsResponse = await fetch(`${origin}/api/catalogs`);
@@ -401,14 +401,15 @@ test("grid search and export use stable entry links without exposing original li
   });
 });
 
-test("grid redirect preserves every original parameter, repeated slash, and encoded byte", async () => {
-  const original = "https://ysmapp.bj.10086.cn//app//channel-web//busiCore//showIndexCommon.action?submitWarePackageId=A1000499&channel=app_share&code=test-employee&empCode=test-employee&nbc=fixture%2f%2B+%20";
+test("grid redirect keeps only the business ID and preserves the imported repeated slashes", async () => {
+  const target = "https://ysmapp.bj.10086.cn//app//channel-web//busiCore//showIndexCommon.action?submitWarePackageId=A1000499";
+  const original = `${target}&channel=app_share&code=test-employee&empCode=test-employee&nbc=fixture%2f%2B+%20`;
   const gridLinks = validateGridLinks({ A1000499: original });
   await withServer(async (origin) => {
     for (const method of ["GET", "HEAD"]) {
       const response = await fetch(`${origin}/api/grid/open?businessId=A1000499`, { method, redirect: "manual" });
       assert.equal(response.status, 302);
-      assert.equal(response.headers.get("location"), original);
+      assert.equal(response.headers.get("location"), target);
       assert.equal(response.headers.get("cache-control"), "no-store");
       assert.equal(await response.text(), "");
     }
@@ -419,6 +420,22 @@ test("grid redirect preserves every original parameter, repeated slash, and enco
     const catalog = await (await fetch(`${origin}/api/contracts?type=grid&q=A1000499`)).text();
     assert.doesNotMatch(catalog, /test-employee|fixture%2f/);
   }, { gridLinks });
+});
+
+test("grid redirect removes parameters on either side of the ID and fragments", async () => {
+  const base = "https://ysmapp.bj.10086.cn//app//channel-web//busiCore//showIndexCommon.action";
+  const expected = `${base}?submitWarePackageId=A1000499`;
+  for (const original of [
+    expected,
+    `${base}?channel=first&channel=second&submitWarePackageId=A1000499&code=test-employee#details`,
+    `${base}?empCode=test-employee&submitWarePackageId=A1000499#code=test-employee`,
+  ]) {
+    await withServer(async (origin) => {
+      const response = await fetch(`${origin}/api/grid/open?businessId=A1000499`, { redirect: "manual" });
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get("location"), expected);
+    }, { gridLinks: validateGridLinks({ A1000499: original }) });
+  }
 });
 
 test("grid original link validation rejects mismatched IDs and external redirect targets", () => {

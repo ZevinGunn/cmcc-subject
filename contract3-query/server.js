@@ -381,7 +381,7 @@ function createApp({ gridLinks = originalGridLinks } = {}) {
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261106-category-query-1",
+        version: "20261106-grid-clean-links-1",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
         gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
         uptimeSeconds: Math.floor(process.uptime()),
@@ -407,9 +407,12 @@ function createApp({ gridLinks = originalGridLinks } = {}) {
       }
       const original = gridLinks.get(identifier);
       if (!original) return sendJson(res, 503, { error: "grid_original_link_unavailable" }, method);
-      // Send the exact imported string; URL serialization would change source links.
+      // Preserve the imported path, but send only the business identifier.
+      const target = new URL(original);
+      target.search = new URLSearchParams({ submitWarePackageId: identifier }).toString();
+      target.hash = "";
       securityHeaders(res);
-      res.writeHead(302, { Location: original, "Cache-Control": "no-store", "Content-Length": 0 });
+      res.writeHead(302, { Location: target.href, "Cache-Control": "no-store", "Content-Length": 0 });
       return res.end();
     }
     if (requestUrl.pathname.startsWith("/api/")) {
