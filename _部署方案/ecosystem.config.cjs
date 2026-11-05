@@ -9,7 +9,12 @@ const apps = [
       cwd: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app",
       script: "/Users/ZevinGunn/CMCC-PROJECT/免登录进入全球通/cookie-app/node_modules/tsx/dist/cli.mjs",
       args: "api/server.ts",
-      env: { NODE_ENV: "production", PORT: "3101" },
+      env: {
+        NODE_ENV: "production",
+        PORT: "3101",
+        // macOS 的系统代理由官方浏览器链路使用；后台 PM2 会话不会继承 GUI 代理配置。
+        CMCC_HTTP_PROXY: "http://127.0.0.1:1082",
+      },
       max_memory_restart: "1G",
     },
     {
