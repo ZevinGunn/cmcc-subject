@@ -57,6 +57,26 @@ function priceBound(value) {
   return Number(value);
 }
 
+const CATEGORY_RULES = [
+  ["吉祥号码", /吉祥号码|靓号/],
+  ["政企合约", /政企|企业/],
+  ["信用购机", /信用购|购机套餐折扣/],
+  ["金币/AI豆", /金币|AI豆/i],
+  ["宽带/家庭融合", /宽带|爱家|全家|家庭|融合/],
+  ["会员/权益", /会员|权益|特权|PLUS|速通|礼券/i],
+  ["终端/设备", /终端|购机|云PAD|CPE|云电脑|算力主机|一体机/i],
+  ["套餐/资费", /套餐|畅享|智享|5GA/i],
+  ["流量包", /流量|\d+\s*GB/i],
+  ["直降/折扣", /直降|折扣|优惠/],
+  ["礼包/福袋", /礼包|福袋|好礼/],
+  ["全球通专享", /全球通|钻石卡合约/],
+  ["承诺消费/保底", /承诺|低消|保底|预存/],
+];
+
+function contractCategory(name) {
+  return CATEGORY_RULES.find(([, pattern]) => pattern.test(String(name || "")))?.[0] || "其他";
+}
+
 const VIEW_LABELS = { current: "当前清单", added: "更新区（新增）", removed: "删减区", changed: "内容变更" };
 const FIELD_LABELS = { name: "名称", grade: "全球通等级", rule: "多档规则", start: "生效时间", end: "失效时间" };
 
@@ -110,7 +130,10 @@ function buildDatasets() {
       views = { current: source.contracts };
     }
     for (const [view, items] of Object.entries(views)) {
-      views[view] = items.map((item) => ({ ...item, price: contractPrice(item, key), searchText: searchable(item, Object.keys(item)) }));
+      views[view] = items.map((item) => {
+        const record = ["3", "low"].includes(key) ? { ...item, category: contractCategory(item.name) } : item;
+        return { ...record, price: contractPrice(item, key), searchText: searchable(record, Object.keys(record)) };
+      });
     }
     const all = [...views.current, ...(views.removed || [])];
     definitions[key] = {
@@ -217,7 +240,7 @@ function queryDataset(searchParams) {
   const terms = query.toLocaleLowerCase("zh-CN").split(/\s+/).filter(Boolean);
   const filters = {
     prefix: dataset.key === "2" || dataset.key === "3" ? (searchParams.get("prefix") || "").trim() : "",
-    category: dataset.key === "2" ? (searchParams.get("category") || "").trim() : "",
+    category: dataset.key !== "grid" ? (searchParams.get("category") || "").trim() : "",
     grade: dataset.key === "low" ? (searchParams.get("grade") || "").trim() : "",
     minPrice: dataset.key === "grid" ? null : priceBound(searchParams.get("minPrice")),
     maxPrice: dataset.key === "grid" ? null : priceBound(searchParams.get("maxPrice")),
@@ -266,8 +289,8 @@ function csvDefinition(type) {
   if (type === "low") {
     return {
       fileName: "北京移动低消合约方案对应等级查询结果.csv",
-      headers: ["序号", "低消合约方案", "生效全球通等级", "多档规则", "策划ID", "编码生效详情"],
-      row: (item) => [item.row, item.name, item.grade, item.rule, (item.ids || []).join(" / "), (item.variants || []).map((v) => `${v.id} | ${v.kind} | 承诺金额:${v.amount || "未标注"} | 合约期:${v.duration || "未标注"} | 是否立即生效:${v.immediate || "未标注"} | ${v.note}`).join("\n")],
+      headers: ["序号", "低消合约方案", "分类", "生效全球通等级", "多档规则", "策划ID", "编码生效详情"],
+      row: (item) => [item.row, item.name, item.category, item.grade, item.rule, (item.ids || []).join(" / "), (item.variants || []).map((v) => `${v.id} | ${v.kind} | 承诺金额:${v.amount || "未标注"} | 合约期:${v.duration || "未标注"} | 是否立即生效:${v.immediate || "未标注"} | ${v.note}`).join("\n")],
     };
   }
   if (type === "grid") {
@@ -279,8 +302,8 @@ function csvDefinition(type) {
   }
   return {
     fileName: "北京移动三类合约查询结果.csv",
-    headers: ["序号", "策划ID", "前缀", "策划名称", "生效时间", "失效时间"],
-    row: (item) => [item.row, item.id, item.prefix, item.name, item.start, item.end],
+    headers: ["序号", "策划ID", "前缀", "策划名称", "分类", "生效时间", "失效时间"],
+    row: (item) => [item.row, item.id, item.prefix, item.name, item.category, item.start, item.end],
   };
 }
 
@@ -358,7 +381,7 @@ function createApp({ gridLinks = originalGridLinks } = {}) {
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261106-price-query-1",
+        version: "20261106-category-query-1",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
         gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
         uptimeSeconds: Math.floor(process.uptime()),
@@ -404,4 +427,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createApp, datasets, queryDataset, validateGridLinks, contractPrice };
+module.exports = { createApp, datasets, queryDataset, validateGridLinks, contractPrice, contractCategory };

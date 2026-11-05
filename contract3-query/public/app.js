@@ -68,6 +68,7 @@ const tableSchemas = {
     { key: "id", label: "策划 ID", className: "col-id" },
     { key: "prefix", label: "前缀", className: "col-prefix optional-mobile" },
     { key: "name", label: "策划名称", className: "col-name" },
+    { key: "category", label: "分类", className: "col-category optional-mobile" },
     { key: "price", label: "价格（元）", className: "col-amount" },
     { key: "validity", label: "有效期", className: "col-validity optional-mobile" },
     { key: "action", label: "操作", className: "col-action optional-mobile", hiddenLabel: true },
@@ -75,6 +76,7 @@ const tableSchemas = {
   low: [
     { key: "row", label: "序号", className: "col-row optional-mobile" },
     { key: "name", label: "低消合约方案", className: "col-name" },
+    { key: "category", label: "分类", className: "col-category optional-mobile" },
     { key: "price", label: "价格（元）", className: "col-amount" },
     { key: "grade", label: "生效全球通等级", className: "col-grade" },
     { key: "rule", label: "多档规则", className: "col-rule optional-mobile" },
@@ -149,26 +151,24 @@ function configureFilters(filters) {
     elements.secondaryWrap.hidden = true;
     return;
   }
+  elements.secondaryWrap.hidden = false;
+  elements.secondaryLabel.textContent = "分类";
+  selectOptions(elements.secondary, filters.categories || [], "全部分类", state.category);
   if (state.type === "2") {
     elements.primaryWrap.hidden = false;
     elements.primaryLabel.textContent = "ID 前缀";
     selectOptions(elements.primary, filters.prefixes || [], "全部前缀", state.prefix);
-    elements.secondaryWrap.hidden = false;
-    elements.secondaryLabel.textContent = "分类";
-    selectOptions(elements.secondary, filters.categories || [], "全部分类", state.category);
     return;
   }
   if (state.type === "3") {
     elements.primaryWrap.hidden = false;
     elements.primaryLabel.textContent = "ID 前缀";
     selectOptions(elements.primary, filters.prefixes || [], "全部前缀", state.prefix);
-    elements.secondaryWrap.hidden = true;
     return;
   }
   elements.primaryWrap.hidden = false;
   elements.primaryLabel.textContent = "全球通等级";
   selectOptions(elements.primary, filters.grades || [], "全部等级", state.grade);
-  elements.secondaryWrap.hidden = true;
 }
 
 function renderTabs(catalogs) {

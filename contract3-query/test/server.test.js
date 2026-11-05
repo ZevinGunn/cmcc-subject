@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { createApp, datasets, validateGridLinks, contractPrice, queryDataset } = require("../server");
+const { createApp, datasets, validateGridLinks, contractPrice, queryDataset, contractCategory } = require("../server");
 
 async function withServer(callback, options) {
   const server = createApp(options);
@@ -48,7 +48,7 @@ test("health and catalog endpoints report the unified service", async () => {
     assert.equal(body.ok, true);
     assert.equal(body.service, "contract-query");
     assert.deepEqual(body.records, { "2": 2043, "3": 1567, low: 819, grid: 358 });
-    assert.equal(body.version, "20261106-price-query-1");
+    assert.equal(body.version, "20261106-category-query-1");
     assert.equal(body.gridLinks.total, 358);
 
     const catalogsResponse = await fetch(`${origin}/api/catalogs`);
@@ -105,10 +105,75 @@ test("low-consumption query supports grade and multi-level rule search", async (
 
 test("irrelevant filters are ignored when changing datasets", async () => {
   await withServer(async (origin) => {
-    const response = await fetch(`${origin}/api/contracts?type=low&prefix=111602&category=nope&grade=${encodeURIComponent("银卡")}`);
+    const response = await fetch(`${origin}/api/contracts?type=low&prefix=111602&grade=${encodeURIComponent("银卡")}`);
     const body = await response.json();
     assert.equal(body.total, 122);
     assert.deepEqual(body.activeFilters, { prefix: "", category: "", grade: "银卡", minPrice: null, maxPrice: null });
+  });
+});
+
+test("business categories follow the main named product and keep fallback records searchable", () => {
+  for (const [name, expected] of [
+    ["云宽带149元档", "宽带/家庭融合"],
+    ["爱家融合版1000M198元档--两年", "宽带/家庭融合"],
+    ["信用购机红包优惠低消7折版（218档）", "信用购机"],
+    ["政企承诺消费得5G金币方案318元36月", "政企合约"],
+    ["国补版承诺消费超享福袋专用AI豆860活动36月", "金币/AI豆"],
+    ["全球通吉祥号码营销方案188元", "吉祥号码"],
+    ["全网优惠享特权-20GB会员", "会员/权益"],
+    ["畅享30GB合约套餐128（12个月）和包版", "套餐/资费"],
+    ["全网普惠得流量-10GB", "流量包"],
+    ["尊享多多得算力主机-金卡版", "终端/设备"],
+    ["未命名业务", "其他"],
+  ]) assert.equal(contractCategory(name), expected, name);
+  for (const type of ["3", "low"]) {
+    const { filters, views } = datasets[type];
+    for (const items of Object.values(views)) {
+      assert.ok(items.every((item) => item.category && filters.categories.includes(item.category)));
+    }
+    assert.equal(filters.categories.reduce((count, category) => count + datasets[type].items.filter((item) => item.category === category).length, 0), datasets[type].items.length);
+  }
+});
+
+test("type-3 categories combine with prefix, price, differences, totals, and CSV export", async () => {
+  await withServer(async (origin) => {
+    for (const view of ["current", "added", "removed", "changed"]) {
+      const category = view === "removed" ? datasets["3"].views.removed[0].category : "信用购机";
+      const params = new URLSearchParams({ type: "3", category, view, prefix: "111603", sort: "price-asc", pageSize: "25" });
+      if (view !== "removed") { params.set("minPrice", "100"); params.set("maxPrice", "300"); }
+      const result = await (await fetch(`${origin}/api/contracts?${params}`)).json();
+      const expected = datasets["3"].views[view].filter((item) => item.category === category && item.prefix === "111603" && (view === "removed" || (item.price !== null && item.price >= 100 && item.price <= 300)));
+      assert.equal(result.total, expected.length);
+      assert.equal(result.activeFilters.category, category);
+      assert.ok(result.items.every((item) => item.category === category));
+      assert.ok(result.filters.categories.includes(category));
+      if (view === "current") {
+        assert.ok(result.total > 25);
+        const csv = await (await fetch(`${origin}/api/contracts.csv?${params}`)).text();
+        assert.match(csv.split("\r\n")[0], /分类/);
+        for (const item of expected) assert.ok(csv.includes(item.id));
+        assert.equal(csv.trim().split("\r\n").length, expected.length + 1);
+      }
+    }
+  });
+});
+
+test("global-tier categories combine with grade and keywords and remain compatible with grid queries", async () => {
+  await withServer(async (origin) => {
+    const params = new URLSearchParams({ type: "low", category: "宽带/家庭融合", grade: "金卡", q: "爱家", minPrice: "158", maxPrice: "198", sort: "price-desc" });
+    const result = await (await fetch(`${origin}/api/contracts?${params}`)).json();
+    assert.equal(result.total, 6);
+    assert.ok(result.items.every((item) => item.category === "宽带/家庭融合" && item.grade === "金卡" && item.name.includes("爱家")));
+    assert.deepEqual(result.items.map((item) => item.price), [198, 198, 169, 158, 158, 158]);
+    const csv = await (await fetch(`${origin}/api/contracts.csv?${params}`)).text();
+    assert.match(csv.split("\r\n")[0], /分类/);
+    assert.ok(result.items.every((item) => csv.includes(item.name)));
+    params.set("category", "信用购机");
+    const empty = await (await fetch(`${origin}/api/contracts?${params}`)).json();
+    assert.equal(empty.total, 0);
+    const grid = await (await fetch(`${origin}/api/contracts?type=grid&category=nope`)).json();
+    assert.equal(grid.total, 358);
+    assert.equal(grid.activeFilters.category, "");
   });
 });
 

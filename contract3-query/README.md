@@ -6,6 +6,8 @@
 
 价格条件与关键词、分类、等级及版本分区叠加，先筛选和排序再分页；表格标题旁显示全部匹配记录的总数。重置会清除价格条件，链接和 CSV 导出保留当前条件及顺序。网格通业务包含多个不同档位，暂不提供单一价格筛选。
 
+三类合约和低消方案等级表支持按名称归纳的业务分类，包含吉祥号码、政企合约、信用购机、金币/AI豆、宽带/家庭融合、会员/权益、流量包、终端/设备、套餐/资费等。每项按规则优先级归入一个分类，未命中规则的归为“其他”；这些分类是站内查询辅助，不是源表官方分类。分类使用当前名称，删减区使用旧名称，分类计算不计入版本内容变更。分类可与三类 ID 前缀、全球通等级、价格和关键词组合，链接及 CSV 保留分类条件；二类沿用已有分类。
+
 ## 当前数据与版本对比
 
 2026-11-05 导入，以更新前站内数据为固定基线：
@@ -66,8 +68,10 @@ npm run import:xlsx -- --source-dir '/实际源文件目录' --grid-only
 - `GET /api/catalogs`
 - `GET /api/contracts?type=2&q=关键词&prefix=111603&category=分类&page=1&pageSize=50`
 - `GET /api/contracts?type=3&view=added|removed|changed|current&q=关键词`
+- `GET /api/contracts?type=3&category=信用购机&prefix=111603`
 - `GET /api/contracts?type=low&view=changed&grade=钻石卡&q=名称或策划ID`
 - `GET /api/contracts?type=low&q=爱家&grade=金卡&minPrice=158&maxPrice=198&sort=price-asc`
+- `GET /api/contracts?type=low&category=宽带/家庭融合&grade=金卡&minPrice=158&maxPrice=198`
 - `GET /api/contracts?type=grid&q=业务ID或名称或档位`
 - `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 

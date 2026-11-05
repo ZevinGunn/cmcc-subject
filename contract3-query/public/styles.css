@@ -144,6 +144,7 @@ h2 { font-size: 14px; letter-spacing: 0; }
 .table-scroll { position: relative; min-height: min(410px, 55vh); max-height: calc(100vh - 370px); overflow: auto; }
 table { width: 100%; min-width: 780px; border-collapse: collapse; table-layout: fixed; }
 table[data-type="2"] { min-width: 1240px; }
+table[data-type="3"] { min-width: 1100px; }
 table[data-type="low"] { min-width: 860px; }
 th, td { padding: 9px 11px; border-bottom: 1px solid #e2e6e9; text-align: left; vertical-align: top; line-height: 1.45; }
 th { position: sticky; top: 0; z-index: 2; color: #47525e; background: #edf1f2; font-size: 12px; font-weight: 700; }
@@ -237,7 +238,7 @@ tbody tr:hover { background: #f7faf9; }
   .toolbar label:not(.search-field) { grid-column: span 1; }
   #export { grid-column: auto; }
   .table-scroll { max-height: 60vh; min-height: min(340px, 55vh); }
-  table, table[data-type="2"], table[data-type="low"], table[data-type="grid"] { min-width: 0; table-layout: fixed; }
+  table, table[data-type="2"], table[data-type="3"], table[data-type="low"], table[data-type="grid"] { min-width: 0; table-layout: fixed; }
   th, td { padding: 8px 9px; }
   .optional-mobile { display: none; }
   .col-id { width: 132px; }
