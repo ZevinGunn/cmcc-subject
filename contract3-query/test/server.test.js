@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { createApp, datasets, validateGridLinks } = require("../server");
+const { createApp, datasets, validateGridLinks, contractPrice, queryDataset } = require("../server");
 
 async function withServer(callback, options) {
   const server = createApp(options);
@@ -48,7 +48,7 @@ test("health and catalog endpoints report the unified service", async () => {
     assert.equal(body.ok, true);
     assert.equal(body.service, "contract-query");
     assert.deepEqual(body.records, { "2": 2043, "3": 1567, low: 819, grid: 358 });
-    assert.equal(body.version, "20261105-grid-links-2");
+    assert.equal(body.version, "20261106-price-query-1");
     assert.equal(body.gridLinks.total, 358);
 
     const catalogsResponse = await fetch(`${origin}/api/catalogs`);
@@ -108,7 +108,7 @@ test("irrelevant filters are ignored when changing datasets", async () => {
     const response = await fetch(`${origin}/api/contracts?type=low&prefix=111602&category=nope&grade=${encodeURIComponent("银卡")}`);
     const body = await response.json();
     assert.equal(body.total, 122);
-    assert.deepEqual(body.activeFilters, { prefix: "", category: "", grade: "银卡" });
+    assert.deepEqual(body.activeFilters, { prefix: "", category: "", grade: "银卡", minPrice: null, maxPrice: null });
   });
 });
 
@@ -119,6 +119,103 @@ test("pagination clamps oversized page size and returns stable rows", async () =
     assert.equal(body.pageSize, 200);
     assert.equal(body.items.length, 200);
     assert.equal(body.items[0].row, 201);
+  });
+});
+
+test("price extraction prefers explicit amounts and avoids speeds, dates, and ambiguous prices", () => {
+  const cases = [
+    ["2", { amount: "59元", name: "600元大礼包" }, 59],
+    ["3", { name: "爱家融合版1000M198元档--两年" }, 198],
+    ["3", { name: "智臻会员299档（A版）" }, 299],
+    ["2", { name: "29元套餐折后9元档" }, 9],
+    ["low", { name: "0元购（128元24月）", variants: [{ amount: "128" }, { amount: "128" }] }, 128],
+    ["low", { name: "主套餐优惠", variants: [{ amount: "118元及以上" }] }, null],
+    ["low", { name: "多档套餐", variants: [{ amount: "128" }, { amount: "198" }] }, null],
+    ["3", { name: "1000M宽带24个月2026版" }, null],
+    ["3", { name: "128元套餐赠50元话费" }, null],
+    ["3", { name: "9.9元会员（12月）" }, 9.9],
+    ["3", { name: "0元专属权益" }, 0],
+    ["grid", { name: "99元业务" }, null],
+  ];
+  for (const [type, item, expected] of cases) assert.equal(contractPrice(item, type), expected, item.name);
+});
+
+test("price ranges combine with keywords and grades and count every matching page", async () => {
+  await withServer(async (origin) => {
+    const params = new URLSearchParams({ type: "low", q: "爱家", grade: "金卡", minPrice: "158", maxPrice: "198", sort: "price-asc", pageSize: "25" });
+    const body = await (await fetch(`${origin}/api/contracts?${params}`)).json();
+    assert.equal(body.total, 6);
+    assert.deepEqual(body.items.map((item) => item.price), [158, 158, 158, 169, 198, 198]);
+    assert.ok(body.items.every((item) => item.grade === "金卡" && item.name.includes("爱家")));
+    params.set("minPrice", "158");
+    params.set("maxPrice", "158");
+    const exact = await (await fetch(`${origin}/api/contracts?${params}`)).json();
+    assert.equal(exact.total, 3);
+    assert.ok(exact.items.every((item) => item.price === 158));
+    const empty = await (await fetch(`${origin}/api/contracts?type=low&q=爱家&minPrice=99999`)).json();
+    assert.equal(empty.total, 0);
+    assert.deepEqual(empty.items, []);
+    for (const type of ["2", "3", "low"]) {
+      const query = new URLSearchParams({ type, minPrice: "50", maxPrice: "300", sort: "price-desc", pageSize: "25", page: "2" });
+      const result = await (await fetch(`${origin}/api/contracts?${query}`)).json();
+      const expected = datasets[type].items.filter((item) => item.price !== null && item.price >= 50 && item.price <= 300).sort((a, b) => b.price - a.price);
+      assert.equal(result.total, expected.length);
+      assert.equal(result.totalPages, Math.ceil(expected.length / 25));
+      assert.deepEqual(result.items.map((item) => item.row), expected.slice(25, 50).map((item) => item.row));
+    }
+  });
+});
+
+test("price sorting is numeric and stable with unknown amounts last and supports difference views", () => {
+  for (const type of ["2", "3", "low"]) {
+    for (const sort of ["price-asc", "price-desc"]) {
+      const { filtered } = queryDataset(new URLSearchParams({ type, sort }));
+      const known = filtered.filter((item) => item.price !== null);
+      assert.ok(known.length > 0);
+      assert.ok(filtered.slice(known.length).every((item) => item.price === null));
+      for (let index = 1; index < known.length; index++) {
+        assert.ok(sort === "price-asc" ? known[index - 1].price <= known[index].price : known[index - 1].price >= known[index].price);
+      }
+      const firstPrice = known[0].price;
+      assert.deepEqual(known.filter((item) => item.price === firstPrice).map((item) => item.row), datasets[type].items.filter((item) => item.price === firstPrice).map((item) => item.row));
+    }
+    for (const view of ["added", "removed", "changed"]) {
+      const { filtered } = queryDataset(new URLSearchParams({ type, view, minPrice: "100", maxPrice: "200", sort: "price-asc" }));
+      assert.ok(filtered.every((item) => item.price >= 100 && item.price <= 200 && item.changeStatus === view));
+    }
+  }
+});
+
+test("invalid price ranges return a clear error and grid ignores price conditions", async () => {
+  await withServer(async (origin) => {
+    for (const query of ["minPrice=-1", "maxPrice=Infinity", "minPrice=abc", "maxPrice=1.234", "minPrice=200&maxPrice=100"]) {
+      for (const endpoint of ["contracts", "contracts.csv"]) {
+        const response = await fetch(`${origin}/api/${endpoint}?type=low&${query}`);
+        assert.equal(response.status, 400, query);
+        assert.equal((await response.json()).error, "invalid_price_range");
+      }
+    }
+    const grid = await (await fetch(`${origin}/api/contracts?type=grid&minPrice=invalid&sort=price-asc`)).json();
+    assert.equal(grid.total, 358);
+    assert.equal(grid.activeFilters.minPrice, null);
+    assert.equal(grid.sort, "");
+  });
+});
+
+test("CSV exports preserve the same price range and order as query results", async () => {
+  await withServer(async (origin) => {
+    const query = new URLSearchParams({ type: "low", q: "爱家", grade: "金卡", minPrice: "158", maxPrice: "198", sort: "price-desc" });
+    const data = await (await fetch(`${origin}/api/contracts?${query}`)).json();
+    const csv = await (await fetch(`${origin}/api/contracts.csv?${query}`)).text();
+    assert.match(csv.split("\r\n")[0], /价格（元）/);
+    let previous = -1;
+    for (const item of data.items) {
+      const position = csv.indexOf(item.name, previous + 1);
+      assert.ok(position > previous, item.name);
+      previous = position;
+    }
+    assert.equal(data.total, 6);
+    assert.doesNotMatch(csv, /爱家.*钻石卡/);
   });
 });
 

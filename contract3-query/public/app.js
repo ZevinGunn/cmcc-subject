@@ -8,6 +8,10 @@ const elements = {
   secondaryLabel: document.getElementById("secondary-filter-label"),
   secondary: document.getElementById("secondary-filter"),
   pageSize: document.getElementById("page-size"),
+  priceFilters: document.getElementById("price-filters"),
+  minPrice: document.getElementById("min-price"),
+  maxPrice: document.getElementById("max-price"),
+  priceSort: document.getElementById("price-sort"),
   reset: document.getElementById("reset"),
   export: document.getElementById("export"),
   tabs: [...document.querySelectorAll(".dataset-tab")],
@@ -21,6 +25,7 @@ const elements = {
   resultCount: document.getElementById("result-count"),
   totalCount: document.getElementById("total-count"),
   tableTitle: document.getElementById("table-title"),
+  filteredTotal: document.getElementById("filtered-total"),
   pageStatus: document.getElementById("page-status"),
   pageRange: document.getElementById("page-range"),
   previous: document.getElementById("previous"),
@@ -37,6 +42,9 @@ const state = {
   prefix: params.get("prefix") || "",
   category: params.get("category") || "",
   grade: params.get("grade") || "",
+  minPrice: params.get("minPrice") || "",
+  maxPrice: params.get("maxPrice") || "",
+  sort: ["price-asc", "price-desc"].includes(params.get("sort")) ? params.get("sort") : "",
   page: Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1),
   pageSize: [25, 50, 100, 200].includes(Number(params.get("pageSize"))) ? Number(params.get("pageSize")) : 50,
   totalPages: 1,
@@ -49,7 +57,7 @@ const tableSchemas = {
     { key: "id", label: "合约编码", className: "col-id" },
     { key: "name", label: "合约名称", className: "col-name" },
     { key: "category", label: "分类", className: "col-category optional-mobile" },
-    { key: "amount", label: "金额", className: "col-amount optional-mobile" },
+    { key: "price", label: "价格（元）", className: "col-amount" },
     { key: "duration", label: "合约期(月)", className: "col-duration optional-mobile" },
     { key: "validity", label: "有效期", className: "col-validity optional-mobile" },
     { key: "status", label: "状态", className: "col-status optional-mobile" },
@@ -60,12 +68,14 @@ const tableSchemas = {
     { key: "id", label: "策划 ID", className: "col-id" },
     { key: "prefix", label: "前缀", className: "col-prefix optional-mobile" },
     { key: "name", label: "策划名称", className: "col-name" },
+    { key: "price", label: "价格（元）", className: "col-amount" },
     { key: "validity", label: "有效期", className: "col-validity optional-mobile" },
     { key: "action", label: "操作", className: "col-action optional-mobile", hiddenLabel: true },
   ],
   low: [
     { key: "row", label: "序号", className: "col-row optional-mobile" },
     { key: "name", label: "低消合约方案", className: "col-name" },
+    { key: "price", label: "价格（元）", className: "col-amount" },
     { key: "grade", label: "生效全球通等级", className: "col-grade" },
     { key: "rule", label: "多档规则", className: "col-rule optional-mobile" },
   ],
@@ -80,6 +90,9 @@ const tableSchemas = {
 
 elements.query.value = state.query;
 elements.pageSize.value = String(state.pageSize);
+elements.minPrice.value = state.minPrice;
+elements.maxPrice.value = state.maxPrice;
+elements.priceSort.value = state.sort;
 
 function debounce(callback, wait = 180) {
   let timer;
@@ -104,6 +117,9 @@ function syncUrl() {
   if (state.prefix) next.set("prefix", state.prefix);
   if (state.category) next.set("category", state.category);
   if (state.grade) next.set("grade", state.grade);
+  if (state.minPrice !== "") next.set("minPrice", state.minPrice);
+  if (state.maxPrice !== "") next.set("maxPrice", state.maxPrice);
+  if (state.sort) next.set("sort", state.sort);
   if (state.page !== 1) next.set("page", String(state.page));
   if (state.pageSize !== 50) next.set("pageSize", String(state.pageSize));
   window.history.replaceState(null, "", `?${next}`);
@@ -126,6 +142,8 @@ function selectOptions(select, values, emptyLabel, activeValue) {
 }
 
 function configureFilters(filters) {
+  elements.priceFilters.hidden = state.type === "grid";
+  elements.priceFilters.disabled = state.type === "grid";
   if (state.type === "grid") {
     elements.primaryWrap.hidden = true;
     elements.secondaryWrap.hidden = true;
@@ -220,6 +238,7 @@ function gradeClass(grade) {
 }
 
 function cellValue(item, key) {
+  if (key === "price") return item.price == null ? "-" : item.price.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
   if (key === "validity") return [item.start, item.end].filter(Boolean).join(" 至 ") || "-";
   if (key === "duration") return item.duration || "-";
   return item[key] || "-";
@@ -305,7 +324,10 @@ function renderRows(items) {
 
 function setLoading(isLoading) {
   elements.loading.hidden = !isLoading;
+  elements.table.setAttribute("aria-busy", String(isLoading));
   if (isLoading) {
+    elements.filteredTotal.textContent = "筛选中…";
+    elements.resultCount.textContent = "-";
     elements.empty.hidden = true;
     elements.results.replaceChildren();
   }
@@ -318,6 +340,9 @@ function activeQueryParams(includePage = true) {
   if (state.prefix) query.set("prefix", state.prefix);
   if (state.category) query.set("category", state.category);
   if (state.grade) query.set("grade", state.grade);
+  if (state.minPrice !== "") query.set("minPrice", state.minPrice);
+  if (state.maxPrice !== "") query.set("maxPrice", state.maxPrice);
+  if (state.sort) query.set("sort", state.sort);
   if (includePage) {
     query.set("page", String(state.page));
     query.set("pageSize", String(state.pageSize));
@@ -341,6 +366,9 @@ async function loadContracts() {
     state.prefix = payload.activeFilters.prefix;
     state.category = payload.activeFilters.category;
     state.grade = payload.activeFilters.grade;
+    state.minPrice = payload.activeFilters.minPrice ?? "";
+    state.maxPrice = payload.activeFilters.maxPrice ?? "";
+    state.sort = payload.sort;
     state.totalPages = payload.totalPages;
     renderTabs(payload.catalogs);
     renderComparison(payload);
@@ -349,6 +377,7 @@ async function loadContracts() {
     renderRows(payload.items);
 
     elements.resultCount.textContent = payload.total.toLocaleString("zh-CN");
+    elements.filteredTotal.textContent = `共 ${payload.total.toLocaleString("zh-CN")} 条`;
     elements.totalCount.textContent = payload.meta.total.toLocaleString("zh-CN");
     elements.tableTitle.textContent = `${payload.label} · ${payload.viewLabel}`;
     elements.pageStatus.textContent = `第 ${payload.page} / ${payload.totalPages} 页`;
@@ -357,7 +386,7 @@ async function loadContracts() {
     elements.pageRange.textContent = `${first.toLocaleString("zh-CN")} - ${last.toLocaleString("zh-CN")}`;
     elements.previous.disabled = payload.page <= 1;
     elements.next.disabled = payload.page >= payload.totalPages;
-    elements.empty.textContent = payload.total === 0 && !state.query && !state.prefix && !state.category && !state.grade
+    elements.empty.textContent = payload.total === 0 && !state.query && !state.prefix && !state.category && !state.grade && state.minPrice === "" && state.maxPrice === ""
       ? ({ added: "本次对比没有新增记录", removed: "本次对比没有删减记录", changed: "本次对比没有内容变更" })[state.view] || "没有匹配的记录" : "没有匹配的记录";
     elements.empty.hidden = payload.items.length !== 0;
     syncUrl();
@@ -366,6 +395,7 @@ async function loadContracts() {
     elements.empty.textContent = "数据加载失败，请稍后重试";
     elements.empty.hidden = false;
     elements.resultCount.textContent = "-";
+    elements.filteredTotal.textContent = "查询失败";
     showToast("查询服务暂时不可用");
   } finally {
     if (controller === state.controller) setLoading(false);
@@ -376,14 +406,26 @@ function resetDatasetFilters() {
   state.prefix = "";
   state.category = "";
   state.grade = "";
+  state.minPrice = "";
+  state.maxPrice = "";
+  state.sort = "";
+  elements.minPrice.value = "";
+  elements.maxPrice.value = "";
+  elements.maxPrice.setCustomValidity("");
+  elements.priceSort.value = "";
   state.page = 1;
 }
 
-const search = debounce(() => {
+function applySearch() {
+  elements.maxPrice.setCustomValidity(elements.minPrice.value !== "" && elements.maxPrice.value !== "" && Number(elements.minPrice.value) > Number(elements.maxPrice.value) ? "最高价格不能低于最低价格" : "");
+  if (!elements.form.checkValidity()) return;
   state.query = elements.query.value.trim();
+  state.minPrice = elements.minPrice.value === "" ? "" : String(Number(elements.minPrice.value));
+  state.maxPrice = elements.maxPrice.value === "" ? "" : String(Number(elements.maxPrice.value));
   state.page = 1;
   loadContracts();
-});
+}
+const search = debounce(applySearch);
 
 for (const tab of elements.tabs) {
   tab.addEventListener("click", () => {
@@ -416,11 +458,23 @@ elements.tabs.forEach((tab, index) => {
 });
 elements.form.addEventListener("submit", (event) => {
   event.preventDefault();
-  state.query = elements.query.value.trim();
-  state.page = 1;
-  loadContracts();
+  applySearch();
 });
 elements.query.addEventListener("input", search);
+for (const input of [elements.minPrice, elements.maxPrice]) {
+  input.addEventListener("input", () => {
+    elements.maxPrice.setCustomValidity("");
+    search();
+  });
+  input.addEventListener("change", () => {
+    applySearch();
+    elements.form.reportValidity();
+  });
+}
+elements.priceSort.addEventListener("change", () => {
+  state.sort = elements.priceSort.value;
+  applySearch();
+});
 elements.primary.addEventListener("change", () => {
   if (state.type === "low") state.grade = elements.primary.value;
   else state.prefix = elements.primary.value;

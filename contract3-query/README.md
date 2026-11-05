@@ -2,6 +2,10 @@
 
 统一查询二类合约、三类合约、低消方案对应全球通等级及网格通业务。支持关键词组合搜索、筛选、分页、CSV 导出，保留 ARPU 查询互通入口。项目管理中的服务 ID 为 `contract3`，PM2 服务为 `contract3-query`。
 
+二类、三类及低消方案支持最低/最高价格（元，含边界）、价格升序/降序。优先采用明确的金额或低消承诺金额；缺少金额时识别名称中唯一的“元/档”价格及明确的折后价格，不将宽带速率、月份、年份视为价格。多档金额、仅给出起价或名称含多个不同金额且无法确定时，价格显示为 `-`，价格排序时放在最后，设置价格区间时排除。价格是源表中的金额或方案档位，不代表统一的月费口径。
+
+价格条件与关键词、分类、等级及版本分区叠加，先筛选和排序再分页；表格标题旁显示全部匹配记录的总数。重置会清除价格条件，链接和 CSV 导出保留当前条件及顺序。网格通业务包含多个不同档位，暂不提供单一价格筛选。
+
 ## 当前数据与版本对比
 
 2026-11-05 导入，以更新前站内数据为固定基线：
@@ -63,7 +67,10 @@ npm run import:xlsx -- --source-dir '/实际源文件目录' --grid-only
 - `GET /api/contracts?type=2&q=关键词&prefix=111603&category=分类&page=1&pageSize=50`
 - `GET /api/contracts?type=3&view=added|removed|changed|current&q=关键词`
 - `GET /api/contracts?type=low&view=changed&grade=钻石卡&q=名称或策划ID`
+- `GET /api/contracts?type=low&q=爱家&grade=金卡&minPrice=158&maxPrice=198&sort=price-asc`
 - `GET /api/contracts?type=grid&q=业务ID或名称或档位`
 - `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 
 `view` 缺省为 `current`，网格通仅有当前清单。无效视图回到当前清单。为兼容原三类接口，`type` 缺省仍为 `3`。差异清单支持同样的筛选、分页及导出，内容变更支持检索旧名称，CSV 同时提供变更前后内容。
+
+`minPrice`、`maxPrice` 可单独使用，接受非负数且最多两位小数；非法区间返回 HTTP 400。`sort` 为 `price-asc` 或 `price-desc`，省略时保留源表顺序，同价格保持原顺序。JSON 的 `price` 为数值或 `null`，`total` 为分页前的筛选结果总数。CSV 接受相同参数。

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>北京移动合约查询</title>
-  <link rel="stylesheet" href="/styles.css?v=20261106-1">
+  <link rel="stylesheet" href="/styles.css?v=20261106-3">
 </head>
 <body>
   <header class="topbar">
@@ -73,11 +73,33 @@
       </label>
       <button id="reset" class="button secondary" type="button">重置</button>
       <button id="export" class="button primary" type="button">导出 CSV</button>
+      <fieldset id="price-filters" class="price-filters">
+        <legend class="sr-only">价格筛选和排序</legend>
+        <label>
+          <span class="field-label">最低价格（元）</span>
+          <input id="min-price" name="minPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
+        </label>
+        <label>
+          <span class="field-label">最高价格（元）</span>
+          <input id="max-price" name="maxPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
+        </label>
+        <label class="price-sort-field">
+          <span class="field-label">价格排序</span>
+          <select id="price-sort" name="sort">
+            <option value="">默认顺序</option>
+            <option value="price-asc">价格从低到高</option>
+            <option value="price-desc">价格从高到低</option>
+          </select>
+        </label>
+      </fieldset>
     </form>
 
     <section class="table-region" aria-labelledby="table-title">
       <div class="table-heading">
-        <h2 id="table-title">合约清单</h2>
+        <div class="table-title-group">
+          <h2 id="table-title">合约清单</h2>
+          <span id="filtered-total" role="status" aria-live="polite">共 - 条</span>
+        </div>
         <span id="page-status">第 - 页</span>
       </div>
       <div class="table-scroll" id="results-panel" role="tabpanel" aria-label="查询结果">
@@ -97,6 +119,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/app.js?v=20261106-1" defer></script>
+  <script src="/app.js?v=20261106-3" defer></script>
 </body>
 </html>

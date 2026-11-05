@@ -32,6 +32,31 @@ function searchable(item, fields) {
   return fields.map((field) => typeof item[field] === "object" ? JSON.stringify(item[field]) : item[field] ?? "").join(" ").toLocaleLowerCase("zh-CN");
 }
 
+function contractPrice(item, type) {
+  if (type === "grid") return null;
+  const amounts = type === "low" ? (item.variants || []).map((variant) => variant.amount) : [item.amount];
+  const supplied = amounts.map((value) => String(value ?? "").trim()).filter((value) => value && !/^[—–-]+$/.test(value));
+  if (supplied.length) {
+    const values = supplied.map((value) => /^(\d+(?:\.\d+)?)\s*(?:元|档)?$/.exec(value));
+    if (values.some((value) => !value)) return null;
+    const prices = [...new Set(values.map((value) => Number(value[1])))];
+    return prices.length === 1 ? prices[0] : null;
+  }
+  const name = String(item.name || "");
+  const discounted = /折后\s*(\d+(?:\.\d+)?)\s*元/.exec(name);
+  if (discounted) return Number(discounted[1]);
+  const prices = [...new Set([...name.matchAll(/(?:^|[^\d.])(\d+(?:\.\d+)?)\s*(?:元|档)/g)].map((match) => Number(match[1])))];
+  return prices.length === 1 ? prices[0] : null;
+}
+
+function priceBound(value) {
+  if (value === null || value.trim() === "") return null;
+  if (!/^\d+(?:\.\d{1,2})?$/.test(value.trim()) || !Number.isFinite(Number(value))) {
+    throw new RangeError("价格须为非负数，最多保留两位小数");
+  }
+  return Number(value);
+}
+
 const VIEW_LABELS = { current: "当前清单", added: "更新区（新增）", removed: "删减区", changed: "内容变更" };
 const FIELD_LABELS = { name: "名称", grade: "全球通等级", rule: "多档规则", start: "生效时间", end: "失效时间" };
 
@@ -85,7 +110,7 @@ function buildDatasets() {
       views = { current: source.contracts };
     }
     for (const [view, items] of Object.entries(views)) {
-      views[view] = items.map((item) => ({ ...item, searchText: searchable(item, Object.keys(item)) }));
+      views[view] = items.map((item) => ({ ...item, price: contractPrice(item, key), searchText: searchable(item, Object.keys(item)) }));
     }
     const all = [...views.current, ...(views.removed || [])];
     definitions[key] = {
@@ -194,14 +219,29 @@ function queryDataset(searchParams) {
     prefix: dataset.key === "2" || dataset.key === "3" ? (searchParams.get("prefix") || "").trim() : "",
     category: dataset.key === "2" ? (searchParams.get("category") || "").trim() : "",
     grade: dataset.key === "low" ? (searchParams.get("grade") || "").trim() : "",
+    minPrice: dataset.key === "grid" ? null : priceBound(searchParams.get("minPrice")),
+    maxPrice: dataset.key === "grid" ? null : priceBound(searchParams.get("maxPrice")),
   };
+  if (filters.minPrice !== null && filters.maxPrice !== null && filters.minPrice > filters.maxPrice) {
+    throw new RangeError("最高价格不能低于最低价格");
+  }
+  const sort = dataset.key !== "grid" && ["price-asc", "price-desc"].includes(searchParams.get("sort")) ? searchParams.get("sort") : "";
   const filtered = dataset.views[view].filter((item) => {
     if (filters.prefix && item.prefix !== filters.prefix) return false;
     if (filters.category && item.category !== filters.category) return false;
     if (filters.grade && item.grade !== filters.grade) return false;
+    if (filters.minPrice !== null && (item.price === null || item.price < filters.minPrice)) return false;
+    if (filters.maxPrice !== null && (item.price === null || item.price > filters.maxPrice)) return false;
     return terms.every((term) => item.searchText.includes(term));
   });
-  return { dataset, view, query, filters, filtered };
+  if (sort) {
+    filtered.sort((left, right) => {
+      if (left.price === null) return right.price === null ? 0 : 1;
+      if (right.price === null) return -1;
+      return sort === "price-asc" ? left.price - right.price : right.price - left.price;
+    });
+  }
+  return { dataset, view, query, filters, sort, filtered };
 }
 
 function publicItem(item) {
@@ -247,7 +287,7 @@ function csvDefinition(type) {
 function sendContracts(res, searchParams, method) {
   const page = positiveInteger(searchParams.get("page"), 1, 100000);
   const pageSize = positiveInteger(searchParams.get("pageSize"), 50, 200);
-  const { dataset, view, query, filters, filtered } = queryDataset(searchParams);
+  const { dataset, view, query, filters, sort, filtered } = queryDataset(searchParams);
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * pageSize;
@@ -262,6 +302,7 @@ function sendContracts(res, searchParams, method) {
     catalogs: catalogSummary(),
     filters: dataset.filters,
     activeFilters: filters,
+    sort,
     query,
     page: currentPage,
     pageSize,
@@ -274,7 +315,8 @@ function sendContracts(res, searchParams, method) {
 function sendCsv(res, searchParams, method) {
   const { dataset, view, filtered } = queryDataset(searchParams);
   const definition = csvDefinition(dataset.key);
-  const rows = [[...definition.headers, "对比状态", "变更前后"], ...filtered.map((item) => [...definition.row(item),
+  const priceHeaders = dataset.key === "grid" ? [] : ["价格（元）"];
+  const rows = [[...definition.headers, ...priceHeaders, "对比状态", "变更前后"], ...filtered.map((item) => [...definition.row(item), ...(dataset.key === "grid" ? [] : [item.price]),
     ({ added: "新增", removed: "旧版移除", changed: "内容变更", unchanged: "未变更" })[item.changeStatus] || "",
     (item.changes || []).map((change) => `${change.label}: ${change.before || "未标注"} → ${change.after || "未标注"}`).join("\n")])];
   const csv = `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
@@ -316,7 +358,7 @@ function createApp({ gridLinks = originalGridLinks } = {}) {
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261105-grid-links-2",
+        version: "20261106-price-query-1",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
         gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
         uptimeSeconds: Math.floor(process.uptime()),
@@ -325,11 +367,15 @@ function createApp({ gridLinks = originalGridLinks } = {}) {
     if (requestUrl.pathname === "/api/catalogs") {
       return sendJson(res, 200, { catalogs: catalogSummary() }, method);
     }
-    if (requestUrl.pathname === "/api/contracts") {
-      return sendContracts(res, requestUrl.searchParams, method);
-    }
-    if (requestUrl.pathname === "/api/contracts.csv") {
-      return sendCsv(res, requestUrl.searchParams, method);
+    if (["/api/contracts", "/api/contracts.csv"].includes(requestUrl.pathname)) {
+      try {
+        return requestUrl.pathname.endsWith(".csv")
+          ? sendCsv(res, requestUrl.searchParams, method)
+          : sendContracts(res, requestUrl.searchParams, method);
+      } catch (error) {
+        if (error instanceof RangeError) return sendJson(res, 400, { error: "invalid_price_range", message: error.message }, method);
+        throw error;
+      }
     }
     if (requestUrl.pathname === "/api/grid/open") {
       const identifier = requestUrl.searchParams.get("businessId") || "";
@@ -358,4 +404,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createApp, datasets, queryDataset, validateGridLinks };
+module.exports = { createApp, datasets, queryDataset, validateGridLinks, contractPrice };
