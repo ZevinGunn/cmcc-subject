@@ -9,7 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
-from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 import openpyxl
 
@@ -137,7 +137,7 @@ def import_low(path, source_date):
 
 def import_grid(path):
     sheet = openpyxl.load_workbook(path, data_only=True)["有效业务清单"]
-    records, identifiers = [], set()
+    records, identifiers, original_links = [], set(), {}
     for values in sheet.iter_rows(min_row=3, values_only=True):
         if not values[1]:
             continue
@@ -145,27 +145,47 @@ def import_grid(path):
         if not re.fullmatch(r"A\d{7}", identifier) or identifier in identifiers:
             raise ValueError("Invalid/duplicate grid business")
         identifiers.add(identifier)
-        # The source URLs embed employee identifiers and opaque tracking values.
-        # Validate only business identity, then rebuild from an allowlisted origin.
-        url = urlsplit(text(values[5]))
-        if url.scheme != "https" or url.hostname != "ysmapp.bj.10086.cn" or parse_qs(url.query).get("submitWarePackageId") != [identifier]:
+        # Preserve the original link byte-for-byte, including repeated slashes and
+        # all parameters. Keep employee/link values in an ignored runtime file.
+        original_url = text(values[5])
+        url = urlsplit(original_url)
+        if (url.scheme != "https" or url.netloc != "ysmapp.bj.10086.cn"
+                or not re.fullmatch(r"/+app/+channel-web/+busiCore/+showIndexCommon\.action", url.path)
+                or any(char in original_url for char in "\r\n")
+                or parse_qs(url.query).get("submitWarePackageId") != [identifier]):
             raise ValueError("Unexpected grid business link")
-        safe_url = "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?" + urlencode({"submitWarePackageId": identifier, "channel": "app_share"})
+        original_links[identifier] = original_url
         records.append({"row": len(records) + 1, "id": identifier, "name": text(values[2]), "optionCount": int(values[3]),
-                        "details": text(values[4]), "url": safe_url, "note": text(values[6])})
+                        "details": text(values[4]), "url": "/api/grid/open?businessId=" + identifier, "note": text(values[6])})
     if len(records) != 358:
         raise ValueError("Expected 358 valid grid businesses")
-    return {"meta": {"sourceFile": path.name, "total": len(records), "fieldNote": "办理需登录有效网格通工号；业务入口已去除原表内嵌工号及追踪参数。备注“本轮新增”沿用源表标注。"}, "contracts": records}
+    return {"meta": {"sourceFile": path.name, "total": len(records), "fieldNote": "业务入口使用原表完整链接，保留原路径及办理参数；实际办理仍受网格通工号权限限制。备注“本轮新增”沿用源表标注。"}, "contracts": records}, original_links
+
+
+def write_private_links(path, links):
+    # Do not write link contents to logs, tracked catalog JSON, or source code.
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.touch(mode=0o600, exist_ok=True)
+    temporary.chmod(0o600)
+    write_json(temporary, links)
+    temporary.replace(path)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--baseline", default="before-20261105", help="Immutable snapshot name; choose a new name for each future update")
+    parser.add_argument("--grid-only", action="store_true", help="Refresh grid catalogs and private original links only")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.baseline):
         parser.error("Invalid baseline name")
     data = ROOT / "data"
+    if args.grid_only:
+        grid, links = import_grid(args.source_dir / "网格通业务地址（没工号办不了没工号办不了）.xlsx")
+        write_private_links(data / "grid-links.local.json", links)
+        write_json(data / FILES["grid"], grid)
+        print("grid", len(grid["contracts"]), "businesses and original links imported")
+        return
     snapshot_path = data / "baselines" / (args.baseline + ".json")
     if snapshot_path.exists():
         baseline = read_json(snapshot_path)
@@ -176,14 +196,16 @@ def main():
             baseline[kind] = {"meta": original["meta"], "contracts": normalize_old(kind, original["contracts"])}
     directory = args.source_dir
     # Validate every input before touching runtime data or the snapshot.
+    grid, original_links = import_grid(directory / "网格通业务地址（没工号办不了没工号办不了）.xlsx")
     outputs = {
         "2": import_numbered(directory / "二类合约列表（20260810）(1).xlsx", "2", baseline["2"], "2026-08-10"),
         "3": import_numbered(directory / "三类合约260907.xlsx", "3", baseline["3"], "2026-09-07"),
         "low": import_low(directory / "低消方案对应生效全球通等级表260730.xlsx", "2026-07-30"),
-        "grid": import_grid(directory / "网格通业务地址（没工号办不了没工号办不了）.xlsx"),
+        "grid": grid,
     }
     if not snapshot_path.exists():
         write_json(snapshot_path, baseline)
+    write_private_links(data / "grid-links.local.json", original_links)
     for kind, output in outputs.items():
         if kind != "grid":
             output["meta"]["baselineFile"] = "baselines/" + snapshot_path.name

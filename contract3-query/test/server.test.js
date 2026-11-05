@@ -1,9 +1,9 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { createApp, datasets } = require("../server");
+const { createApp, datasets, validateGridLinks } = require("../server");
 
-async function withServer(callback) {
-  const server = createApp();
+async function withServer(callback, options) {
+  const server = createApp(options);
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
   try {
@@ -48,7 +48,8 @@ test("health and catalog endpoints report the unified service", async () => {
     assert.equal(body.ok, true);
     assert.equal(body.service, "contract-query");
     assert.deepEqual(body.records, { "2": 2043, "3": 1567, low: 819, grid: 358 });
-    assert.equal(body.version, "20261105-catalogs-1");
+    assert.equal(body.version, "20261105-grid-links-2");
+    assert.equal(body.gridLinks.total, 358);
 
     const catalogsResponse = await fetch(`${origin}/api/catalogs`);
     const catalogs = (await catalogsResponse.json()).catalogs;
@@ -214,12 +215,12 @@ test("low-consumption imports fill merged grade rules and preserve all ID detail
   });
 });
 
-test("grid search and export use business links without embedded employee identifiers", async () => {
+test("grid search and export use stable entry links without exposing original link parameters", async () => {
   for (const item of datasets.grid.items) {
-    const link = new URL(item.url);
-    assert.equal(link.origin, "https://ysmapp.bj.10086.cn");
-    assert.deepEqual([...link.searchParams.keys()], ["submitWarePackageId", "channel"]);
-    assert.equal(link.searchParams.get("submitWarePackageId"), item.id);
+    const link = new URL(item.url, "http://localhost");
+    assert.equal(link.pathname, "/api/grid/open");
+    assert.deepEqual([...link.searchParams.keys()], ["businessId"]);
+    assert.equal(link.searchParams.get("businessId"), item.id);
     assert.equal(Number.isInteger(item.optionCount), true);
   }
   await withServer(async (origin) => {
@@ -230,9 +231,44 @@ test("grid search and export use business links without embedded employee identi
     assert.equal(body.items[0].optionCount, 5);
     const csv = await (await fetch(`${origin}/api/contracts.csv?type=grid&q=A1000499`)).text();
     assert.match(csv, /ETC速通卡/);
+    assert.match(csv, /https:\/\/contracts\.1008086\.xyz\/api\/grid\/open\?businessId=A1000499/);
     assert.doesNotMatch(csv, /[?&](?:empCode|code|nbc)=/);
     const fallback = await (await fetch(`${origin}/api/contracts?type=grid&view=removed`)).json();
     assert.equal(fallback.view, "current");
     assert.equal(fallback.total, 358);
   });
+});
+
+test("grid redirect preserves every original parameter, repeated slash, and encoded byte", async () => {
+  const original = "https://ysmapp.bj.10086.cn//app//channel-web//busiCore//showIndexCommon.action?submitWarePackageId=A1000499&channel=app_share&code=test-employee&empCode=test-employee&nbc=fixture%2f%2B+%20";
+  const gridLinks = validateGridLinks({ A1000499: original });
+  await withServer(async (origin) => {
+    for (const method of ["GET", "HEAD"]) {
+      const response = await fetch(`${origin}/api/grid/open?businessId=A1000499`, { method, redirect: "manual" });
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get("location"), original);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(await response.text(), "");
+    }
+    const unavailable = await fetch(`${origin}/api/grid/open?businessId=A1000489`, { redirect: "manual" });
+    assert.equal(unavailable.status, 503);
+    const unknown = await fetch(`${origin}/api/grid/open?businessId=https://example.com`, { redirect: "manual" });
+    assert.equal(unknown.status, 404);
+    const catalog = await (await fetch(`${origin}/api/contracts?type=grid&q=A1000499`)).text();
+    assert.doesNotMatch(catalog, /test-employee|fixture%2f/);
+  }, { gridLinks });
+});
+
+test("grid original link validation rejects mismatched IDs and external redirect targets", () => {
+  const base = "https://ysmapp.bj.10086.cn//app//channel-web//busiCore//showIndexCommon.action";
+  for (const original of [
+    `${base}?submitWarePackageId=A1000489`,
+    `${base}?submitWarePackageId=A1000499&submitWarePackageId=A1000489`,
+    "https://example.com/?submitWarePackageId=A1000499",
+    "https://ysmapp.bj.10086.cn@evil.example/?submitWarePackageId=A1000499",
+    `${base}?submitWarePackageId=A1000499\r\nInjected: yes`,
+    `https://ysmapp.bj.10086.cn/other-path?submitWarePackageId=A1000499`,
+  ]) {
+    assert.throws(() => validateGridLinks({ A1000499: original }), /Invalid original grid link/);
+  }
 });

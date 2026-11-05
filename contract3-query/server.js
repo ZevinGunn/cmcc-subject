@@ -102,6 +102,41 @@ function buildDatasets() {
 
 const datasets = buildDatasets();
 
+function validateGridLinks(links) {
+  const result = new Map();
+  if (!links || typeof links !== "object" || Array.isArray(links)) throw new Error("Invalid grid link file");
+  const identifiers = new Set(datasets.grid.items.map((item) => item.id));
+  for (const [identifier, original] of Object.entries(links)) {
+    let parsed;
+    try {
+      parsed = new URL(original);
+    } catch {
+      throw new Error(`Invalid original grid link: ${identifier}`);
+    }
+    if (!identifiers.has(identifier) || typeof original !== "string" || /[\r\n]/.test(original)
+        || parsed.origin !== "https://ysmapp.bj.10086.cn" || parsed.username || parsed.password
+        || !/^\/+app\/+channel-web\/+busiCore\/+showIndexCommon\.action$/.test(parsed.pathname)
+        || parsed.searchParams.getAll("submitWarePackageId").length !== 1
+        || parsed.searchParams.get("submitWarePackageId") !== identifier) {
+      throw new Error(`Invalid original grid link: ${identifier}`);
+    }
+    result.set(identifier, original);
+  }
+  return result;
+}
+
+function loadGridLinks() {
+  const file = path.join(DATA_DIR, "grid-links.local.json");
+  try {
+    return validateGridLinks(JSON.parse(fs.readFileSync(file, "utf8")));
+  } catch (error) {
+    if (error.code === "ENOENT") return new Map();
+    throw error;
+  }
+}
+
+const originalGridLinks = loadGridLinks();
+
 function securityHeaders(res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -199,7 +234,7 @@ function csvDefinition(type) {
     return {
       fileName: "北京移动网格通业务查询结果.csv",
       headers: ["序号", "业务ID", "业务名称", "档位数", "档位及子业务", "业务入口", "源表备注"],
-      row: (item) => [item.row, item.id, item.name, item.optionCount, item.details, item.url, item.note],
+      row: (item) => [item.row, item.id, item.name, item.optionCount, item.details, `https://contracts.1008086.xyz${item.url}`, item.note],
     };
   }
   return {
@@ -262,7 +297,7 @@ function serveStatic(res, pathname, method) {
   return true;
 }
 
-function createApp() {
+function createApp({ gridLinks = originalGridLinks } = {}) {
   return http.createServer((req, res) => {
     const method = req.method || "GET";
     if (method !== "GET" && method !== "HEAD") {
@@ -281,8 +316,9 @@ function createApp() {
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261105-catalogs-1",
+        version: "20261105-grid-links-2",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
+        gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
         uptimeSeconds: Math.floor(process.uptime()),
       }, method);
     }
@@ -294,6 +330,18 @@ function createApp() {
     }
     if (requestUrl.pathname === "/api/contracts.csv") {
       return sendCsv(res, requestUrl.searchParams, method);
+    }
+    if (requestUrl.pathname === "/api/grid/open") {
+      const identifier = requestUrl.searchParams.get("businessId") || "";
+      if (!datasets.grid.items.some((item) => item.id === identifier)) {
+        return sendJson(res, 404, { error: "grid_business_not_found" }, method);
+      }
+      const original = gridLinks.get(identifier);
+      if (!original) return sendJson(res, 503, { error: "grid_original_link_unavailable" }, method);
+      // Send the exact imported string; URL serialization would change source links.
+      securityHeaders(res);
+      res.writeHead(302, { Location: original, "Cache-Control": "no-store", "Content-Length": 0 });
+      return res.end();
     }
     if (requestUrl.pathname.startsWith("/api/")) {
       return sendJson(res, 404, { error: "not_found" }, method);
@@ -310,4 +358,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createApp, datasets, queryDataset };
+module.exports = { createApp, datasets, queryDataset, validateGridLinks };
