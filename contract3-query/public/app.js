@@ -11,6 +11,10 @@ const elements = {
   reset: document.getElementById("reset"),
   export: document.getElementById("export"),
   tabs: [...document.querySelectorAll(".dataset-tab")],
+  views: [...document.querySelectorAll("[data-view]")],
+  comparison: document.getElementById("comparison"),
+  comparisonMeta: document.getElementById("comparison-meta"),
+  datasetNote: document.getElementById("dataset-note"),
   table: document.getElementById("results-table"),
   headers: document.getElementById("table-headers"),
   results: document.getElementById("results"),
@@ -30,7 +34,8 @@ const elements = {
 const params = new URLSearchParams(window.location.search);
 const requestedType = params.get("type");
 const state = {
-  type: ["2", "3", "low"].includes(requestedType) ? requestedType : "2",
+  type: ["2", "3", "low", "grid"].includes(requestedType) ? requestedType : "2",
+  view: ["current", "added", "removed", "changed"].includes(params.get("view")) ? params.get("view") : "current",
   query: params.get("q") || "",
   prefix: params.get("prefix") || "",
   category: params.get("category") || "",
@@ -58,6 +63,7 @@ const tableSchemas = {
     { key: "id", label: "策划 ID", className: "col-id" },
     { key: "prefix", label: "前缀", className: "col-prefix optional-mobile" },
     { key: "name", label: "策划名称", className: "col-name" },
+    { key: "validity", label: "有效期", className: "col-validity optional-mobile" },
     { key: "action", label: "操作", className: "col-action optional-mobile", hiddenLabel: true },
   ],
   low: [
@@ -65,6 +71,13 @@ const tableSchemas = {
     { key: "name", label: "低消合约方案", className: "col-name" },
     { key: "grade", label: "生效全球通等级", className: "col-grade" },
     { key: "rule", label: "多档规则", className: "col-rule optional-mobile" },
+  ],
+  grid: [
+    { key: "row", label: "序号", className: "col-row optional-mobile" },
+    { key: "id", label: "业务 ID", className: "col-grid-id" },
+    { key: "name", label: "业务名称 / 档位明细", className: "col-name" },
+    { key: "optionCount", label: "档位数", className: "col-duration optional-mobile" },
+    { key: "gridAction", label: "入口", className: "col-grid-action" },
   ],
 };
 
@@ -89,6 +102,7 @@ function showToast(message) {
 function syncUrl() {
   const next = new URLSearchParams();
   next.set("type", state.type);
+  if (state.view !== "current") next.set("view", state.view);
   if (state.query) next.set("q", state.query);
   if (state.prefix) next.set("prefix", state.prefix);
   if (state.category) next.set("category", state.category);
@@ -115,6 +129,11 @@ function selectOptions(select, values, emptyLabel, activeValue) {
 }
 
 function configureFilters(filters) {
+  if (state.type === "grid") {
+    elements.primaryWrap.hidden = true;
+    elements.secondaryWrap.hidden = true;
+    return;
+  }
   if (state.type === "2") {
     elements.primaryWrap.hidden = false;
     elements.primaryLabel.textContent = "ID 前缀";
@@ -142,11 +161,30 @@ function renderTabs(catalogs) {
     const selected = tab.dataset.type === state.type;
     tab.setAttribute("aria-selected", String(selected));
     tab.tabIndex = selected ? 0 : -1;
+    tab.setAttribute("aria-controls", "results-panel");
   }
   for (const [key, catalog] of Object.entries(catalogs)) {
     const count = document.querySelector(`[data-count="${key}"]`);
     if (count) count.textContent = catalog.total.toLocaleString("zh-CN");
   }
+}
+
+function renderComparison(payload) {
+  const comparison = payload.comparison;
+  elements.comparison.hidden = !comparison;
+  if (comparison) {
+    for (const button of elements.views) {
+      button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
+      button.querySelector("span").textContent = comparison.counts[button.dataset.view].toLocaleString("zh-CN");
+    }
+    const baseline = comparison.baseline;
+    const date = baseline.sourceDate ? `（${baseline.sourceDate}）` : "（更新前站内版本）";
+    const dedup = baseline.rawTotal !== baseline.total ? `（原 ${baseline.rawTotal} 条，已合并重名）` : "";
+    elements.comparisonMeta.textContent = `对比 ${baseline.sourceFile}${date} · 旧版 ${baseline.total.toLocaleString("zh-CN")} 项${dedup}。${comparison.matching}${state.view === "removed" ? " 删减表示新版源表已移除，不等同于按日期失效。" : ""}`;
+  }
+  elements.datasetNote.textContent = payload.meta.fieldNote || "";
+  elements.datasetNote.hidden = !payload.meta.fieldNote;
+  elements.query.placeholder = state.type === "grid" ? "搜索业务 ID、名称或档位关键词" : state.type === "low" ? "搜索方案名称、策划 ID、等级或生效说明" : "搜索合约编码、名称或关键词";
 }
 
 function renderHeaders() {
@@ -203,22 +241,66 @@ function renderRows(items) {
     for (const column of tableSchemas[state.type]) {
       const cell = document.createElement("td");
       cell.className = column.className;
-      if (column.key === "action") {
+      if (column.key === "gridAction") {
+        const link = document.createElement("a");
+        link.className = "business-link";
+        link.textContent = "打开入口 ↗";
+        link.href = item.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.setAttribute("aria-label", `打开${item.name}业务入口（新窗口，需有效工号）`);
+        cell.append(link);
+      } else if (column.key === "action") {
         cell.append(createCopyButton(item.id));
       } else if (column.key === "grade") {
         const badge = document.createElement("span");
         badge.className = `grade-badge ${gradeClass(item.grade)}`;
         badge.textContent = item.grade;
         cell.append(badge);
-      } else if (column.key === "name" && state.type === "low") {
+      } else if (column.key === "name") {
         const name = document.createElement("span");
         name.textContent = item.name;
         cell.append(name);
-        if (item.rule) {
+        if (item.changeStatus && item.changeStatus !== "unchanged") {
+          const badge = document.createElement("span");
+          badge.className = `change-badge ${item.changeStatus}`;
+          badge.textContent = ({ added: "新增", removed: "旧版移除", changed: "已变更" })[item.changeStatus];
+          cell.append(badge);
+        }
+        for (const change of item.changes || []) {
+          const detail = document.createElement("small");
+          detail.className = "change-detail";
+          detail.textContent = `${change.label}：${change.before || "未标注"} → ${change.after || "未标注"}`;
+          cell.append(detail);
+        }
+        if (state.type === "low" && item.rule) {
           const rule = document.createElement("small");
           rule.className = "mobile-rule";
           rule.textContent = item.rule;
           cell.append(rule);
+        }
+        if (state.type === "low" && item.variants?.length) {
+          const details = document.createElement("details");
+          details.className = "variant-details";
+          const summary = document.createElement("summary");
+          summary.textContent = `策划 ID 及生效详情（${item.variants.length} 项）`;
+          details.append(summary);
+          for (const variant of item.variants) {
+            const line = document.createElement("p");
+            line.textContent = `${variant.id} · ${variant.kind} · 承诺金额：${variant.amount || "未标注"} · 合约期(月)：${variant.duration || "未标注"} · 是否立即生效：${variant.immediate || "未标注"}${variant.note ? ` · ${variant.note}` : ""}`;
+            details.append(line);
+          }
+          cell.append(details);
+        }
+        if (state.type === "grid") {
+          const details = document.createElement("details");
+          details.className = "variant-details";
+          const summary = document.createElement("summary");
+          summary.textContent = `${item.optionCount} 个档位 / 子业务${item.note ? ` · ${item.note}` : ""}`;
+          const detail = document.createElement("p");
+          detail.textContent = item.details;
+          details.append(summary, detail);
+          cell.append(details);
         }
       } else {
         cell.textContent = cellValue(item, column.key);
@@ -240,6 +322,7 @@ function setLoading(isLoading) {
 
 function activeQueryParams(includePage = true) {
   const query = new URLSearchParams({ type: state.type });
+  query.set("view", state.view);
   if (state.query) query.set("q", state.query);
   if (state.prefix) query.set("prefix", state.prefix);
   if (state.category) query.set("category", state.category);
@@ -263,8 +346,13 @@ async function loadContracts() {
     const payload = await response.json();
     if (controller !== state.controller) return;
     state.page = payload.page;
+    state.view = payload.view;
+    state.prefix = payload.activeFilters.prefix;
+    state.category = payload.activeFilters.category;
+    state.grade = payload.activeFilters.grade;
     state.totalPages = payload.totalPages;
     renderTabs(payload.catalogs);
+    renderComparison(payload);
     configureFilters(payload.filters);
     renderHeaders();
     renderRows(payload.items);
@@ -273,13 +361,15 @@ async function loadContracts() {
     elements.totalCount.textContent = payload.meta.total.toLocaleString("zh-CN");
     const sourceDate = payload.meta.sourceDate ? ` · 数据日期 ${payload.meta.sourceDate}` : "";
     elements.sourceMeta.textContent = `${payload.label}${sourceDate} · ${payload.meta.sourceFile}`;
-    elements.tableTitle.textContent = payload.label;
+    elements.tableTitle.textContent = `${payload.label} · ${payload.viewLabel}`;
     elements.pageStatus.textContent = `第 ${payload.page} / ${payload.totalPages} 页`;
     const first = payload.total ? (payload.page - 1) * payload.pageSize + 1 : 0;
     const last = payload.total ? first + payload.items.length - 1 : 0;
     elements.pageRange.textContent = `${first.toLocaleString("zh-CN")} - ${last.toLocaleString("zh-CN")}`;
     elements.previous.disabled = payload.page <= 1;
     elements.next.disabled = payload.page >= payload.totalPages;
+    elements.empty.textContent = payload.total === 0 && !state.query && !state.prefix && !state.category && !state.grade
+      ? ({ added: "本次对比没有新增记录", removed: "本次对比没有删减记录", changed: "本次对比没有内容变更" })[state.view] || "没有匹配的记录" : "没有匹配的记录";
     elements.empty.hidden = payload.items.length !== 0;
     syncUrl();
   } catch (error) {
@@ -310,10 +400,31 @@ for (const tab of elements.tabs) {
   tab.addEventListener("click", () => {
     if (state.type === tab.dataset.type) return;
     state.type = tab.dataset.type;
+    state.view = "current";
     resetDatasetFilters();
     loadContracts();
   });
 }
+for (const button of elements.views) {
+  button.addEventListener("click", () => {
+    state.view = button.dataset.view;
+    state.page = 1;
+    loadContracts();
+  });
+}
+elements.tabs.forEach((tab, index) => {
+  tab.addEventListener("keydown", (event) => {
+    let next;
+    if (event.key === "ArrowRight") next = (index + 1) % elements.tabs.length;
+    if (event.key === "ArrowLeft") next = (index + elements.tabs.length - 1) % elements.tabs.length;
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = elements.tabs.length - 1;
+    if (next === undefined) return;
+    event.preventDefault();
+    elements.tabs[next].focus();
+    elements.tabs[next].click();
+  });
+});
 elements.form.addEventListener("submit", (event) => {
   event.preventDefault();
   state.query = elements.query.value.trim();

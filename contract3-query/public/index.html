@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>北京移动合约查询</title>
-  <link rel="stylesheet" href="/styles.css?v=20260724-4">
+  <link rel="stylesheet" href="/styles.css?v=20261105-1">
 </head>
 <body>
   <header class="topbar">
@@ -36,7 +36,21 @@
       <button class="dataset-tab" type="button" role="tab" data-type="low" aria-selected="false">
         低消方案等级 <span data-count="low">-</span>
       </button>
+      <button class="dataset-tab" type="button" role="tab" data-type="grid" aria-selected="false">
+        网格通业务大全 <span data-count="grid">-</span>
+      </button>
     </div>
+
+    <section id="comparison" class="comparison" aria-label="版本对比">
+      <div class="view-tabs" role="group" aria-label="数据范围">
+        <button type="button" data-view="current" aria-pressed="true">当前清单 <span></span></button>
+        <button type="button" data-view="added" aria-pressed="false">更新区（新增） <span></span></button>
+        <button type="button" data-view="removed" aria-pressed="false">删减区 <span></span></button>
+        <button type="button" data-view="changed" aria-pressed="false">内容变更 <span></span></button>
+      </div>
+      <p id="comparison-meta"></p>
+    </section>
+    <p id="dataset-note" class="dataset-note"></p>
 
     <form id="filters" class="toolbar" role="search">
       <label class="search-field">
@@ -69,7 +83,7 @@
         <h2 id="table-title">合约清单</h2>
         <span id="page-status">第 - 页</span>
       </div>
-      <div class="table-scroll">
+      <div class="table-scroll" id="results-panel" role="tabpanel" aria-label="查询结果">
         <table id="results-table">
           <thead><tr id="table-headers"></tr></thead>
           <tbody id="results"></tbody>
@@ -86,6 +100,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/app.js?v=20260724-4" defer></script>
+  <script src="/app.js?v=20261105-1" defer></script>
 </body>
 </html>

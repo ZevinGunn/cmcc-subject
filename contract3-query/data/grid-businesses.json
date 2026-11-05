@@ -1,0 +1,3231 @@
+{
+  "meta": {
+    "sourceFile": "网格通业务地址（没工号办不了没工号办不了）.xlsx",
+    "total": 358,
+    "fieldNote": "办理需登录有效网格通工号；业务入口已去除原表内嵌工号及追踪参数。备注“本轮新增”沿用源表标注。"
+  },
+  "contracts": [
+    {
+      "row": 1,
+      "id": "A1000489",
+      "name": "大福卡专属套餐",
+      "optionCount": 1,
+      "details": "大福卡专属套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000489&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 2,
+      "id": "A1000494",
+      "name": "承诺低消得流量（泛渠道）",
+      "optionCount": 1,
+      "details": "承诺低消得流量（泛渠道）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000494&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 3,
+      "id": "A1000497",
+      "name": "全球通星级专享权益",
+      "optionCount": 1,
+      "details": "全球通星级专享权益",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000497&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 4,
+      "id": "A1000499",
+      "name": "垂类会员",
+      "optionCount": 5,
+      "details": "ETC速通卡出行包 / ETC速通卡出行包（不含ETC设备） / 轻松办公包 / 生活省钱包 / 家庭清洁包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000499&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 5,
+      "id": "A1000500",
+      "name": "集团客户专享折扣优惠合约方案",
+      "optionCount": 1,
+      "details": "集团客户专享折扣优惠合约方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000500&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 6,
+      "id": "A1000507",
+      "name": "成员版云电脑一体化服务",
+      "optionCount": 1,
+      "details": "成员版云电脑一体化服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000507&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 7,
+      "id": "A1000508",
+      "name": "爱家光网-融合方案补订",
+      "optionCount": 1,
+      "details": "爱家光网-融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000508&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 8,
+      "id": "A1000509",
+      "name": "信用购机社渠版-权益融合版",
+      "optionCount": 1,
+      "details": "信用购机社渠版-权益融合版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000509&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 9,
+      "id": "A1000510",
+      "name": "个人版-云电脑一体化服务",
+      "optionCount": 1,
+      "details": "个人版-云电脑一体化服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000510&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 10,
+      "id": "A1000512",
+      "name": "集团客户专属行业包",
+      "optionCount": 4,
+      "details": "1年期集团客户专属行业流量包 / 1年期集团客户专属行业语音包 / 2年期集团客户专属行业流量包 / 2年期集团客户专属行业语音包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000512&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 11,
+      "id": "A1000516",
+      "name": "行业定域版-云电脑一体化服务",
+      "optionCount": 1,
+      "details": "行业定域版-云电脑一体化服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000516&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 12,
+      "id": "A1000517",
+      "name": "防诈类",
+      "optionCount": 6,
+      "details": "防诈宝月包 / 羲和·防诈卫士（基础版） / 羲和·防诈卫士（家庭版） / 防诈宝月包趸付 / 通话防诈包 / 通话防诈包（趸付）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000517&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 13,
+      "id": "A1000518",
+      "name": "北京移动Plus黄金会员趣看版",
+      "optionCount": 1,
+      "details": "新北京移动Plus黄金会员趣看版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000518&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 14,
+      "id": "A1000519",
+      "name": "行业通用版-云电脑一体化服务",
+      "optionCount": 1,
+      "details": "行业通用版-云电脑一体化服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000519&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 15,
+      "id": "A1000520",
+      "name": "政企承诺消费得5G金币方案（企业版）202412YQ",
+      "optionCount": 1,
+      "details": "政企承诺消费得5G金币方案（企业版）202412YQ",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000520&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 16,
+      "id": "A1000521",
+      "name": "以旧换新专属购机承诺消费免预存得5G金币活动",
+      "optionCount": 1,
+      "details": "以旧换新专属购机承诺消费免预存得5G金币活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000521&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 17,
+      "id": "A1000522",
+      "name": "600元悦享大礼包（12个月）",
+      "optionCount": 1,
+      "details": "600元悦享大礼包（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000522&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 18,
+      "id": "A1000523",
+      "name": "信用购机分期版",
+      "optionCount": 1,
+      "details": "信用购机分期版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000523&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 19,
+      "id": "A1000524",
+      "name": "随心用惠享版续费变更",
+      "optionCount": 1,
+      "details": "随心用郊区版（惠享趸付两年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000524&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 20,
+      "id": "A1000527",
+      "name": "IPTV电视回馈",
+      "optionCount": 1,
+      "details": "IPTV电视回馈",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000527&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 21,
+      "id": "A1000528",
+      "name": "定域社区宽带续费-四年",
+      "optionCount": 1,
+      "details": "定域社区宽带续费-四年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000528&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 22,
+      "id": "A1000529",
+      "name": "好礼多多（新）",
+      "optionCount": 2,
+      "details": "会员版 / 流量版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000529&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 23,
+      "id": "A1000530",
+      "name": "爱家融合多人承诺版报装",
+      "optionCount": 1,
+      "details": "爱家融合多人承诺版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000530&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 24,
+      "id": "A1000532",
+      "name": "超享福袋终端方案信用购版-主厅",
+      "optionCount": 1,
+      "details": "超享福袋终端方案信用购版-主厅",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000532&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 25,
+      "id": "A1000533",
+      "name": "超享福袋终端方案信用购版-社渠",
+      "optionCount": 1,
+      "details": "超享福袋终端方案信用购版-社渠",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000533&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 26,
+      "id": "A1000535",
+      "name": "远郊惠民宝权益（24个月）",
+      "optionCount": 1,
+      "details": "远郊惠民宝权益（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000535&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 27,
+      "id": "A1000536",
+      "name": "畅享套餐首充优享远郊特惠版-79元档（24个月）",
+      "optionCount": 1,
+      "details": "畅享套餐首充优享远郊特惠版-79元档（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000536&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 28,
+      "id": "A1000537",
+      "name": "畅享套餐首充优享远郊特惠版-59元档（24个月）",
+      "optionCount": 1,
+      "details": "畅享套餐首充优享远郊特惠版-59元档（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000537&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 29,
+      "id": "A1000540",
+      "name": "通话防诈包（趸付）",
+      "optionCount": 1,
+      "details": "通话防诈包（趸付）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000540&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 30,
+      "id": "A1000541",
+      "name": "骑行宝（优享版）",
+      "optionCount": 1,
+      "details": "骑行宝（优享版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000541&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 31,
+      "id": "A1000542",
+      "name": "骑行宝（尊享版）",
+      "optionCount": 1,
+      "details": "骑行宝（尊享版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000542&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 32,
+      "id": "A1000544",
+      "name": "咪咕视频",
+      "optionCount": 5,
+      "details": "咪咕视频畅看年包 / 咪咕足球全通月包 / NBA联盟通季包 / 咪咕NBA联盟通连续月包（趸付12个月） / 咪咕足球全通连续月包（趸付12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000544&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 33,
+      "id": "A1000547",
+      "name": "5G畅享套餐和包优惠活动",
+      "optionCount": 1,
+      "details": "5G畅享套餐和包优惠活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000547&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 34,
+      "id": "A1000549",
+      "name": "Wifi通一年卡",
+      "optionCount": 1,
+      "details": "Wifi通一年卡",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000549&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 35,
+      "id": "A1000550",
+      "name": "Wifi通尊享卡",
+      "optionCount": 1,
+      "details": "Wifi通尊享卡",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000550&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 36,
+      "id": "A1000553",
+      "name": "Wifi通",
+      "optionCount": 1,
+      "details": "Wifi通",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000553&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 37,
+      "id": "A1000561",
+      "name": "室外摄像头（沿街商铺专属）",
+      "optionCount": 1,
+      "details": "宽带+摄像头方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000561&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 38,
+      "id": "A1000562",
+      "name": "守机宝-手机保障服务",
+      "optionCount": 1,
+      "details": "守机宝-手机保障服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000562&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 39,
+      "id": "A1000565",
+      "name": "室外摄像头（专项版）",
+      "optionCount": 1,
+      "details": "室外摄像头（专项版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000565&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 40,
+      "id": "A1000566",
+      "name": "爱家流量计划",
+      "optionCount": 6,
+      "details": "开通爱家流量计划 / 添加成员 / 删除成员 / 成员主动退出 / 取消爱家流量计划 / 查询成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000566&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 41,
+      "id": "A1000567",
+      "name": "爱家畅享计划",
+      "optionCount": 6,
+      "details": "开通爱家畅享计划 / 添加成员 / 删除成员 / 成员主动退出 / 取消爱家畅享计划 / 查询成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000567&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 42,
+      "id": "A1000570",
+      "name": "PLUS会员趣享版半年包/年包",
+      "optionCount": 1,
+      "details": "PLUS会员趣享版半年包/年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000570&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 43,
+      "id": "A1000571",
+      "name": "7天5GB黄金会员流量包",
+      "optionCount": 1,
+      "details": "7天5GB黄金会员流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000571&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 44,
+      "id": "A1000573",
+      "name": "移动惠享异网主卡版",
+      "optionCount": 1,
+      "details": "移动惠享异网主卡版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000573&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 45,
+      "id": "A1000574",
+      "name": "移动惠享升档主卡版",
+      "optionCount": 1,
+      "details": "移动惠享升档主卡版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000574&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 46,
+      "id": "A1000575",
+      "name": "萌宠守护包",
+      "optionCount": 1,
+      "details": "萌宠守护包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000575&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 47,
+      "id": "A1000576",
+      "name": "千里眼超值套餐",
+      "optionCount": 1,
+      "details": "千里眼超值套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000576&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 48,
+      "id": "A1000578",
+      "name": "成员方案",
+      "optionCount": 1,
+      "details": "车主出行成员优惠方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000578&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 49,
+      "id": "A1000581",
+      "name": "千里眼融合视频服务",
+      "optionCount": 1,
+      "details": "千里眼融合视频服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000581&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 50,
+      "id": "A1000582",
+      "name": "宝藏卡专属流量包15GB（12个月）",
+      "optionCount": 1,
+      "details": "宝藏卡专属流量包15GB（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000582&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 51,
+      "id": "A1000583",
+      "name": "158/238元5G畅享套餐和包特惠活动",
+      "optionCount": 1,
+      "details": "158/238元5G畅享套餐和包特惠活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000583&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 52,
+      "id": "A1000585",
+      "name": "云笔电一体化服务",
+      "optionCount": 1,
+      "details": "云笔电一体化服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000585&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 53,
+      "id": "A1000588",
+      "name": "5G畅享甄选优惠活动-98元档（24个月）",
+      "optionCount": 1,
+      "details": "5G畅享甄选优惠活动-98元档（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000588&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 54,
+      "id": "A1000590",
+      "name": "千里眼超值年包",
+      "optionCount": 1,
+      "details": "千里眼超值年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000590&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 55,
+      "id": "A1000591",
+      "name": "IPTV优享月包趸付",
+      "optionCount": 1,
+      "details": "IPTV优享月包趸付",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000591&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 56,
+      "id": "A1000592",
+      "name": "IPTV业务月包",
+      "optionCount": 1,
+      "details": "IPTV业务月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000592&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 57,
+      "id": "A1000593",
+      "name": "电视业务变更",
+      "optionCount": 1,
+      "details": "电视业务变更",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000593&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 58,
+      "id": "A1000594",
+      "name": "好礼多多-提速包补订",
+      "optionCount": 1,
+      "details": "全家好礼多多融合宽带权益包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000594&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 59,
+      "id": "A1000595",
+      "name": "全家好礼多多硬件方案",
+      "optionCount": 2,
+      "details": "全家好礼多多算力主机 / 全家好礼多多组合一体机",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000595&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 60,
+      "id": "A1000596",
+      "name": "79元畅享套餐-大礼包续约",
+      "optionCount": 1,
+      "details": "79元畅享套餐-大礼包续约活动（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000596&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 61,
+      "id": "A1000600",
+      "name": "铂金会员畅享版",
+      "optionCount": 1,
+      "details": "铂金会员畅享版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000600&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 62,
+      "id": "A1000601",
+      "name": "XR大空间",
+      "optionCount": 18,
+      "details": "元宇宙XR单人服务包-西单/昌平厅 / 元宇宙XR双人权益包-西单厅 / 元宇宙XR双人权益包优惠版-西单厅 / 元宇宙XR单人权益包(学清路) / 元宇宙XR单人权益包优惠版(学清路) / 元宇宙XR双人权益包(学清路) / 元宇宙XR双人权益包优惠版(学清路) / 元宇宙XR5次权益包(学清路) / 元宇宙XR5次权益包优惠版(学清路) / 元宇宙XR10次权益包(学清路) / 元宇宙XR10次权益包优惠版(学清路) / 元宇宙XR50次服务包特惠版(电竞对战) / 元宇宙XR10次服务包优惠版 / 元宇宙XR50次服务包特惠版 / 元宇宙XR3次服务包 / 元宇宙XR游戏畅玩包 / 元宇宙XR6次服务包 / 元宇宙XR游戏尊享包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000601&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 63,
+      "id": "A1000602",
+      "name": "元宇宙XR体验券",
+      "optionCount": 1,
+      "details": "元宇宙XR体验券",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000602&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 64,
+      "id": "A1000604",
+      "name": "首师大专属宽带续订",
+      "optionCount": 1,
+      "details": "首师大专属宽带续订",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000604&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 65,
+      "id": "A1000605",
+      "name": "首师大专属宽带报装",
+      "optionCount": 1,
+      "details": "融合宽带产品--首师大专属",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000605&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 66,
+      "id": "A1000606",
+      "name": "云电脑融合",
+      "optionCount": 1,
+      "details": "云电脑PAD-三年融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000606&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 67,
+      "id": "A1000607",
+      "name": "算力主机融合",
+      "optionCount": 1,
+      "details": "AI家主机-三年融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000607&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 68,
+      "id": "A1000608",
+      "name": "移动惠享升档版",
+      "optionCount": 1,
+      "details": "移动惠享升档版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000608&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 69,
+      "id": "A1000610",
+      "name": "爱家福袋-云电脑组合一体机",
+      "optionCount": 3,
+      "details": "爱家福袋-云电脑组合一体机趸付方案 / 爱家福袋—云电脑组合一体机月包 / 组合一体机融合版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000610&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 70,
+      "id": "A1000611",
+      "name": "128元5G畅享套餐和包特惠活动",
+      "optionCount": 1,
+      "details": "128元5G畅享套餐和包特惠活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000611&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 71,
+      "id": "A1000612",
+      "name": "关爱宝",
+      "optionCount": 6,
+      "details": "关爱宝月包 / 关爱宝趸付 / 关爱宝月包（就医服务版） / 关爱宝趸付（就医服务版） / 关爱宝月包（视频问诊版） / 关爱宝趸付（视频问诊版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000612&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 72,
+      "id": "A1000613",
+      "name": "黄金会员年包/半年包",
+      "optionCount": 2,
+      "details": "北京移动黄金会员轻享版半年包 / 北京移动黄金会员轻享版年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000613&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 73,
+      "id": "A1000616",
+      "name": "文体权益包（12月）",
+      "optionCount": 1,
+      "details": "文体权益包（12月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000616&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 74,
+      "id": "A1000620",
+      "name": "58元动感地带校园专属套餐",
+      "optionCount": 1,
+      "details": "58元动感地带校园专属套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000620&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 75,
+      "id": "A1000621",
+      "name": "主副卡套外资费同享服务",
+      "optionCount": 1,
+      "details": "主副卡套外资费同享服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000621&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 76,
+      "id": "A1000622",
+      "name": "动感地带校园专属套餐500元打一年-2025版",
+      "optionCount": 1,
+      "details": "动感地带校园专属套餐500元打一年-2025版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000622&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 77,
+      "id": "A1000623",
+      "name": "动感地带校园专属套餐800元打两年-2025版",
+      "optionCount": 1,
+      "details": "动感地带校园专属套餐800元打两年-2025版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000623&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 78,
+      "id": "A1000626",
+      "name": "加装IPTV业务",
+      "optionCount": 3,
+      "details": "IPTV优享月包趸付 / IPTV业务月包 / IPTV电视回馈",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000626&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 79,
+      "id": "A1000627",
+      "name": "云笔电一体化服务-集团客户版",
+      "optionCount": 1,
+      "details": "云笔电一体化服务-集团客户版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000627&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 80,
+      "id": "A1000629",
+      "name": "多人保底优惠购智家",
+      "optionCount": 3,
+      "details": "爱家安防福袋-室内摄像头（话费版） / 爱家康养福袋-优选血压仪（话费版） / 云电脑福袋pad（话费版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000629&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 81,
+      "id": "A1000630",
+      "name": "2025校园流量翻番",
+      "optionCount": 3,
+      "details": "校园500元打一年流量翻番（12个月） / 校园800元打两年流量翻番（24个月） / 校园1200元打四年流量翻番（48个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000630&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 82,
+      "id": "A1000631",
+      "name": "云电脑成员版",
+      "optionCount": 1,
+      "details": "云电脑福袋成员产品",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000631&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 83,
+      "id": "A1000633",
+      "name": "99Plus",
+      "optionCount": 1,
+      "details": "99Plus",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000633&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 84,
+      "id": "A1000634",
+      "name": "套外流量资费分享服务",
+      "optionCount": 1,
+      "details": "套外流量资费分享服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000634&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 85,
+      "id": "A1000636",
+      "name": "校园流量年包",
+      "optionCount": 2,
+      "details": "30元5G-A校园流量年包 / 30元校园流量年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000636&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 86,
+      "id": "A1000637",
+      "name": "99/188元动感地带校园芒果年包",
+      "optionCount": 1,
+      "details": "99/188元动感地带校园芒果年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000637&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 87,
+      "id": "A1000641",
+      "name": "通话防诈包（优享版）",
+      "optionCount": 2,
+      "details": "通话防诈包月包（优享版） / 通话防诈包趸付（优享版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000641&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 88,
+      "id": "A1000642",
+      "name": "爱家宝",
+      "optionCount": 1,
+      "details": "爱家宝",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000642&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 89,
+      "id": "A1000643",
+      "name": "宠物宝",
+      "optionCount": 1,
+      "details": "宠物宝",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000643&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 90,
+      "id": "A1000644",
+      "name": "假期特惠流量包",
+      "optionCount": 1,
+      "details": "假期特惠流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000644&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 91,
+      "id": "A1000645",
+      "name": "承诺套餐享优惠（PLUS）",
+      "optionCount": 1,
+      "details": "承诺套餐享优惠（PLUS）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000645&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 92,
+      "id": "A1000648",
+      "name": "5G-A云盘包",
+      "optionCount": 3,
+      "details": "5G-A臻享云盘包（月包） / 5G-A尊享云盘包 / 5G-A臻享云盘包（年包）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000648&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 93,
+      "id": "A1000649",
+      "name": "优享流量券活动",
+      "optionCount": 1,
+      "details": "优享流量券活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000649&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 94,
+      "id": "A1000650",
+      "name": "中国移动安全管家",
+      "optionCount": 2,
+      "details": "中国移动安全管家基础版 / 中国移动安全管家升级版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000650&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 95,
+      "id": "A1000651",
+      "name": "高频骚扰电话防护服务",
+      "optionCount": 1,
+      "details": "高频骚扰电话防护服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000651&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 96,
+      "id": "A1000652",
+      "name": "云电脑融合产品",
+      "optionCount": 1,
+      "details": "云电脑融合产品",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000652&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 97,
+      "id": "A1000656",
+      "name": "云宽带7月版续费变更",
+      "optionCount": 1,
+      "details": "云宽带融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000656&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 98,
+      "id": "A1000657",
+      "name": "云宽带套餐专属流量包",
+      "optionCount": 1,
+      "details": "云宽带套餐专属流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000657&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 99,
+      "id": "A1000662",
+      "name": "购机5G特惠包享优选会员服务活动（5GB）",
+      "optionCount": 1,
+      "details": "购机5G特惠包享优选会员服务活动（5GB）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000662&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 100,
+      "id": "A1000663",
+      "name": "信用购机（信用卡分期免息版）2025经典版",
+      "optionCount": 1,
+      "details": "信用购机（信用卡分期免息版）2025版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000663&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 101,
+      "id": "A1000664",
+      "name": "冲浪卡专属优惠活动",
+      "optionCount": 1,
+      "details": "冲浪卡专属优惠活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000664&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 102,
+      "id": "A1000667",
+      "name": "58元动感地带校园专属套餐300元打一年",
+      "optionCount": 1,
+      "details": "58元动感地带校园专属套餐300元打一年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000667&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 103,
+      "id": "A1000668",
+      "name": "租房专属产品报装-链家",
+      "optionCount": 1,
+      "details": "租房专属产品报装-链家",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000668&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 104,
+      "id": "A1000669",
+      "name": "通话防诈包（基础版）",
+      "optionCount": 2,
+      "details": "通话防诈包（基础版） / 通话防诈包趸付（基础版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000669&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 105,
+      "id": "A1000671",
+      "name": "云电脑融合产品（市场）",
+      "optionCount": 1,
+      "details": "云电脑融合产品（市场）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000671&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 106,
+      "id": "A1000672",
+      "name": "5G新通话AI会员",
+      "optionCount": 3,
+      "details": "5G新通话-AI通话基础会员 / 5G新通话-AI通话黄金会员 / 5G新通话-AI通话钻石会员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000672&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 107,
+      "id": "A1000674",
+      "name": "信用购机低消红包优惠版-社渠版-新",
+      "optionCount": 1,
+      "details": "信用购机低消红包优惠版-社渠版-新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000674&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 108,
+      "id": "A1000675",
+      "name": "信用购机分期权益2025经典版",
+      "optionCount": 1,
+      "details": "信用购机分期权益2025经典版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000675&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 109,
+      "id": "A1000676",
+      "name": "2025价值优惠方案",
+      "optionCount": 1,
+      "details": "2025价值优惠方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000676&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 110,
+      "id": "A1000677",
+      "name": "58元动感地带校园专属套餐200元打一年",
+      "optionCount": 1,
+      "details": "58元动感地带校园专属套餐200元打一年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000677&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 111,
+      "id": "A1000678",
+      "name": "58元动感地带校园专属套餐100元打一年",
+      "optionCount": 1,
+      "details": "58元动感地带校园专属套餐100元打一年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000678&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 112,
+      "id": "A1000679",
+      "name": "58元动感地带校园专属套餐0元打一年",
+      "optionCount": 1,
+      "details": "58元动感地带校园专属套餐0元打一年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000679&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 113,
+      "id": "A1000680",
+      "name": "99/188元动感地带校园流量年包",
+      "optionCount": 1,
+      "details": "99/188元动感地带校园流量年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000680&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 114,
+      "id": "A1000681",
+      "name": "校园国长优惠包",
+      "optionCount": 1,
+      "details": "校园国长优惠包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000681&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 115,
+      "id": "A1000682",
+      "name": "成员专属优惠20元档",
+      "optionCount": 1,
+      "details": "成员专属优惠20元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000682&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 116,
+      "id": "A1000684",
+      "name": "科德大礼包",
+      "optionCount": 1,
+      "details": "科德大礼包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000684&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 117,
+      "id": "A1000685",
+      "name": "动感地带校园专属套餐1200元打四年",
+      "optionCount": 1,
+      "details": "动感地带校园专属套餐1200元打四年",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000685&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 118,
+      "id": "A1000686",
+      "name": "北京移动Plus会员两年包（成员专属）",
+      "optionCount": 1,
+      "details": "北京移动Plus会员两年包（成员专属）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000686&channel=app_share",
+      "note": "本轮新增"
+    },
+    {
+      "row": 119,
+      "id": "A1000687",
+      "name": "移动高清（OTT）电视回馈月包趸付",
+      "optionCount": 1,
+      "details": "移动高清（OTT）电视回馈月包趸付",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000687&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 120,
+      "id": "A1000688",
+      "name": "政企承诺消费得 5G 金币合约方案（企业尊享版）",
+      "optionCount": 12,
+      "details": "政企承诺消费得5G金币方案24月（企业尊享版）20-58档 / 政企承诺消费得5G金币方案24月（企业尊享版）78-118档 / 政企承诺消费得5G金币方案24月（企业尊享版）128-178档 / 政企承诺消费得5G金币方案24月（企业尊享版）188-298档 / 政企承诺消费得5G金币方案24月（企业尊享版）318-438档 / 政企承诺消费得5G金币方案24月（企业尊享版）458-578档 / 政企承诺消费得5G金币方案36月（企业尊享版）20-58档 / 政企承诺消费得5G金币方案36月（企业尊享版）78-118档 / 政企承诺消费得5G金币方案36月（企业尊享版）128-178档 / 政企承诺消费得5G金币方案36月（企业尊享版）188-298档 / 政企承诺消费得5G金币方案36月（企业尊享版）318-438档 / 政企承诺消费得5G金币方案36月（企业尊享版）458-578档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000688&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 121,
+      "id": "A1000690",
+      "name": "万能副卡全家融合活动",
+      "optionCount": 1,
+      "details": "万能副卡全家融合活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000690&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 122,
+      "id": "A1000691",
+      "name": "5G畅享甄选优惠活动-128元档（24个月）",
+      "optionCount": 1,
+      "details": "5G畅享甄选优惠活动-128元档（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000691&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 123,
+      "id": "A1000692",
+      "name": "5G畅享甄选优惠活动-98元档（24个月）",
+      "optionCount": 1,
+      "details": "5G畅享甄选优惠活动-98元档（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000692&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 124,
+      "id": "A1000693",
+      "name": "流量享好礼活动",
+      "optionCount": 1,
+      "details": "流量享好礼活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000693&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 125,
+      "id": "A1000694",
+      "name": "手机周边",
+      "optionCount": 1,
+      "details": "手机周边",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000694&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 126,
+      "id": "A1000695",
+      "name": "充电权益包",
+      "optionCount": 1,
+      "details": "充电权益包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000695&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 127,
+      "id": "A1000696",
+      "name": "政企承诺消费得5G金币方案（GX）",
+      "optionCount": 20,
+      "details": "政企承诺消费得5G金币方案（GX） / 政企承诺消费得5G金币方案139元36月50CY / 政企承诺消费得5G金币方案120元24月61HD / 政企承诺消费尊享终端方案198元24月57HR / 政企承诺消费尊享终端方案JT / 政企承诺消费尊享终端方案ZF / 政企承诺消费尊享终端方案54元36月82HR / 政企承诺消费尊享终端方案260元24月74HD / 政企承诺消费尊享终端方案109-299档FT / 政企承诺消费尊享终端方案339-539档FT / 政企终端方案150元36月89海淀 / 政企终端方案147元36月92丰台 / 政企终端方案148元36月92昌平 / 政企承诺消费尊享终端方案151元36月926ZF / 政企承诺消费尊享终端方案282元24月48通州昌平 / 政企承诺消费尊享终端方案398元36月45中区 / 政企承诺消费尊享终端方案151元36月90JK / 政企承诺消费尊享终端方案141元24月85TZ / 政企承诺消费尊享终端方案88元36月YQ / 政企承诺消费尊享终端方案118元36月YQ",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000696&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 128,
+      "id": "A1000697",
+      "name": "智臻会员",
+      "optionCount": 1,
+      "details": "智臻会员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000697&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 129,
+      "id": "A1000698",
+      "name": "体育类月包产品",
+      "optionCount": 5,
+      "details": "咪咕视频足球全通月包 / 咪咕视频NBA联盟通月包 / 咪咕视频钻石会员月包9.9元 / 咪咕视频足篮畅看月包 / 咪咕NBA球队通月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000698&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 130,
+      "id": "A1000699",
+      "name": "新99元畅享套餐融合活动（24个月）",
+      "optionCount": 1,
+      "details": "新99元畅享套餐融合活动（24个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000699&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 131,
+      "id": "A1000700",
+      "name": "政企承诺消费得5G金币方案（企业标准版）",
+      "optionCount": 6,
+      "details": "政企承诺消费得5G金币方案（企业标准版）24月78-188元档 / 政企承诺消费得5G金币方案（企业标准版）24月198-388元档 / 政企承诺消费得5G金币方案（企业标准版）24月438-598元档 / 政企承诺消费得5G金币方案（企业标准版）36月78-188元档 / 政企承诺消费得5G金币方案（企业标准版）36月198-388元档 / 政企承诺消费得5G金币方案（企业标准版）36月438-598元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000700&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 132,
+      "id": "A1000707",
+      "name": "云宽带临时变更",
+      "optionCount": 1,
+      "details": "云宽带临时变更",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000707&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 133,
+      "id": "A1000708",
+      "name": "万能副卡云宽带全家融合活动",
+      "optionCount": 1,
+      "details": "万能副卡云宽带全家融合活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000708&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 134,
+      "id": "A1000709",
+      "name": "600元悦享大礼包流量版（1年）",
+      "optionCount": 1,
+      "details": "600元悦享大礼包流量版（1年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000709&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 135,
+      "id": "A1000710",
+      "name": "948元小福卡礼包流量版（1年）",
+      "optionCount": 1,
+      "details": "948元小福卡礼包流量版（1年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000710&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 136,
+      "id": "A1000711",
+      "name": "1188元悦享大礼包（1年）",
+      "optionCount": 1,
+      "details": "1188元悦享大礼包（1年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000711&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 137,
+      "id": "A1000712",
+      "name": "1188元悦享大礼包流量版（1年）",
+      "optionCount": 1,
+      "details": "1188元悦享大礼包流量版（1年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000712&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 138,
+      "id": "A1000713",
+      "name": "福利畅看礼",
+      "optionCount": 1,
+      "details": "福利畅看礼",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000713&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 139,
+      "id": "A1000715",
+      "name": "超值流量升级包",
+      "optionCount": 1,
+      "details": "超值流量升级包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000715&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 140,
+      "id": "A1000716",
+      "name": "爱家光网优惠版",
+      "optionCount": 1,
+      "details": "爱家光网优惠版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000716&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 141,
+      "id": "A1000717",
+      "name": "体育类趸付产品",
+      "optionCount": 4,
+      "details": "咪咕视频足球通连续月包（趸付12个月） / 咪咕视频NBA联盟通连续月包（趸付12个月） / 咪咕视频NBA球队通连续月包（趸付12个月） / 咪咕视频钻石会员连续月包（趸付12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000717&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 142,
+      "id": "A1000718",
+      "name": "爱家共享融合活动（多人保底）",
+      "optionCount": 1,
+      "details": "爱家共享融合活动（多人保底）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000718&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 143,
+      "id": "A1000719",
+      "name": "体育类首月1元产品",
+      "optionCount": 3,
+      "details": "咪咕视频足球全通首月1元 / 咪咕视频NBA联盟通首月1元 / 咪咕视频钻石会员首月1元",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000719&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 144,
+      "id": "A1000720",
+      "name": "宽带小加价得摄像头装维版",
+      "optionCount": 1,
+      "details": "宽带小加价得摄像头装维版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000720&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 145,
+      "id": "A1000721",
+      "name": "爱家共享网龄回馈",
+      "optionCount": 1,
+      "details": "爱家共享网龄回馈",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000721&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 146,
+      "id": "A1000723",
+      "name": "承诺低消有礼（流量）续约",
+      "optionCount": 1,
+      "details": "承诺低消有礼（流量）续约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000723&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 147,
+      "id": "A1000726",
+      "name": "加装通道宽带",
+      "optionCount": 1,
+      "details": "通道宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000726&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 148,
+      "id": "A1000727",
+      "name": "云宽带万能副卡流量包2025",
+      "optionCount": 1,
+      "details": "云宽带万能副卡流量包2025",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000727&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 149,
+      "id": "A1000728",
+      "name": "爱家共享融合活动（多人保底）加成员",
+      "optionCount": 1,
+      "details": "爱家共享融合活动（多人保底）加成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000728&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 150,
+      "id": "A1000729",
+      "name": "咪咕短剧听书会员年包",
+      "optionCount": 1,
+      "details": "咪咕短剧听书会员年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000729&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 151,
+      "id": "A1000730",
+      "name": "随心享福包视听畅享版",
+      "optionCount": 2,
+      "details": "随心享福包视听畅享版月包 / 随心享福包视听畅享版年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000730&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 152,
+      "id": "A1000732",
+      "name": "承诺低消有礼回馈版",
+      "optionCount": 1,
+      "details": "承诺低消有礼回馈版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000732&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 153,
+      "id": "A1000733",
+      "name": "网龄回馈倍享礼",
+      "optionCount": 1,
+      "details": "网龄回馈倍享礼",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000733&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 154,
+      "id": "A1000734",
+      "name": "来电提醒连续月包(趸付)",
+      "optionCount": 1,
+      "details": "移动来电管家-来电提醒连续月包（趸付）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000734&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 155,
+      "id": "A1000735",
+      "name": "万能副卡云宽带方案优惠活动2025版",
+      "optionCount": 1,
+      "details": "万能副卡云宽带方案优惠活动2025版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000735&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 156,
+      "id": "A1000736",
+      "name": "短期单宽带",
+      "optionCount": 1,
+      "details": "短期单宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000736&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 157,
+      "id": "A1000737",
+      "name": "随心用宽带融合升级版报装",
+      "optionCount": 1,
+      "details": "爱家随心用",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000737&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 158,
+      "id": "A1000738",
+      "name": "随心用宽带融合升级版变更",
+      "optionCount": 1,
+      "details": "爱家随心用",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000738&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 159,
+      "id": "A1000739",
+      "name": "悦享大礼包2025版（12个月）",
+      "optionCount": 2,
+      "details": "600元档悦享大礼包2025版（12个月） / 800元档悦享大礼包2025流量版（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000739&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 160,
+      "id": "A1000740",
+      "name": "新新畅享套餐入网首充合约（2年）",
+      "optionCount": 1,
+      "details": "新新畅享套餐入网首充合约（2年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000740&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 161,
+      "id": "A1000741",
+      "name": "新云宽带报装-新号新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000741&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 162,
+      "id": "A1000742",
+      "name": "新云宽带报装-携入新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000742&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 163,
+      "id": "A1000743",
+      "name": "新云宽带报装-老号新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000743&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 164,
+      "id": "A1000744",
+      "name": "新云宽带续费变更",
+      "optionCount": 1,
+      "details": "新云宽带续费变更",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000744&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 165,
+      "id": "A1000745",
+      "name": "新版宽带年包报装",
+      "optionCount": 1,
+      "details": "新版宽带年包报装",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000745&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 166,
+      "id": "A1000746",
+      "name": "5G升舱翻番礼",
+      "optionCount": 2,
+      "details": "5G升舱翻番礼 / 5G升舱翻番礼39-69元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000746&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 167,
+      "id": "A1000747",
+      "name": "69元首都建设者专属活动2026版",
+      "optionCount": 1,
+      "details": "69元首都建设者专属活动2026版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000747&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 168,
+      "id": "A1000748",
+      "name": "189元首都建设者专属活动2026版",
+      "optionCount": 1,
+      "details": "189元首都建设者专属活动2026版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000748&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 169,
+      "id": "A1000749",
+      "name": "四足机器人",
+      "optionCount": 1,
+      "details": "四足机器人",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000749&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 170,
+      "id": "A1000750",
+      "name": "四足机器人折扣产品",
+      "optionCount": 1,
+      "details": "四足机器人折扣产品",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000750&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 171,
+      "id": "A1000751",
+      "name": "四足机器人赔偿金",
+      "optionCount": 1,
+      "details": "四足机器人赔偿金",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000751&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 172,
+      "id": "A1000752",
+      "name": "融合宽带报装",
+      "optionCount": 1,
+      "details": "新融合宽带套餐版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000752&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 173,
+      "id": "A1000753",
+      "name": "惠享升档权益版",
+      "optionCount": 1,
+      "details": "惠享升档权益版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000753&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 174,
+      "id": "A1000754",
+      "name": "门诊宝",
+      "optionCount": 4,
+      "details": "随心享福包健康守护版月包-绿通挂号 / 随心享福包健康守护版年包-绿通挂号 / 随心享福包绿通挂号叠加包（1次） / 随心享福包绿通挂号叠加包（2次）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000754&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 175,
+      "id": "A1000756",
+      "name": "校园合约600元打两年(24个月)",
+      "optionCount": 1,
+      "details": "动感地带校园专属套餐600元打两年(24个月)",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000756&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 176,
+      "id": "A1000757",
+      "name": "移动惠享异网主卡新版",
+      "optionCount": 1,
+      "details": "动惠享异网主卡新版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000757&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 177,
+      "id": "A1000758",
+      "name": "二条宽带",
+      "optionCount": 1,
+      "details": "二条宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000758&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 178,
+      "id": "A1000759",
+      "name": "云平板一体化服务-新",
+      "optionCount": 1,
+      "details": "云平板一体化服务-新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000759&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 179,
+      "id": "A1000760",
+      "name": "以旧换新服务",
+      "optionCount": 1,
+      "details": "以旧换新服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000760&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 180,
+      "id": "A1000761",
+      "name": "AI手机融合方案新业务50元档",
+      "optionCount": 1,
+      "details": "AI手机融合方案新业务50元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000761&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 181,
+      "id": "A1000762",
+      "name": "信用购机承诺消费得权益AI手机版",
+      "optionCount": 2,
+      "details": "信用购机承诺消费得权益AI手机版-24月 / 信用购机承诺消费得权益AI手机版-36月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000762&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 182,
+      "id": "A1000763",
+      "name": "语音月包/年包",
+      "optionCount": 7,
+      "details": "10元语音月包 / 30元语音月包 / 40元语音月包 / 50元语音月包 / 100元语音月包 / 140元语音月包 / 100元语音年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000763&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 183,
+      "id": "A1000764",
+      "name": "门诊宝医付通月包",
+      "optionCount": 1,
+      "details": "门诊宝医付通月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000764&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 184,
+      "id": "A1000765",
+      "name": "京西福卡",
+      "optionCount": 1,
+      "details": "京西福卡",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000765&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 185,
+      "id": "A1000766",
+      "name": "守护银龄-合约活动年包",
+      "optionCount": 1,
+      "details": "守护银龄-合约活动年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000766&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 186,
+      "id": "A1000768",
+      "name": "天气预报",
+      "optionCount": 1,
+      "details": "天气预报（资讯版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000768&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 187,
+      "id": "A1000769",
+      "name": "电视业务变更（IPTV切换OTT）",
+      "optionCount": 1,
+      "details": "电视业务变更（IPTV切换OTT）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000769&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 188,
+      "id": "A1000770",
+      "name": "欢畅流量翻番活动",
+      "optionCount": 1,
+      "details": "欢畅流量翻番活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000770&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 189,
+      "id": "A1000771",
+      "name": "通话防诈包",
+      "optionCount": 2,
+      "details": "通话防诈包（升级版） / 通话防诈包（尊享版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000771&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 190,
+      "id": "A1000772",
+      "name": "全能保障宝",
+      "optionCount": 1,
+      "details": "全能保障宝",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000772&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 191,
+      "id": "A1000773",
+      "name": "保障服务可选包",
+      "optionCount": 6,
+      "details": "通话安全宝 / 家庭安全宝 / 交通出行宝 / 宠物宝-9.9月包（高保障版） / 宠物宝月包（基础版） / 随心享福包健康守护版月包-绿通挂号",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000773&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 192,
+      "id": "A1000775",
+      "name": "骑行宝",
+      "optionCount": 2,
+      "details": "骑行宝趸付（优享版） / 骑行宝趸付（尊享版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000775&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 193,
+      "id": "A1000776",
+      "name": "安宠卫士",
+      "optionCount": 1,
+      "details": "安宠卫士",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000776&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 194,
+      "id": "A1000777",
+      "name": "畅享套餐入网首充合约守护版（2年）",
+      "optionCount": 1,
+      "details": "畅享套餐入网首充合约守护版（2年）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000777&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 195,
+      "id": "A1000778",
+      "name": "咪咕快游融合包1",
+      "optionCount": 1,
+      "details": "潮玩视界娱乐包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000778&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 196,
+      "id": "A1000779",
+      "name": "天气预报（必达版）",
+      "optionCount": 1,
+      "details": "天气预报（必达版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000779&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 197,
+      "id": "A1000781",
+      "name": "540元穿戴设备专属活动",
+      "optionCount": 1,
+      "details": "540元穿戴设备专属活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000781&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 198,
+      "id": "A1000782",
+      "name": "承诺消费终端包营销活动2601",
+      "optionCount": 2,
+      "details": "承诺消费终端包营销活动2601预存版 / 承诺消费终端包营销活动2601免预存版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000782&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 199,
+      "id": "A1000783",
+      "name": "家财宝",
+      "optionCount": 2,
+      "details": "家财宝月包 / 家财宝年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000783&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 200,
+      "id": "A1000784",
+      "name": "春节年货礼盒",
+      "optionCount": 3,
+      "details": "春节年货惠享礼盒 / 春节年货优享礼盒 / 春节年货畅享礼盒",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000784&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 201,
+      "id": "A1000786",
+      "name": "330元档悦享大礼包2025版（6个月）",
+      "optionCount": 1,
+      "details": "330元档悦享大礼包2025版（6个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000786&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 202,
+      "id": "A1000787",
+      "name": "直播无忧服务包",
+      "optionCount": 1,
+      "details": "直播无忧服务包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000787&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 203,
+      "id": "A1000789",
+      "name": "360元穿戴设备专属活动",
+      "optionCount": 1,
+      "details": "360元穿戴设备专属活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000789&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 204,
+      "id": "A1000790",
+      "name": "电视点播会员",
+      "optionCount": 1,
+      "details": "电视点播会员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000790&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 205,
+      "id": "A1000791",
+      "name": "随心用1056续费变更",
+      "optionCount": 1,
+      "details": "随心用1056",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000791&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 206,
+      "id": "A1000792",
+      "name": "随心用宽带基础版报装",
+      "optionCount": 1,
+      "details": "随心用宽带基础版报装",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000792&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 207,
+      "id": "A1000793",
+      "name": "随心用宽带承接期产品报装",
+      "optionCount": 1,
+      "details": "随心用宽带承接期产品报装",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000793&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 208,
+      "id": "A1000794",
+      "name": "多人保底宽带版（2026版）",
+      "optionCount": 1,
+      "details": "多人保底宽带版（2026版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000794&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 209,
+      "id": "A1000795",
+      "name": "多人保底硬件版（2026版）",
+      "optionCount": 1,
+      "details": "多人保底硬件版（2026版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000795&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 210,
+      "id": "A1000796",
+      "name": "多人保底宽带版（2026版）升档及成员管理",
+      "optionCount": 4,
+      "details": "添加成员 / 添加成员并变更群组档位 / 删除成员 / 业务退订",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000796&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 211,
+      "id": "A1000797",
+      "name": "多人保底硬件版（2026版）升档及成员管理",
+      "optionCount": 3,
+      "details": "添加成员 / 添加成员并变更群组档位 / 删除成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000797&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 212,
+      "id": "A1000798",
+      "name": "多人保底（2026版）网龄流量翻番回馈",
+      "optionCount": 1,
+      "details": "多人保底（2026版）网龄流量翻番回馈",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000798&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 213,
+      "id": "A1000799",
+      "name": "百G畅享年包-500元档",
+      "optionCount": 1,
+      "details": "百G畅享年包-500元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000799&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 214,
+      "id": "A1000800",
+      "name": "无线座机服务",
+      "optionCount": 1,
+      "details": "无线座机服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000800&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 215,
+      "id": "A1000801",
+      "name": "咪咕足球通月包",
+      "optionCount": 1,
+      "details": "咪咕足球通月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000801&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 216,
+      "id": "A1000802",
+      "name": "云手机旗舰款至尊版连续月包",
+      "optionCount": 1,
+      "details": "云手机旗舰款至尊版连续月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000802&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 217,
+      "id": "A1000804",
+      "name": "2026价值优惠方案权益版",
+      "optionCount": 1,
+      "details": "2026价值优惠方案权益版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000804&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 218,
+      "id": "A1000805",
+      "name": "承诺消费预存赠费活动",
+      "optionCount": 1,
+      "details": "承诺消费预存赠费活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000805&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 219,
+      "id": "A1000806",
+      "name": "+1元流量加倍活动",
+      "optionCount": 1,
+      "details": "+1元流量加倍活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000806&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 220,
+      "id": "A1000807",
+      "name": "爱家共享融合宽带",
+      "optionCount": 1,
+      "details": "爱家共享融合宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000807&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 221,
+      "id": "A1000808",
+      "name": "爱家共享融合宽带变更续费",
+      "optionCount": 1,
+      "details": "爱家共享融合宽带变更续费",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000808&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 222,
+      "id": "A1000811",
+      "name": "2026价值优惠方案",
+      "optionCount": 1,
+      "details": "2026价值优惠方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000811&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 223,
+      "id": "A1000812",
+      "name": "269元全家享套餐月费优惠活动-续约",
+      "optionCount": 1,
+      "details": "269元全家享套餐月费优惠活动-续约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000812&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 224,
+      "id": "A1000813",
+      "name": "四足机器人服务体验产品（话费）",
+      "optionCount": 1,
+      "details": "四足机器人服务体验产品（话费）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000813&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 225,
+      "id": "A1000816",
+      "name": "社渠-视频达人服务包",
+      "optionCount": 1,
+      "details": "社渠-视频达人服务包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000816&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 226,
+      "id": "A1000817",
+      "name": "一号双终端连续月包（趸付12个月）",
+      "optionCount": 1,
+      "details": "一号双终端连续月包（趸付12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000817&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 227,
+      "id": "A1000818",
+      "name": "北京移动5G宽带商机预报装",
+      "optionCount": 1,
+      "details": "北京移动5G宽带商机预报装",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000818&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 228,
+      "id": "A1000819",
+      "name": "5G宽带合约",
+      "optionCount": 6,
+      "details": "5G宽带合约一年 / 5G宽带合约二年 / 5G宽带合约三年 / 5G宽带一期 / 5G宽带二期 / 5G宽带三期",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000819&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 229,
+      "id": "A1000820",
+      "name": "99Plus新",
+      "optionCount": 1,
+      "details": "99Plus新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000820&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 230,
+      "id": "A1000821",
+      "name": "天气预报（资讯版）年套餐",
+      "optionCount": 1,
+      "details": "天气预报（资讯版）年套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000821&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 231,
+      "id": "A1000822",
+      "name": "自渠-视频达人服务包",
+      "optionCount": 1,
+      "details": "自渠-视频达人服务包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000822&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 232,
+      "id": "A1000823",
+      "name": "家庭宽带短时上行提速包",
+      "optionCount": 1,
+      "details": "家庭宽带短时上行提速包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000823&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 233,
+      "id": "A1000824",
+      "name": "全能保障包",
+      "optionCount": 1,
+      "details": "全能保障包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000824&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 234,
+      "id": "A1000825",
+      "name": "铂金会员车主权益流量包",
+      "optionCount": 1,
+      "details": "铂金会员车主权益流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000825&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 235,
+      "id": "A1000827",
+      "name": "移动惠享升档主卡新版",
+      "optionCount": 1,
+      "details": "移动惠享升档主卡新版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000827&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 236,
+      "id": "A1000828",
+      "name": "信用购机吉祥号码版",
+      "optionCount": 1,
+      "details": "信用购机吉祥号码版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000828&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 237,
+      "id": "A1000829",
+      "name": "银龄畅游圈",
+      "optionCount": 1,
+      "details": "银龄畅游圈",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000829&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 238,
+      "id": "A1000830",
+      "name": "云电脑融合产品（市场）-新",
+      "optionCount": 1,
+      "details": "云电脑融合产品（市场）-新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000830&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 239,
+      "id": "A1000831",
+      "name": "云电脑融合产品-新",
+      "optionCount": 1,
+      "details": "云电脑融合产品-新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000831&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 240,
+      "id": "A1000832",
+      "name": "中国移动直播神器专属卡7折合约",
+      "optionCount": 1,
+      "details": "中国移动直播神器专属卡199元档7折合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000832&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 241,
+      "id": "A1000833",
+      "name": "移动惠享升档主卡红包新新版",
+      "optionCount": 1,
+      "details": "移动惠享升档主卡红包新新版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000833&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 242,
+      "id": "A1000834",
+      "name": "承诺低消资源回馈版",
+      "optionCount": 1,
+      "details": "承诺低消资源回馈版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000834&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 243,
+      "id": "A1000835",
+      "name": "承诺低消权益回馈版",
+      "optionCount": 1,
+      "details": "承诺低消权益回馈版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000835&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 244,
+      "id": "A1000836",
+      "name": "49元畅享套餐-大礼包续约活动（12个月）",
+      "optionCount": 1,
+      "details": "49元畅享套餐-大礼包续约活动（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000836&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 245,
+      "id": "A1000837",
+      "name": "随心用1240/1440续费变更",
+      "optionCount": 1,
+      "details": "随心用1240/1440",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000837&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 246,
+      "id": "A1000838",
+      "name": "单宽带承接服务套餐",
+      "optionCount": 1,
+      "details": "单宽带承接服务套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000838&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 247,
+      "id": "A1000839",
+      "name": "399元移动高清卡（12个月）",
+      "optionCount": 1,
+      "details": "399元移动高清卡（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000839&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 248,
+      "id": "A1000840",
+      "name": "王者荣耀入网合约",
+      "optionCount": 1,
+      "details": "王者荣耀入网合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000840&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 249,
+      "id": "A1000841",
+      "name": "直播神器专属宽带",
+      "optionCount": 1,
+      "details": "直播神器专属宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000841&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 250,
+      "id": "A1000842",
+      "name": "中国移动直播神器专属卡融合方案7折合约",
+      "optionCount": 1,
+      "details": "中国移动直播神器专属卡融合方案7折合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000842&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 251,
+      "id": "A1000843",
+      "name": "AI手机新业务融合包",
+      "optionCount": 4,
+      "details": "AI手机融合方案新业务80元档 / AI手机融合方案新业务100元档 / AI手机融合方案新业务120元档 / AI手机融合方案新业务150元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000843&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 252,
+      "id": "A1000844",
+      "name": "云手机旗舰款专业版连续月包",
+      "optionCount": 1,
+      "details": "云手机旗舰款专业版连续月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000844&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 253,
+      "id": "A1000845",
+      "name": "爱家共享FTTR补订",
+      "optionCount": 1,
+      "details": "爱家共享融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000845&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 254,
+      "id": "A1000846",
+      "name": "国补版承诺消费终端包营销活动2601",
+      "optionCount": 2,
+      "details": "国补版承诺消费终端包营销活动2601预存版 / 国补版承诺消费终端包营销活动2601免预存版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000846&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 255,
+      "id": "A1000847",
+      "name": "移动惠享升档权益新新版",
+      "optionCount": 1,
+      "details": "惠享升档权益版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000847&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 256,
+      "id": "A1000849",
+      "name": "守护银龄-合约活动年包700元",
+      "optionCount": 1,
+      "details": "守护银龄-合约活动年包700元",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000849&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 257,
+      "id": "A1000850",
+      "name": "孝心陪伴服务包-499元",
+      "optionCount": 1,
+      "details": "孝心陪伴服务包-499元",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000850&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 258,
+      "id": "A1000851",
+      "name": "视频达人服务包-优惠体验版",
+      "optionCount": 1,
+      "details": "视频达人服务包-优惠体验",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000851&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 259,
+      "id": "A1000852",
+      "name": "放心用流量包",
+      "optionCount": 1,
+      "details": "放心用流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000852&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 260,
+      "id": "A1000853",
+      "name": "中国中免客户29元套餐返费活动",
+      "optionCount": 1,
+      "details": "中国中免客户29元套餐返费活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000853&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 261,
+      "id": "A1000854",
+      "name": "灵犀屏（社渠）",
+      "optionCount": 3,
+      "details": "360趸+分 / 全球通特惠（社渠） / 灵犀屏-悦享特惠25",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000854&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 262,
+      "id": "A1000855",
+      "name": "159尊享权益包",
+      "optionCount": 1,
+      "details": "159尊享权益包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000855&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 263,
+      "id": "A1000856",
+      "name": "购机流量体验活动2605",
+      "optionCount": 1,
+      "details": "购机流量体验活动2605",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000856&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 264,
+      "id": "A1000857",
+      "name": "购机承诺消费流量体验10GB活动（12月）",
+      "optionCount": 1,
+      "details": "购机承诺消费流量体验10GB活动（12月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000857&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 265,
+      "id": "A1000858",
+      "name": "套餐资源升级礼",
+      "optionCount": 1,
+      "details": "套餐资源升级礼",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000858&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 266,
+      "id": "A1000859",
+      "name": "直播神器专属流量100G",
+      "optionCount": 1,
+      "details": "直播神器专属流量100G",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000859&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 267,
+      "id": "A1000861",
+      "name": "爱家福袋FTTR-WiFi7（2000M）叠加包",
+      "optionCount": 1,
+      "details": "爱家福袋FTTR-WiFi7（2000M）叠加包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000861&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 268,
+      "id": "A1000862",
+      "name": "多人保底低档位",
+      "optionCount": 1,
+      "details": "多人保底低档位",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000862&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 269,
+      "id": "A1000863",
+      "name": "直播神器专属宽带（存量变更）",
+      "optionCount": 1,
+      "details": "直播神器专属宽带（存量变更）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000863&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 270,
+      "id": "A1000866",
+      "name": "合家欢观赛包",
+      "optionCount": 1,
+      "details": "移动高清合家欢观赛包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000866&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 271,
+      "id": "A1000867",
+      "name": "移动荣军卡充100送100优惠活动（10个月）",
+      "optionCount": 1,
+      "details": "移动荣军卡充100送100优惠活动（10个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000867&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 272,
+      "id": "A1000869",
+      "name": "承诺套餐终端融合营销活动2604",
+      "optionCount": 2,
+      "details": "承诺套餐终端融合营销活动2604预存版 / 承诺套餐终端融合营销活动2604免预存版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000869&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 273,
+      "id": "A1000870",
+      "name": "安康宝",
+      "optionCount": 2,
+      "details": "安康宝 / 安康宝（银龄版）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000870&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 274,
+      "id": "A1000871",
+      "name": "视频彩铃测试",
+      "optionCount": 4,
+      "details": "AI乐玩包体验版 / AI乐玩包Lite版 / 5GA北交大包 / 新业务7天体验包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000871&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 275,
+      "id": "A1000872",
+      "name": "2026校园续约月付版合约",
+      "optionCount": 1,
+      "details": "2026校园续约月付版合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000872&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 276,
+      "id": "A1000873",
+      "name": "安防折扣购120元档（号卡）",
+      "optionCount": 1,
+      "details": "安防折扣购120元档（号卡）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000873&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 277,
+      "id": "A1000874",
+      "name": "399元移动高清卡（12个月）补订",
+      "optionCount": 1,
+      "details": "399元移动高清卡（12个月）补订",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000874&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 278,
+      "id": "A1000875",
+      "name": "139青春版",
+      "optionCount": 1,
+      "details": "139青春版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000875&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 279,
+      "id": "A1000876",
+      "name": "冲浪卡CPE合约",
+      "optionCount": 1,
+      "details": "冲浪卡CPE合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000876&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 280,
+      "id": "A1000877",
+      "name": "安居宝",
+      "optionCount": 1,
+      "details": "安居宝",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000877&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 281,
+      "id": "A1000878",
+      "name": "足球畅看半年包（成员专场）",
+      "optionCount": 2,
+      "details": "足球畅看半年包（成员专场） / 足球畅看半年包5折购（成员专场）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000878&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 282,
+      "id": "A1000879",
+      "name": "Coding Plan",
+      "optionCount": 1,
+      "details": "Coding Plan",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000879&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 283,
+      "id": "A1000880",
+      "name": "智能组网福袋",
+      "optionCount": 3,
+      "details": "智能组网基础福袋—WIFI6 / 智能组网千兆提速福袋—WIFI6 / 智能组网千兆提速福袋—WIFI7",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000880&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 284,
+      "id": "A1000881",
+      "name": "悦享特惠礼包",
+      "optionCount": 1,
+      "details": "悦享特惠礼包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000881&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 285,
+      "id": "A1000883",
+      "name": "家庭5G无线宽带",
+      "optionCount": 1,
+      "details": "家庭5G无线宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000883&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 286,
+      "id": "A1000884",
+      "name": "咪咕视频足篮球体验会员",
+      "optionCount": 1,
+      "details": "咪咕视频足篮球体验会员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000884&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 287,
+      "id": "A1000885",
+      "name": "10元流量安心包",
+      "optionCount": 1,
+      "details": "10元流量安心包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000885&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 288,
+      "id": "A1000886",
+      "name": "移动看家福袋系列",
+      "optionCount": 1,
+      "details": "移动看家福袋系列",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000886&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 289,
+      "id": "A1000887",
+      "name": "百G畅享年包-200元档",
+      "optionCount": 1,
+      "details": "百G畅享年包-200元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000887&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 290,
+      "id": "A1000888",
+      "name": "全球通5GA尊享套餐",
+      "optionCount": 1,
+      "details": "全球通5GA尊享套餐",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000888&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 291,
+      "id": "A1000889",
+      "name": "臻享特惠流量包",
+      "optionCount": 1,
+      "details": "臻享特惠流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000889&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 292,
+      "id": "A1000890",
+      "name": "爱家福袋转化",
+      "optionCount": 3,
+      "details": "专属转化千兆提速包 / 专属转化3G流量包-宽带关联 / 专属转化5G流量包-宽带关联",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000890&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 293,
+      "id": "A1000891",
+      "name": "通话圈退订",
+      "optionCount": 3,
+      "details": "主卡退订 / 删除成员 / 成员退出",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000891&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 294,
+      "id": "A1000892",
+      "name": "融合版新云宽带续费变更",
+      "optionCount": 1,
+      "details": "新云宽带续费变更",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000892&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 295,
+      "id": "A1000893",
+      "name": "融合版云宽带7月版续费变更",
+      "optionCount": 1,
+      "details": "云宽带融合方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000893&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 296,
+      "id": "A1000895",
+      "name": "移动来电管家",
+      "optionCount": 1,
+      "details": "移动来电管家",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000895&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 297,
+      "id": "A1000896",
+      "name": "视频彩铃钻石会员7天体验包",
+      "optionCount": 1,
+      "details": "视频彩铃钻石会员7天体验包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000896&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 298,
+      "id": "A1000897",
+      "name": "咪咕视频钻石会员7天体验包",
+      "optionCount": 1,
+      "details": "咪咕视频钻石会员7天体验包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000897&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 299,
+      "id": "A1000898",
+      "name": "流量月包",
+      "optionCount": 1,
+      "details": "流量月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000898&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 300,
+      "id": "A1000899",
+      "name": "爱家融合宽带",
+      "optionCount": 5,
+      "details": "爱家78元档 / 爱家98元档 / 爱家128元档 / 爱家158元档 / 成员专享宽带",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000899&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 301,
+      "id": "A1000900",
+      "name": "FTTR无代付方案办理",
+      "optionCount": 2,
+      "details": "爱家福袋-FTTR（提速版无代付） / 爱家光网三年方案-提速版无代付",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000900&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 302,
+      "id": "A1000901",
+      "name": "随心用日付版续费",
+      "optionCount": 1,
+      "details": "爱家宽带电视随心用",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000901&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 303,
+      "id": "A1000902",
+      "name": "机器狗穿戴设备专属活动",
+      "optionCount": 1,
+      "details": "机器狗穿戴设备专属活动",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000902&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 304,
+      "id": "A1000903",
+      "name": "芒果年包（2026）",
+      "optionCount": 1,
+      "details": "芒果年包（2026）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000903&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 305,
+      "id": "A1000904",
+      "name": "绑定万能副卡+副卡优惠方案权益",
+      "optionCount": 1,
+      "details": "绑定万能副卡+副卡优惠方案权益",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000904&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 306,
+      "id": "A1000905",
+      "name": "福利畅看礼",
+      "optionCount": 1,
+      "details": "福利畅看礼",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000905&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 307,
+      "id": "A1000906",
+      "name": "云笔电一体化服务-新",
+      "optionCount": 1,
+      "details": "云笔电一体化服务-新",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000906&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 308,
+      "id": "A1000907",
+      "name": "小京通pro",
+      "optionCount": 1,
+      "details": "小京通pro",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000907&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 309,
+      "id": "A1000908",
+      "name": "算力豆",
+      "optionCount": 7,
+      "details": "算力套餐-5.9元-次包 / 算力套餐-11.9元-次包 / 算力套餐-5.9元-月包 / 算力套餐-11.9元-月包 / 算力套餐-22.9元-月包 / 算力套餐-59.9元-月包 / 算力套餐-119.9元-月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000908&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 310,
+      "id": "A1000909",
+      "name": "算力年卡",
+      "optionCount": 3,
+      "details": "校园算力卡阶跃年包 / 校园算力卡阿里年包 / 校园算力卡GLM年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000909&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 311,
+      "id": "A1000910",
+      "name": "算力豆优惠版",
+      "optionCount": 8,
+      "details": "算力套餐-5.9元-次包-优惠版 / 算力套餐-11.9元-次包-优惠版 / 算力套餐-5.9元-月包-优惠版 / 算力套餐-11.9元-月包-优惠版 / 算力套餐-22.9元-月包-优惠版 / 算力套餐-59.9元-月包-优惠版 / 算力套餐-119.9元-月包-优惠版 / 算力特惠包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000910&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 312,
+      "id": "A1000911",
+      "name": "算力豆竞对",
+      "optionCount": 3,
+      "details": "算力套餐-11.9元-次包-5折 / 算力套餐-11.9元-次包-3折 / 算力套餐-11.9元-次包-0折",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000911&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 313,
+      "id": "A1000912",
+      "name": "CPE流量卡流量暂停",
+      "optionCount": 1,
+      "details": "CPE流量卡流量暂停",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000912&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 314,
+      "id": "A1000913",
+      "name": "阶跃",
+      "optionCount": 3,
+      "details": "阶跃Flash Mini月包 / 阶跃Flash Plus月包 / 阶跃Flash Plus年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000913&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 315,
+      "id": "A1000914",
+      "name": "阿里",
+      "optionCount": 4,
+      "details": "千问尝鲜版 / 千问基础版 / 千问标准版 / 千问高级版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000914&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 316,
+      "id": "A1000915",
+      "name": "GLM",
+      "optionCount": 3,
+      "details": "GLM标准版 / GLM高级版 / GLM旗舰版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000915&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 317,
+      "id": "A1000916",
+      "name": "云平板一体化服务-集团客户版",
+      "optionCount": 1,
+      "details": "云平板一体化服务-集团客户版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000916&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 318,
+      "id": "A1000917",
+      "name": "购机享权益服务包",
+      "optionCount": 1,
+      "details": "购机享权益服务包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000917&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 319,
+      "id": "A1000918",
+      "name": "手机保障权益服务包",
+      "optionCount": 1,
+      "details": "手机保障权益服务包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000918&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 320,
+      "id": "A1000919",
+      "name": "5GA畅享套餐优惠购机营业厅版",
+      "optionCount": 2,
+      "details": "5GA畅享套餐优惠购机-免预存版 / 5GA畅享套餐优惠购机-预存版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000919&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 321,
+      "id": "A1000920",
+      "name": "爱家共享红包多人融合版",
+      "optionCount": 1,
+      "details": "爱家共享红包多人融合版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000920&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 322,
+      "id": "A1000921",
+      "name": "校园合约续约",
+      "optionCount": 4,
+      "details": "2026校园续约月付版合约 / 动感地带校园专属套餐500元打一年-2025版 / 动感地带校园专属套餐800元打两年-2025版 / 2026校园扩容合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000921&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 323,
+      "id": "A1000922",
+      "name": "FWA趸付包",
+      "optionCount": 2,
+      "details": "FWA物联网卡趸付包 / FWA冲浪卡趸付包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000922&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 324,
+      "id": "A1000923",
+      "name": "爱家光网调测服务-一从",
+      "optionCount": 1,
+      "details": "爱家光网调测服务-一从",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000923&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 325,
+      "id": "A1000924",
+      "name": "爱家共享群组信用购版",
+      "optionCount": 1,
+      "details": "爱家共享群组信用购版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000924&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 326,
+      "id": "A1000925",
+      "name": "爱家共享群组信用购版成员管理",
+      "optionCount": 3,
+      "details": "添加成员 / 添加成员并变更群组档位 / 删除成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000925&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 327,
+      "id": "A1000926",
+      "name": "Plus会员纯享月包1张券优惠购（政企成员5折）",
+      "optionCount": 1,
+      "details": "Plus会员纯享月包1张券优惠购（政企成员5折）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000926&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 328,
+      "id": "A1000927",
+      "name": "49元冲浪卡趸付礼包（12个月）-FWA版",
+      "optionCount": 1,
+      "details": "49元冲浪卡趸付礼包（12个月）-FWA版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000927&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 329,
+      "id": "A1000928",
+      "name": "体验版流量叠加1T",
+      "optionCount": 1,
+      "details": "体验版流量叠加1T",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000928&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 330,
+      "id": "A1000930",
+      "name": "校园好友用移动",
+      "optionCount": 2,
+      "details": "校园好友用移动 / 添加成员",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000930&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 331,
+      "id": "A1000931",
+      "name": "TokenPlan个人版",
+      "optionCount": 1,
+      "details": "TokenPlan个人版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000931&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 332,
+      "id": "A1000932",
+      "name": "FTTR优惠福袋",
+      "optionCount": 1,
+      "details": "FTTR优惠福袋",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000932&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 333,
+      "id": "A1000933",
+      "name": "FTTR优惠福袋-全球通专享",
+      "optionCount": 1,
+      "details": "FTTR优惠福袋-全球通专享",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000933&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 334,
+      "id": "A1000934",
+      "name": "整机养护服务",
+      "optionCount": 1,
+      "details": "整机养护服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000934&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 335,
+      "id": "A1000935",
+      "name": "来密云看海-乐享卡",
+      "optionCount": 1,
+      "details": "来密云看海-乐享卡",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000935&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 336,
+      "id": "A1000936",
+      "name": "融合版新云宽带报装-老号新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000936&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 337,
+      "id": "A1000937",
+      "name": "融合版新云宽带报装-携入新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000937&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 338,
+      "id": "A1000938",
+      "name": "融合版新云宽带报装-新号新宽",
+      "optionCount": 33,
+      "details": "云宽带89元档合约方案-79元/月 / 云宽带99元档合约方案-89元/月 / 云宽带109元档合约方案-99元/月 / 云宽带119元档合约方案-109元/月 / 云宽带129元档合约方案-119元/月 / 云宽带139元档合约方案-129元/月 / 云宽带149元档合约方案-139元/月 / 云宽带159元档合约方案-149元/月 / 云宽带169元档合约方案-159元/月 / 云宽带179元档合约方案-169元/月 / 云宽带189元档合约方案-179元/月 / 云宽带199元档合约方案-189元/月 / 云宽带209元档合约方案-199元/月 / 云宽带219元档合约方案-209元/月 / 云宽带229元档合约方案-219元/月 / 云宽带249元档合约方案-239元/月 / 云宽带279元档合约方案-269元/月 / 云宽带309元档合约方案-299元/月 / 云宽带339元档合约方案-329元/月 / 云宽带379元档合约方案-369元/月 / 云宽带409元档合约方案-399元/月 / 云宽带479元档合约方案-469元/月 / 云宽带519元档合约方案-509元/月 / 云宽带609元档合约方案-599元/月 / 云宽带89元档合约方案（一年）-79元/月 / 云宽带99元档合约方案（一年）-89元/月 / 云宽带109元档合约方案（一年）-99元/月 / 云宽带119元档合约方案（一年）-109元/月 / 云宽带129元档合约方案（一年）-119元/月 / 云宽带139元档合约方案（一年）-129元/月 / 云宽带149元档合约方案（一年）-139元/月 / 云宽带159元档合约方案（一年）-149元/月 / 云宽带169元档合约方案（一年）-159元/月",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000938&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 339,
+      "id": "A1000939",
+      "name": "手机碎屏服务月包5元（36个月）",
+      "optionCount": 1,
+      "details": "手机碎屏服务月包5元（36个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000939&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 340,
+      "id": "A1000940",
+      "name": "AI手机",
+      "optionCount": 2,
+      "details": "AI手机融合方案新业务40元档 / AI手机融合方案新业务60元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000940&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 341,
+      "id": "A1000941",
+      "name": "流量活动专享提速包",
+      "optionCount": 1,
+      "details": "流量活动专享提速包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000941&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 342,
+      "id": "A1000942",
+      "name": "信用购机承诺消费得权益AI手机版定制版",
+      "optionCount": 1,
+      "details": "信用购机承诺消费得权益AI手机版定制版",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000942&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 343,
+      "id": "A1000943",
+      "name": "云宽带到期转月包版续费变更",
+      "optionCount": 2,
+      "details": "云宽带主套餐**元档合约方案 / 云宽带主套餐优惠合约方案**元档",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000943&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 344,
+      "id": "A1000944",
+      "name": "咪咕视频篮球通",
+      "optionCount": 2,
+      "details": "咪咕视频篮球通月包 / 咪咕视频篮球通年包（趸付12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000944&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 345,
+      "id": "A1000945",
+      "name": "云电脑服务",
+      "optionCount": 2,
+      "details": "家庭云电脑畅享版月包 / 家庭云电脑高级版月包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000945&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 346,
+      "id": "A1000946",
+      "name": "悦享大礼包2026版（12个月）",
+      "optionCount": 1,
+      "details": "悦享大礼包2026版（12个月）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000946&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 347,
+      "id": "A1000947",
+      "name": "全家享套餐（政企成员客户专属）",
+      "optionCount": 1,
+      "details": "全家享套餐（政企成员客户专属）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000947&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 348,
+      "id": "A1000948",
+      "name": "移动高清电视会员（南水北调专属）",
+      "optionCount": 1,
+      "details": "移动高清电视会员（南水北调专属）",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000948&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 349,
+      "id": "A1000949",
+      "name": "云平板TokenPlan融合产品",
+      "optionCount": 1,
+      "details": "云平板TokenPlan融合产品",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000949&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 350,
+      "id": "A1000950",
+      "name": "惠行乐享包",
+      "optionCount": 1,
+      "details": "惠行乐享包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000950&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 351,
+      "id": "A1000951",
+      "name": "10元10GB畅用流量包",
+      "optionCount": 1,
+      "details": "10元10GB畅用流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000951&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 352,
+      "id": "A1000952",
+      "name": "2026校园扩容合约",
+      "optionCount": 1,
+      "details": "2026校园扩容合约",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000952&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 353,
+      "id": "A1000953",
+      "name": "手机年年换新服务",
+      "optionCount": 1,
+      "details": "手机年年换新服务",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000953&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 354,
+      "id": "A1000954",
+      "name": "兜底折扣方案",
+      "optionCount": 1,
+      "details": "兜底折扣方案",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000954&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 355,
+      "id": "A1000955",
+      "name": "提速共享流量包",
+      "optionCount": 1,
+      "details": "10元50GB提速共享流量包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000955&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 356,
+      "id": "A1000956",
+      "name": "全家安全宝",
+      "optionCount": 1,
+      "details": "全家安全宝",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000956&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 357,
+      "id": "A1000957",
+      "name": "1000元网络加速包",
+      "optionCount": 1,
+      "details": "1000元网络加速包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000957&channel=app_share",
+      "note": ""
+    },
+    {
+      "row": 358,
+      "id": "A1000958",
+      "name": "咪咕网球乒乓球系列产品",
+      "optionCount": 7,
+      "details": "咪咕网球赛事月包 / 咪咕网球赛事次包 / 咪咕网球赛事优惠包 / 咪咕乒乓赛事月包 / 咪咕乒乓赛事次包 / 咪咕乒乓赛事季包 / 咪咕乒乓赛事年包",
+      "url": "https://ysmapp.bj.10086.cn/app/channel-web/busiCore/showIndexCommon.action?submitWarePackageId=A1000958&channel=app_share",
+      "note": ""
+    }
+  ]
+}

@@ -29,84 +29,73 @@ function unique(values) {
 }
 
 function searchable(item, fields) {
-  return fields.map((field) => item[field] ?? "").join(" ").toLocaleLowerCase("zh-CN");
+  return fields.map((field) => typeof item[field] === "object" ? JSON.stringify(item[field]) : item[field] ?? "").join(" ").toLocaleLowerCase("zh-CN");
+}
+
+const VIEW_LABELS = { current: "当前清单", added: "更新区（新增）", removed: "删减区", changed: "内容变更" };
+const FIELD_LABELS = { name: "名称", grade: "全球通等级", rule: "多档规则", start: "生效时间", end: "失效时间" };
+
+function comparable(value) {
+  return String(value ?? "").replace(/[\s；;]/g, "").replace(/[（【]/g, "(").replace(/[）】]/g, ")");
+}
+
+function compareRecords(key, current, previous) {
+  const identity = (item) => key === "low" ? item.key : item.id;
+  const oldMap = new Map(previous.map((item) => [identity(item), item]));
+  const newKeys = new Set(current.map(identity));
+  const added = [], changed = [];
+  const fields = key === "low" ? ["grade", "rule"] : key === "2" ? ["name", "start", "end"] : ["name"];
+  const items = current.map((item) => {
+    const old = oldMap.get(identity(item));
+    if (!old) {
+      const addedItem = { ...item, changeStatus: "added" };
+      added.push(addedItem);
+      return addedItem;
+    }
+    const changes = fields.filter((field) => comparable(item[field]) !== comparable(old[field])).map((field) => ({
+      field, label: FIELD_LABELS[field], before: old[field] || "", after: item[field] || "",
+    }));
+    if (changes.length) {
+      const changedItem = { ...item, changeStatus: "changed", changes };
+      changed.push(changedItem);
+      return changedItem;
+    }
+    return { ...item, changeStatus: "unchanged" };
+  });
+  return { current: items, added, changed, removed: previous.filter((item) => !newKeys.has(identity(item))).map((item) => ({ ...item, changeStatus: "removed" })) };
 }
 
 function buildDatasets() {
-  const type2Source = loadJson("type2.json");
-  const type3Source = loadJson("contracts.json");
-  const lowSource = loadJson("low-consumption.json");
-
-  const type2Items = type2Source.contracts.map((contract, index) => {
-    const item = {
-      row: Number(contract.idx) || index + 1,
-      id: String(contract.code),
-      prefix: contract.prefix || String(contract.code).slice(0, 6),
-      name: contract.name,
-      category: contract.category || "",
-      amount: contract.amount || "",
-      duration: contract.duration || "",
-      start: contract.start || "",
-      end: contract.end || "",
-      long: contract.long || "",
-      status: contract.status || "",
-    };
-    return { ...item, searchText: searchable(item, Object.keys(item)) };
-  });
-
-  const type3Items = type3Source.contracts.map((contract, index) => {
-    const item = {
-      row: index + 1,
-      id: contract.id,
-      prefix: contract.id.slice(0, 6),
-      name: contract.name,
-    };
-    return { ...item, searchText: searchable(item, Object.keys(item)) };
-  });
-
-  const lowItems = lowSource.contracts.map((contract, index) => {
-    const item = {
-      row: index + 1,
-      name: contract.name,
-      grade: contract.grade,
-      rule: contract.rule || "",
-    };
-    return { ...item, searchText: searchable(item, Object.keys(item)) };
-  });
-
-  const definitions = {
-    "2": {
-      key: "2",
-      label: "二类合约",
-      meta: type2Source.meta,
-      items: type2Items,
+  const definitions = {};
+  for (const [key, file, label] of [["2", "type2.json", "二类合约"], ["3", "contracts.json", "三类合约"], ["low", "low-consumption.json", "低消方案等级"], ["grid", "grid-businesses.json", "网格通业务大全"]]) {
+    const source = loadJson(file);
+    let comparison = null;
+    let views;
+    if (key !== "grid") {
+      const baselinePath = path.resolve(DATA_DIR, source.meta.baselineFile);
+      if (!baselinePath.startsWith(DATA_DIR + path.sep)) throw new Error("Invalid baseline path");
+      const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"))[key];
+      views = compareRecords(key, source.contracts, baseline.contracts);
+      comparison = {
+        baseline: { ...baseline.meta, rawTotal: baseline.meta.total, total: baseline.contracts.length },
+        matching: key === "low" ? "按规范化方案名称比对；同名策划 ID 合并为一项，新增 ID 不单独算新增方案。" : "按合约编码比对；同编码改名归入内容变更。",
+        counts: Object.fromEntries(Object.entries(views).map(([view, items]) => [view, items.length])),
+      };
+    } else {
+      views = { current: source.contracts };
+    }
+    for (const [view, items] of Object.entries(views)) {
+      views[view] = items.map((item) => ({ ...item, searchText: searchable(item, Object.keys(item)) }));
+    }
+    const all = [...views.current, ...(views.removed || [])];
+    definitions[key] = {
+      key, label, meta: source.meta, items: views.current, views, comparison,
       filters: {
-        prefixes: unique(type2Items.map((item) => item.prefix)),
-        categories: unique(type2Items.map((item) => item.category)),
+        prefixes: unique(all.map((item) => item.prefix)),
+        categories: unique(all.map((item) => item.category)),
+        grades: unique(all.map((item) => item.grade)),
       },
-    },
-    "3": {
-      key: "3",
-      label: "三类合约",
-      meta: type3Source.meta,
-      items: type3Items,
-      filters: {
-        prefixes: unique(type3Items.map((item) => item.prefix)),
-      },
-    },
-    low: {
-      key: "low",
-      label: "低消方案等级",
-      meta: lowSource.meta,
-      items: lowItems,
-      filters: {
-        grades: ["银卡", "金卡", "白金卡", "钻石卡", "多档规则", "未标注"],
-      },
-    },
-  };
-
-  for (const dataset of Object.values(definitions)) {
-    dataset.meta = { ...dataset.meta, total: dataset.items.length };
+    };
   }
   return definitions;
 }
@@ -151,15 +140,19 @@ function catalogSummary() {
     label: dataset.label,
     total: dataset.items.length,
     meta: dataset.meta,
+    comparison: dataset.comparison,
   }]));
 }
 
 function resolveDataset(searchParams) {
-  return datasets[searchParams.get("type") || "3"] || datasets["3"];
+  const type = searchParams.get("type") || "3";
+  return Object.hasOwn(datasets, type) ? datasets[type] : datasets["3"];
 }
 
 function queryDataset(searchParams) {
   const dataset = resolveDataset(searchParams);
+  const requestedView = searchParams.get("view") || "current";
+  const view = Object.hasOwn(dataset.views, requestedView) ? requestedView : "current";
   const query = (searchParams.get("q") || "").trim();
   const terms = query.toLocaleLowerCase("zh-CN").split(/\s+/).filter(Boolean);
   const filters = {
@@ -167,13 +160,13 @@ function queryDataset(searchParams) {
     category: dataset.key === "2" ? (searchParams.get("category") || "").trim() : "",
     grade: dataset.key === "low" ? (searchParams.get("grade") || "").trim() : "",
   };
-  const filtered = dataset.items.filter((item) => {
+  const filtered = dataset.views[view].filter((item) => {
     if (filters.prefix && item.prefix !== filters.prefix) return false;
     if (filters.category && item.category !== filters.category) return false;
     if (filters.grade && item.grade !== filters.grade) return false;
     return terms.every((term) => item.searchText.includes(term));
   });
-  return { dataset, query, filters, filtered };
+  return { dataset, view, query, filters, filtered };
 }
 
 function publicItem(item) {
@@ -182,7 +175,8 @@ function publicItem(item) {
 }
 
 function csvCell(value) {
-  const text = String(value ?? "");
+  const raw = String(value ?? "");
+  const text = /^[=+@-]/.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
@@ -197,21 +191,28 @@ function csvDefinition(type) {
   if (type === "low") {
     return {
       fileName: "北京移动低消合约方案对应等级查询结果.csv",
-      headers: ["序号", "低消合约方案", "生效全球通等级", "多档规则"],
-      row: (item) => [item.row, item.name, item.grade, item.rule],
+      headers: ["序号", "低消合约方案", "生效全球通等级", "多档规则", "策划ID", "编码生效详情"],
+      row: (item) => [item.row, item.name, item.grade, item.rule, (item.ids || []).join(" / "), (item.variants || []).map((v) => `${v.id} | ${v.kind} | 承诺金额:${v.amount || "未标注"} | 合约期:${v.duration || "未标注"} | 是否立即生效:${v.immediate || "未标注"} | ${v.note}`).join("\n")],
+    };
+  }
+  if (type === "grid") {
+    return {
+      fileName: "北京移动网格通业务查询结果.csv",
+      headers: ["序号", "业务ID", "业务名称", "档位数", "档位及子业务", "业务入口", "源表备注"],
+      row: (item) => [item.row, item.id, item.name, item.optionCount, item.details, item.url, item.note],
     };
   }
   return {
     fileName: "北京移动三类合约查询结果.csv",
-    headers: ["序号", "策划ID", "前缀", "策划名称"],
-    row: (item) => [item.row, item.id, item.prefix, item.name],
+    headers: ["序号", "策划ID", "前缀", "策划名称", "生效时间", "失效时间"],
+    row: (item) => [item.row, item.id, item.prefix, item.name, item.start, item.end],
   };
 }
 
 function sendContracts(res, searchParams, method) {
   const page = positiveInteger(searchParams.get("page"), 1, 100000);
   const pageSize = positiveInteger(searchParams.get("pageSize"), 50, 200);
-  const { dataset, query, filters, filtered } = queryDataset(searchParams);
+  const { dataset, view, query, filters, filtered } = queryDataset(searchParams);
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * pageSize;
@@ -219,6 +220,9 @@ function sendContracts(res, searchParams, method) {
   sendJson(res, 200, {
     type: dataset.key,
     label: dataset.label,
+    view,
+    viewLabel: VIEW_LABELS[view],
+    comparison: dataset.comparison,
     meta: dataset.meta,
     catalogs: catalogSummary(),
     filters: dataset.filters,
@@ -233,11 +237,13 @@ function sendContracts(res, searchParams, method) {
 }
 
 function sendCsv(res, searchParams, method) {
-  const { dataset, filtered } = queryDataset(searchParams);
+  const { dataset, view, filtered } = queryDataset(searchParams);
   const definition = csvDefinition(dataset.key);
-  const rows = [definition.headers, ...filtered.map(definition.row)];
+  const rows = [[...definition.headers, "对比状态", "变更前后"], ...filtered.map((item) => [...definition.row(item),
+    ({ added: "新增", removed: "旧版移除", changed: "内容变更", unchanged: "未变更" })[item.changeStatus] || "",
+    (item.changes || []).map((change) => `${change.label}: ${change.before || "未标注"} → ${change.after || "未标注"}`).join("\n")])];
   const csv = `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
-  const fileName = encodeURIComponent(definition.fileName);
+  const fileName = encodeURIComponent(`${VIEW_LABELS[view]}-${definition.fileName}`);
   securityHeaders(res);
   res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${fileName}`);
   send(res, 200, csv, "text/csv; charset=utf-8", method);
@@ -275,6 +281,7 @@ function createApp() {
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
+        version: "20261105-catalogs-1",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
         uptimeSeconds: Math.floor(process.uptime()),
       }, method);

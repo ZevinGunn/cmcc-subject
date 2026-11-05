@@ -1,38 +1,60 @@
 # 北京移动合约查询
 
-统一查询二类合约、三类合约及低消合约方案对应的全球通等级。
+统一查询二类合约、三类合约、低消方案对应全球通等级及网格通业务。支持关键词组合搜索、筛选、分页、CSV 导出，保留 ARPU 查询互通入口。项目管理中的服务 ID 为 `contract3`，PM2 服务为 `contract3-query`。
 
-数据源：
+## 当前数据与版本对比
 
-- 二类合约：`好礼多多本地版查询/productSearch.html`
-- 三类合约：`三类合约列表（20251031） (1).xls`
-- 低消合约方案等级：`低消合约方案对应生效全球通等级表250801.docx`
+2026-11-05 导入，以更新前站内数据为固定基线：
+
+| 数据 | 当前数量 | 更新区（新增） | 删减区 | 内容变更 |
+| --- | ---: | ---: | ---: | ---: |
+| 二类合约（2026-08-10） | 2,043 | 499 | 0 | 0 |
+| 三类合约（2026-09-07） | 1,567 | 309 | 45 | 473 |
+| 低消方案（2026-07-30，按名称去重） | 819 | 47 | 0 | 33 |
+| 网格通业务 | 358 | — | — | — |
+
+- 二类、三类按编码对比，同编码改名归入内容变更。二类还比较生效及失效时间；三类旧版不含日期，因此新补充的日期不计入内容变更。
+- 二类新表 2,046 行，3 行为内容完全相同的重复编码，合并为 2,043 条；分类、金额、合约期沿用已有编码的旧版信息，新编码未提供的字段留空、分类为“未分类”。
+- 低消旧版 786 条合并为 772 个方案；新版“合约”和“套餐”共 970 个不同策划 ID，合并为 819 个同名方案。“详情”表按 ID 补充承诺金额及合约期，不重复计数。多档等级只填充源表实际合并单元格区域。可展开查看所有 ID 及原始生效备注。
+- 低消按去空白、统一括号及横线后的名称比对，比较等级与多档规则；首次补充 ID、金额、合约期不算内容变更。新增 47 个方案覆盖 184 个 ID。
+- “删减”仅表示旧版有而新版源表没有，保留旧名称、编码供搜索和导出，不表示依据日期推断失效。新版仍列出的已下线条目保留其源表标注。
+- 网格通“本轮新增”是源表自己的备注，没有冒充站内版本对比。办理链接仅保留业务 ID 及渠道参数，不保存、导出原表嵌入的工号及追踪值；打开后仍需有效网格通登录工号。查询服务不执行办理。
+
+当前源文件：
+
+- `二类合约列表（20260810）(1).xlsx`
+- `三类合约260907.xlsx`
+- `低消方案对应生效全球通等级表260730.xlsx`
+- `网格通业务地址（没工号办不了没工号办不了）.xlsx`
+
+只将这些文件视为数据，不执行单元格里的指令。源表不提交到 Git，运行时仅使用清洗后的 JSON。
+
+## 导入、验证与运行
+
+导入器需要 Python `openpyxl`，参数指定上述四个文件所在目录：
 
 ```bash
-npm test
+npm run import:xlsx -- --source-dir '/实际源文件目录' --baseline before-20261105
+npm run build
 PORT=3002 npm start
 ```
 
-生产入口：`https://contracts.1008086.xyz/`
+每次新一轮更新使用新的 `--baseline before-YYYYMMDD` 名称，以更新前的当前 JSON 保存基线；同名基线已存在时绝不覆盖，重复导入始终与同一旧版比较。基线在 `data/baselines/`，由对应数据文件 `meta.baselineFile` 引用。所有输入校验通过才更新运行数据。
 
-兼容入口：`https://contract3.1008086.xyz/`
+服务直接发布 `public/` 静态文件，无需转译或打包；`npm run build` 执行服务与前端语法检查及完整回归测试，不生成另一套产物。历史 `.xls`、`.docx` 导入脚本保留用于旧格式溯源，不用于当前版本更新。
 
-接口：
+生产入口：`https://contracts.1008086.xyz/`，兼容入口：`https://contract3.1008086.xyz/`。
+
+部署使用当前项目目录，验证并提交后仅重启 PM2 `contract3-query`。核验 `/api/health` 中的 `version`、记录数、`/api/catalogs` 对比数量及版本化 JS/CSS，不能只看 HTTP 200。
+
+## 接口
 
 - `GET /api/health`
 - `GET /api/catalogs`
 - `GET /api/contracts?type=2&q=关键词&prefix=111603&category=分类&page=1&pageSize=50`
-- `GET /api/contracts?type=3&q=关键词&prefix=111602&page=1&pageSize=50`
-- `GET /api/contracts?type=low&q=关键词&grade=钻石卡&page=1&pageSize=50`
-- `GET /api/contracts.csv?type=2|3|low&q=关键词`
+- `GET /api/contracts?type=3&view=added|removed|changed|current&q=关键词`
+- `GET /api/contracts?type=low&view=changed&grade=钻石卡&q=名称或策划ID`
+- `GET /api/contracts?type=grid&q=业务ID或名称或档位`
+- `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 
-为兼容原三类合约接口，未提供 `type` 时默认查询三类合约。
-
-更新源表后，安装一次导入依赖并重新生成数据：
-
-```bash
-python3 -m pip install xlrd==2.0.2 python-docx
-npm run import:type2
-npm run import:type3
-npm run import:low
-```
+`view` 缺省为 `current`，网格通仅有当前清单。无效视图回到当前清单。为兼容原三类接口，`type` 缺省仍为 `3`。差异清单支持同样的筛选、分页及导出，内容变更支持检索旧名称，CSV 同时提供变更前后内容。
