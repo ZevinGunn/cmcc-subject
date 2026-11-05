@@ -31,6 +31,7 @@ const elements = {
   previous: document.getElementById("previous"),
   next: document.getElementById("next"),
   toast: document.getElementById("toast"),
+  themeSelect: document.getElementById("theme-select"),
   gridAdmin: document.getElementById("grid-admin"),
   gridAdminKey: document.getElementById("grid-admin-key"),
   gridAdminIds: document.getElementById("grid-admin-ids"),
@@ -67,6 +68,12 @@ const elements = {
 };
 
 const params = new URLSearchParams(window.location.search);
+const themeRoot = document.documentElement;
+const savedTheme = (() => {
+  try { return localStorage.getItem("cmcc-query-theme"); } catch { return null; }
+})();
+const initialTheme = ["mobile", "ios", "classic"].includes(savedTheme) ? savedTheme : "mobile";
+themeRoot.dataset.theme = initialTheme;
 const requestedType = params.get("type");
 const state = {
   type: ["2", "3", "low", "grid", "tariff"].includes(requestedType) ? requestedType : "2",
@@ -940,5 +947,14 @@ if (elements.gridConfigure) elements.gridConfigure.addEventListener("click", () 
 });
 if (elements.gridCollectAll) elements.gridCollectAll.addEventListener("click", () => runGridAdmin("/collect", { mode: "all" }));
 if (elements.gridDiscover) elements.gridDiscover.addEventListener("click", () => runGridAdmin("/collect", { mode: "discover" }));
+
+if (elements.themeSelect) {
+  elements.themeSelect.value = initialTheme;
+  elements.themeSelect.addEventListener("change", () => {
+    const theme = ["mobile", "ios", "classic"].includes(elements.themeSelect.value) ? elements.themeSelect.value : "mobile";
+    themeRoot.dataset.theme = theme;
+    try { localStorage.setItem("cmcc-query-theme", theme); } catch { /* ignore unavailable storage */ }
+  });
+}
 
 loadContracts();

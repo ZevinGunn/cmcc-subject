@@ -114,7 +114,7 @@ function compareRecords(key, current, previous) {
 
 function buildDatasets() {
   const definitions = {};
-  for (const [key, file, label] of [["2", "type2.json", "二类合约"], ["3", "contracts.json", "三类合约"], ["low", "low-consumption.json", "低消方案等级"], ["grid", "grid-businesses.json", "网格通业务大全"]]) {
+  for (const [key, file, label] of [["2", "type2.json", "二类合约"], ["3", "contracts.json", "三类合约"], ["low", "low-consumption.json", "低消方案等级"], ["grid", "grid-businesses.json", "业务大全"]]) {
     const source = loadJson(file);
     let comparison = null;
     let views;
