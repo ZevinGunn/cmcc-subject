@@ -38,6 +38,7 @@ const elements = {
   gridCollectAll: document.getElementById("grid-collect-all"),
   gridDiscover: document.getElementById("grid-discover"),
   gridAdminStatus: document.getElementById("grid-admin-status"),
+  gridModeBar: document.getElementById("grid-mode-bar"),
   gridListMode: document.getElementById("grid-list-mode"),
   gridKnowledgeMode: document.getElementById("grid-knowledge-mode"),
   knowledgePanel: document.getElementById("knowledge-panel"),
@@ -59,12 +60,16 @@ const elements = {
   knowledgeDetailTitle: document.getElementById("knowledge-detail-title"),
   knowledgeDetailBody: document.getElementById("knowledge-detail-body"),
   tableRegion: document.querySelector(".table-region"),
+  advancedToggle: document.getElementById("advanced-toggle"),
+  advancedClose: document.getElementById("advanced-close"),
+  advancedFilters: document.getElementById("advanced-filters"),
+  advancedBackdrop: document.getElementById("advanced-backdrop"),
 };
 
 const params = new URLSearchParams(window.location.search);
 const requestedType = params.get("type");
 const state = {
-  type: ["2", "3", "low", "grid"].includes(requestedType) ? requestedType : "2",
+  type: ["2", "3", "low", "grid", "tariff"].includes(requestedType) ? requestedType : "2",
   view: ["current", "added", "removed", "changed"].includes(params.get("view")) ? params.get("view") : "current",
   query: params.get("q") || "",
   prefix: params.get("prefix") || "",
@@ -84,6 +89,7 @@ const state = {
   controller: null,
   knowledgeController: null,
   knowledgeDetails: new Map(),
+  advancedOpen: params.get("advanced") === "1",
 };
 
 const tableSchemas = {
@@ -123,6 +129,15 @@ const tableSchemas = {
     { key: "optionCount", label: "档位数", className: "col-duration optional-mobile" },
     { key: "gridAction", label: "入口", className: "col-grid-action" },
   ],
+  tariff: [
+    { key: "row", label: "序号", className: "col-row optional-mobile" },
+    { key: "code", label: "资费编号", className: "col-id" },
+    { key: "name", label: "资费名称", className: "col-name" },
+    { key: "price", label: "资费标准", className: "col-amount" },
+    { key: "onlineRaw", label: "上架日期", className: "col-validity optional-mobile" },
+    { key: "offlineRaw", label: "下架日期", className: "col-validity optional-mobile" },
+    { key: "status", label: "状态", className: "col-status" },
+  ],
 };
 
 elements.query.value = state.query;
@@ -153,18 +168,28 @@ function knowledgeModeActive() {
   return state.type === "grid" && state.knowledge;
 }
 
+function syncAdvancedFilters() {
+  const open = state.advancedOpen && !knowledgeModeActive();
+  elements.form.classList.toggle("advanced-open", open);
+  elements.advancedToggle.setAttribute("aria-expanded", String(open));
+  elements.advancedToggle.textContent = open ? "收起高级筛选" : "高级筛选";
+  elements.advancedBackdrop.hidden = !open;
+  elements.advancedFilters.setAttribute("aria-hidden", String(!open));
+}
+
 function syncGridMode() {
   const active = knowledgeModeActive();
   elements.knowledgePanel.hidden = !active;
   elements.tableRegion.hidden = active;
   elements.form.hidden = active;
   elements.comparison.hidden = state.type === "grid";
-  elements.gridAdmin.hidden = state.type !== "grid";
-  elements.gridAdmin.classList.toggle("knowledge-active", active);
+  elements.gridAdmin.hidden = true;
+  elements.gridModeBar.hidden = state.type !== "grid";
   elements.gridListMode.setAttribute("aria-pressed", String(!active));
   elements.gridKnowledgeMode.setAttribute("aria-pressed", String(active));
   elements.gridListMode.classList.toggle("active", !active);
   elements.gridKnowledgeMode.classList.toggle("active", active);
+  syncAdvancedFilters();
 }
 
 function knowledgeStatusLabel(status) {
@@ -380,6 +405,7 @@ function syncUrl() {
   if (state.sort) next.set("sort", state.sort);
   if (state.page !== 1) next.set("page", String(state.page));
   if (state.pageSize !== 50) next.set("pageSize", String(state.pageSize));
+  if (state.advancedOpen && !knowledgeModeActive()) next.set("advanced", "1");
   if (knowledgeModeActive()) {
     next.set("knowledge", "1");
     if (state.knowledgeStatus) next.set("status", state.knowledgeStatus);
@@ -456,11 +482,12 @@ function renderComparison(payload) {
     }
   }
   elements.query.placeholder = state.type === "grid" ? "搜索业务 ID、名称或档位关键词" : state.type === "low" ? "搜索方案名称、策划 ID、等级或生效说明" : "搜索合约编码、名称或关键词";
-  elements.gridAdmin.hidden = state.type !== "grid";
+  elements.gridAdmin.hidden = true;
   if (state.type === "grid") refreshGridAdminStatus();
 }
 
 async function refreshGridAdminStatus() {
+  if (!elements.gridAdminStatus) return;
   try {
     const response = await fetch("/api/grid-catalog/status", { cache: "no-store" });
     if (!response.ok) throw new Error();
@@ -594,6 +621,27 @@ function renderRows(items) {
           }
           cell.append(details);
         }
+        if (state.type !== "grid") {
+          const summary = document.createElement("small");
+          summary.className = "mobile-summary";
+          const values = [
+            item.category && `分类：${item.category}`,
+            item.grade && `等级：${item.grade}`,
+            item.duration && `合约期：${item.duration}个月`,
+            item.validity && `有效期：${item.validity}`,
+            item.status && `状态：${item.status}`,
+          ].filter(Boolean);
+          summary.textContent = values.join(" · ");
+          if (values.length) cell.append(summary);
+          const details = document.createElement("details");
+          details.className = "row-details";
+          const detailsSummary = document.createElement("summary");
+          detailsSummary.textContent = "查看详情";
+          const detailsText = document.createElement("p");
+          detailsText.textContent = values.join("\n") || "暂无更多详情";
+          details.append(detailsSummary, detailsText);
+          cell.append(details);
+        }
         if (state.type === "grid") {
           const details = document.createElement("details");
           details.className = "variant-details";
@@ -721,6 +769,8 @@ function applySearch() {
   state.minPrice = elements.minPrice.value === "" ? "" : String(Number(elements.minPrice.value));
   state.maxPrice = elements.maxPrice.value === "" ? "" : String(Number(elements.maxPrice.value));
   state.page = 1;
+  state.advancedOpen = false;
+  syncAdvancedFilters();
   loadContracts();
 }
 const search = debounce(applySearch);
@@ -759,6 +809,18 @@ elements.tabs.forEach((tab, index) => {
 elements.form.addEventListener("submit", (event) => {
   event.preventDefault();
   applySearch();
+});
+elements.advancedToggle.addEventListener("click", () => {
+  state.advancedOpen = !state.advancedOpen;
+  syncAdvancedFilters();
+});
+elements.advancedClose.addEventListener("click", () => {
+  state.advancedOpen = false;
+  syncAdvancedFilters();
+});
+elements.advancedBackdrop.addEventListener("click", () => {
+  state.advancedOpen = false;
+  syncAdvancedFilters();
 });
 elements.query.addEventListener("input", search);
 elements.knowledgeQuery.addEventListener("input", debounce(() => {
@@ -872,11 +934,11 @@ elements.next.addEventListener("click", () => {
   loadContracts();
 });
 
-elements.gridConfigure.addEventListener("click", () => {
+if (elements.gridConfigure) elements.gridConfigure.addEventListener("click", () => {
   const ids = elements.gridAdminIds.value.split(/[\s,，]+/).map((id) => id.trim()).filter(Boolean);
   runGridAdmin("/configure", { ids });
 });
-elements.gridCollectAll.addEventListener("click", () => runGridAdmin("/collect", { mode: "all" }));
-elements.gridDiscover.addEventListener("click", () => runGridAdmin("/collect", { mode: "discover" }));
+if (elements.gridCollectAll) elements.gridCollectAll.addEventListener("click", () => runGridAdmin("/collect", { mode: "all" }));
+if (elements.gridDiscover) elements.gridDiscover.addEventListener("click", () => runGridAdmin("/collect", { mode: "discover" }));
 
 loadContracts();

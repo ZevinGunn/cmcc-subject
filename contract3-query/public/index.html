@@ -36,7 +36,10 @@
         低消方案等级 <span data-count="low">-</span>
       </button>
       <button class="dataset-tab" type="button" role="tab" data-type="grid" aria-selected="false">
-        网格通业务大全 <span data-count="grid">-</span>
+        业务大全 <span data-count="grid">-</span>
+      </button>
+      <button class="dataset-tab" type="button" role="tab" data-type="tariff" aria-selected="false">
+        资费快捷查询 <span data-count="tariff">-</span>
       </button>
     </div>
 
@@ -54,68 +57,68 @@
         <span class="sr-only">搜索当前数据</span>
         <input id="query" name="q" type="search" placeholder="搜索合约编码、名称或关键词" autocomplete="off">
       </label>
-      <label id="primary-filter-wrap">
-        <span id="primary-filter-label" class="field-label">ID 前缀</span>
-        <select id="primary-filter"></select>
-      </label>
-      <label id="secondary-filter-wrap">
-        <span id="secondary-filter-label" class="field-label">分类</span>
-        <select id="secondary-filter"></select>
-      </label>
-      <label>
-        <span class="field-label">每页</span>
-        <select id="page-size" name="pageSize">
-          <option value="25">25 条</option>
-          <option value="50" selected>50 条</option>
-          <option value="100">100 条</option>
-          <option value="200">200 条</option>
-        </select>
-      </label>
+      <button id="advanced-toggle" class="button secondary advanced-toggle" type="button" aria-expanded="false">高级筛选</button>
       <button id="reset" class="button secondary" type="button">重置</button>
       <button id="export" class="button primary" type="button">导出 CSV</button>
-      <fieldset id="price-filters" class="price-filters">
-        <legend class="sr-only">价格筛选和排序</legend>
-        <label>
-          <span class="field-label">最低价格（元）</span>
-          <input id="min-price" name="minPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
-        </label>
-        <label>
-          <span class="field-label">最高价格（元）</span>
-          <input id="max-price" name="maxPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
-        </label>
-        <label class="price-sort-field">
-          <span class="field-label">价格排序</span>
-          <select id="price-sort" name="sort">
-            <option value="">默认顺序</option>
-            <option value="price-asc">价格从低到高</option>
-            <option value="price-desc">价格从高到低</option>
-          </select>
-        </label>
-      </fieldset>
+      <div id="advanced-filters" class="advanced-filters" aria-label="高级筛选">
+        <div class="advanced-filters-heading">
+          <span>高级筛选</span>
+          <button id="advanced-close" class="advanced-close" type="button" aria-label="收起高级筛选">收起</button>
+        </div>
+        <div class="advanced-filters-grid">
+          <label id="primary-filter-wrap">
+            <span id="primary-filter-label" class="field-label">ID 前缀</span>
+            <select id="primary-filter"></select>
+          </label>
+          <label id="secondary-filter-wrap">
+            <span id="secondary-filter-label" class="field-label">分类</span>
+            <select id="secondary-filter"></select>
+          </label>
+          <label>
+            <span class="field-label">每页</span>
+            <select id="page-size" name="pageSize">
+              <option value="25">25 条</option>
+              <option value="50" selected>50 条</option>
+              <option value="100">100 条</option>
+              <option value="200">200 条</option>
+            </select>
+          </label>
+          <fieldset id="price-filters" class="price-filters">
+            <legend class="sr-only">价格筛选和排序</legend>
+            <label>
+              <span class="field-label">最低价格（元）</span>
+              <input id="min-price" name="minPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
+            </label>
+            <label>
+              <span class="field-label">最高价格（元）</span>
+              <input id="max-price" name="maxPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="不限">
+            </label>
+            <label class="price-sort-field">
+              <span class="field-label">价格排序</span>
+              <select id="price-sort" name="sort">
+                <option value="">默认顺序</option>
+                <option value="price-asc">价格从低到高</option>
+                <option value="price-desc">价格从高到低</option>
+              </select>
+            </label>
+          </fieldset>
+        </div>
+      </div>
     </form>
 
-    <section id="grid-admin" class="grid-admin" hidden aria-label="网格通资费采集配置">
-      <div class="grid-admin-heading">
-        <div>
-          <h2>网格通资费采集</h2>
-          <p>只读取业务介绍、规则和公开资费表格。按号码实时计算的档位会标记为动态资费。</p>
-        </div>
-        <div class="grid-admin-links">
-          <button id="grid-list-mode" class="mode-link" type="button" aria-pressed="true">入口清单</button>
-          <button id="grid-knowledge-mode" class="mode-link" type="button" aria-pressed="false">知识库查询</button>
-          <a href="/api/grid-catalog/export.json">导出 JSON</a>
-          <a href="/api/grid-catalog/export.xlsx">导出 Excel</a>
-        </div>
-      </div>
-      <div class="grid-admin-controls">
-        <label><span class="field-label">管理密钥</span><input id="grid-admin-key" type="password" autocomplete="off" placeholder="仅用于配置和采集"></label>
-        <label><span class="field-label">新增业务 ID</span><input id="grid-admin-ids" type="text" placeholder="A1000960, A1000961"></label>
-        <button id="grid-configure" class="button secondary" type="button">保存配置</button>
-        <button id="grid-collect-all" class="button primary" type="button">采集全部</button>
-        <button id="grid-discover" class="button secondary" type="button">发现新编号</button>
-      </div>
-      <div id="grid-admin-status" class="grid-admin-status" role="status" aria-live="polite">正在读取采集状态…</div>
+    <section id="grid-admin" class="grid-admin" hidden aria-hidden="true">
+      <input id="grid-admin-key" type="hidden"><input id="grid-admin-ids" type="hidden">
+      <button id="grid-configure" type="button" hidden></button><button id="grid-collect-all" type="button" hidden></button><button id="grid-discover" type="button" hidden></button>
+      <span id="grid-admin-status" hidden></span>
     </section>
+
+    <div id="grid-mode-bar" class="grid-mode-bar" hidden>
+      <button id="grid-list-mode" class="mode-link" type="button" aria-pressed="true">业务大全</button>
+      <button id="grid-knowledge-mode" class="mode-link" type="button" aria-pressed="false">知识库查询</button>
+      <a href="/api/grid-catalog/export.json">导出 JSON</a>
+      <a href="/api/grid-catalog/export.xlsx">导出 Excel</a>
+    </div>
+    <button id="advanced-backdrop" class="advanced-backdrop" type="button" aria-label="关闭高级筛选" hidden></button>
 
     <section id="knowledge-panel" class="knowledge-panel" hidden aria-label="网格通知识库">
       <div class="knowledge-heading">

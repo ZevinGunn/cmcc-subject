@@ -319,7 +319,7 @@ test("static entry point uses restrictive security headers", async () => {
     assert.match(html, /二类合约/);
     assert.match(html, /三类合约/);
     assert.match(html, /低消方案等级/);
-    assert.match(html, /网格通业务大全/);
+    assert.match(html, /业务大全/);
     assert.match(html, /更新区（新增）/);
     assert.match(html, /删减区/);
     assert.match(html, /href="https:\/\/arpu\.1008086\.xyz\/"/);
