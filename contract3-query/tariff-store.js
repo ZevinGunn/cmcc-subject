@@ -39,7 +39,8 @@ function itemKey(item) {
   return "name:" + crypto.createHash("sha256").update(fallback).digest("hex").slice(0, 24);
 }
 function mergeUnique(left, right) {
-  return [...new Set([...(Array.isArray(left) ? left : []), ...(Array.isArray(right) ? right : [])].filter(Boolean))]
+  const values = (value) => Array.isArray(value) ? value : value ? [value] : [];
+  return [...new Set([...values(left), ...values(right)].filter(Boolean))]
     .sort((a, b) => String(a).localeCompare(String(b), "zh-CN"));
 }
 function normalizeItem(raw) {

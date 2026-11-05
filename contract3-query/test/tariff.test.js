@@ -42,6 +42,14 @@ test("tariff store writes current, previous and change log atomically", () => {
   assert.equal(store.load().changes.length, 1);
 });
 
+test("tariff merge keeps source labels for filters", () => {
+  const store = createTariffStore({ dataDir: fs.mkdtempSync(path.join(os.tmpdir(), "contract3-labels-")) });
+  const merged = store.mergeItems([item()])[0];
+  assert.deepEqual(merged.categories, ["个人资费"]);
+  assert.deepEqual(merged.rangeTabs, ["北京资费"]);
+  assert.deepEqual(merged.tariffTypes, ["套餐"]);
+});
+
 test("monitor skips overlapping runs and does not notify baseline", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-monitor-"));
   const store = createTariffStore({ dataDir: dir });
