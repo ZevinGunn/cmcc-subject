@@ -13,8 +13,6 @@ const elements = {
   tabs: [...document.querySelectorAll(".dataset-tab")],
   views: [...document.querySelectorAll("[data-view]")],
   comparison: document.getElementById("comparison"),
-  comparisonMeta: document.getElementById("comparison-meta"),
-  datasetNote: document.getElementById("dataset-note"),
   table: document.getElementById("results-table"),
   headers: document.getElementById("table-headers"),
   results: document.getElementById("results"),
@@ -22,7 +20,6 @@ const elements = {
   loading: document.getElementById("loading"),
   resultCount: document.getElementById("result-count"),
   totalCount: document.getElementById("total-count"),
-  sourceMeta: document.getElementById("source-meta"),
   tableTitle: document.getElementById("table-title"),
   pageStatus: document.getElementById("page-status"),
   pageRange: document.getElementById("page-range"),
@@ -177,13 +174,7 @@ function renderComparison(payload) {
       button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
       button.querySelector("span").textContent = comparison.counts[button.dataset.view].toLocaleString("zh-CN");
     }
-    const baseline = comparison.baseline;
-    const date = baseline.sourceDate ? `（${baseline.sourceDate}）` : "（更新前站内版本）";
-    const dedup = baseline.rawTotal !== baseline.total ? `（原 ${baseline.rawTotal} 条，已合并重名）` : "";
-    elements.comparisonMeta.textContent = `对比 ${baseline.sourceFile}${date} · 旧版 ${baseline.total.toLocaleString("zh-CN")} 项${dedup}。${comparison.matching}${state.view === "removed" ? " 删减表示新版源表已移除，不等同于按日期失效。" : ""}`;
   }
-  elements.datasetNote.textContent = payload.meta.fieldNote || "";
-  elements.datasetNote.hidden = !payload.meta.fieldNote;
   elements.query.placeholder = state.type === "grid" ? "搜索业务 ID、名称或档位关键词" : state.type === "low" ? "搜索方案名称、策划 ID、等级或生效说明" : "搜索合约编码、名称或关键词";
 }
 
@@ -359,8 +350,6 @@ async function loadContracts() {
 
     elements.resultCount.textContent = payload.total.toLocaleString("zh-CN");
     elements.totalCount.textContent = payload.meta.total.toLocaleString("zh-CN");
-    const sourceDate = payload.meta.sourceDate ? ` · 数据日期 ${payload.meta.sourceDate}` : "";
-    elements.sourceMeta.textContent = `${payload.label}${sourceDate} · ${payload.meta.sourceFile}`;
     elements.tableTitle.textContent = `${payload.label} · ${payload.viewLabel}`;
     elements.pageStatus.textContent = `第 ${payload.page} / ${payload.totalPages} 页`;
     const first = payload.total ? (payload.page - 1) * payload.pageSize + 1 : 0;

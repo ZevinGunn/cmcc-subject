@@ -35,7 +35,6 @@ button, input, select { font: inherit; }
 }
 h1, h2, p { margin: 0; }
 h1 { font-size: 19px; line-height: 1.25; letter-spacing: 0; }
-.brand-block p { margin-top: 3px; max-width: 760px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #dcece8; font-size: 12px; }
 .topbar-actions { display: flex; align-items: center; gap: 18px; flex: 0 0 auto; }
 .summary { display: flex; gap: 20px; white-space: nowrap; color: #dcece8; font-size: 12px; }
 .summary strong { color: #ffffff; font-size: 17px; margin-right: 3px; }
@@ -82,13 +81,11 @@ main { padding: 12px clamp(12px, 2.5vw, 32px) 22px; }
 .dataset-tab:hover { color: #155c51; background: #eef3f1; }
 .dataset-tab[aria-selected="true"] { color: #155c51; border-bottom-color: #155c51; background: #ffffff; }
 .comparison { max-width: 1500px; margin: 0 auto 10px; }
-.comparison[hidden], .dataset-note[hidden] { display: none; }
+.comparison[hidden] { display: none; }
 .view-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
 .view-tabs button { min-height: 36px; padding: 6px 12px; border: 1px solid #cbd1d6; border-radius: 4px; background: #fff; color: #47525e; cursor: pointer; font-size: 13px; }
 .view-tabs button[aria-pressed="true"] { background: #155c51; border-color: #155c51; color: white; }
 .view-tabs span { margin-left: 5px; font-variant-numeric: tabular-nums; }
-.comparison p, .dataset-note { margin-top: 7px; font-size: 12px; line-height: 1.6; color: #59636f; overflow-wrap: anywhere; }
-.dataset-note { max-width: 1500px; margin: 0 auto 10px; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid #155c51; outline-offset: 3px; }
 button:active { filter: brightness(.94); }
 
@@ -219,7 +216,6 @@ tbody tr:hover { background: #f7faf9; }
 
 @media (max-width: 560px) {
   .topbar { display: block; }
-  .brand-block p { white-space: normal; }
   .topbar-actions { margin-top: 9px; flex-wrap: wrap; justify-content: space-between; gap: 9px 14px; }
   .summary { justify-content: flex-start; gap: 14px; }
   .service-link { flex: 1 0 120px; }
