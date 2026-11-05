@@ -101,6 +101,7 @@ const state = {
   controller: null,
   knowledgeController: null,
   knowledgeDetails: new Map(),
+  tariffDetails: new Map(),
   advancedOpen: params.get("advanced") === "1",
 };
 
@@ -379,6 +380,32 @@ function renderKnowledgeDetail(detail) {
   elements.knowledgeDetailBody.replaceChildren(body);
 }
 
+function renderTariffDetail(item) {
+  elements.knowledgeDetailId.textContent = item.code || "资费详情";
+  elements.knowledgeDetailTitle.textContent = item.name || "资费详情";
+  const body = document.createDocumentFragment();
+  const summary = document.createElement("div");
+  summary.className = "knowledge-detail-summary";
+  summary.textContent = [
+    item.price || "资费标准未标注",
+    ({ online: "在售", pending: "待上架", offline: "已下架" })[item.status] || item.status || "状态未标注",
+  ].join(" · ");
+  body.append(summary);
+  addTextBlock(body, "适用对象", item.scope);
+  addTextBlock(body, "适用区域", item.region);
+  addTextBlock(body, "销售渠道", item.channel);
+  addTextBlock(body, "上架日期", item.onlineRaw);
+  addTextBlock(body, "下架日期", item.offlineRaw);
+  if (item.resources?.length) {
+    addTextBlock(body, "资源内容", item.resources.map((resource) => `${resource.label}：${resource.value}`).join("\n"));
+  }
+  addTextBlock(body, "其他服务", item.extraService);
+  addTextBlock(body, "补充说明", item.extraNote);
+  const categories = [...(item.categories || []), ...(item.rangeTabs || []), ...(item.tariffTypes || [])].filter(Boolean);
+  addTextBlock(body, "归类信息", categories.join(" · "));
+  elements.knowledgeDetailBody.replaceChildren(body);
+}
+
 async function openKnowledgeDetail(id) {
   elements.knowledgeDetail.hidden = false;
   elements.knowledgeDetailBody.textContent = "正在读取详情…";
@@ -402,6 +429,14 @@ async function openKnowledgeDetail(id) {
 
 function closeKnowledgeDetail() {
   elements.knowledgeDetail.hidden = true;
+}
+
+function openTariffDetail(id) {
+  const item = state.tariffDetails.get(id);
+  if (!item) return;
+  elements.knowledgeDetail.hidden = false;
+  renderTariffDetail(item);
+  elements.knowledgeDetailClose.focus();
 }
 
 function syncUrl() {
@@ -605,9 +640,13 @@ function cellValue(item, key) {
 
 function renderRows(items) {
   const fragment = document.createDocumentFragment();
+  if (state.type === "tariff") state.tariffDetails.clear();
   for (const [index, originalItem] of items.entries()) {
     let item = originalItem;
-    if (state.type === "tariff") item = { row: index + 1, ...item };
+    if (state.type === "tariff") {
+      item = { row: index + 1, ...item };
+      state.tariffDetails.set(item.code, item);
+    }
     const row = document.createElement("tr");
     for (const column of tableSchemas[state.type]) {
       const cell = document.createElement("td");
@@ -665,29 +704,20 @@ function renderRows(items) {
         }
         if (state.type === "tariff") {
           const summary = document.createElement("small");
-          summary.className = "mobile-summary";
+          summary.className = "mobile-summary tariff-meta";
           summary.textContent = [
             (item.categories || []).join(" / "),
             (item.rangeTabs || []).join(" / "),
             (item.tariffTypes || []).join(" / "),
           ].filter(Boolean).join(" · ");
           if (summary.textContent) cell.append(summary);
-          const details = document.createElement("details");
-          details.className = "row-details";
-          const detailsSummary = document.createElement("summary");
-          detailsSummary.textContent = "查看资费详情";
-          const detailsText = document.createElement("p");
-          const resources = (item.resources || []).map((resource) => resource.label + "：" + resource.value).join("\n");
-          detailsText.textContent = [
-            "适用对象：" + (item.scope || "未标注"),
-            "适用区域：" + (item.region || "未标注"),
-            "销售渠道：" + (item.channel || "未标注"),
-            resources ? "资源：" + resources : "",
-            item.extraService ? "其他服务：" + item.extraService : "",
-            item.extraNote ? "说明：" + item.extraNote : "",
-          ].filter(Boolean).join("\n");
-          details.append(detailsSummary, detailsText);
-          cell.append(details);
+          const detailsButton = document.createElement("button");
+          detailsButton.type = "button";
+          detailsButton.className = "row-details-button tariff-detail-button";
+          detailsButton.dataset.id = item.code;
+          detailsButton.textContent = "查看资费详情";
+          detailsButton.setAttribute("aria-label", `查看${item.name || item.code}资费详情`);
+          cell.append(detailsButton);
         }
         if (state.type !== "grid" && state.type !== "tariff") {
           const summary = document.createElement("small");
@@ -1034,6 +1064,10 @@ elements.knowledgeReset.addEventListener("click", () => {
 elements.knowledgeResults.addEventListener("click", (event) => {
   const button = event.target.closest(".knowledge-open");
   if (button) openKnowledgeDetail(button.dataset.id);
+});
+elements.results.addEventListener("click", (event) => {
+  const button = event.target.closest(".tariff-detail-button");
+  if (button) openTariffDetail(button.dataset.id);
 });
 elements.knowledgePrevious.addEventListener("click", () => {
   if (state.knowledgePage <= 1) return;
