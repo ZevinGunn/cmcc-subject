@@ -1,0 +1,5 @@
+data/grid-catalog.sqlite*
+data/grid-admin.local.json
+data/grid-exports/
+__pycache__/
+scripts/__pycache__/

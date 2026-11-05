@@ -2,12 +2,14 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const { URL } = require("node:url");
+const { createGridCatalog } = require("./grid-catalog");
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 3002);
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
+const gridCatalog = createGridCatalog();
 
 const STATIC_FILES = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -362,19 +364,27 @@ function serveStatic(res, pathname, method) {
   return true;
 }
 
-function createApp({ gridLinks = originalGridLinks } = {}) {
-  return http.createServer((req, res) => {
+function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCatalog } = {}) {
+  return http.createServer(async (req, res) => {
     const method = req.method || "GET";
-    if (method !== "GET" && method !== "HEAD") {
-      res.setHeader("Allow", "GET, HEAD");
-      return sendJson(res, 405, { error: "method_not_allowed" }, method);
-    }
 
     let requestUrl;
     try {
       requestUrl = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
     } catch {
       return sendJson(res, 400, { error: "invalid_url" }, method);
+    }
+
+    // 网格通知识库包含受保护的 POST 管理接口；其他服务接口仍只允许读请求。
+    if (requestUrl.pathname.startsWith("/api/grid-catalog")) {
+      if (!["GET", "HEAD", "POST"].includes(method)) {
+        res.setHeader("Allow", "GET, HEAD, POST");
+        return sendJson(res, 405, { error: "method_not_allowed" }, method);
+      }
+      if (await gridCatalogHandler.handle(req, res, requestUrl, sendJson, send)) return;
+    } else if (method !== "GET" && method !== "HEAD") {
+      res.setHeader("Allow", "GET, HEAD");
+      return sendJson(res, 405, { error: "method_not_allowed" }, method);
     }
 
     if (requestUrl.pathname === "/api/health") {

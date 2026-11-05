@@ -75,6 +75,17 @@ npm run import:xlsx -- --source-dir '/实际源文件目录' --grid-only
 - `GET /api/contracts?type=grid&q=业务ID或名称或档位`
 - `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 
+网格通资费知识库接口：
+
+- `GET /api/grid-catalog?q=关键词&status=ok&page=1&pageSize=30`
+- `GET /api/grid-catalog/detail?id=A1000489`
+- `GET /api/grid-catalog/status`
+- `GET /api/grid-catalog/export.json`
+- `GET /api/grid-catalog/export.xlsx`
+- `POST /api/grid-catalog/configure`、`POST /api/grid-catalog/collect`（需 `Authorization: Bearer <GRID_ADMIN_KEY>`）
+
+采集器只读取官方入口页的公开介绍、业务规则和资费表格，不执行页面脚本，也不保存员工参数、Cookie 或验证码。`submitWarePackageId` 是配置主键。当前已有 358 个入口，默认发现范围为 `A1000959` 到 `A1001058`，最多 500 个编号，间隔限制为 300 至 10000 毫秒。生产环境可通过 `GRID_ADMIN_KEY` 注入管理密钥；未注入时自动生成本机 `data/grid-admin.local.json`，该文件不会提交 Git。
+
 `view` 缺省为 `current`，网格通仅有当前清单。无效视图回到当前清单。为兼容原三类接口，`type` 缺省仍为 `3`。差异清单支持同样的筛选、分页及导出，内容变更支持检索旧名称，CSV 同时提供变更前后内容。
 
 `minPrice`、`maxPrice` 可单独使用，接受非负数且最多两位小数；非法区间返回 HTTP 400。`sort` 为 `price-asc` 或 `price-desc`，省略时保留源表顺序，同价格保持原顺序。JSON 的 `price` 为数值或 `null`，`total` 为分页前的筛选结果总数。CSV 接受相同参数。

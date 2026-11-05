@@ -94,6 +94,27 @@
       </fieldset>
     </form>
 
+    <section id="grid-admin" class="grid-admin" hidden aria-label="网格通资费采集配置">
+      <div class="grid-admin-heading">
+        <div>
+          <h2>网格通资费采集</h2>
+          <p>只读取业务介绍、规则和公开资费表格。按号码实时计算的档位会标记为动态资费。</p>
+        </div>
+        <div class="grid-admin-links">
+          <a href="/api/grid-catalog/export.json">导出 JSON</a>
+          <a href="/api/grid-catalog/export.xlsx">导出 Excel</a>
+        </div>
+      </div>
+      <div class="grid-admin-controls">
+        <label><span class="field-label">管理密钥</span><input id="grid-admin-key" type="password" autocomplete="off" placeholder="仅用于配置和采集"></label>
+        <label><span class="field-label">新增业务 ID</span><input id="grid-admin-ids" type="text" placeholder="A1000960, A1000961"></label>
+        <button id="grid-configure" class="button secondary" type="button">保存配置</button>
+        <button id="grid-collect-all" class="button primary" type="button">采集全部</button>
+        <button id="grid-discover" class="button secondary" type="button">发现新编号</button>
+      </div>
+      <div id="grid-admin-status" class="grid-admin-status" role="status" aria-live="polite">正在读取采集状态…</div>
+    </section>
+
     <section class="table-region" aria-labelledby="table-title">
       <div class="table-heading">
         <div class="table-title-group">
@@ -119,6 +140,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/app.js?v=20261106-4" defer></script>
+  <script src="/app.js?v=20261106-5" defer></script>
 </body>
 </html>

@@ -31,6 +31,13 @@ const elements = {
   previous: document.getElementById("previous"),
   next: document.getElementById("next"),
   toast: document.getElementById("toast"),
+  gridAdmin: document.getElementById("grid-admin"),
+  gridAdminKey: document.getElementById("grid-admin-key"),
+  gridAdminIds: document.getElementById("grid-admin-ids"),
+  gridConfigure: document.getElementById("grid-configure"),
+  gridCollectAll: document.getElementById("grid-collect-all"),
+  gridDiscover: document.getElementById("grid-discover"),
+  gridAdminStatus: document.getElementById("grid-admin-status"),
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -194,6 +201,36 @@ function renderComparison(payload) {
     }
   }
   elements.query.placeholder = state.type === "grid" ? "搜索业务 ID、名称或档位关键词" : state.type === "low" ? "搜索方案名称、策划 ID、等级或生效说明" : "搜索合约编码、名称或关键词";
+  elements.gridAdmin.hidden = state.type !== "grid";
+  if (state.type === "grid") refreshGridAdminStatus();
+}
+
+async function refreshGridAdminStatus() {
+  try {
+    const response = await fetch("/api/grid-catalog/status", { cache: "no-store" });
+    if (!response.ok) throw new Error();
+    const payload = await response.json();
+    const summary = payload.summary || {};
+    const statuses = summary.statuses || {};
+    elements.gridAdminStatus.textContent = `入口 ${summary.total ?? 0} 个 · 已提取 ${summary.businesses ?? 0} 项业务 · 成功 ${statuses.ok ?? 0} · 部分 ${statuses.partial ?? 0} · 不可用 ${statuses.unavailable ?? 0}${payload.job?.running ? ` · 采集中 ${payload.job.progress || 0}/${payload.job.total || ""}` : ""}`;
+  } catch {
+    elements.gridAdminStatus.textContent = "采集状态暂时不可用";
+  }
+}
+
+async function runGridAdmin(endpoint, payload) {
+  const key = elements.gridAdminKey.value.trim();
+  if (!key) { showToast("请输入业务配置管理密钥"); elements.gridAdminKey.focus(); return; }
+  const button = endpoint === "/collect" ? (payload.mode === "discover" ? elements.gridDiscover : elements.gridCollectAll) : elements.gridConfigure;
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/grid-catalog${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` }, body: JSON.stringify(payload) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "操作失败");
+    showToast(endpoint === "/configure" ? "业务配置已保存" : "采集任务已启动");
+    refreshGridAdminStatus();
+  } catch (error) { showToast(error.message || "采集操作失败"); }
+  finally { button.disabled = false; }
 }
 
 function renderHeaders() {
@@ -511,5 +548,12 @@ elements.next.addEventListener("click", () => {
   state.page += 1;
   loadContracts();
 });
+
+elements.gridConfigure.addEventListener("click", () => {
+  const ids = elements.gridAdminIds.value.split(/[\s,，]+/).map((id) => id.trim()).filter(Boolean);
+  runGridAdmin("/configure", { ids });
+});
+elements.gridCollectAll.addEventListener("click", () => runGridAdmin("/collect", { mode: "all" }));
+elements.gridDiscover.addEventListener("click", () => runGridAdmin("/collect", { mode: "discover" }));
 
 loadContracts();

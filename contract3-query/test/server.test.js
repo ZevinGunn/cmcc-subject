@@ -1,6 +1,10 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 const test = require("node:test");
 const { createApp, datasets, validateGridLinks, contractPrice, queryDataset, contractCategory } = require("../server");
+const { createGridCatalog } = require("../grid-catalog");
 
 async function withServer(callback, options) {
   const server = createApp(options);
@@ -450,4 +454,92 @@ test("grid original link validation rejects mismatched IDs and external redirect
   ]) {
     assert.throws(() => validateGridLinks({ A1000499: original }), /Invalid original grid link/);
   }
+});
+
+test("grid knowledge API serves read endpoints and protects management POST requests", async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-grid-api-"));
+  const packageId = "A1000489";
+  const detail = {
+    package_id: packageId,
+    title: "测试业务入口",
+    status: "ok",
+    businesses: [{ type_id: "B1000001", name: "测试资费", introduction: "测试介绍", rules: "测试规则", sections: [] }],
+  };
+  const list = { items: [{ package_id: packageId, title: detail.title, status: "ok" }], total: 1, page: 1, pageSize: 100, summary: { total: 1, businesses: 1, tariffRows: 0, statuses: { ok: 1 } } };
+  const runner = async (args) => {
+    if (args.operation === "summary") return list.summary;
+    if (args.operation === "settings") return { startId: "A1000959", endId: "A1001058", intervalMs: 500 };
+    if (args.operation === "list") return list;
+    if (args.operation === "detail") return args.id === packageId ? detail : null;
+    if (args.operation === "configure") return { configured: args.ids.length, settings: args.settings || {} };
+    if (args.operation === "scan") return { done: true, summary: list.summary };
+    throw new Error(`unexpected operation: ${args.operation}`);
+  };
+  const gridCatalogHandler = createGridCatalog({ dbPath: path.join(tempDir, "test.sqlite"), key: "test-secret", run: runner });
+  await withServer(async (origin) => {
+    const status = await fetch(`${origin}/api/grid-catalog/status`);
+    assert.equal(status.status, 200);
+    assert.equal((await status.json()).summary.total, 1);
+
+    const detailResponse = await fetch(`${origin}/api/grid-catalog/detail?id=${packageId}`);
+    assert.equal(detailResponse.status, 200);
+    assert.equal((await detailResponse.json()).businesses[0].name, "测试资费");
+
+    const exportResponse = await fetch(`${origin}/api/grid-catalog/export.json`);
+    assert.equal(exportResponse.status, 200);
+    assert.equal((await exportResponse.json()).packages[0].package_id, packageId);
+
+    const unauthorized = await fetch(`${origin}/api/grid-catalog/configure`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ids: [packageId] }),
+    });
+    assert.equal(unauthorized.status, 401);
+
+    const configured = await fetch(`${origin}/api/grid-catalog/configure`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-secret", "content-type": "application/json" },
+      body: JSON.stringify({ ids: [packageId] }),
+    });
+    assert.equal(configured.status, 200);
+    assert.equal((await configured.json()).configured, 1);
+
+    const invalid = await fetch(`${origin}/api/grid-catalog/configure`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-secret", "content-type": "application/json" },
+      body: JSON.stringify({ ids: ["bad-id"] }),
+    });
+    assert.equal(invalid.status, 400);
+
+    const collect = await fetch(`${origin}/api/grid-catalog/collect`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-secret", "content-type": "application/json" },
+      body: JSON.stringify({ mode: "selected", ids: [packageId] }),
+    });
+    assert.equal(collect.status, 202);
+    assert.equal((await collect.json()).job.mode, "selected");
+
+    const method = await fetch(`${origin}/api/grid-catalog/status`, { method: "PUT" });
+    assert.equal(method.status, 405);
+  }, { gridCatalogHandler });
+  fs.rmSync(tempDir, { recursive: true, force: true });
+});
+
+test("grid knowledge API validates IDs and blocks cross-origin management requests", async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-grid-api-"));
+  const runner = async (args) => args.operation === "summary" ? { total: 0, businesses: 0, tariffRows: 0, statuses: {} } : args.operation === "settings" ? {} : { items: [], total: 0, page: 1, pageSize: 100, summary: {} };
+  const gridCatalogHandler = createGridCatalog({ dbPath: path.join(tempDir, "test.sqlite"), key: "test-secret", run: runner });
+  await withServer(async (origin) => {
+    const invalid = await fetch(`${origin}/api/grid-catalog/detail?id=not-an-id`);
+    assert.equal(invalid.status, 400);
+    assert.match((await invalid.json()).message, /业务 ID/);
+
+    const crossOrigin = await fetch(`${origin}/api/grid-catalog/configure`, {
+      method: "POST",
+      headers: { authorization: "Bearer test-secret", origin: "https://evil.example", "content-type": "application/json" },
+      body: JSON.stringify({ ids: [] }),
+    });
+    assert.equal(crossOrigin.status, 403);
+  }, { gridCatalogHandler });
+  fs.rmSync(tempDir, { recursive: true, force: true });
 });
