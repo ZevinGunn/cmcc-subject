@@ -38,6 +38,27 @@ const elements = {
   gridCollectAll: document.getElementById("grid-collect-all"),
   gridDiscover: document.getElementById("grid-discover"),
   gridAdminStatus: document.getElementById("grid-admin-status"),
+  gridListMode: document.getElementById("grid-list-mode"),
+  gridKnowledgeMode: document.getElementById("grid-knowledge-mode"),
+  knowledgePanel: document.getElementById("knowledge-panel"),
+  knowledgeQuery: document.getElementById("knowledge-query"),
+  knowledgeStatus: document.getElementById("knowledge-status"),
+  knowledgePageSize: document.getElementById("knowledge-page-size"),
+  knowledgeReset: document.getElementById("knowledge-reset"),
+  knowledgeSummary: document.getElementById("knowledge-summary"),
+  knowledgeResults: document.getElementById("knowledge-results"),
+  knowledgeEmpty: document.getElementById("knowledge-empty"),
+  knowledgeLoading: document.getElementById("knowledge-loading"),
+  knowledgePrevious: document.getElementById("knowledge-previous"),
+  knowledgeNext: document.getElementById("knowledge-next"),
+  knowledgePageRange: document.getElementById("knowledge-page-range"),
+  knowledgeDetail: document.getElementById("knowledge-detail"),
+  knowledgeDetailBackdrop: document.getElementById("knowledge-detail-backdrop"),
+  knowledgeDetailClose: document.getElementById("knowledge-detail-close"),
+  knowledgeDetailId: document.getElementById("knowledge-detail-id"),
+  knowledgeDetailTitle: document.getElementById("knowledge-detail-title"),
+  knowledgeDetailBody: document.getElementById("knowledge-detail-body"),
+  tableRegion: document.querySelector(".table-region"),
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -54,8 +75,15 @@ const state = {
   sort: ["price-asc", "price-desc"].includes(params.get("sort")) ? params.get("sort") : "",
   page: Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1),
   pageSize: [25, 50, 100, 200].includes(Number(params.get("pageSize"))) ? Number(params.get("pageSize")) : 50,
+  knowledge: params.get("knowledge") === "1",
+  knowledgeStatus: params.get("status") || "",
+  knowledgePage: Math.max(1, Number.parseInt(params.get("kpage") || "1", 10) || 1),
+  knowledgePageSize: [20, 40, 80].includes(Number(params.get("kpageSize"))) ? Number(params.get("kpageSize")) : 20,
   totalPages: 1,
+  knowledgeTotalPages: 1,
   controller: null,
+  knowledgeController: null,
+  knowledgeDetails: new Map(),
 };
 
 const tableSchemas = {
@@ -102,6 +130,9 @@ elements.pageSize.value = String(state.pageSize);
 elements.minPrice.value = state.minPrice;
 elements.maxPrice.value = state.maxPrice;
 elements.priceSort.value = state.sort;
+elements.knowledgeQuery.value = state.query;
+elements.knowledgeStatus.value = state.knowledgeStatus;
+elements.knowledgePageSize.value = String(state.knowledgePageSize);
 
 function debounce(callback, wait = 180) {
   let timer;
@@ -118,6 +149,224 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => { elements.toast.hidden = true; }, 1800);
 }
 
+function knowledgeModeActive() {
+  return state.type === "grid" && state.knowledge;
+}
+
+function syncGridMode() {
+  const active = knowledgeModeActive();
+  elements.knowledgePanel.hidden = !active;
+  elements.tableRegion.hidden = active;
+  elements.form.hidden = active;
+  elements.comparison.hidden = state.type === "grid";
+  elements.gridAdmin.hidden = state.type !== "grid";
+  elements.gridAdmin.classList.toggle("knowledge-active", active);
+  elements.gridListMode.setAttribute("aria-pressed", String(!active));
+  elements.gridKnowledgeMode.setAttribute("aria-pressed", String(active));
+  elements.gridListMode.classList.toggle("active", !active);
+  elements.gridKnowledgeMode.classList.toggle("active", active);
+}
+
+function knowledgeStatusLabel(status) {
+  return ({ ok: "已采集", partial: "部分内容", unavailable: "不可用", error: "读取失败", pending: "待采集" })[status] || status || "未知";
+}
+
+function formatDate(value) {
+  if (!value) return "未采集";
+  return value.replace("T", " ").replace(/([+-]\d\d:\d\d|\.\d+Z)$/, "");
+}
+
+function renderKnowledgeCards(items) {
+  const fragment = document.createDocumentFragment();
+  for (const item of items) {
+    const card = document.createElement("article");
+    card.className = "knowledge-card";
+    card.dataset.id = item.package_id;
+    const heading = document.createElement("div");
+    heading.className = "knowledge-card-heading";
+    const title = document.createElement("div");
+    title.className = "knowledge-card-title";
+    const name = document.createElement("h3");
+    name.textContent = item.title || item.configured_name || item.package_id;
+    const id = document.createElement("span");
+    id.className = "knowledge-id";
+    id.textContent = item.package_id;
+    title.append(name, id);
+    const status = document.createElement("span");
+    status.className = `knowledge-status ${item.status || "unknown"}`;
+    status.textContent = knowledgeStatusLabel(item.status);
+    heading.append(title, status);
+    const meta = document.createElement("p");
+    meta.className = "knowledge-card-meta";
+    meta.textContent = `${item.business_count || 0} 项业务 · 最近采集 ${formatDate(item.last_success_at)}`;
+    const action = document.createElement("button");
+    action.type = "button";
+    action.className = "knowledge-open button secondary";
+    action.textContent = "查看知识详情";
+    action.dataset.id = item.package_id;
+    if (item.status === "unavailable" || item.status === "error") action.textContent = "查看采集状态";
+    card.append(heading, meta, action);
+    if (item.error) {
+      const error = document.createElement("p");
+      error.className = "knowledge-card-error";
+      error.textContent = item.error;
+      card.append(error);
+    }
+    fragment.append(card);
+  }
+  elements.knowledgeResults.replaceChildren(fragment);
+}
+
+function setKnowledgeLoading(loading) {
+  elements.knowledgeLoading.hidden = !loading;
+  if (loading) {
+    elements.knowledgeEmpty.hidden = true;
+    elements.knowledgeResults.replaceChildren();
+    elements.knowledgeSummary.textContent = "查询中…";
+  }
+}
+
+async function loadKnowledge() {
+  state.knowledgeController?.abort();
+  const controller = new AbortController();
+  state.knowledgeController = controller;
+  setKnowledgeLoading(true);
+  const query = new URLSearchParams({ page: String(state.knowledgePage), pageSize: String(state.knowledgePageSize) });
+  if (state.query) query.set("q", state.query);
+  if (state.knowledgeStatus) query.set("status", state.knowledgeStatus);
+  try {
+    const [response, catalogsResponse] = await Promise.all([
+      fetch(`/api/grid-catalog?${query}`, { signal: controller.signal, cache: "no-store" }),
+      fetch("/api/catalogs", { signal: controller.signal, cache: "no-store" }),
+    ]);
+    if (!response.ok || !catalogsResponse.ok) throw new Error(`HTTP ${response.status}`);
+    const [payload, catalogsPayload] = await Promise.all([response.json(), catalogsResponse.json()]);
+    if (controller !== state.knowledgeController) return;
+    renderTabs(catalogsPayload.catalogs);
+    state.knowledgePage = payload.page;
+    state.knowledgePageSize = payload.pageSize;
+    state.knowledgeTotalPages = Math.max(1, Math.ceil(payload.total / payload.pageSize));
+    renderKnowledgeCards(payload.items);
+    elements.knowledgeSummary.textContent = `共 ${payload.total.toLocaleString("zh-CN")} 条入口`;
+    const first = payload.total ? (payload.page - 1) * payload.pageSize + 1 : 0;
+    const last = payload.total ? first + payload.items.length - 1 : 0;
+    elements.knowledgePageRange.textContent = `${first.toLocaleString("zh-CN")} - ${last.toLocaleString("zh-CN")}`;
+    elements.knowledgePrevious.disabled = payload.page <= 1;
+    elements.knowledgeNext.disabled = payload.page >= state.knowledgeTotalPages;
+    elements.knowledgeEmpty.hidden = payload.items.length !== 0;
+    syncUrl();
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    elements.knowledgeResults.replaceChildren();
+    elements.knowledgeSummary.textContent = "查询失败";
+    elements.knowledgeEmpty.textContent = "知识库暂时不可用，请稍后重试";
+    elements.knowledgeEmpty.hidden = false;
+  } finally {
+    if (controller === state.knowledgeController) {
+      elements.knowledgeLoading.hidden = true;
+    }
+  }
+}
+
+function addTextBlock(parent, label, text) {
+  if (!text) return;
+  const section = document.createElement("section");
+  section.className = "knowledge-text-section";
+  const heading = document.createElement("h4");
+  heading.textContent = label;
+  const content = document.createElement("p");
+  content.textContent = text;
+  section.append(heading, content);
+  parent.append(section);
+}
+
+function renderKnowledgeDetail(detail) {
+  elements.knowledgeDetailId.textContent = detail.package_id;
+  elements.knowledgeDetailTitle.textContent = detail.title || detail.configured_name || "业务知识详情";
+  const body = document.createDocumentFragment();
+  const summary = document.createElement("div");
+  summary.className = "knowledge-detail-summary";
+  summary.textContent = `${knowledgeStatusLabel(detail.status)} · ${detail.businesses.length} 项业务 · 最近采集 ${formatDate(detail.last_success_at)}`;
+  body.append(summary);
+  if (detail.error) addTextBlock(body, "采集状态", detail.error);
+  for (const business of detail.businesses) {
+    const businessSection = document.createElement("section");
+    businessSection.className = "knowledge-business";
+    const heading = document.createElement("h3");
+    heading.textContent = `${business.name}（${business.type_id}）`;
+    businessSection.append(heading);
+    addTextBlock(businessSection, "业务介绍", business.introduction);
+    addTextBlock(businessSection, "业务规则", business.rules);
+    for (const section of business.sections || []) {
+      const sectionBlock = document.createElement("section");
+      sectionBlock.className = "knowledge-source-section";
+      const sectionHeading = document.createElement("h4");
+      sectionHeading.textContent = section.heading || "业务资料";
+      sectionBlock.append(sectionHeading);
+      if (section.content && section.content !== business.introduction && section.content !== business.rules) {
+        const content = document.createElement("p");
+        content.textContent = section.content;
+        sectionBlock.append(content);
+      }
+      for (const table of section.tables || []) {
+        const tableElement = document.createElement("table");
+        tableElement.className = "knowledge-tariff-table";
+        for (const [rowIndex, cells] of table.entries()) {
+          const row = document.createElement("tr");
+          for (const value of cells) {
+            const cell = document.createElement(rowIndex === 0 ? "th" : "td");
+            cell.textContent = value;
+            row.append(cell);
+          }
+          tableElement.append(row);
+        }
+        sectionBlock.append(tableElement);
+      }
+      businessSection.append(sectionBlock);
+    }
+    if (business.dynamic_pricing) {
+      const dynamic = document.createElement("p");
+      dynamic.className = "knowledge-dynamic-note";
+      dynamic.textContent = "该业务包含动态资费，实际档位以官方页面和办理条件为准。";
+      businessSection.append(dynamic);
+    }
+    body.append(businessSection);
+  }
+  const entry = document.createElement("a");
+  entry.className = "button primary knowledge-source-link";
+  entry.href = `/api/grid/open?businessId=${encodeURIComponent(detail.package_id)}`;
+  entry.target = "_blank";
+  entry.rel = "noopener noreferrer";
+  entry.textContent = "打开官方业务入口 ↗";
+  body.append(entry);
+  elements.knowledgeDetailBody.replaceChildren(body);
+}
+
+async function openKnowledgeDetail(id) {
+  elements.knowledgeDetail.hidden = false;
+  elements.knowledgeDetailBody.textContent = "正在读取详情…";
+  const cached = state.knowledgeDetails.get(id);
+  if (cached) {
+    renderKnowledgeDetail(cached);
+    elements.knowledgeDetailClose.focus();
+    return;
+  }
+  try {
+    const response = await fetch(`/api/grid-catalog/detail?id=${encodeURIComponent(id)}`, { cache: "no-store" });
+    if (!response.ok) throw new Error();
+    const detail = await response.json();
+    state.knowledgeDetails.set(id, detail);
+    renderKnowledgeDetail(detail);
+    elements.knowledgeDetailClose.focus();
+  } catch {
+    elements.knowledgeDetailBody.textContent = "详情读取失败，请关闭后重试。";
+  }
+}
+
+function closeKnowledgeDetail() {
+  elements.knowledgeDetail.hidden = true;
+}
+
 function syncUrl() {
   const next = new URLSearchParams();
   next.set("type", state.type);
@@ -131,6 +380,12 @@ function syncUrl() {
   if (state.sort) next.set("sort", state.sort);
   if (state.page !== 1) next.set("page", String(state.page));
   if (state.pageSize !== 50) next.set("pageSize", String(state.pageSize));
+  if (knowledgeModeActive()) {
+    next.set("knowledge", "1");
+    if (state.knowledgeStatus) next.set("status", state.knowledgeStatus);
+    if (state.knowledgePage !== 1) next.set("kpage", String(state.knowledgePage));
+    if (state.knowledgePageSize !== 20) next.set("kpageSize", String(state.knowledgePageSize));
+  }
   window.history.replaceState(null, "", `?${next}`);
 }
 
@@ -388,6 +643,11 @@ function activeQueryParams(includePage = true) {
 }
 
 async function loadContracts() {
+  syncGridMode();
+  if (knowledgeModeActive()) {
+    await loadKnowledge();
+    return;
+  }
   state.controller?.abort();
   const controller = new AbortController();
   state.controller = controller;
@@ -409,6 +669,7 @@ async function loadContracts() {
     state.totalPages = payload.totalPages;
     renderTabs(payload.catalogs);
     renderComparison(payload);
+    syncGridMode();
     configureFilters(payload.filters);
     renderHeaders();
     renderRows(payload.items);
@@ -469,6 +730,8 @@ for (const tab of elements.tabs) {
     if (state.type === tab.dataset.type) return;
     state.type = tab.dataset.type;
     state.view = "current";
+    state.knowledge = false;
+    state.knowledgePage = 1;
     resetDatasetFilters();
     loadContracts();
   });
@@ -498,6 +761,12 @@ elements.form.addEventListener("submit", (event) => {
   applySearch();
 });
 elements.query.addEventListener("input", search);
+elements.knowledgeQuery.addEventListener("input", debounce(() => {
+  if (!knowledgeModeActive()) return;
+  state.query = elements.knowledgeQuery.value.trim();
+  state.knowledgePage = 1;
+  loadKnowledge();
+}, 180));
 for (const input of [elements.minPrice, elements.maxPrice]) {
   input.addEventListener("input", () => {
     elements.maxPrice.setCustomValidity("");
@@ -534,6 +803,60 @@ elements.reset.addEventListener("click", () => {
   resetDatasetFilters();
   loadContracts();
   elements.query.focus();
+});
+elements.gridListMode.addEventListener("click", () => {
+  state.knowledge = false;
+  state.knowledgePage = 1;
+  state.knowledgeStatus = "";
+  state.query = "";
+  elements.query.value = "";
+  elements.knowledgeQuery.value = "";
+  loadContracts();
+});
+elements.gridKnowledgeMode.addEventListener("click", () => {
+  state.knowledge = true;
+  state.knowledgePage = 1;
+  state.query = elements.query.value.trim();
+  elements.knowledgeQuery.value = state.query;
+  loadContracts();
+});
+elements.knowledgeStatus.addEventListener("change", () => {
+  state.knowledgeStatus = elements.knowledgeStatus.value;
+  state.knowledgePage = 1;
+  loadKnowledge();
+});
+elements.knowledgePageSize.addEventListener("change", () => {
+  state.knowledgePageSize = Number(elements.knowledgePageSize.value);
+  state.knowledgePage = 1;
+  loadKnowledge();
+});
+elements.knowledgeReset.addEventListener("click", () => {
+  state.query = "";
+  state.knowledgeStatus = "";
+  state.knowledgePage = 1;
+  elements.knowledgeQuery.value = "";
+  elements.knowledgeStatus.value = "";
+  loadKnowledge();
+  elements.knowledgeQuery.focus();
+});
+elements.knowledgeResults.addEventListener("click", (event) => {
+  const button = event.target.closest(".knowledge-open");
+  if (button) openKnowledgeDetail(button.dataset.id);
+});
+elements.knowledgePrevious.addEventListener("click", () => {
+  if (state.knowledgePage <= 1) return;
+  state.knowledgePage -= 1;
+  loadKnowledge();
+});
+elements.knowledgeNext.addEventListener("click", () => {
+  if (state.knowledgePage >= state.knowledgeTotalPages) return;
+  state.knowledgePage += 1;
+  loadKnowledge();
+});
+elements.knowledgeDetailClose.addEventListener("click", closeKnowledgeDetail);
+elements.knowledgeDetailBackdrop.addEventListener("click", closeKnowledgeDetail);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !elements.knowledgeDetail.hidden) closeKnowledgeDetail();
 });
 elements.export.addEventListener("click", () => {
   window.location.assign(`/api/contracts.csv?${activeQueryParams(false)}`);

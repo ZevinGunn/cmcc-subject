@@ -1,6 +1,6 @@
 # 北京移动合约查询
 
-统一查询二类合约、三类合约、低消方案对应全球通等级及网格通业务。支持关键词组合搜索、筛选、分页、CSV 导出，保留 ARPU 查询互通入口。项目管理中的服务 ID 为 `contract3`，PM2 服务为 `contract3-query`。
+统一查询二类合约、三类合约、低消方案对应全球通等级及网格通业务。支持关键词组合搜索、筛选、分页、CSV 导出，保留 ARPU 查询互通入口。网格通业务增加基于业务介绍、业务规则和资费表的知识库查询与详情阅读，支持 PC 和移动端。项目管理中的服务 ID 为 `contract3`，PM2 服务为 `contract3-query`。
 
 二类、三类及低消方案支持最低/最高价格（元，含边界）、价格升序/降序。优先采用明确的金额或低消承诺金额；缺少金额时识别名称中唯一的“元/档”价格及明确的折后价格，不将宽带速率、月份、年份视为价格。多档金额、仅给出起价或名称含多个不同金额且无法确定时，价格显示为 `-`，价格排序时放在最后，设置价格区间时排除。价格是源表中的金额或方案档位，不代表统一的月费口径。
 
@@ -26,6 +26,7 @@
 - “删减”仅表示旧版有而新版源表没有，保留旧名称、编码供搜索和导出，不表示依据日期推断失效。新版仍列出的已下线条目保留其源表标注。
 - 网格通“本轮新增”是源表自己的备注，没有冒充站内版本对比。业务入口通过 `/api/grid/open?businessId=业务ID` 跳转，`Location` 保留源表路径（包括重复斜线），查询参数仅保留 `submitWarePackageId`，移除 `channel`、`code`、`empCode`、`nbc` 等其他参数及片段。重复斜线来自源表，当前不归一化路径。查询服务不执行办理，实际办理仍受网格通权限限制。
 - 原始链接存放于 `data/grid-links.local.json`，文件权限为 `0600`，由 Git 忽略，部署迁移时须在目标机器重新导入或安全保留该文件。该文件保留原始数据供回溯；公开查询和 CSV 只提供站内入口，打开业务时仅向目标站点发送业务 ID，不发送原始员工参数。
+- 网格通知识库在网格通业务大全中切换“知识库查询”进入。列表按入口分页检索，详情按需读取 `grid_businesses`、`grid_sections` 和 `grid_tariff_rows`，不会把全部长文本放入首屏。管理采集仍需 Bearer 管理密钥，知识库查询和详情接口只读。
 
 当前源文件：
 
@@ -73,6 +74,8 @@ npm run import:xlsx -- --source-dir '/实际源文件目录' --grid-only
 - `GET /api/contracts?type=low&q=爱家&grade=金卡&minPrice=158&maxPrice=198&sort=price-asc`
 - `GET /api/contracts?type=low&category=宽带/家庭融合&grade=金卡&minPrice=158&maxPrice=198`
 - `GET /api/contracts?type=grid&q=业务ID或名称或档位`
+- `GET /api/grid-catalog?q=业务ID、名称、介绍、规则或资费关键词&page=1&pageSize=20&status=ok`
+- `GET /api/grid-catalog/detail?id=A1000494`
 - `GET /api/contracts.csv?type=2|3|low|grid&view=current|added|removed|changed&q=关键词`
 
 网格通资费知识库接口：

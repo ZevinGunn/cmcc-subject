@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>北京移动合约查询</title>
-  <link rel="stylesheet" href="/styles.css?v=20261106-4">
+  <link rel="stylesheet" href="/styles.css?v=20261106-6">
 </head>
 <body>
   <header class="topbar">
@@ -101,6 +101,8 @@
           <p>只读取业务介绍、规则和公开资费表格。按号码实时计算的档位会标记为动态资费。</p>
         </div>
         <div class="grid-admin-links">
+          <button id="grid-list-mode" class="mode-link" type="button" aria-pressed="true">入口清单</button>
+          <button id="grid-knowledge-mode" class="mode-link" type="button" aria-pressed="false">知识库查询</button>
           <a href="/api/grid-catalog/export.json">导出 JSON</a>
           <a href="/api/grid-catalog/export.xlsx">导出 Excel</a>
         </div>
@@ -114,6 +116,62 @@
       </div>
       <div id="grid-admin-status" class="grid-admin-status" role="status" aria-live="polite">正在读取采集状态…</div>
     </section>
+
+    <section id="knowledge-panel" class="knowledge-panel" hidden aria-label="网格通知识库">
+      <div class="knowledge-heading">
+        <div>
+          <h2>网格通知识库</h2>
+          <p>搜索业务介绍、业务规则和资费表内容；详情按需加载。</p>
+        </div>
+        <span id="knowledge-summary" class="knowledge-summary" role="status" aria-live="polite">共 - 条入口</span>
+      </div>
+      <div class="knowledge-filters">
+        <label class="knowledge-search">
+          <span class="field-label">搜索知识内容</span>
+          <input id="knowledge-query" type="search" placeholder="业务 ID、名称、介绍、规则或资费关键词" autocomplete="off">
+        </label>
+        <label>
+          <span class="field-label">采集状态</span>
+          <select id="knowledge-status">
+            <option value="">全部状态</option>
+            <option value="ok">已采集</option>
+            <option value="partial">部分内容</option>
+            <option value="unavailable">不可用</option>
+          </select>
+        </label>
+        <label>
+          <span class="field-label">每页</span>
+          <select id="knowledge-page-size">
+            <option value="20" selected>20 条</option>
+            <option value="40">40 条</option>
+            <option value="80">80 条</option>
+          </select>
+        </label>
+        <button id="knowledge-reset" class="button secondary" type="button">重置</button>
+      </div>
+      <div id="knowledge-results" class="knowledge-results" aria-live="polite"></div>
+      <div id="knowledge-empty" class="knowledge-empty" hidden>没有匹配的知识内容</div>
+      <div id="knowledge-loading" class="knowledge-loading" hidden>正在查询知识库…</div>
+      <nav class="knowledge-pagination" aria-label="知识库结果分页">
+        <button id="knowledge-previous" class="icon-button" type="button" aria-label="上一页">&lsaquo;</button>
+        <span id="knowledge-page-range">-</span>
+        <button id="knowledge-next" class="icon-button" type="button" aria-label="下一页">&rsaquo;</button>
+      </nav>
+    </section>
+
+    <div id="knowledge-detail" class="knowledge-detail" hidden>
+      <button id="knowledge-detail-backdrop" class="knowledge-detail-backdrop" type="button" aria-label="关闭详情"></button>
+      <aside class="knowledge-detail-card" role="dialog" aria-modal="true" aria-labelledby="knowledge-detail-title">
+        <div class="knowledge-detail-header">
+          <div>
+            <span id="knowledge-detail-id" class="knowledge-detail-id"></span>
+            <h2 id="knowledge-detail-title">业务知识详情</h2>
+          </div>
+          <button id="knowledge-detail-close" class="icon-button" type="button" aria-label="关闭详情">&times;</button>
+        </div>
+        <div id="knowledge-detail-body" class="knowledge-detail-body"></div>
+      </aside>
+    </div>
 
     <section class="table-region" aria-labelledby="table-title">
       <div class="table-heading">
@@ -140,6 +198,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/app.js?v=20261106-5" defer></script>
+  <script src="/app.js?v=20261106-6" defer></script>
 </body>
 </html>

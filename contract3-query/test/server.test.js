@@ -543,3 +543,35 @@ test("grid knowledge API validates IDs and blocks cross-origin management reques
   }, { gridCatalogHandler });
   fs.rmSync(tempDir, { recursive: true, force: true });
 });
+
+test("grid knowledge listing searches introductions and detail returns tariff sections", async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-grid-knowledge-"));
+  const packageId = "A1000494";
+  const runner = async (args) => {
+    if (args.operation === "list") return {
+      items: [{ package_id: packageId, title: "承诺低消得流量（泛渠道）", status: "ok", business_count: 1, last_success_at: "2026-11-06T00:00:00+08:00" }],
+      total: 1, page: 1, pageSize: 20, summary: { total: 1, businesses: 1, tariffRows: 1, statuses: { ok: 1 } },
+    };
+    if (args.operation === "detail") return {
+      package_id: packageId, title: "承诺低消得流量（泛渠道）", status: "ok", last_success_at: "2026-11-06T00:00:00+08:00",
+      businesses: [{ type_id: "B1000888", name: "承诺低消得流量（泛渠道）", introduction: "每月承诺消费", rules: "业务规则", dynamic_pricing: 1,
+        sections: [{ heading: "资费说明", content: "资费说明", tables: [[["月承诺", "权益"], ["58元", "流量"]]] }] }],
+    };
+    if (args.operation === "summary") return { total: 1, businesses: 1, tariffRows: 1, statuses: { ok: 1 } };
+    if (args.operation === "settings") return {};
+    throw new Error(`unexpected operation: ${args.operation}`);
+  };
+  const gridCatalogHandler = createGridCatalog({ dbPath: path.join(tempDir, "test.sqlite"), run: runner });
+  await withServer(async (origin) => {
+    const listResponse = await fetch(`${origin}/api/grid-catalog?q=${encodeURIComponent("承诺消费")}&pageSize=20`);
+    assert.equal(listResponse.status, 200);
+    const list = await listResponse.json();
+    assert.equal(list.total, 1);
+    assert.equal(list.items[0].business_count, 1);
+    const detailResponse = await fetch(`${origin}/api/grid-catalog/detail?id=${packageId}`);
+    assert.equal(detailResponse.status, 200);
+    const detail = await detailResponse.json();
+    assert.equal(detail.businesses[0].sections[0].tables[0][1][0], "58元");
+  }, { gridCatalogHandler });
+  fs.rmSync(tempDir, { recursive: true, force: true });
+});
