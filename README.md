@@ -24,7 +24,7 @@
 | [`wed-puzzle-toolbox`](wed-puzzle-toolbox/README.md) | 周三拼图互助工具箱 | 账号导入、库存、互赠、号池接力、抽图和每日任务 |
 | [`cmcc-notice`](cmcc-notice/README.md) | 资费公示公告查询 | 加密请求代理、前端解密、公告列表与详情 |
 | [`好礼多多本地版查询`](好礼多多本地版查询/README.md) | 北京移动消费与合约查询 | ARPU 消费查询、号码队列、消费测算、二类合约检索 |
-| [`contract3-query`](contract3-query/README.md) | 北京移动合约资料库 | 二类/三类合约、低消等级查询、筛选与 CSV 导出 |
+| [`contract3-query`](contract3-query/README.md) | 北京移动合约与资费统一查询 | 二类/三类合约、低消等级、资费快捷查询、变化提醒、筛选与 CSV 导出 |
 | [`云盘/yunpan-login-local`](云盘/yunpan-login-local/README.md) | 中国移动云盘登录与 SSO 工作台 | 短信登录、Token 保存、10086/全球通/云手机跳转 |
 | [`wangka-order-local`](wangka-order-local/README.md) | 王卡会员订购辅助工具 | 会员状态、套餐查询、短信校验、订购与 mock 测试 |
 | [`migu-quick-order`](migu-quick-order/README.md) | 咪咕业务快速订购原型 | 活动检测、商品查询、登录短信、订购短信和确认受理 |
@@ -267,6 +267,8 @@
 - 展示方案名称、编码、资费、期限和有效期等已有资料。
 - 导出当前查询结果为 CSV。
 - 提供导入脚本，从对应 HTML、Excel 和 Word 来源重新生成静态 JSON 目录。
+- 提供中国移动资费公示专区的资费快捷查询，支持按关键词、范围、类型和在售状态筛选，并可打开资费详情。
+- 每两小时同步资费接口，与本地前一日快照比较新增、消失/下架、上架下架日期及内容变化，通过 PushPlus 发送摘要提醒，详细变化在页面查看。
 
 使用 Node.js HTTP 服务与原生网页。源码快照包含已整理的目录数据；更新目录时需自行准备未上传的原始资料。详见[项目说明](contract3-query/README.md)。
 
