@@ -365,9 +365,9 @@ tbody tr:hover { background: #f7faf9; }
 
 /* Theme layer: the data layout stays dense while the chrome follows the selected brand. */
 :root {
-  --page-bg: #eef6ff;
-  --surface: rgba(255, 255, 255, 0.9);
-  --surface-soft: rgba(246, 251, 255, 0.88);
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #ffffff;
   --text: #17243a;
   --muted: #5d6c80;
   --accent: #0879e8;
@@ -382,9 +382,9 @@ tbody tr:hover { background: #f7faf9; }
 }
 
 :root[data-theme="ios"] {
-  --page-bg: #f1f3ff;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-soft: rgba(248, 249, 255, 0.68);
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #ffffff;
   --text: #1d2433;
   --muted: #626b7d;
   --accent: #5869ee;
@@ -399,9 +399,9 @@ tbody tr:hover { background: #f7faf9; }
 }
 
 :root[data-theme="classic"] {
-  --page-bg: #f3f6fa;
-  --surface: rgba(255, 255, 255, 0.96);
-  --surface-soft: #f8fafc;
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #ffffff;
   --text: #1b2b40;
   --muted: #637185;
   --accent: #1268b3;
@@ -416,7 +416,7 @@ tbody tr:hover { background: #f7faf9; }
 }
 
 html, body { color: var(--text); background: var(--page-bg); }
-body { background-image: radial-gradient(circle at 12% -10%, rgba(0, 198, 251, 0.12), transparent 32%), radial-gradient(circle at 92% 8%, rgba(93, 121, 255, 0.1), transparent 28%); }
+body { background-image: none; }
 .topbar {
   color: #fff;
   background: var(--topbar);
@@ -448,7 +448,7 @@ body { background-image: radial-gradient(circle at 12% -10%, rgba(0, 198, 251, 0
 .view-tabs button[aria-pressed="true"], .button.primary { border-color: transparent; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-strong)); box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 24%, transparent); }
 .view-tabs button:hover, .button.secondary:hover, .icon-button:hover { background: var(--accent-soft); color: var(--accent-strong); }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline-color: var(--accent); }
-.advanced-filters-grid, .knowledge-card, .table-heading, .pagination, th { border-color: var(--line); background: var(--surface-soft); }
+.advanced-filters-grid, .knowledge-card, .table-heading, .pagination, th { border-color: var(--line); background: #ffffff; }
 .advanced-close, .grid-admin-links a, .mode-link, .grid-mode-bar a, .knowledge-summary, .knowledge-text-section h4, .knowledge-source-section h4, .row-details, .variant-details summary, .business-link, #filtered-total { color: var(--accent-strong); }
 .mode-link[aria-pressed="true"] { color: var(--accent-strong); }
 .knowledge-open.button { border-color: transparent; color: var(--accent-strong); background: var(--accent-soft); box-shadow: none; }
@@ -456,18 +456,18 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline-color: va
 input, select { border-color: var(--input-line); color: var(--text); background: var(--surface); }
 input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
 .button:active, .icon-button:active, .view-tabs button:active { transform: scale(0.98); }
-.table-heading, .pagination { background: var(--surface-soft); }
+.table-heading, .pagination { background: #ffffff; }
 th { color: var(--muted); }
 tbody tr:hover { background: var(--accent-soft); }
-.knowledge-detail-card { background: var(--surface); box-shadow: 0 24px 80px rgba(18, 59, 108, 0.24); backdrop-filter: blur(18px); }
-.knowledge-detail-header { border-bottom-color: var(--line); background: var(--surface-soft); }
-.knowledge-tariff-table th { background: var(--accent-soft); }
-.tariff-detail-fields { background: var(--surface-soft); }
+.knowledge-detail-card { background: #ffffff; box-shadow: 0 24px 80px rgba(18, 59, 108, 0.24); backdrop-filter: blur(18px); }
+.knowledge-detail-header { border-bottom-color: var(--line); background: #ffffff; }
+.knowledge-tariff-table th { background: #ffffff; }
+.tariff-detail-fields { background: #ffffff; }
 .tariff-detail-field { border-bottom-color: var(--line); }
 .tariff-detail-field h4, .tariff-detail-text-section h3 { color: var(--accent-strong); }
 .tariff-detail-field p, .tariff-detail-text-section p { color: var(--text); }
 .tariff-resource-table th, .tariff-resource-table td { border-color: var(--line); }
-.tariff-resource-table th { color: var(--muted); background: var(--accent-soft); }
+.tariff-resource-table th { color: var(--muted); background: #ffffff; }
 .toast { background: #17304f; box-shadow: 0 12px 34px rgba(14, 52, 94, 0.24); }
 .advanced-filters { background: var(--surface); }
 .row-details-button {
