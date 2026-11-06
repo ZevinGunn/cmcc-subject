@@ -6,8 +6,10 @@ const DEFAULT_DATA_DIR = path.join(__dirname, "data");
 const FIELD_LABELS = {
   name: "资费名称", price: "资费标准", scope: "适用对象", region: "适用区域",
   channel: "销售渠道", onlineRaw: "上架日期", offlineRaw: "下架日期",
-  liability: "违约责任", overage: "超出资费", extraService: "其他服务",
-  extraNote: "补充说明", resources: "资源内容", categories: "资费分类",
+  validPeriod: "有效期限", networkRequirement: "在网要求", unsubscribe: "退订方式",
+  liability: "违约责任", otherContent: "其他服务内容", rights: "权益内容",
+  others: "其他说明", extraFees: "额外资费", otherFees: "其他资费",
+  resources: "资源内容", categories: "资费分类",
   rangeTabs: "资费范围", tariffTypes: "资费类型",
 };
 const CONTENT_FIELDS = Object.keys(FIELD_LABELS);
@@ -78,7 +80,11 @@ function diffTariffs(current, previous) {
   for (const item of current || []) {
     const old = oldMap.get(item.key);
     if (!old) { added.push({ ...item, changeStatus: "added" }); continue; }
-    const changes = CONTENT_FIELDS.filter((field) => comparable(item[field]) !== comparable(old[field])).map((field) => ({
+    const changes = CONTENT_FIELDS.filter((field) => {
+      // 兼容旧快照：字段扩展后首次同步只补齐本地结构，不把历史缺失字段误报为资费变化。
+      if (!Object.prototype.hasOwnProperty.call(old, field) && Object.prototype.hasOwnProperty.call(item, field)) return false;
+      return comparable(item[field]) !== comparable(old[field]);
+    }).map((field) => ({
       field, label: FIELD_LABELS[field], before: old[field] ?? "", after: item[field] ?? "",
     }));
     if (changes.length) changed.push({ ...item, changeStatus: "changed", changes });

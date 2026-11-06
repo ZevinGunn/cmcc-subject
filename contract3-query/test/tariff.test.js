@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 const { createTariffStore, diffTariffs, statusFor } = require("../tariff-store");
 const { createTariffMonitor, buildSummary } = require("../tariff-sync");
+const { normalize, plainText } = require("../tariff-api/fetch");
 
 function item(overrides = {}) {
   return {
@@ -48,6 +49,39 @@ test("tariff merge keeps source labels for filters", () => {
   assert.deepEqual(merged.categories, ["个人资费"]);
   assert.deepEqual(merged.rangeTabs, ["北京资费"]);
   assert.deepEqual(merged.tariffTypes, ["套餐"]);
+});
+
+test("tariff normalization keeps complete detail fields and removes markup", () => {
+  const normalized = normalize({
+    reportNo: "A9", name: "完整资费", fees: "500", feesUnit: "元/年",
+    validPeriod: "12个月", duration: "无", unsubscribe: "营业厅、APP", responsibility: "无",
+    otherContent: "<p>第一行</p><p>第二行</p>", rights: "会员权益", others: "补充说明",
+    extraFees: "超出后 1 元/分钟", otherFees: "其他费用", applicablePeople: "个人",
+    applicableArea: "北京", channel: "营业厅", onlineDay: "20250101", offineDay: "20301231",
+    call: 200, data: 60, dataUnit: "GB", brandwidth: "1000M",
+  }, { category: "个人资费", rangeTab: "北京资费", tariffType: "套餐" });
+  assert.equal(normalized.validPeriod, "12个月");
+  assert.equal(normalized.networkRequirement, "无");
+  assert.equal(normalized.unsubscribe, "营业厅、APP");
+  assert.equal(normalized.liability, "无");
+  assert.equal(normalized.otherContent, "第一行\n第二行");
+  assert.equal(normalized.rights, "会员权益");
+  assert.deepEqual(normalized.resources, [
+    { label: "国内通话", value: "200分钟" },
+    { label: "国内通用流量", value: "60GB" },
+    { label: "宽带", value: "1000M" },
+    { label: "权益", value: "会员权益" },
+  ]);
+  assert.equal(plainText("<p>A</p><p>B</p>"), "A\nB");
+});
+
+test("tariff diff ignores fields absent from an older snapshot", () => {
+  const before = createTariffStore().mergeItems([item()])[0];
+  delete before.validPeriod;
+  delete before.networkRequirement;
+  const after = createTariffStore().mergeItems([item({ validPeriod: "12个月", networkRequirement: "无" })])[0];
+  const diff = diffTariffs([after], [before]);
+  assert.equal(diff.changed.length, 0);
 });
 
 test("monitor skips overlapping runs and does not notify baseline", async () => {

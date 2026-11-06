@@ -66,6 +66,20 @@ function isoFromCompact(s) {
   return m ? `${m[1]}-${m[2]}-${m[3]}` : '';
 }
 
+/** 把接口返回的富文本说明转换为详情页可读的纯文本。 */
+function plainText(value) {
+  return String(value || '')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/p>\s*<p[^>]*>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+}
+
 /** 把一条 API 条目转成统一结构 */
 function normalize(raw, meta) {
   const fees = raw.fees != null && raw.fees !== '' ? `${raw.fees}${raw.feesUnit || ''}` : '';
@@ -79,8 +93,8 @@ function normalize(raw, meta) {
   push('定向流量', raw.orientTraffic, raw.orientTrafficUnit || 'GB');
   push('短信', raw.sms, '条');
   push('国际通话', raw.internationCall, '分钟');
-  push('宽带', raw.iptv, '');
-  if (raw.benefits) resources.push({ label: '权益', value: String(raw.benefits) });
+  push('宽带', raw.iptv || raw.brandwidth, '');
+  if (raw.rights || raw.benefits) resources.push({ label: '权益', value: plainText(raw.rights || raw.benefits) });
 
   return {
     name: raw.name || raw.tariffName || '',
@@ -91,10 +105,15 @@ function normalize(raw, meta) {
     channel: raw.channel || '',
     onlineRaw: isoFromCompact(raw.onlineDay),
     offlineRaw: isoFromCompact(raw.offineDay),
-    liability: raw.breachDuty || '',
-    overage: raw.beyondFees || '',
-    extraService: raw.otherService || '',
-    extraNote: raw.otherNote || '',
+    validPeriod: raw.validPeriod || '',
+    networkRequirement: raw.duration || '',
+    unsubscribe: raw.unsubscribe || '',
+    liability: raw.responsibility || raw.breachDuty || '',
+    otherContent: plainText(raw.otherContent || raw.otherService || raw.otherNote),
+    rights: plainText(raw.rights || raw.benefits),
+    others: plainText(raw.others),
+    extraFees: raw.extraFees || '',
+    otherFees: raw.otherFees || '',
     resources,
     category: meta.category,   // 个人资费 / 政企资费
     rangeTab: meta.rangeTab,   // 全网资费 / 本省资费
@@ -179,4 +198,4 @@ async function fetchProvince(provinceName, opts = {}) {
   return { province: provinceName, code, items, combos: report };
 }
 
-module.exports = { fetchProvince, fetchCombo, normalize, isoFromCompact, COMBOS, TYPES, CATEGORIES, SCOPES };
+module.exports = { fetchProvince, fetchCombo, normalize, isoFromCompact, plainText, COMBOS, TYPES, CATEGORIES, SCOPES };

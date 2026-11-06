@@ -314,6 +314,58 @@ function addTextBlock(parent, label, text) {
   parent.append(section);
 }
 
+function tariffValue(value) {
+  if (Array.isArray(value)) value = value.filter(Boolean).join(" · ");
+  const text = String(value ?? "").trim();
+  return text || "未标注";
+}
+
+function addTariffField(grid, label, value) {
+  const field = document.createElement("div");
+  field.className = "tariff-detail-field";
+  const heading = document.createElement("h4");
+  heading.textContent = label;
+  const content = document.createElement("p");
+  content.textContent = tariffValue(value);
+  field.append(heading, content);
+  grid.append(field);
+}
+
+function addTariffTextSection(parent, label, value) {
+  const section = document.createElement("section");
+  section.className = "tariff-detail-text-section";
+  const heading = document.createElement("h3");
+  heading.textContent = label;
+  const content = document.createElement("p");
+  content.textContent = tariffValue(value);
+  section.append(heading, content);
+  parent.append(section);
+}
+
+function addTariffResources(parent, resources) {
+  const section = document.createElement("section");
+  section.className = "tariff-detail-text-section";
+  const heading = document.createElement("h3");
+  heading.textContent = "资源内容";
+  const table = document.createElement("table");
+  table.className = "tariff-resource-table";
+  const body = document.createElement("tbody");
+  const rows = resources?.length ? resources : [{ label: "资源", value: "未标注" }];
+  for (const resource of rows) {
+    const row = document.createElement("tr");
+    const label = document.createElement("th");
+    label.scope = "row";
+    label.textContent = resource.label || "资源";
+    const value = document.createElement("td");
+    value.textContent = tariffValue(resource.value);
+    row.append(label, value);
+    body.append(row);
+  }
+  table.append(body);
+  section.append(heading, table);
+  parent.append(section);
+}
+
 function renderKnowledgeDetail(detail) {
   elements.knowledgeDetailId.textContent = detail.package_id;
   elements.knowledgeDetailTitle.textContent = detail.title || detail.configured_name || "业务知识详情";
@@ -383,22 +435,29 @@ function renderTariffDetail(item) {
   const summary = document.createElement("div");
   summary.className = "knowledge-detail-summary";
   summary.textContent = [
-    item.price || "资费标准未标注",
+    tariffValue(item.price),
     ({ online: "在售", pending: "待上架", offline: "已下架" })[item.status] || item.status || "状态未标注",
   ].join(" · ");
   body.append(summary);
-  addTextBlock(body, "适用对象", item.scope);
-  addTextBlock(body, "适用区域", item.region);
-  addTextBlock(body, "销售渠道", item.channel);
-  addTextBlock(body, "上架日期", item.onlineRaw);
-  addTextBlock(body, "下架日期", item.offlineRaw);
-  if (item.resources?.length) {
-    addTextBlock(body, "资源内容", item.resources.map((resource) => `${resource.label}：${resource.value}`).join("\n"));
-  }
-  addTextBlock(body, "其他服务", item.extraService);
-  addTextBlock(body, "补充说明", item.extraNote);
+  const fields = document.createElement("section");
+  fields.className = "tariff-detail-fields";
   const categories = [...(item.categories || []), ...(item.rangeTabs || []), ...(item.tariffTypes || [])].filter(Boolean);
-  addTextBlock(body, "归类信息", categories.join(" · "));
+  [
+    ["资费标准", item.price], ["方案编号", item.code],
+    ["资费类型", item.tariffTypes], ["资费范围", item.rangeTabs],
+    ["适用范围", item.scope], ["适用地区", item.region],
+    ["销售渠道", item.channel], ["上架日期", item.onlineRaw],
+    ["下架日期", item.offlineRaw], ["有效期限", item.validPeriod],
+    ["在网要求", item.networkRequirement], ["退订方式", item.unsubscribe],
+    ["违约责任", item.liability], ["归类信息", categories],
+  ].forEach(([label, value]) => addTariffField(fields, label, value));
+  body.append(fields);
+  addTariffResources(body, item.resources);
+  addTariffTextSection(body, "其他服务内容", item.otherContent);
+  addTariffTextSection(body, "权益内容", item.rights);
+  addTariffTextSection(body, "其他说明", item.others);
+  addTariffTextSection(body, "额外资费", item.extraFees);
+  addTariffTextSection(body, "其他资费", item.otherFees);
   elements.knowledgeDetailBody.replaceChildren(body);
 }
 

@@ -167,6 +167,16 @@ button:active { filter: brightness(.94); }
 .knowledge-text-section, .knowledge-source-section { margin-top: 12px; }
 .knowledge-text-section h4, .knowledge-source-section h4 { margin: 0 0 5px; color: #155c51; font-size: 13px; }
 .knowledge-text-section p, .knowledge-source-section p { margin: 0; white-space: pre-line; color: #36434d; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.tariff-detail-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; margin-top: 15px; padding: 14px 16px; background: #f6f8fa; border-radius: 6px; }
+.tariff-detail-field { display: grid; grid-template-columns: minmax(86px, 0.42fr) minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid #e2e6e9; }
+.tariff-detail-field:nth-last-child(-n + 2) { border-bottom: 0; }
+.tariff-detail-field h4, .tariff-detail-text-section h3 { margin: 0; color: #155c51; font-size: 12px; font-weight: 750; }
+.tariff-detail-field p, .tariff-detail-text-section p { margin: 0; color: #36434d; font-size: 13px; line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; }
+.tariff-detail-text-section { margin-top: 17px; }
+.tariff-detail-text-section h3 { margin-bottom: 7px; font-size: 13px; }
+.tariff-resource-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tariff-resource-table th, .tariff-resource-table td { padding: 9px 11px; border: 1px solid #d8dde1; line-height: 1.55; overflow-wrap: anywhere; }
+.tariff-resource-table th { width: 150px; color: #47525e; background: #edf4f8; font-weight: 650; }
 .knowledge-tariff-table { width: 100%; min-width: 0; margin-top: 9px; border-collapse: collapse; font-size: 12px; }
 .knowledge-tariff-table th, .knowledge-tariff-table td { padding: 7px 8px; border: 1px solid #d8dde1; line-height: 1.5; overflow-wrap: anywhere; }
 .knowledge-tariff-table th { position: static; color: #47525e; background: #edf1f2; }
@@ -336,6 +346,10 @@ tbody tr:hover { background: #f7faf9; }
   .knowledge-detail-card { width: 100%; max-height: 92vh; border-radius: 12px 12px 0 0; }
   .knowledge-detail-body { max-height: calc(92vh - 75px); padding-inline: 15px; }
   .knowledge-detail-header { padding-inline: 15px; }
+  .tariff-detail-fields { grid-template-columns: 1fr; gap: 0; padding: 10px 12px; }
+  .tariff-detail-field:nth-last-child(-n + 2) { border-bottom: 1px solid #e2e6e9; }
+  .tariff-detail-field:last-child { border-bottom: 0; }
+  .tariff-resource-table th { width: 34%; }
   .knowledge-tariff-table { font-size: 11px; }
   .table-scroll { max-height: 60vh; min-height: min(340px, 55vh); }
   table, table[data-type="2"], table[data-type="3"], table[data-type="low"], table[data-type="grid"] { min-width: 0; table-layout: fixed; }
@@ -448,6 +462,12 @@ tbody tr:hover { background: var(--accent-soft); }
 .knowledge-detail-card { background: var(--surface); box-shadow: 0 24px 80px rgba(18, 59, 108, 0.24); backdrop-filter: blur(18px); }
 .knowledge-detail-header { border-bottom-color: var(--line); background: var(--surface-soft); }
 .knowledge-tariff-table th { background: var(--accent-soft); }
+.tariff-detail-fields { background: var(--surface-soft); }
+.tariff-detail-field { border-bottom-color: var(--line); }
+.tariff-detail-field h4, .tariff-detail-text-section h3 { color: var(--accent-strong); }
+.tariff-detail-field p, .tariff-detail-text-section p { color: var(--text); }
+.tariff-resource-table th, .tariff-resource-table td { border-color: var(--line); }
+.tariff-resource-table th { color: var(--muted); background: var(--accent-soft); }
 .toast { background: #17304f; box-shadow: 0 12px 34px rgba(14, 52, 94, 0.24); }
 .advanced-filters { background: var(--surface); }
 .row-details-button {
