@@ -459,7 +459,7 @@ function createApp({ gridLinks = originalGridLinks, gridCatalogHandler = gridCat
       return sendJson(res, 200, {
         ok: true,
         service: "contract-query",
-        version: "20261106-tariff-query-1",
+        version: "20261106-tariff-query-2",
         records: Object.fromEntries(Object.values(datasets).map((dataset) => [dataset.key, dataset.items.length])),
         tariff: { province: tariffs.meta.province, updatedAt: tariffs.meta.updatedAt, count: tariffs.items.length, changes: tariffs.changes.length },
         gridLinks: { available: gridLinks.size, total: datasets.grid.items.length },
