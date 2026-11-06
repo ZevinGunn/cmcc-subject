@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const DEFAULT_DATA_DIR = path.join(__dirname, "data");
+const DETAIL_SCHEMA_VERSION = 2;
 const FIELD_LABELS = {
   name: "资费名称", price: "资费标准", scope: "适用对象", region: "适用区域",
   channel: "销售渠道", onlineRaw: "上架日期", offlineRaw: "下架日期",
@@ -121,12 +122,13 @@ function createTariffStore({ dataDir = DEFAULT_DATA_DIR } = {}) {
     const before = readJson(files.current, null);
     const previous = Array.isArray(before?.items) ? before.items : [];
     const firstRun = previous.length === 0;
-    const diff = firstRun ? { added: [], changed: [], removed: [], total: 0 } : diffTariffs(current, previous);
+    const schemaMigration = previous.length > 0 && before?.meta?.detailSchemaVersion !== DETAIL_SCHEMA_VERSION;
+    const diff = firstRun || schemaMigration ? { added: [], changed: [], removed: [], total: 0 } : diffTariffs(current, previous);
     if (previous.length) writeJsonAtomic(files.previous, { meta: before.meta || {}, items: previous });
     const oldDay = String(before?.meta?.updatedAt || "").slice(0, 10);
     const newDay = String(syncedAt).slice(0, 10);
     if (previous.length && oldDay && oldDay !== newDay) writeJsonAtomic(files.yesterday, { meta: before.meta || {}, items: previous });
-    writeJsonAtomic(files.current, { meta: { province, updatedAt: syncedAt, count: current.length, baseline: !previous.length, coverage }, items: current });
+    writeJsonAtomic(files.current, { meta: { province, updatedAt: syncedAt, count: current.length, baseline: !previous.length, detailSchemaVersion: DETAIL_SCHEMA_VERSION, coverage }, items: current });
     writeJsonAtomic(files.changes, { meta: { province, updatedAt: syncedAt, count: diff.total }, items: [...diff.added, ...diff.changed, ...diff.removed] });
     return { current, previous, diff, firstRun, meta: { province, updatedAt: syncedAt, count: current.length, coverage } };
   }

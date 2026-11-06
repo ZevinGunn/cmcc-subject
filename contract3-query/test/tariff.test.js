@@ -84,6 +84,19 @@ test("tariff diff ignores fields absent from an older snapshot", () => {
   assert.equal(diff.changed.length, 0);
 });
 
+test("tariff detail schema migration establishes a clean baseline", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-tariff-schema-"));
+  const store = createTariffStore({ dataDir: dir });
+  store.saveSuccess({ province: "北京市", items: [item({ liability: "" })], coverage: [], syncedAt: "2026-11-06T00:00:00.000Z" });
+  fs.writeFileSync(path.join(dir, "tariffs-current.json"), JSON.stringify({
+    meta: { province: "北京市", updatedAt: "2026-11-06T00:00:00.000Z" },
+    items: store.load().current,
+  }));
+  const migrated = store.saveSuccess({ province: "北京市", items: [item({ liability: "无", validPeriod: "12个月" })], coverage: [], syncedAt: "2026-11-06T02:00:00.000Z" });
+  assert.equal(migrated.diff.total, 0);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir, "tariffs-current.json"))).meta.detailSchemaVersion, 2);
+});
+
 test("monitor skips overlapping runs and does not notify baseline", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract3-monitor-"));
   const store = createTariffStore({ dataDir: dir });
