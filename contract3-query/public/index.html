@@ -5,17 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>北京移动合约查询</title>
-  <link rel="stylesheet" href="/styles.css?v=20261106-10">
+  <link rel="stylesheet" href="/styles.css?v=20261106-11">
 </head>
 <body>
   <header class="topbar">
     <div class="brand-block">
       <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 48 48" role="img" aria-label="中国移动">
-          <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="4" opacity=".95" />
-          <path d="M8 25c5-8 12-12 20-12 6 0 10 2 13 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".55" />
-          <path d="M10 31c5 5 10 7 16 7 6 0 11-2 15-6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".75" />
-        </svg>
+        <img src="/cmcc-logo.png" alt="中国移动" width="40" height="40">
       </span>
       <div>
         <h1>北京移动合约查询</h1>
@@ -27,33 +23,25 @@
         <span><strong id="total-count">-</strong> 条当前数据</span>
       </div>
       <a class="service-link" href="https://arpu.1008086.xyz/">ARPU 查询 <span aria-hidden="true">&rarr;</span></a>
-      <label class="theme-picker">
-        <span>主题</span>
-        <select id="theme-select" aria-label="选择页面主题">
-          <option value="mobile">中国移动</option>
-          <option value="ios">iOS</option>
-          <option value="classic">经典</option>
-        </select>
-      </label>
     </div>
   </header>
 
   <main>
     <div class="dataset-tabs" role="tablist" aria-label="合约数据类型">
       <button class="dataset-tab" type="button" role="tab" data-type="2" aria-selected="true">
-        二类合约 <span data-count="2">-</span>
+        二类合约
       </button>
       <button class="dataset-tab" type="button" role="tab" data-type="3" aria-selected="false">
-        三类合约 <span data-count="3">-</span>
+        三类合约
       </button>
-      <button class="dataset-tab" type="button" role="tab" data-type="low" aria-selected="false">
-        低消方案等级 <span data-count="low">-</span>
+      <button class="dataset-tab" type="button" role="tab" data-type="low" aria-label="低消方案等级" title="低消方案等级" aria-selected="false">
+        低消等级
       </button>
       <button class="dataset-tab" type="button" role="tab" data-type="grid" aria-selected="false">
-        业务大全 <span data-count="grid">-</span>
+        业务大全
       </button>
       <button class="dataset-tab" type="button" role="tab" data-type="tariff" aria-selected="false">
-        资费快捷查询 <span data-count="tariff">-</span>
+        资费查询
       </button>
     </div>
 
@@ -219,6 +207,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="/app.js?v=20261106-10" defer></script>
+  <script src="/app.js?v=20261106-11" defer></script>
 </body>
 </html>
